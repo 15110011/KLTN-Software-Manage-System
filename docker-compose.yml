@@ -1,0 +1,18 @@
+version: '3'
+services:
+  web:
+    build: .
+    environment:
+      - PGHOST=postgres
+    volumes:
+      - .:/codebase
+    ports:
+      - "8000:8000"
+    links:
+      - postgres
+  postgres:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5443:5432
