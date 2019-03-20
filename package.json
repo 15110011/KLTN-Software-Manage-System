@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@material-ui/core": "^3.9.2",
+    "@material-ui/icons": "^3.0.2",
     "classnames": "^2.2.6",
     "date-fns": "^1.30.1",
     "dotenv": "^6.1.0",
@@ -21,6 +22,7 @@
     "prop-types": "^15.6.2",
     "query-string": "^6.2.0",
     "react": "^16.8.0",
+    "react-breadcrumbs-dynamic": "^1.2.0",
     "react-dom": "^16.8.0",
     "react-draft-wysiwyg": "^1.12.13",
     "react-js-pagination": "^3.0.2",

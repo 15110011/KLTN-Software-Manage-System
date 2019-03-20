@@ -35,7 +35,7 @@ fs.readFile('.env', function (err, data) {
   })
 
   const bundle = fuse.bundle('app')
-    .instructions('> main.jsx')
+    .instructions('> App.jsx')
 
   if (!production) {
     fuse.dev({ port: 4444, fallback: 'index.html' })
