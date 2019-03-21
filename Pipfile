@@ -4,16 +4,25 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "*"
+django = "==2.2b1"
 djangorestframework = "*"
 django-cors-headers = "*"
 psycopg2-binary = "*"
 djangorestframework-simplejwt = "*"
 pyjwt = "*"
-djangocolorsformatter = {git = "https://github.com/tiliv/django-colors-formatter.git"}
+djangocolorsformatter = {editable = true, git = "https://github.com/tiliv/django-colors-formatter.git"}
+django-admin-json-editor = "*"
+django-prettyjson = "*"
+django-model-utils = "*"
 requests = "*"
+redis = "*"
+rq = "*"
+django-redis = "*"
+django-rq = "*"
+rq-scheduler = "*"
 
 [dev-packages]
+"autopep8" = "*"
 
 [requires]
 python_version = "3.7"

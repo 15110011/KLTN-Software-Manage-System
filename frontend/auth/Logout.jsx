@@ -6,10 +6,11 @@ import { } from '../components/UserContext'
 
 export default class Logout extends React.Component {
   componentDidMount() {
-    console.log(1)
     apiGet(LogoutURL).then(res => {
       this.props.history.push('/login')
       this.props.setUser({})
+      localStorage.removeItem('token')
+      localStorage.removeItem('refresh')
 
     })
   }

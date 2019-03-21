@@ -46,12 +46,29 @@ function Register(props) {
     username: '',
     password: '',
     confirmPassword: '',
-    companyName: '',
     email: '',
-    phone: ''
+    profile: {
+      is_manager: true,
+      company_name: '',
+      phone: '',
+      manager: null
+    }
   })
+  React.useEffect(() => {
+    // Effect
+
+    const { initUrl } = props
+    if (props.user.username) {
+      props.history.push(initUrl);
+    }
+    // Cleanup
+  })
+
+
   const submitRegister = (e) => {
     e.preventDefault()
+    if (user.password != user.confirmPassword)
+      return
     apiPost(RegisterURL, user)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
@@ -59,12 +76,20 @@ function Register(props) {
         }
         else {
           props.setUser(res.data);
+          localStorage.setItem('token', res.data.access)
+          localStorage.setItem('refresh', res.data.refresh)
         }
       })
   }
 
   const onChangeRegister = (e) => {
-    setUser({...user, [e.target.name]: e.target.value})
+    if (e.target.name == 'company_name' || e.target.name == 'phone') {
+      const { profile } = user
+      setUser({ ...user, profile: { ...profile, [e.target.name]: e.target.value } })
+    }
+    else {
+      setUser({ ...user, [e.target.name]: e.target.value })
+    }
   }
 
   return (
@@ -149,8 +174,8 @@ function Register(props) {
                         <InputLabel htmlFor="company">Company Name</InputLabel>
                         <Input
                           type="text"
-                          name="companyName"
-                          value={user.companyName}
+                          name="company_name"
+                          value={user.profile.company_name}
                           onChange={onChangeRegister}
                           startAdornment={
                             <InputAdornment position="start">
@@ -182,7 +207,7 @@ function Register(props) {
                         <Input
                           type="text"
                           name="phone"
-                          value={user.phone}
+                          value={user.profile.phone}
                           onChange={onChangeRegister}
                           startAdornment={
                             <InputAdornment position="start">

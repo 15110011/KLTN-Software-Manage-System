@@ -8,11 +8,15 @@ services:
       - .:/codebase
     ports:
       - "8000:8000"
-    links:
+    depends_on:
       - postgres
+      - redis
+    restart: always
   postgres:
     image: postgres:alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5443:5432
+  redis:
+    image: redis:alpine

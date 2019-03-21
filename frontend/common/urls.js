@@ -9,6 +9,8 @@ export const LogoutURL = `${API_URL}logout`
 export const LoginURL = `${API_URL}login`
 export const RegisterURL = `${API_URL}register`
 
+export const REFRESH_TOKEN_URL = `${API_URL}token/refresh`
+
 
 export const PROJECT_URL = `${API_URL}projects`
 export const STAFF_URL = `${API_URL}staffs`

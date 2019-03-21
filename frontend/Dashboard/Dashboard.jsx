@@ -21,9 +21,9 @@ function Dashboard(props) {
           style: { color: 'black' }
         }}
       />
-      123
+      DashBoard
     </div>
   )
 }
 
-export default Dashboard;
+export default Dashboard

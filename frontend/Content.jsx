@@ -16,9 +16,9 @@ import SidebarContainer from './Sidebar/SidebarContainer'
 
 import Logout from './auth/Logout';
 import Login from './auth/Login';
-import { NOT_AUTHORIZED } from './common/Code'
-import { MeAPI } from './common/urls'
-import { apiGet } from './common/Request'
+import { NOT_AUTHORIZED, BAD_REQUEST } from './common/Code'
+import { MeAPI, REFRESH_TOKEN_URL } from './common/urls'
+import { apiGet, apiPost } from './common/Request'
 import { Breadcrumbs } from 'react-breadcrumbs-dynamic'
 import Breadcrumb from './components/Breadcrumb'
 import USER_CONTEXT from './components/UserContext'
@@ -42,20 +42,38 @@ const styles = theme => ({
 class Content extends React.Component {
   state = {
     user: {},
-    initUrl: '/'
+    initUrl: window.location.pathname == '/register' || window.location.pathname == '/login' ? '/dashboard' : window.location.pathname
   };
 
   componentWillMount() {
     this.getMe()
-    if (window.location.pathname != '/login') {
-      this.setState({ initUrl: window.location.pathname })
-    }
+    // if (window.location.pathname != '/login') {
+    //   this.setState({ initUrl:  })
+    // }
+  }
+
+  refreshToken = () => {
+    apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+      if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
+        this.props.history.push('/logout')
+      }
+      else {
+        this.setState({ user: res.data })
+      }
+    })
   }
 
   getMe = () => {
-    apiGet(MeAPI).then(res => {
-      if (res.data.code == NOT_AUTHORIZED) {
+    apiGet(MeAPI, true).then(res => {
+      if (res.data.code == "token_not_valid") {
+        this.refreshToken()
+      }
+      else if (res.data.code == NOT_AUTHORIZED) {
+        const { initUrl } = this.state
+        // if (window.location.pathname != '/register' && window.location.pathname != '/login') {
         this.props.history.push('/logout')
+        // }
+
       }
       else {
         this.setState({ user: res.data })
@@ -65,33 +83,35 @@ class Content extends React.Component {
 
   setUser = (user) => {
     this.setState({ user })
-    if (Object.keys(user).length == 0) {
-      this.props.history.push('/')
-    }
+    // if (Object.keys(user).length == 0) {
+    // this.props.history.push('/')
+    // }
   }
 
 
   render() {
     const { classes } = this.props;
     const { user, initUrl } = this.state;
-
+    console.log(user.username)
     return (
-      <USER_CONTEXT.Provider value={{ user, setUser: this.setUser }}>
+      <USER_CONTEXT.Provider value={{ user }}>
         <div className={classes.root}>
           <CssBaseline />
 
-          {/* {user.username &&  */}
-          <SidebarContainer />
-          {/* } */}
+          {user.username &&
+            <SidebarContainer />
+          }
           <div className={classes.content}>
             {user.username && <div className={classes.appBarSpacer} />}
             <Switch>
               <Route
                 path="/logout"
                 component={props => (
-                  <Logout {...props} loginURL={window.location.pathname} setUser={this.setUser} />
+                  <Logout {...props} loginURL={window.location.pathname} setUser={this.setUser} initUrl={initUrl} />
                 )}
               />
+
+
               <Route
                 path="/login"
                 component={props => (
@@ -104,35 +124,27 @@ class Content extends React.Component {
                   <Register {...props} setUser={this.setUser} user={user} initUrl={initUrl} />
                 )}
               />
-
-
-              {/* {!user.username && (
-                <Route path="/" component={props => <Redirect to="/login" />} />
-              )} */}
-              {/* {user.username && ( */}
-                <React.Fragment>
-                  <Route
-                    path="/dashboard"
-                    component={props => (
-                      <Dashboard {...props} />
-                    )}
-                  />
-                  <Route
-                    path="/projects"
-                    component={props => (
-                      <Projects {...props} />
-                    )}
-                  />
-                  <Route
-                    path="/staffs"
-                    component={props => (
-                      <Staffs {...props} />
-                    )}
-                  />
-                  <Route exact path="/" component={props => <Redirect to="/projects" />} />
-                </React.Fragment>
-              {/* )} */}
+              {!user.username && (
+                <>
+                  <Route path="/" component={props => {
+                    return <Redirect to="/login" />
+                  }} />
+                </>
+              )}
             </Switch>
+
+            {user.username &&
+              <Switch>
+                <Route
+                  exact
+                  path="/dashboard"
+                  component={Dashboard}
+                />
+                <Route component={props => {
+                  return <Redirect to="/dashboard" />
+                }} />
+              </Switch>
+            }
           </div>
         </div>
       </USER_CONTEXT.Provider>

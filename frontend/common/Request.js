@@ -1,5 +1,6 @@
 import * as Cookies from 'js-cookie'
 import { STATUS_TOSTRING } from './Code'
+import { flatObject } from './Utils'
 
 export const apiGet = (url, authorization) => {
   const headers = {}
@@ -14,6 +15,7 @@ export const apiGet = (url, authorization) => {
     .then(response => {
       return response.json().then(res => {
         if (!response.ok) {
+          res = flatObject(res, {})
           return { code: STATUS_TOSTRING[response.status], ...res }
         }
         return res
@@ -49,6 +51,7 @@ export const apiPost = (url, data, multipart, authorization, others) => {
     .then(response => {
       return response.json().then(res => {
         if (!response.ok) {
+          res = flatObject(res, {})
           return { code: STATUS_TOSTRING[response.status], ...res }
         }
         return res
@@ -74,6 +77,7 @@ export const apiPut = (url, data, multipart, authorization) => {
     .then(response => {
       return response.json().then(res => {
         if (!response.ok) {
+          res = flatObject(res, {})
           return { code: STATUS_TOSTRING[response.status], ...res }
         }
         return res
@@ -99,6 +103,7 @@ export const apiPatch = (url, data, authorization) => {
     .then(response => {
       return response.json().then(res => {
         if (!response.ok) {
+          res = flatObject(res, {})
           return { code: STATUS_TOSTRING[response.status], ...res }
         }
         return res
@@ -123,6 +128,7 @@ export const apiDelete = (url, authorization) => {
     .then(response => {
       return response.json().then(res => {
         if (!response.ok) {
+          res = flatObject(res, {})
           return { code: STATUS_TOSTRING[response.status], ...res }
         }
         return res

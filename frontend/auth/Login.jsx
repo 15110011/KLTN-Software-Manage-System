@@ -33,19 +33,25 @@ export default class Login extends React.Component {
   state = {
     loginDetail: {
       // login_type: window.location.pathname.substr(1).indexOf('admin') != -1 ? 'ADMIN' : 'STAFF',
-      login_type: 'ADMIN',
       username: '',
       password: ''
     },
-    status: window.location.pathname.substr(1).indexOf('admin') != -1,
+    // status: window.location.pathname.substr(1).indexOf('admin') != -1,
     error: {}
   };
 
 
   componentDidMount() {
     const { initUrl } = this.props
-    if (this.props.user.user_type) {
+    if (this.props.user.username) {
+      this.props.history.push(initUrl);
+    }
+  }
 
+  componentDidUpdate() {
+    const { initUrl } = this.props
+
+    if (this.props.user.username) {
       this.props.history.push(initUrl);
     }
   }
@@ -80,6 +86,7 @@ export default class Login extends React.Component {
     if (Object.keys(errObj).length != 0)
       return
 
+
     apiPost(LoginURL, loginDetail)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
@@ -87,6 +94,8 @@ export default class Login extends React.Component {
           this.setState({ error })
         }
         else {
+          localStorage.setItem('token', res.data.access)
+          localStorage.setItem('refresh', res.data.refresh)
           this.props.setUser(res.data);
         }
       })
@@ -95,6 +104,7 @@ export default class Login extends React.Component {
   render() {
     const { loginDetail, status, error } = this.state;
     const { classes } = this.props;
+
     return (
       <div>
         <Paper className={classes.paper}>
@@ -166,7 +176,7 @@ export default class Login extends React.Component {
                 >
                   Login
                 </Button>{' '}
-                <Button type='button' gutterBottom>
+                <Button type='button' >
                   Forgot password?
                 </Button>
                 <br />
