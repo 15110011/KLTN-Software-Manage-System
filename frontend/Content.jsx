@@ -20,7 +20,10 @@ import { NOT_AUTHORIZED } from './common/Code'
 import { MeAPI } from './common/urls'
 import { apiGet } from './common/Request'
 import { Breadcrumbs } from 'react-breadcrumbs-dynamic'
+import Breadcrumb from './components/Breadcrumb'
 import USER_CONTEXT from './components/UserContext'
+import Register from './auth/Register';
+import Dashboard from './Dashboard/Dashboard';
 
 const styles = theme => ({
   root: {
@@ -28,13 +31,10 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
-    padding: theme.spacing.unit * 3,
     height: '100vh',
     overflow: 'auto',
-    [theme.breakpoints.down('sm')]: {
-      padding: theme.spacing.unit * 1
-    },
-    justifyContent:'center'
+    justifyContent: 'center',
+    paddingTop: '65px'
   },
   appBarSpacer: theme.mixins.toolbar
 });
@@ -75,21 +75,16 @@ class Content extends React.Component {
     const { classes } = this.props;
     const { user, initUrl } = this.state;
 
-    if (window.location.pathname.indexOf('login') == -1 && window.location.pathname.indexOf('logout') == -1) {
-      if (window.location.pathname.indexOf('staff') != -1) { window.loginURL = '/login' }
-      else {
-        window.loginURL = '/admin'
-      }
-    }
-
     return (
       <USER_CONTEXT.Provider value={{ user, setUser: this.setUser }}>
         <div className={classes.root}>
           <CssBaseline />
 
-          {user.user_type == 'ADMIN' && <SidebarContainer />}
+          {/* {user.username &&  */}
+          <SidebarContainer />
+          {/* } */}
           <div className={classes.content}>
-            <div className={classes.appBarSpacer} />
+            {user.username && <div className={classes.appBarSpacer} />}
             <Switch>
               <Route
                 path="/logout"
@@ -103,21 +98,24 @@ class Content extends React.Component {
                   <Login {...props} setUser={this.setUser} user={user} initUrl={initUrl} />
                 )}
               />
+              <Route
+                path="/register"
+                component={props => (
+                  <Register {...props} setUser={this.setUser} user={user} initUrl={initUrl} />
+                )}
+              />
 
-              {!user.user_type && (
+
+              {/* {!user.username && (
                 <Route path="/" component={props => <Redirect to="/login" />} />
-              )}
-              {user.user_type == 'ADMIN' && (
+              )} */}
+              {/* {user.username && ( */}
                 <React.Fragment>
-
-                  <Breadcrumbs
-                    separator={<b> / </b>}
-                    item={NavLink}
-                    finalItem={'b'}
-                    container={Breadcrumb}
-                    finalProps={{
-                      style: { color: 'black' }
-                    }}
+                  <Route
+                    path="/dashboard"
+                    component={props => (
+                      <Dashboard {...props} />
+                    )}
                   />
                   <Route
                     path="/projects"
@@ -133,8 +131,7 @@ class Content extends React.Component {
                   />
                   <Route exact path="/" component={props => <Redirect to="/projects" />} />
                 </React.Fragment>
-              )}
-
+              {/* )} */}
             </Switch>
           </div>
         </div>

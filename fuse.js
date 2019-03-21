@@ -1,7 +1,7 @@
 const path = require('path')
 const fb = {
   FuseBox, CopyPlugin, QuantumPlugin,
-  LESSPlugin, CSSPlugin, CSSResourcePlugin, EnvPlugin
+  LESSPlugin, CSSPlugin, CSSResourcePlugin, EnvPlugin, ImageBase64Plugin
 } = require('fuse-box')
 const fs = require('fs')
 let env
@@ -21,6 +21,7 @@ fs.readFile('.env', function (err, data) {
     sourceMaps: true,
     target: 'browser',
     plugins: [
+      ImageBase64Plugin(),
       [CSSResourcePlugin({ dist: 'public/css-resources', inline: false }),
       CSSPlugin({ group: 'app.css', outFile: 'public/app.css', inject: false }),
       ],

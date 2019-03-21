@@ -21,7 +21,7 @@ const styles = theme => ({
     }
   },
   toolbar: {
-    paddingRight: 24
+    paddingRight: 24,
   },
   toolbarIcon: {
     display: 'flex',
@@ -50,7 +50,7 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen
     }),
-    backgroundColor: '#000',
+    backgroundColor: '#333333',
     color: '#fff',
     [theme.breakpoints.down('xs')]: {
       width: '100%'
@@ -85,7 +85,9 @@ const styles = theme => ({
   listItemSlected: {
     backgroundColor: '#163a65db !important'
   },
-
+  listItemBgr: {
+    backgroundColor: '#EF5E29'
+  },
   listItemText: {
     color: '#fff'
   },

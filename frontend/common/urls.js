@@ -7,6 +7,7 @@ const API_URL = `${serverUrl}/api/v1/`
 export const MeAPI = `${API_URL}me`
 export const LogoutURL = `${API_URL}logout`
 export const LoginURL = `${API_URL}login`
+export const RegisterURL = `${API_URL}register`
 
 
 export const PROJECT_URL = `${API_URL}projects`
