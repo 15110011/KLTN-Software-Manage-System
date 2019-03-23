@@ -54,16 +54,15 @@ function Register(props) {
       manager: null
     }
   })
+
   React.useEffect(() => {
     // Effect
-
     const { initUrl } = props
     if (props.user.username) {
       props.history.push(initUrl);
     }
     // Cleanup
   })
-
 
   const submitRegister = (e) => {
     e.preventDefault()

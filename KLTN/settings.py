@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'prettyjson',
     'rest_framework',
     "django_rq",
-    'account'
+    'account',
+    'packages'
 ]
 
 MIDDLEWARE = [
