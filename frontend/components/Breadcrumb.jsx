@@ -6,17 +6,17 @@ import Paper from '@material-ui/core/Paper';
 const styles = theme => ({
   root: {
     padding: '11px',
-    marginBottom: '30px'
+    marginBottom: '10px'
   }
 })
 
 const Breadcrumb = (props) => {
   return (
-    <Paper classes={{
+    <div classes={{
       root: props.classes.root
     }}>
       {props.children}
-    </Paper >
+    </div>
   )
 }
 export default withStyles(styles)(Breadcrumb)
