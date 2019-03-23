@@ -34,7 +34,6 @@ const styles = theme => ({
   content: {
     flexGrow: 1,
     height: '100vh',
-    overflow: 'auto',
     justifyContent: 'center',
     paddingTop: '65px'
   },
@@ -143,12 +142,10 @@ class Content extends React.Component {
             {login &&
               <Switch>
                 <Route
-                  exact
                   path="/dashboard"
                   component={Dashboard}
                 />
                 <Route
-                  exact
                   path="/products"
                   component={Products}
                 />
