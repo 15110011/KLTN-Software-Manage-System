@@ -1,15 +1,7 @@
 from rest_framework import serializers
-from .models import Product, Package, ProductPackage
-from django.contrib.postgres.fields import JSONField
+from .models import Product, Package
 from account.serializers import MeSerializer
 from django.contrib.auth import get_user_model
-
-
-class ProductPackageSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = ProductPackage
-        fields = '__all__'
 
 
 class ProductSerializier(serializers.ModelSerializer):

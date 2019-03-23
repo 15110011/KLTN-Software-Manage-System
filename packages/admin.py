@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Package, ProductPackage
+from .models import Product, Package
 
 
 # Register your models here.
@@ -9,10 +9,4 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Package)
 class PackageAdmin(admin.ModelAdmin):
-    pass   
-    
-@admin.register(ProductPackage)
-class ProductPackageeAdmin(admin.ModelAdmin):
-    pass       
-    
-    
+    pass
