@@ -21,8 +21,6 @@ class Package(BaseModel):
     name = models.CharField(max_length=255)
     price = models.FloatField()
     discount = models.IntegerField()
-    creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='package')
     types = models.TextField(max_length=255)
     products = models.ManyToManyField(
-        Product, related_name='packages')
+        Product, related_name='packages', blank=True)
