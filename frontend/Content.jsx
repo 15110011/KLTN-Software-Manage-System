@@ -152,6 +152,11 @@ class Content extends React.Component {
                   path="/products"
                   component={Products}
                 />
+                <Route
+                  exact
+                  path="/contacts"
+                  component={Products}
+                />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />
                 }} />

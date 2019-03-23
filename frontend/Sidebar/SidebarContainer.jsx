@@ -13,23 +13,21 @@ export default function SidebarContainer(props) {
   }
 
   const onClickSidebar = action => {
-    if (action === 'projects') {
-      setSelecting(1)
-    }
-    else if (action === 'staffs') {
-      setSelecting(2)
-    }
+    setSelecting(action)
   }
 
   React.useEffect(() => {
     // Effect
     const url = window.location.pathname
     const action = url.substr(1)
-    if (action === '' || action.startsWith('projects')) {
-      onClickSidebar('projects')
+    if (action === '' || action.startsWith('dashboard')) {
+      onClickSidebar('dashboard')
     }
-    else if (action.startsWith('staffs')) {
-      onClickSidebar('staffs')
+    else if (action.startsWith('products')) {
+      onClickSidebar('products')
+    }
+    else if (action.startsWith('contacts')) {
+      onClickSidebar('contacts')
     }
   })
 

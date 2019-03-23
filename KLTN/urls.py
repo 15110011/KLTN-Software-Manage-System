@@ -8,10 +8,15 @@ from rest_framework_simplejwt.views import (
 
 from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView
 from packages.views import ProductViewSet, PackageViewSet
+from contacts.views import ContactView, ContactGroupView
 
 router = DefaultRouter(trailing_slash=False)
+#package app
 router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
+#contact app
+router.register('contacts', ContactView, base_name='contacts')
+router.register('contactgroups', ContactGroupView, base_name='contactgroups')
 
 urlpatterns = []
 urlpatterns += router.urls

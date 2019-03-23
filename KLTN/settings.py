@@ -48,7 +48,8 @@ INSTALLED_APPS = [
     'rest_framework',
     "django_rq",
     'account',
-    'packages'
+    'packages',
+    'contacts'
 ]
 
 MIDDLEWARE = [

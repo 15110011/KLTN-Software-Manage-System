@@ -1,0 +1,46 @@
+from django.contrib.auth import get_user_model
+
+from rest_framework import serializers
+
+from . import models
+from account.serializers import MeSerializer
+
+
+class ContactWithoutGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        mode = models.Contact
+        exclude = ['groups']
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    contacts = ContactWithoutGroupSerializer(many=True)
+    # user = MeSerializer()
+
+    class Meta:
+        model = models.ContactGroup
+        # fields = '__all__'
+        exclude= ['user']
+
+
+
+class GroupWithoutContactSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ContactGroup
+        exclude = ['contacts']
+
+
+class ContactReadSerializer(serializers.ModelSerializer):
+    groups = GroupWithoutContactSerializer(many=True)
+
+    class Meta:
+        model = models.Contact
+        fields = '__all__'
+
+class ContactSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Contact
+        fields = '__all__'
+    
