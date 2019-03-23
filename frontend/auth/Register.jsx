@@ -17,7 +17,7 @@ import EmailIcon from '@material-ui/icons/Email';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import KeyIcon from '@material-ui/icons/VpnKey';
 import PhoneIcon from '@material-ui/icons/Phone'
-import HomeIcon from '@material-ui/icons/Home';
+import CompanyIcon from '@material-ui/icons/LocationCity';
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 
@@ -78,6 +78,7 @@ function Register(props) {
           props.setUser(res.data);
           localStorage.setItem('token', res.data.access)
           localStorage.setItem('refresh', res.data.refresh)
+          props.setLogin(true)
         }
       })
   }
@@ -179,7 +180,7 @@ function Register(props) {
                           onChange={onChangeRegister}
                           startAdornment={
                             <InputAdornment position="start">
-                              <HomeIcon />
+                              <CompanyIcon />
                             </InputAdornment>
                           }
                         />

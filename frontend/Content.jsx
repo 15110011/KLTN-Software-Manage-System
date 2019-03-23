@@ -23,7 +23,9 @@ import { Breadcrumbs } from 'react-breadcrumbs-dynamic'
 import Breadcrumb from './components/Breadcrumb'
 import USER_CONTEXT from './components/UserContext'
 import Register from './auth/Register';
-import Dashboard from './Dashboard/Dashboard';
+import Dashboard from './Dashboard/DashboardContainer';
+import Products from './Products/ProductsContainer';
+import { URls } from './common/ValidURL'
 
 const styles = theme => ({
   root: {
@@ -42,6 +44,7 @@ const styles = theme => ({
 class Content extends React.Component {
   state = {
     user: {},
+    login: Boolean(localStorage.getItem('token')),
     initUrl: window.location.pathname == '/register' || window.location.pathname == '/login' ? '/dashboard' : window.location.pathname
   };
 
@@ -88,60 +91,69 @@ class Content extends React.Component {
     // }
   }
 
+  setLogin = (status)  => {
+    this.setState({login: status})
+  }
+
 
   render() {
     const { classes } = this.props;
-    const { user, initUrl } = this.state;
-    console.log(user.username)
+    const { user, initUrl, login } = this.state;
+    
     return (
       <USER_CONTEXT.Provider value={{ user }}>
         <div className={classes.root}>
           <CssBaseline />
 
-          {user.username &&
+          {login &&
             <SidebarContainer />
           }
           <div className={classes.content}>
-            {user.username && <div className={classes.appBarSpacer} />}
+            {login && <div className={classes.appBarSpacer} />}
             <Switch>
               <Route
                 path="/logout"
                 component={props => (
-                  <Logout {...props} loginURL={window.location.pathname} setUser={this.setUser} initUrl={initUrl} />
+                  <Logout {...props} setLogin={this.setLogin} loginURL={window.location.pathname} setUser={this.setUser} initUrl={initUrl} />
                 )}
               />
 
+              {!login && <Switch>
 
-              <Route
-                path="/login"
-                component={props => (
-                  <Login {...props} setUser={this.setUser} user={user} initUrl={initUrl} />
-                )}
-              />
-              <Route
-                path="/register"
-                component={props => (
-                  <Register {...props} setUser={this.setUser} user={user} initUrl={initUrl} />
-                )}
-              />
-              {!user.username && (
-                <>
-                  <Route path="/" component={props => {
-                    return <Redirect to="/login" />
-                  }} />
-                </>
+                <Route
+                  path="/register"
+                  component={props => (
+                    <Register {...props} setLogin={this.setLogin} setUser={this.setUser} user={user} initUrl={initUrl} />
+                  )}
+                />
+                <Route
+                  path="/login"
+                  component={props => (
+                    <Login {...props} setLogin={this.setLogin} setUser={this.setUser} user={user} initUrl={initUrl} />
+                  )}
+                />
+                <Route path="/" component={props => {
+                  return <Redirect to="/login" />
+                }} />
+                
+              </Switch>}
               )}
             </Switch>
 
-            {user.username &&
+            {login &&
               <Switch>
                 <Route
                   exact
                   path="/dashboard"
                   component={Dashboard}
                 />
-                <Route component={props => {
-                  return <Redirect to="/dashboard" />
+                <Route
+                  exact
+                  path="/products"
+                  component={Products}
+                />
+                <Route path='/' component={props => {
+                  return <Redirect to={'/dashboard'} />
                 }} />
               </Switch>
             }

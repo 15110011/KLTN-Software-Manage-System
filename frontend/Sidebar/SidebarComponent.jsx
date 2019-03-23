@@ -1,12 +1,11 @@
 import * as React from 'react'
 import { Link, withRouter } from 'react-router-dom'
 import cn from 'classnames'
-
+// @material-ui
 import { withStyles } from '@material-ui/core/styles'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemIcon from '@material-ui/core/ListItemIcon'
 import ListItemText from '@material-ui/core/ListItemText'
-import DashboardIcon from '@material-ui/icons/Dashboard'
 import PersonalIcon from '@material-ui/icons/PersonOutlined'
 import Drawer from '@material-ui/core/Drawer'
 import AppBar from '@material-ui/core/AppBar'
@@ -20,14 +19,59 @@ import ChevronLeftIcon from '@material-ui/icons/ChevronLeft'
 import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
+import CampaignIcon from '@material-ui/icons/GolfCourse';
+import TheaterIcon from '@material-ui/icons/Theaters';
+import MarketingListIcon from '@material-ui/icons/ListAlt';
+import EmailTemplateIcon from '@material-ui/icons/MailOutline';
+import FollowUpPlanIcon from '@material-ui/icons/FindInPage';
+import InventoryIcon from '@material-ui/icons/Store';
+import ProductIcon from '@material-ui/icons/Archive';
+import InvoiceIcon from '@material-ui/icons/Receipt';
+import SaleOrderIcon from '@material-ui/icons/Description';
+import DealIcon from '@material-ui/icons/AttachMoney';
+import ProductivityIcon from '@material-ui/icons/Timeline';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import ReportIcon from '@material-ui/icons/Report';
+import ConversationIcon from '@material-ui/icons/InsertComment';
+import InboxIcon from '@material-ui/icons/Inbox';
+import NoteIcon from '@material-ui/icons/Note';
+import ToolIcon from '@material-ui/icons/Build'
+import CalendarIcon from '@material-ui/icons/CalendarToday';
+import AccountCircle from '@material-ui/icons/PersonPin';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+import Badge from '@material-ui/core/Badge';
+import Menu from '@material-ui/core/Menu';
+import MenuItem from '@material-ui/core/MenuItem';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
+import MenuList from '@material-ui/core/MenuList';
 
 import styles from './styles.js'
 
 const SidebarComponent = props => {
   const { openSidebar, classes, selecting } = props
-  const [toggle, setToggle] = React.useState({
+  const [toggle, setToggle] = React.useState(true)
+  const [toggle1, setToggle1] = React.useState(true)
+  const [toggle2, setToggle2] = React.useState(true)
+  const [toggle3, setToggle3] = React.useState(true)
+  const [toggle4, setToggle4] = React.useState(true)
+  const [anchorEl, setAnchorEl] = React.useState(null)
+  const [noti, setNoti] = React.useState(false)
 
-  })
+  let anchorel1 = null;
+
+  const handleProfileMenuOpen = e => {
+    setAnchorEl(e.currentTarget);
+  };
+
+  const handleCloseNoti = e => {
+    if (anchorel1.contains(e.target)) {
+      return;
+    }
+    setNoti(false)
+  }
 
   return (
     <>
@@ -44,8 +88,9 @@ const SidebarComponent = props => {
               classes.menuButton,
               openSidebar && classes.menuButtonHidden
             )}
+            classes={{ root: classes.bgrmenuBar }}
           >
-            <MenuIcon />
+            <MenuIcon className={cn(classes.menuBarButton)} />
           </IconButton>
           <Typography
             component="h1"
@@ -55,17 +100,62 @@ const SidebarComponent = props => {
             className={classes.title}
           >
           </Typography>
-          <IconButton color="inherit">
-            {localStorage.getItem('login') && (
-              <Link
-                to="/logout"
-                className="btn btn-primary bg-transparent border-0"
-              >
-                Log out
-              </Link>
-            )}
-          </IconButton>
+          <div className={classes.sectionDesktop}>
+            <IconButton
+              color="inherit"
+              buttonRef={node => {
+                anchorel1 = node;
+              }}
+              aria-owns={noti ? 'menu-list-grow' : undefined}
+              aria-haspopup="true"
+              onClick={() => setNoti(!noti)}
+            >
+              <Badge badgeContent={17} color="secondary">
+                <NotificationsIcon
+                  className={classes.rightIcon}
+                />
+              </Badge>
+            </IconButton>
+            <Popper open={noti} anchorel1={anchorel1} transition disablePortal>
+              {({ TransitionProps, placement }) => (
+                <Grow
+                  {...TransitionProps}
+                  id="menu-list-grow"
+                  style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
+                >
+                  <Paper>
+                    <ClickAwayListener onClickAway={handleCloseNoti}>
+                      <MenuList>
+                        <MenuItem onClick={handleCloseNoti}>Profile</MenuItem>
+                        <MenuItem onClick={handleCloseNoti}>My account</MenuItem>
+                      </MenuList>
+                    </ClickAwayListener>
+                  </Paper>
+                </Grow>
+              )}
+            </Popper>
+            <IconButton
+              aria-owns={Boolean(anchorEl) ? 'material-appbar' : undefined}
+              aria-haspopup="true"
+              onClick={handleProfileMenuOpen}
+              color="inherit"
+            >
+              <AccountCircle className={classes.rightIcon} />
+            </IconButton>
+          </div>
         </Toolbar>
+        <Menu
+          anchorEl={anchorEl}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          open={Boolean(anchorEl)}
+          onClose={() => setAnchorEl(null)}
+        >
+         
+          <MenuItem onClick={()=> props.history.push('/logout')}>Log out</MenuItem>
+          <MenuItem>A</MenuItem>
+          <MenuItem>A</MenuItem>
+        </Menu>
       </AppBar>
       <Drawer
         variant="permanent"
@@ -74,7 +164,7 @@ const SidebarComponent = props => {
             classes.drawerPaper,
             !openSidebar && classes.drawerPaperClose
           ),
-          root: classes.drawerRoot
+          root: classes.drawerRoot,
         }}
         open={openSidebar}
       >
@@ -88,20 +178,21 @@ const SidebarComponent = props => {
         </div>
         <Divider light />
         <List>
-          <ListItem button classes={{root: classes.listItemBgr}}>
+          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}>
             <ListItemIcon>
               <PersonalIcon classes={{ root: classes.listItemIcon }} />
             </ListItemIcon>
             <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemText }} />
           </ListItem>
-          <ListItem button selected classes={{root: classes.listItemBgr, selected: classes.listItemSlected}}
-            onClick={() => setToggle(!toggle)} className={classes.nested}
-            // classes={{ selected: classes.listItemSlected }}
+          <Divider classes={{ root: classes.divider }} />
+          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+            onClick={() => setToggle(!toggle)}
+          // classes={{ selected: classes.listItemSlected }}
           >
             <ListItemIcon>
-              <PersonalIcon classes={{ root: classes.listItemIcon }} />
+              <TheaterIcon classes={{ root: classes.listItemIcon }} />
             </ListItemIcon>
-            <ListItemText 
+            <ListItemText
               primary="MARKETING"
               classes={{ primary: classes.listItemText }}
             />
@@ -111,65 +202,153 @@ const SidebarComponent = props => {
             <List component="div" disablePadding>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <CampaignIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <MarketingListIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Marketing list" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <EmailTemplateIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Email templates" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <FollowUpPlanIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Follow-up plan" classes={{ primary: classes.listItemText }} />
               </ListItem>
             </List>
           </Collapse>
-          <ListItem button classes={{root: classes.listItemBgr}}
-            onClick={() => setToggle(!toggle)} className={classes.nested}
-            classes={{ selected: classes.listItemSlected }}
+          <Divider classes={{ root: classes.divider }} />
+          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+            onClick={() => setToggle1(!toggle1)}
           >
             <ListItemIcon>
-              <PersonalIcon classes={{ root: classes.listItemIcon }} />
+              <InventoryIcon classes={{ root: classes.listItemIcon }} />
             </ListItemIcon>
             <ListItemText
               primary="INVENTORY"
               classes={{ primary: classes.listItemText }}
             />
-            {toggle ? <ExpandLess /> : <ExpandMore />}
+            {toggle1 ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
-          <Collapse in={toggle} timeout="auto" unmountOnExit>
+          <Collapse in={toggle1} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <ProductIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Products" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <InvoiceIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Marketing list" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Invoices" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <SaleOrderIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Email templates" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Sale Orders" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
+                  <DealIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Follow-up plan" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Deals" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+            </List>
+          </Collapse>
+          <Divider classes={{ root: classes.divider }} />
+          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+            onClick={() => setToggle2(!toggle2)}
+          >
+            <ListItemIcon>
+              <ProductivityIcon classes={{ root: classes.listItemIcon }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="PRODUCTIVITY"
+              classes={{ primary: classes.listItemText }}
+            />
+            {toggle2 ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={toggle2} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <DashboardIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Dashboard" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <ReportIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Reports" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+            </List>
+          </Collapse>
+          <Divider classes={{ root: classes.divider }} />
+          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+            onClick={() => setToggle3(!toggle3)}
+          >
+            <ListItemIcon>
+              <ConversationIcon classes={{ root: classes.listItemIcon }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="CONVERSATION"
+              classes={{ primary: classes.listItemText }}
+            />
+            {toggle3 ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={toggle3} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <InboxIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Inbox" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <NoteIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Notes" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+            </List>
+          </Collapse>
+          <Divider classes={{ root: classes.divider }} />
+          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+            onClick={() => setToggle4(!toggle4)}
+          >
+            <ListItemIcon>
+              <ToolIcon classes={{ root: classes.listItemIcon }} />
+            </ListItemIcon>
+            <ListItemText
+              primary="TOOLS"
+              classes={{ primary: classes.listItemText }}
+            />
+            {toggle4 ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={toggle4} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <CalendarIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Calendar" classes={{ primary: classes.listItemText }} />
               </ListItem>
             </List>
           </Collapse>
         </List>
-        <Divider classes={{ root: classes.divider }} />
       </Drawer>
     </>
   )

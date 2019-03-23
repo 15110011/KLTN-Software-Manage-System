@@ -20,5 +20,3 @@ const Breadcrumb = (props) => {
   )
 }
 export default withStyles(styles)(Breadcrumb)
-
-
