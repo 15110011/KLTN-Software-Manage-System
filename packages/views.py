@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+
 from rest_framework import status
 from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer
 from .models import Product, Package
@@ -8,6 +10,7 @@ from .models import Product, Package
 
 
 class ProductViewSet(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     serializer_class = ProductSerializier
     queryset = Product.objects.prefetch_related('packages')
 

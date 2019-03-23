@@ -23,7 +23,6 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        # validated_data['packages'] = self.context.get('products')
         packages = super().create(validated_data)
         return packages
 
@@ -35,7 +34,6 @@ class CreateProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-
         packages = [Package(**item) for item in validated_data.pop('packages')]
         packages = Package.objects.bulk_create(packages)
         product = super().create(validated_data)
