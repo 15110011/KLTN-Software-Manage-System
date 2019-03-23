@@ -40,11 +40,13 @@ export default class Login extends React.Component {
     error: {}
   };
 
+  
 
   componentDidMount() {
     const { initUrl } = this.props
     if (this.props.user.username) {
       this.props.history.push(initUrl);
+
     }
   }
 
@@ -96,6 +98,7 @@ export default class Login extends React.Component {
         else {
           localStorage.setItem('token', res.data.access)
           localStorage.setItem('refresh', res.data.refresh)
+          this.props.setLogin(true)
           this.props.setUser(res.data);
         }
       })

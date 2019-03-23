@@ -1,13 +1,25 @@
 const drawerWidth = 240
 
 const styles = theme => ({
+  rightIcon: {
+    color: '#4F5D73',
+    '& span': {
+      color: '#4F5D73'
+    }
+  },
+  menuBarButton: {
+    color: '#4F5D73',
+  },
+  bgrmenuBar: {
+    backgroundColor: '#e4e6ef'
+  },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen
     }),
-    backgroundColor: '#1a355b',
+    backgroundColor: '#fff',
   },
   appBarShift: {
     marginLeft: drawerWidth,
@@ -30,7 +42,6 @@ const styles = theme => ({
     padding: '0 8px',
     ...theme.mixins.toolbar,
 
-    backgroundColor: '#1a355b'
   },
   menuButton: {
     marginLeft: 12,
@@ -68,7 +79,6 @@ const styles = theme => ({
     }
   },
   drawerRoot: {
-
     [theme.breakpoints.down('xs')]: {
       width: '100%',
       position: 'absolute',
@@ -96,7 +106,10 @@ const styles = theme => ({
   },
   divider: {
     backgroundColor: 'rgba(196, 185, 185, 0.25)'
-  }
+  },
+  nested: {
+    paddingLeft: theme.spacing.unit * 4,
+  },
 })
 
 export default styles

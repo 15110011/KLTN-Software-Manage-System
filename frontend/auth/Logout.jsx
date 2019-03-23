@@ -11,7 +11,7 @@ export default class Logout extends React.Component {
       this.props.setUser({})
       localStorage.removeItem('token')
       localStorage.removeItem('refresh')
-
+      this.props.setLogin(false)
     })
   }
 
