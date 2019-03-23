@@ -23,5 +23,6 @@ class ProductViewSet(ModelViewSet):
 
 
 class PackageViewSet(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     serializer_class = PackageSerializer
     queryset = Package.objects
