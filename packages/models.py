@@ -20,9 +20,9 @@ class Package(BaseModel):
         User, on_delete=models.CASCADE, related_name='package')
     types = models.TextField(max_length=255)
     products = models.ManyToManyField(
-        Product, through='ProductPackage', through_fields=('package', 'product'))
+        Product, through='ProductPackage', through_fields=('package', 'product'), related_name='packages')
 
 
-class ProductPackage(BaseModel):    
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='packages')
+class ProductPackage(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     package = models.ForeignKey(Package, on_delete=models.CASCADE)
