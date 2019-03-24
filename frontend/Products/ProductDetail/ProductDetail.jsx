@@ -1,23 +1,29 @@
 import * as React from 'react'
+import ReactDOM from 'react-dom';
+
 import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import ProductIcon from '@material-ui/icons/Archive';
-import SwipeableViews from 'react-swipeable-views';
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
-import Fab from '@material-ui/core/Fab';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import DetailIcon from '@material-ui/icons/Assignment'
-import Breadcrumb from '../../components/Breadcrumb'
+import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+import TextField from '@material-ui/core/TextField';
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 
-import styles from '../ProductContainerStyle'
+import styles from './ProductDetailStyle'
 
 function TabContainer(props) {
   return (
@@ -26,9 +32,37 @@ function TabContainer(props) {
     </Typography>
   );
 }
+
+
 function ProductDetail(props) {
   const { classes, theme } = props;
   const [value, setValue] = React.useState(0)
+  const [addBtn, setAddBtn] = React.useState({
+    add: '',
+    labelWidth: '0'
+  })
+  const [search, setSearch] = React.useState('')
+  const [month, setMonth] = React.useState('')
+
+  const handleChangeMonth = month => e => {
+    setMonth(e.target.value)
+  }
+
+  const handleChangeSearch = search => e => {
+    setSearch(e.target.value);
+  };
+
+  let InputLabelRef = ''
+
+  const handleChange = e => {
+    setAddBtn({ [e.target.name]: e.target.value });
+  }
+
+  // React.useEffect(() => {
+  //   setAddBtn(
+  //     ReactDOM.findDOMNode(InputLabelRef).offsetWidth
+  //   );
+  // },[])
 
   return (
     <div className={classes.root}>
@@ -148,7 +182,7 @@ function ProductDetail(props) {
                   <br />
                   <MaterialTable
                     columns={[
-                      { title: 'Action', field: 'action' },
+                      { title: 'Actions', field: 'actions' },
                       { title: 'Package Name', field: 'packageName' },
                       { title: 'Sell Price', field: 'sellPrice' },
                       {
@@ -156,7 +190,123 @@ function ProductDetail(props) {
                       },
                     ]}
                     data={[
-                      { name: 'Mehmet', surname: 'Baran', birthYear: 1987, birthCity: 63 },
+                      {
+                        actions:
+                          <FormControl variant="outlined" className={classes.formControl}>
+                            <InputLabel
+                              ref={ref => {
+                                InputLabelRef = ref;
+                              }}
+                              htmlFor="outlined-age-simple"
+                            >
+                              Add
+                          </InputLabel>
+                            <Select
+                              value={addBtn.add}
+                              onChange={handleChange}
+                              input={
+                                <OutlinedInput
+                                  labelWidth={addBtn.labelWidth}
+                                  name="age"
+                                  id="outlined-age-simple"
+                                />
+                              }
+                            >
+                              <MenuItem value={10}>Ten</MenuItem>
+                              <MenuItem value={20}>Twenty</MenuItem>
+                              <MenuItem value={30}>Thirty</MenuItem>
+                            </Select>
+                          </FormControl>
+                        ,
+                        packageName:
+                          <form className={classes.container} noValidate autoComplete="off">
+                            <Grid container>
+                              <Grid item xs={12}>
+                                <TextField
+                                  id="standard-select-currency-native"
+                                  select
+                                  label="Search"
+                                  className={classes.textField}
+                                  value={search}
+                                  onChange={handleChangeSearch}
+                                  SelectProps={{
+                                    native: true,
+                                    MenuProps: {
+                                      className: classes.menu,
+                                    },
+                                  }}
+                                  helperText=""
+                                  margin="normal"
+                                >
+                                </TextField>
+                              </Grid>
+                              <Grid item xs={12}>
+                                <FormControl variant="outlined" className={classes.formControl}>
+                                  <InputLabel
+                                    ref={ref => {
+                                      InputLabelRef = ref;
+                                    }}
+                                    htmlFor="outlined-age-simple"
+                                  >
+                                    Add Feature
+                                  </InputLabel>
+                                  <Select
+                                    className={classes.formFeature}
+                                    value={addBtn.add}
+                                    onChange={handleChange}
+                                    input={
+                                      <OutlinedInput
+                                        labelWidth={addBtn.labelWidth}
+                                        name="age"
+                                        id="outlined-age-simple"
+                                      />
+                                    }
+                                  >
+                                    <MenuItem value={10}>Ten</MenuItem>
+                                    <MenuItem value={20}>Twenty</MenuItem>
+                                    <MenuItem value={30}>Thirty</MenuItem>
+                                  </Select>
+                                </FormControl>
+                              </Grid>
+                            </Grid>
+                          </form>
+                        ,
+                        sellPrice:
+                          <FormControl variant="outlined" className={classes.formControl}>
+                            <InputLabel
+                              ref={ref => {
+                                InputLabelRef = ref;
+                              }}
+                              htmlFor="outlined-age-simple"
+                            >
+                            </InputLabel>
+                            <Select
+                              value={month}
+                              onChange={handleChangeMonth}
+                              input={
+                                <OutlinedInput
+                                  labelWidth={addBtn.labelWidth}
+                                  name="month"
+                                  id="outlined-age-simple"
+                                />
+                              }
+                            >
+                              <MenuItem value={'1month'}>1 Month</MenuItem>
+                              <MenuItem value={'6months'}>6 Months</MenuItem>
+                              <MenuItem value={'1year'}>1 Year</MenuItem>
+                            </Select>
+                          </FormControl>
+                        ,
+                        notes:
+                          <Input
+                            defaultValue="Notes"
+                            className={classes.input}
+                            inputProps={{
+                              'aria-label': 'Description',
+                            }}
+                          />
+
+                      },
                       { name: 'Zerya Betül', surname: 'Baran', birthYear: 2017, birthCity: 34 },
                     ]}
                     title="Basic"
@@ -169,7 +319,7 @@ function ProductDetail(props) {
                     <Grid item xs={12} className="d-flex justify-content-center mt-3">
                       <Button variant="contained" className={classes.button}>
                         CANCEL
-                      </Button>
+                      </Button>&nbsp;&nbsp;
                       <Button variant="contained" color="primary" className={classes.button}>
                         SAVE
                       </Button>

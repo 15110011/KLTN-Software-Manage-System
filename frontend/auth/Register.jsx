@@ -2,32 +2,23 @@ import * as React from 'react'
 
 // Material 
 import { withStyles } from "@material-ui/core/styles";
-import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import Grid from '@material-ui/core/Grid';
 import FormControl from "@material-ui/core/FormControl";
 import Input from "@material-ui/core/Input";
 import InputLabel from "@material-ui/core/InputLabel";
-import LockIcon from "@material-ui/icons/LockOutlined";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import InputAdornment from '@material-ui/core/InputAdornment';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import EmailIcon from '@material-ui/icons/Email';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
 import KeyIcon from '@material-ui/icons/VpnKey';
 import PhoneIcon from '@material-ui/icons/Phone'
 import CompanyIcon from '@material-ui/icons/LocationCity';
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
 
 // Components
 import { Link } from 'react-router-dom';
 import RegisterForm2 from './RegisterForm2'
-
-import { apiPost } from "../common/Request";
-import { LoginURL } from "../common/urls";
-import { BAD_REQUEST } from "../common/Code";
 
 // Style
 import styles from './RegisterStyle';

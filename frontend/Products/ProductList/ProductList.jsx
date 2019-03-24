@@ -54,7 +54,6 @@ function ProductList(props) {
               }}
             />
           </Paper>
-
         </Grid>
       </Grid>
     </div>

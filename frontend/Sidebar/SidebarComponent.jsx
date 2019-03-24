@@ -247,7 +247,7 @@ const SidebarComponent = props => {
                 <ListItemIcon>
                   <ProductIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Products" classes={{ primary: classes.listItemText }} />
+                <ListItemText onClick={()=> props.history.push('/products')} inset primary="Products" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
