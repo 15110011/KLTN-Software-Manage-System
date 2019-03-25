@@ -27,6 +27,15 @@ import FormLicensePrice from './FormLicensePrice/FormLicensePrice'
 
 import styles from './CreateProductStyle'
 
+const MONTHS = [
+  { value: '1', label: '1 Month' },
+  { value: '6', label: '6 Months' },
+  { value: '12', label: '1 Year' },
+  { value: '999', label: 'Lifetime' },
+]
+
+
+
 function CreateProduct(props) {
   const [createProduct, setCreateProduct] = React.useState({
     productName: '',
@@ -37,24 +46,32 @@ function CreateProduct(props) {
     packages: [],
     prices: []
   })
+
   const [addBtn, setAddBtn] = React.useState({
     add: '',
     labelWidth: 0
   })
+
   const [error, setError] = React.useState({})
   const [search, setSearch] = React.useState('')
 
   const onLicenseTypeClick = () => {
     const prices = createProduct.prices.concat([])
 
-    prices.push({ month: '', price: 0 })
-    let a = { ...createProduct, prices }
-    setCreateProduct(a)
+    prices.push({ month: '', value: 0 })
+    setCreateProduct({ ...createProduct, prices })
   }
 
   const onRemoveLicenseType = (index) => {
     let prices = createProduct.prices.concat([])
     prices = prices.slice(0, index).concat(prices.slice(index + 1))
+    setCreateProduct({ ...createProduct, prices })
+  }
+
+  const onChangeLicenseInput = (e, index) => {
+    console.log(index, e.target.name, e.target.value)
+    const prices = createProduct.prices.concat([])
+    prices[index][e.target.name] = e.target.value
     setCreateProduct({ ...createProduct, prices })
   }
 
@@ -313,16 +330,27 @@ function CreateProduct(props) {
                     sellPrice:
                       <div style={{ display: 'inline-grid' }}>
                         {createProduct.prices.map((price, index) => {
+                          let thisScopeIndex = index
                           return (
-                            <FormLicensePrice key={index}
-                              onRemoveLicenseType={onRemoveLicenseType}
-                              price={price} />
+                            <FormLicensePrice key={`priceIndex${thisScopeIndex}`}
+                              onRemoveLicenseType={() => { onRemoveLicenseType(thisScopeIndex) }}
+                              price={price}
+                              onInputChange={(e) => onChangeLicenseInput(e, index)}
+                              months={
+                                MONTHS.reduce((acc, m) => {
+                                  if (createProduct.prices.findIndex(p => p.month == m.value && p.month != price.month) == -1) {
+                                    acc.push(<MenuItem value={m.value}>{m.label}</MenuItem>)
+                                  }
+                                  return acc
+                                }, [])
+                              }
+                            />
                           )
                         })}
                         <Button onClick={() => {
                           console.log('?????')
-                          // onLicenseTypeClick() 
-                          }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
+                          onLicenseTypeClick()
+                        }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
                           License Price
                         </Button>
                       </div>

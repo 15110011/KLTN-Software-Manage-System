@@ -8,9 +8,11 @@ import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import MenuItem from '@material-ui/core/MenuItem';
+import TextField from '@material-ui/core/TextField'
 import Input from '@material-ui/core/Input';
 
 import styles from './FormLicensePriceStyle'
+import NumberFormatCustom from '../../../components/NumberFormatCustom'
 
 function FormLicensePrice(props) {
   const [month, setMonth] = React.useState('')
@@ -26,9 +28,9 @@ function FormLicensePrice(props) {
   }
   let InputLabelRef = ''
 
-  const { classes } = props;
+  const { classes, price, months } = props;
 
-  console.log(234);
+
 
   return (
     <div>
@@ -43,8 +45,8 @@ function FormLicensePrice(props) {
             >
             </InputLabel>
             <Select
-              value={month}
-              onChange={handleChangeMonth}
+              value={price.month}
+              onChange={props.onInputChange}
               input={
                 <OutlinedInput
                   labelWidth={addBtn.labelWidth}
@@ -53,23 +55,27 @@ function FormLicensePrice(props) {
                 />
               }
             >
-              <MenuItem value={'1month'}>1 Month</MenuItem>
-              <MenuItem value={'6months'}>6 Months</MenuItem>
-              <MenuItem value={'1year'}>1 Year</MenuItem>
+            {months}
             </Select>
           </FormControl>
         </Grid>
         <Grid item xs={6}>
-          <Input
-            fullWidth
-            placeholder="Price"
-            className={classes.input}
-            inputProps={{
-              'aria-label': 'price',
+
+          <TextField
+            margin="dense"
+            label="Price"
+            name='value'
+            value={price.value}
+            onChange={props.onInputChange}
+            InputProps={{
+              inputComponent: NumberFormatCustom
             }}
+            required
+            fullWidth
+            className={classes.input}
           />
         </Grid>
-        <div onClick={props.onRemoveLicenseType(props.index)} className={classes.removeBtn}>
+        <div onClick={() => props.onRemoveLicenseType()} className={classes.removeBtn}>
           <RemoveIcon />
         </div>
       </Grid>
