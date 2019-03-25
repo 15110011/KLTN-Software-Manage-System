@@ -39,7 +39,7 @@ function ProductDetail(props) {
   const [value, setValue] = React.useState(0)
   const [addBtn, setAddBtn] = React.useState({
     add: '',
-    labelWidth: '0'
+    labelWidth: 0
   })
   const [search, setSearch] = React.useState('')
   const [month, setMonth] = React.useState('')
@@ -219,7 +219,7 @@ function ProductDetail(props) {
                           </FormControl>
                         ,
                         packageName:
-                          <form className={classes.container} noValidate autoComplete="off">
+                          <FormControl className={classes.container} noValidate autoComplete="off">
                             <Grid container>
                               <Grid item xs={12}>
                                 <TextField
@@ -269,7 +269,7 @@ function ProductDetail(props) {
                                 </FormControl>
                               </Grid>
                             </Grid>
-                          </form>
+                          </FormControl>
                         ,
                         sellPrice:
                           <FormControl variant="outlined" className={classes.formControl}>
@@ -299,7 +299,7 @@ function ProductDetail(props) {
                         ,
                         notes:
                           <Input
-                            defaultValue="Notes"
+                            placeholder="Notes"
                             className={classes.input}
                             inputProps={{
                               'aria-label': 'Description',
@@ -307,10 +307,10 @@ function ProductDetail(props) {
                           />
 
                       },
-                      { name: 'Zerya Betül', surname: 'Baran', birthYear: 2017, birthCity: 34 },
                     ]}
                     title="Basic"
                     options={{
+                      headerStyle: {fontSize: '16px', fontWeight: '600'},
                       toolbar: false,
                       paging: false,
                     }}

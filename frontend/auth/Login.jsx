@@ -132,7 +132,7 @@ export default class Login extends React.Component {
                 Enter your details to login.
               </Typography>
               <br />
-              <form className={classes.form} onSubmit={this.onLogin}>
+              <FormControl className={classes.form} onSubmit={this.onLogin}>
                 <Grid container>
                   <Grid item md={9}>
                     <FormControl margin="normal" fullWidth error={error.all} required>
@@ -187,7 +187,7 @@ export default class Login extends React.Component {
                   By clicking login, you agree to our <span style={{ textDecoration: 'underline', color: 'red' }}>Terms & Conditions!</span><br />
                   Don't have an account? Register <Link to='/register' style={{ textDecoration: 'underline', color: 'red' }}>here</Link>
                 </Typography>
-              </form>
+              </FormControl>
             </Grid>
           </Grid>
         </Paper>

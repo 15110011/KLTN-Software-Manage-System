@@ -179,7 +179,7 @@ const SidebarComponent = props => {
         <Divider light />
         <List>
           <Link to='/contacts'>
-            <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
+            <ListItem onClick={() => props.history.push('/contacts')} button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
               <ListItemIcon>
                 <PersonalIcon classes={{ root: classes.listItemIcon }} />
               </ListItemIcon>
@@ -243,11 +243,11 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle1} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={()=> props.history.push('/products')}>
                 <ListItemIcon>
                   <ProductIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText onClick={()=> props.history.push('/products')} inset primary="Products" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Products" classes={{ primary: classes.listItemText }} />
               </ListItem>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>

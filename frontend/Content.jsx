@@ -19,17 +19,16 @@ import Login from './auth/Login';
 import { NOT_AUTHORIZED, BAD_REQUEST } from './common/Code'
 import { MeAPI, REFRESH_TOKEN_URL } from './common/urls'
 import { apiGet, apiPost } from './common/Request'
-import { Breadcrumbs } from 'react-breadcrumbs-dynamic'
-import Breadcrumb from './components/Breadcrumb'
 import USER_CONTEXT from './components/UserContext'
 import Register from './auth/Register';
 import Dashboard from './Dashboard/DashboardContainer';
-import Products from './Products/ProductsContainer';
-import { URls } from './common/ValidURL'
+import ProductsContainer from './Products/ProductsContainer';
+import ContactContainer from './Contacts/ContactsContainer';
 
 const styles = theme => ({
   root: {
-    display: 'flex'
+    display: 'flex',
+    backgroundColor: '#fff'
   },
   content: {
     flexGrow: 1,
@@ -108,7 +107,7 @@ class Content extends React.Component {
             <SidebarContainer />
           }
           <div className={classes.content}>
-            {login && <div className={classes.appBarSpacer} />}
+            {/* {login && <div className={classes.appBarSpacer} />} */}
             <Switch>
               <Route
                 path="/logout"
@@ -147,12 +146,12 @@ class Content extends React.Component {
                 />
                 <Route
                   path="/products"
-                  component={Products}
+                  component={ProductsContainer}
                 />
                 <Route
                   exact
                   path="/contacts"
-                  component={Products}
+                  component={ContactContainer}
                 />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />

@@ -15,4 +15,7 @@ export const REFRESH_TOKEN_URL = `${API_URL}token/refresh`
 export const PROJECT_URL = `${API_URL}projects`
 export const STAFF_URL = `${API_URL}staffs`
 
+export const PRODUCTS_URL = `${API_URL}products`
+export const PACKAGES_URL = `${API_URL}packages`
+
 export { serverUrl, API_URL }

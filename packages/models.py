@@ -3,8 +3,8 @@ from django.contrib.auth.models import User
 from KLTN.models import BaseModel
 
 PRODUCT_CHOICES = (
-    ('ACTIVE', 'ACTIVE'),
-    ('INACTIVE', 'INACTIVE')
+    ('ACTIVE', 'Active'),
+    ('INACTIVE', 'Inactive')
 )
 # Create your models here.
 
@@ -15,6 +15,8 @@ class Product(BaseModel):
         User, on_delete=models.CASCADE, related_name='products')
     description = models.TextField()
     status = models.TextField(choices=PRODUCT_CHOICES, default='ACTIVE')
+    start_sale_date = models.DateField(auto_now_add = True)
+    start_support_date = models.DateField(auto_now_add = True)
 
 
 class Package(BaseModel):

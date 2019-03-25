@@ -93,7 +93,7 @@ function Register(props) {
               Get started absolutely free
               </Typography>
             <br />
-            <form className={classes.form} onSubmit={submitRegister}>
+            <FormControl className={classes.form} onSubmit={submitRegister}>
               <Grid container>
                 {step == 1 &&
                   <>
@@ -235,7 +235,7 @@ function Register(props) {
                   </>
                 }
               </Grid>
-            </form>
+            </FormControl>
           </Grid>
           <Grid item md={6} className={classes.loginBorder}>
             <img src={RegisterImage} alt='image' />
