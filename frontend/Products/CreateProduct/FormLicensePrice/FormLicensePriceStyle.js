@@ -14,9 +14,15 @@ const styles = theme => ({
     width: 25,
     backgroundColor: '#a6a6a6',
     borderRadius: '50%',
-    top: 0,
-    right: 0
-  }
+    padding: '1px',
+    top: '-5px',
+    right: '-5px', 
+    color: '#fff',
+    cursor: 'pointer',
+    '&:hover': {
+      backgroundColor: '#5d6067'
+    }
+  },
 })
 
 export default styles;

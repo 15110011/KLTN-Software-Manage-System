@@ -34,16 +34,29 @@ function CreateProduct(props) {
     active: 'ACTIVE',
     saleStarDate: '',
     supportStartDate: '',
-    packages: []
+    packages: [],
+    prices: []
   })
   const [addBtn, setAddBtn] = React.useState({
     add: '',
     labelWidth: 0
   })
   const [error, setError] = React.useState({})
-  
   const [search, setSearch] = React.useState('')
-  
+
+  const onLicenseTypeClick = () => {
+    const prices = createProduct.prices.concat([])
+
+    prices.push({ month: '', price: 0 })
+    let a = { ...createProduct, prices }
+    setCreateProduct(a)
+  }
+
+  const onRemoveLicenseType = (index) => {
+    let prices = createProduct.prices.concat([])
+    prices = prices.slice(0, index).concat(prices.slice(index + 1))
+    setCreateProduct({ ...createProduct, prices })
+  }
 
   const handleChangeSearch = search => e => {
     setSearch(e.target.value);
@@ -299,8 +312,17 @@ function CreateProduct(props) {
                     ,
                     sellPrice:
                       <div style={{ display: 'inline-grid' }}>
-                          <FormLicensePrice />
-                        <Button variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
+                        {createProduct.prices.map((price, index) => {
+                          return (
+                            <FormLicensePrice key={index}
+                              onRemoveLicenseType={onRemoveLicenseType}
+                              price={price} />
+                          )
+                        })}
+                        <Button onClick={() => {
+                          console.log('?????')
+                          // onLicenseTypeClick() 
+                          }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
                           License Price
                         </Button>
                       </div>

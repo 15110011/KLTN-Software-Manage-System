@@ -28,10 +28,11 @@ function FormLicensePrice(props) {
 
   const { classes } = props;
 
+  console.log(234);
 
   return (
     <div>
-      <Grid container spacing={8} classes={{ container: classes.borderForm }}>
+      <Grid className="mt-3" container spacing={8} classes={{ container: classes.borderForm }}>
         <Grid item xs={6}>
           <FormControl variant="outlined" fullWidth className={classes.formControl}>
             <InputLabel
@@ -68,7 +69,7 @@ function FormLicensePrice(props) {
             }}
           />
         </Grid>
-        <div className={classes.removeBtn}>
+        <div onClick={props.onRemoveLicenseType(props.index)} className={classes.removeBtn}>
           <RemoveIcon />
         </div>
       </Grid>
