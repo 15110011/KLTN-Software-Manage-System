@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     "django_rq",
     'account',
     'packages',
-    'contacts'
+    'contacts',
+    'campaigns'
 ]
 
 MIDDLEWARE = [
