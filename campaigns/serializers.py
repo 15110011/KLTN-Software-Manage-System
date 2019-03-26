@@ -24,3 +24,8 @@ class CampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Campaign
         fields = '__all__'
+
+class CreateCampaignSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Campaign
+        fields = '__all__'
