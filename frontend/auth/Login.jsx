@@ -40,8 +40,6 @@ export default class Login extends React.Component {
     error: {}
   };
 
-  
-
   componentDidMount() {
     const { initUrl } = this.props
     if (this.props.user.username) {
@@ -87,8 +85,6 @@ export default class Login extends React.Component {
     const errObj = this.getError()
     if (Object.keys(errObj).length != 0)
       return
-
-
     apiPost(LoginURL, loginDetail)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
@@ -132,7 +128,7 @@ export default class Login extends React.Component {
                 Enter your details to login.
               </Typography>
               <br />
-              <FormControl className={classes.form} onSubmit={this.onLogin}>
+              <FormControl className={classes.form}>
                 <Grid container>
                   <Grid item md={9}>
                     <FormControl margin="normal" fullWidth error={error.all} required>
@@ -172,14 +168,14 @@ export default class Login extends React.Component {
                 <br />
                 <Button
                   type="submit"
+                  onClick={this.onLogin}
                   variant="contained"
                   color="primary"
                   className={classes.submit}
-                  onClick={this.handleLogin}
                 >
                   Login
                 </Button>{' '}
-                <Button type='button' >
+                <Button type='button'>
                   Forgot password?
                 </Button>
                 <br />

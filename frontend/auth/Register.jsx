@@ -18,7 +18,6 @@ import CompanyIcon from '@material-ui/icons/LocationCity';
 
 // Components
 import { Link } from 'react-router-dom';
-import RegisterForm2 from './RegisterForm2'
 
 // Style
 import styles from './RegisterStyle';
