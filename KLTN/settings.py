@@ -50,7 +50,9 @@ INSTALLED_APPS = [
     'account',
     'packages',
     'contacts',
-    'campaigns'
+    'campaigns',
+    'orders',
+    'steps'
 ]
 
 MIDDLEWARE = [

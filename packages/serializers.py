@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Package
+from .models import Product, Package, PackageHistory
 from account.serializers import MeSerializer
 from django.contrib.auth import get_user_model
 
@@ -25,6 +25,13 @@ class PackageSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         packages = super().create(validated_data)
         return packages
+
+
+class PackageHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageHistory
+        fields = '__al__'
+
 
 class CreateProductSerializer(serializers.ModelSerializer):
     packages = PackageSerializer(many=True)

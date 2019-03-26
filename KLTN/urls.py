@@ -9,11 +9,16 @@ from rest_framework_simplejwt.views import (
 from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView
 from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
+from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView
 
 router = DefaultRouter(trailing_slash=False)
 #package app
 router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
+#campaign app
+router.register('marketing_plan', MarketingPlanView, base_name='marketing_plan')
+router.register('followup_plan', FollowUpPlanView, base_name='followup_plan')
+router.register('campaign', CampaignView, base_name='campaign')
 #contact app
 router.register('contacts', ContactView, base_name='contacts')
 router.register('contactgroups', ContactGroupView, base_name='contactgroups')
