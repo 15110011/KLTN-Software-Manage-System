@@ -1,19 +1,7 @@
 from rest_framework import serializers
-from .models import Product, Package
+from .models import Product, Package, Feature
 from account.serializers import MeSerializer
 from django.contrib.auth import get_user_model
-
-
-class ProductSerializier(serializers.ModelSerializer):
-    manager = MeSerializer()
-    packages = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Product
-        fields = '__all__'
-
-    def get_packages(self, model):
-        return model.packages.values()
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -23,19 +11,49 @@ class PackageSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
-        packages = super().create(validated_data)
-        return packages
+        package = super().create(validated_data)
+        return package
+
+
+class FeatureSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Feature
+        fields = '__all__'
+
+
+class FeatureReadSerializer(serializers.ModelSerializer):
+
+    packages = PackageSerializer(many=True)
+
+    class Meta:
+        model = Feature
+        fields = '__all__'
+
+
+class ProductSerializier(serializers.ModelSerializer):
+    manager = MeSerializer()
+    features = FeatureSerializer(many=True) 
+    packages = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = '__all__'
+
+    def get_packages(self, instance):
+        print(instance.features)
+        return  ['a']
+
 
 class CreateProductSerializer(serializers.ModelSerializer):
-    packages = PackageSerializer(many=True)
+
+    manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    features = FeatureSerializer(many=True)
 
     class Meta:
         model = Product
         fields = '__all__'
 
     def create(self, validated_data):
-        packages = [Package(**item) for item in validated_data.pop('packages')]
-        packages = Package.objects.bulk_create(packages)
         product = super().create(validated_data)
-        product.packages.add(*packages)
         return product

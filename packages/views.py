@@ -10,9 +10,9 @@ from .models import Product, Package
 
 
 class ProductViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     serializer_class = ProductSerializier
     queryset = Product.objects.prefetch_related('packages')
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         serializer = CreateProductSerializer(data=request.data)
