@@ -26,3 +26,4 @@ class Campaign(BaseModel):
     start_date = models.DateField(auto_now_add=True)
     end_date = models.DateField(auto_now_add=True)
     description = models.TextField()
+
