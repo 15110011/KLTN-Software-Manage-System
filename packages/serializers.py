@@ -1,7 +1,11 @@
+
+from django.contrib.auth import get_user_model
+
+from rest_framework.fields import set_value
 from rest_framework import serializers
+
 from .models import Product, Package, Feature, PackageHistory
 from account.serializers import MeSerializer
-from django.contrib.auth import get_user_model
 
 
 class PackageSerializer(serializers.ModelSerializer):
@@ -19,8 +23,7 @@ class FeatureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Feature
-        fields = '__all__'
-
+        exclude = ['product']
 
 
 class PackageHistorySerializer(serializers.ModelSerializer):
@@ -39,7 +42,7 @@ class CreateProductSerializer(serializers.ModelSerializer):
 
 class ProductSerializier(serializers.ModelSerializer):
     manager = MeSerializer()
-    features = FeatureSerializer(many=True) 
+    features = FeatureSerializer(many=True)
     packages = serializers.SerializerMethodField()
 
     class Meta:
@@ -47,8 +50,10 @@ class ProductSerializier(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_packages(self, instance):
-        print(instance.features)
-        return  ['a']
+        features = instance.features.all()
+        packages = Package.objects.filter(features__in=features).distinct('id')
+        package_serialized = PackageSerializer(packages, many=True)
+        return package_serialized.data 
 
 
 class CreateProductSerializer(serializers.ModelSerializer):
@@ -61,5 +66,29 @@ class CreateProductSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def create(self, validated_data):
+        # packages = [Package(**p) for p in validated_data.pop('packages')]
+        packages = validated_data.pop('packages')
+        features = validated_data.pop('features')
         product = super().create(validated_data)
+        features = [Feature(**f, product=product)
+                    for f in features]
+        features = Feature.objects.bulk_create(features)
+        new_packages = []
+        for p in packages:
+            cur_features = []
+            for num in p['numbers']:
+                for f in features:
+                    if f.number == num:
+                        cur_features.append(f)
+            
+            cur_package = Package(name=p['name'], prices=p['prices'], discount=p['discount'])
+
+            cur_package.save()
+            cur_package.features.set(cur_features)
         return product
+
+    def to_internal_value(self, data):
+        ret = super().to_internal_value(data)
+        if 'packages' in data:
+            set_value(ret, ['packages'], data['packages'])
+        return ret
