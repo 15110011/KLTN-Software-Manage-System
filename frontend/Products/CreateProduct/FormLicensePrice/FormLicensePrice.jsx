@@ -7,9 +7,7 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import Select from '@material-ui/core/Select';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
-import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField'
-import Input from '@material-ui/core/Input';
 
 import styles from './FormLicensePriceStyle'
 import NumberFormatCustom from '../../../components/NumberFormatCustom'

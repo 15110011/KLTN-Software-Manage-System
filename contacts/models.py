@@ -24,3 +24,12 @@ class ContactGroup(BaseModel):
         User, on_delete=models.CASCADE, related_name='contact_groups')
     name = models.CharField(max_length=100)
     contacts = models.ManyToManyField(Contact, related_name='groups')
+
+
+class Note(BaseModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='notes')
+    contact = models.ForeignKey(
+        Contact, on_delete=models.CASCADE, related_name='notes')
+    name = models.CharField(max_length=255)
+    content = models.TextField()

@@ -1,20 +1,13 @@
 import * as React from 'react'
-import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import AddIcon from '@material-ui/icons/Add';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import AddIcon from '@material-ui/icons/Add'
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import TextField from '@material-ui/core/TextField';
-import OutlinedInput from '@material-ui/core/OutlinedInput';
-import MenuItem from '@material-ui/core/MenuItem';
+
 
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
@@ -22,21 +15,15 @@ import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 // Components 
-import FormLicensePrice from './FormLicensePrice/FormLicensePrice'
+import FormPackage from './FormPackage/FormPackage';
 
 
 import styles from './CreateProductStyle'
 
-const MONTHS = [
-  { value: '1', label: '1 Month' },
-  { value: '6', label: '6 Months' },
-  { value: '12', label: '1 Year' },
-  { value: '999', label: 'Lifetime' },
-]
-
-
 
 function CreateProduct(props) {
+  const [createProductStep, setCreateProductStep] = React.useState(1)
+
   const [createProduct, setCreateProduct] = React.useState({
     productName: '',
     description: '',
@@ -47,43 +34,9 @@ function CreateProduct(props) {
     prices: []
   })
 
-  const [addBtn, setAddBtn] = React.useState({
-    add: '',
-    labelWidth: 0
-  })
 
   const [error, setError] = React.useState({})
-  const [search, setSearch] = React.useState('')
-
-  const onLicenseTypeClick = () => {
-    const prices = createProduct.prices.concat([])
-
-    prices.push({ month: '', value: 0 })
-    setCreateProduct({ ...createProduct, prices })
-  }
-
-  const onRemoveLicenseType = (index) => {
-    let prices = createProduct.prices.concat([])
-    prices = prices.slice(0, index).concat(prices.slice(index + 1))
-    setCreateProduct({ ...createProduct, prices })
-  }
-
-  const onChangeLicenseInput = (e, index) => {
-    console.log(index, e.target.name, e.target.value)
-    const prices = createProduct.prices.concat([])
-    prices[index][e.target.name] = e.target.value
-    setCreateProduct({ ...createProduct, prices })
-  }
-
-  const handleChangeSearch = search => e => {
-    setSearch(e.target.value);
-  };
-
   let InputLabelRef = ''
-
-  const handleChange = e => {
-    setAddBtn({ [e.target.name]: e.target.value });
-  }
 
   const { classes, theme } = props;
 
@@ -131,261 +84,262 @@ function CreateProduct(props) {
                   Product Detail
                 </Typography>
                 <Grid container spacing={24}>
-                  <Grid item xs={6}>
-                    <Grid container className={"mt-3"}>
-                      <Grid className={classes.inputCustom} item xs={4}>
-                        <InputLabel
-                          required
-                          htmlFor="custom-css-standard-input"
-                          classes={{
-                            root: classes.cssLabel,
-                            focused: classes.cssFocused,
-                          }}
-                        >
-                          Product Name
-                    </InputLabel>
-                      </Grid>
-                      <Grid item xs={8}>
-                        <Input
-                          fullWidth
-                          required
-                          onChange={onChangeCreateProduct}
-                          value={createProduct.productName}
-                          name="productName"
-                          classes={{
-                            underline: classes.cssUnderline,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container className={"mt-3"}>
-                      <Grid className={classes.inputCustom} item xs={4}>
-                        <InputLabel
-                          htmlFor="custom-css-standard-input"
-                          classes={{
-                            root: classes.cssLabel,
-                            focused: classes.cssFocused,
-                          }}
-                        >
-                          Product Description
-                    </InputLabel>
-                      </Grid>
-                      <Grid item xs={8}>
-                        <Input
-                          fullWidth
-                          onChange={onChangeCreateProduct}
-                          value={createProduct.description}
-                          name="description"
-                          classes={{
-                            underline: classes.cssUnderline,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container className={"mt-3"}>
-                      <Grid className={classes.inputCustom} item xs={4}>
-                        <InputLabel
-                          required
-                          htmlFor="custom-css-standard-input"
-                          classes={{
-                            root: classes.cssLabel,
-                            focused: classes.cssFocused,
-                          }}
-                        >
-                          Product Active
-                    </InputLabel>
-                      </Grid>
-                      <Grid item xs={8}>
-                        <Input
-                          fullWidth
-                          required
-                          onChange={onChangeCreateProduct}
-                          value={createProduct.active}
-                          name="active"
-                          classes={{
-                            underline: classes.cssUnderline,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Grid container className={"mt-3"}>
-                      <Grid className={classes.inputCustom} item xs={4}>
-                        <InputLabel
-                          required
-                          htmlFor="custom-css-standard-input"
-                          classes={{
-                            root: classes.cssLabel,
-                            focused: classes.cssFocused,
-                          }}
-                        >
-                          Sales Start Date
-                    </InputLabel>
-                      </Grid>
-                      <Grid item xs={8}>
-                        <Input
-                          fullWidth
-                          required
-                          onChange={onChangeCreateProduct}
-                          value={createProduct.saleStarDate}
-                          name="saleStarDate"
-                          type="date"
-                          classes={{
-                            underline: classes.cssUnderline,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                    <Grid container className={"mt-3"}>
-                      <Grid className={classes.inputCustom} item xs={4}>
-                        <InputLabel
-                          required
-                          htmlFor="custom-css-standard-input"
-                          classes={{
-                            root: classes.cssLabel,
-                            focused: classes.cssFocused,
-                          }}
-                        >
-                          Support Start Date
-                    </InputLabel>
-                      </Grid>
-                      <Grid item xs={8}>
-                        <Input
-                          fullWidth
-                          required
-                          onChange={onChangeCreateProduct}
-                          value={createProduct.supportStartDate}
-                          name="supportStartDate"
-                          type="date"
-                          classes={{
-                            underline: classes.cssUnderline,
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </div>
-              <MaterialTable
-                columns={[
-                  { title: 'Actions', field: 'actions' },
-                  { title: 'Package Name', field: 'packageName' },
-                  { title: 'Sell Price', field: 'sellPrice' },
                   {
-                    title: 'Notes', field: 'notes',
-                  },
-                ]}
-                data={[
-                  {
-                    actions:
-                      <FormControl variant="outlined" className={classes.formControl}>
-                        <InputLabel
-                          ref={ref => {
-                            InputLabelRef = ref;
-                          }}
-                          htmlFor="outlined-age-simple"
-                        >
-                          Add
-                      </InputLabel>
-                        <Select
-                          value={addBtn.add}
-                          onChange={handleChange}
-                          input={
-                            <OutlinedInput
-                              labelWidth={addBtn.labelWidth}
-                              name="age"
-                              id="outlined-age-simple"
-                            />
-                          }
-                        >
-                          <MenuItem value={10}>Ten</MenuItem>
-                          <MenuItem value={20}>Twenty</MenuItem>
-                          <MenuItem value={30}>Thirty</MenuItem>
-                        </Select>
-                      </FormControl>
-                    ,
-                    packageName:
-                      <form className={classes.container} noValidate autoComplete="off">
-                        <Grid container>
-                          <Grid item xs={12} className="mb-3">
+                    createProductStep == 1 &&
+                    <>
+                      <Grid item xs={6}>
+                        <Grid container className={"mt-3"}>
+                          <Grid className={classes.inputCustom} item xs={4}>
+                            <InputLabel
+                              required
+                              htmlFor="custom-css-standard-input"
+                              classes={{
+                                root: classes.cssLabel,
+                                focused: classes.cssFocused,
+                              }}
+                            >
+                              Product Name
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={8}>
                             <Input
-                              placeholder="Type package's name..."
                               fullWidth
-                              className={classes.input}
-                              inputProps={{
-                                'aria-label': 'Package Name',
+                              required
+                              onChange={onChangeCreateProduct}
+                              value={createProduct.productName}
+                              name="productName"
+                              classes={{
+                                underline: classes.cssUnderline,
                               }}
                             />
                           </Grid>
-                          <Grid item xs={12}>
-                            <Button variant="outlined" color="default" className={classes.addFeatureButton}>
-                              Add Feature
-                              <AddIcon className={classes.addIcon} />
-                            </Button>
+                        </Grid>
+                        <Grid container className={"mt-3"}>
+                          <Grid className={classes.inputCustom} item xs={4}>
+                            <InputLabel
+                              htmlFor="custom-css-standard-input"
+                              classes={{
+                                root: classes.cssLabel,
+                                focused: classes.cssFocused,
+                              }}
+                            >
+                              Product Description
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeCreateProduct}
+                              value={createProduct.description}
+                              name="description"
+                              classes={{
+                                underline: classes.cssUnderline,
+                              }}
+                            />
                           </Grid>
                         </Grid>
-                      </form>
-                    ,
-                    sellPrice:
-                      <div style={{ display: 'inline-grid' }}>
-                        {createProduct.prices.map((price, index) => {
-                          let thisScopeIndex = index
-                          return (
-                            <FormLicensePrice key={`priceIndex${thisScopeIndex}`}
-                              onRemoveLicenseType={() => { onRemoveLicenseType(thisScopeIndex) }}
-                              price={price}
-                              onInputChange={(e) => onChangeLicenseInput(e, index)}
-                              months={
-                                MONTHS.reduce((acc, m) => {
-                                  if (createProduct.prices.findIndex(p => p.month == m.value && p.month != price.month) == -1) {
-                                    acc.push(<MenuItem value={m.value}>{m.label}</MenuItem>)
-                                  }
-                                  return acc
-                                }, [])
-                              }
+                        <Grid container className={"mt-3"}>
+                          <Grid className={classes.inputCustom} item xs={4}>
+                            <InputLabel
+                              required
+                              htmlFor="custom-css-standard-input"
+                              classes={{
+                                root: classes.cssLabel,
+                                focused: classes.cssFocused,
+                              }}
+                            >
+                              Product Active
+                    </InputLabel>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Input
+                              fullWidth
+                              required
+                              onChange={onChangeCreateProduct}
+                              value={createProduct.active}
+                              name="active"
+                              classes={{
+                                underline: classes.cssUnderline,
+                              }}
                             />
-                          )
-                        })}
-                        <Button onClick={() => {
-                          console.log('?????')
-                          onLicenseTypeClick()
-                        }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
-                          License Price
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Grid container className={"mt-3"}>
+                          <Grid className={classes.inputCustom} item xs={4}>
+                            <InputLabel
+                              required
+                              htmlFor="custom-css-standard-input"
+                              classes={{
+                                root: classes.cssLabel,
+                                focused: classes.cssFocused,
+                              }}
+                            >
+                              Sales Start Date
+                    </InputLabel>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Input
+                              fullWidth
+                              required
+                              onChange={onChangeCreateProduct}
+                              value={createProduct.saleStarDate}
+                              name="saleStarDate"
+                              type="date"
+                              classes={{
+                                underline: classes.cssUnderline,
+                              }}
+                            />
+                          </Grid>
+                        </Grid>
+                        <Grid container className={"mt-3"}>
+                          <Grid className={classes.inputCustom} item xs={4}>
+                            <InputLabel
+                              required
+                              htmlFor="custom-css-standard-input"
+                              classes={{
+                                root: classes.cssLabel,
+                                focused: classes.cssFocused,
+                              }}
+                            >
+                              Support Start Date
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Input
+                              fullWidth
+                              required
+                              onChange={onChangeCreateProduct}
+                              value={createProduct.supportStartDate}
+                              name="supportStartDate"
+                              type="date"
+                              classes={{
+                                underline: classes.cssUnderline,
+                              }}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Typography variant="h5" gutterBottom>
+                          Feature Info
+                        </Typography>
+                        <Grid container spacing={8}>
+                          <Grid item xs={6}>
+                            <Grid container className={"mt-3"}>
+                              <Grid className={classes.inputCustom} item xs={4}>
+                                <InputLabel
+                                  required
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                >
+                                  Feature Name
+                            </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  fullWidth
+                                  required
+                                  onChange={onChangeCreateProduct}
+                                  value={createProduct.productName}
+                                  name="productName"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                />
+                              </Grid>
+                            </Grid>
+                            <Grid container className={"mt-3"}>
+                              <Grid className={classes.inputCustom} item xs={4}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                >
+                                  Product Description
+                            </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  fullWidth
+                                  onChange={onChangeCreateProduct}
+                                  value={createProduct.description}
+                                  name="description"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                />
+                              </Grid>
+                            </Grid>
+                            <Grid container className={"mt-3"}>
+                              <Grid className={classes.inputCustom} item xs={4}>
+                                <InputLabel
+                                  required
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                >
+                                  Product Active
+                    </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  fullWidth
+                                  required
+                                  onChange={onChangeCreateProduct}
+                                  value={createProduct.active}
+                                  name="active"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                />
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                      <Grid item xs={12} className="d-flex justify-content-center mt-4">
+                        <Button
+                          // disabled
+                          type="button"
+                          variant="contained"
+                          color="primary"
+                          className={classes.submit}
+                          onClick={() => setCreateProductStep(2)}
+                        >
+                          Next
                         </Button>
-                      </div>
-                    ,
-                    notes:
-                      <Input
-                        fullWidth
-                        placeholder="Notes"
-                        className={classes.input}
-                        inputProps={{
-                          'aria-label': 'Description',
-                        }}
-                      />
-
-                  },
-                ]}
-                title="Basic"
-                options={{
-                  toolbar: false,
-                  paging: false,
-                }}
-              />
-              <Grid container>
-                <Grid item xs={12} className="d-flex justify-content-center mt-3">
-                  <Button variant="contained" className={classes.button}>
-                    CANCEL
-                </Button>&nbsp;&nbsp;
-                <Button type="submit" variant="contained" color="primary" className={classes.button}>
-                    CREATE
-                </Button>
+                      </Grid>
+                    </>
+                  }
+                  {
+                    createProductStep == 2 &&
+                    <>
+                      <FormPackage />
+                      <Grid container>
+                        <Grid item xs={12} className="d-flex justify-content-center mt-3">
+                          <Button onClick={() => { setCreateProductStep(1) }} variant="contained" className={classes.button}>
+                            BACK
+                      </Button>&nbsp;&nbsp;
+                      <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                            CREATE
+                      </Button>
+                        </Grid>
+                      </Grid>
+                    </>
+                  }
                 </Grid>
-              </Grid>
+              </div>
             </form>
           </Paper>
-
         </Grid>
       </Grid>
     </div>

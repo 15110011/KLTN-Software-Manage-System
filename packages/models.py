@@ -27,9 +27,17 @@ class Feature(BaseModel):
     price = models.IntegerField()
 
 
+    permission_classes = (IsAuthenticated,)
 class Package(BaseModel):
     name = models.CharField(max_length=255)
     price = models.FloatField()
     discount = models.IntegerField()
     features = models.ManyToManyField(
         Feature, related_name="packages")
+
+class PackageHistory(BaseModel):
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='package_history')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='package_history')
+    date = models.DateField(auto_now_add=True)
+    action = models.TextField()

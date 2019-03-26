@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, Package, Feature
+from .models import Product, Package, Feature, PackageHistory
 from account.serializers import MeSerializer
 from django.contrib.auth import get_user_model
 
@@ -22,8 +22,14 @@ class FeatureSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class FeatureReadSerializer(serializers.ModelSerializer):
 
+class PackageHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PackageHistory
+        fields = '__al__'
+
+
+class CreateProductSerializer(serializers.ModelSerializer):
     packages = PackageSerializer(many=True)
 
     class Meta:

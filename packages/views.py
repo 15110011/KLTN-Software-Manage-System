@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from rest_framework import status
-from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer
-from .models import Product, Package
+from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer, PackageHistorySerializer
+from .models import Product, Package, PackageHistory
 # Create your views here.
 
 
@@ -26,3 +26,7 @@ class PackageViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = PackageSerializer
     queryset = Package.objects
+
+class PackageHistoryViewSet(ModelViewSet):
+    serializer_class = PackageHistorySerializer
+    queryset = PackageHistory.objects

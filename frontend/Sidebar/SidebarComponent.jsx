@@ -151,8 +151,8 @@ const SidebarComponent = props => {
           open={Boolean(anchorEl)}
           onClose={() => setAnchorEl(null)}
         >
-         
-          <MenuItem onClick={()=> props.history.push('/logout')}>Log out</MenuItem>
+
+          <MenuItem onClick={() => props.history.push('/logout')}>Log out</MenuItem>
           <MenuItem>A</MenuItem>
           <MenuItem>A</MenuItem>
         </Menu>
@@ -169,7 +169,7 @@ const SidebarComponent = props => {
         open={openSidebar}
       >
         <div className={classes.toolbarIcon}>
-          <Typography component="h1" variant="h6" color="inherit">
+          <Typography style={{ cursor: 'pointer' }} onClick={() => { props.history.push('/dashboard') }} component="h1" variant="h6" color="inherit">
             Manage System
           </Typography>
           <IconButton onClick={props.onToggleDrawer} color="inherit">
@@ -243,7 +243,7 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle1} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={()=> props.history.push('/products')}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/products')}>
                 <ListItemIcon>
                   <ProductIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -284,7 +284,7 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle2} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/dashboard')}>
                 <ListItemIcon>
                   <DashboardIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
