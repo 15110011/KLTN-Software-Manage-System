@@ -9,7 +9,7 @@ from account.serializers import MeSerializer
 class ContactWithoutGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
-        mode = models.Contact
+        model = models.Contact
         exclude = ['groups']
 
 
@@ -20,8 +20,7 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ContactGroup
         # fields = '__all__'
-        exclude= ['user']
-
+        exclude = ['user']
 
 
 class GroupWithoutContactSerializer(serializers.ModelSerializer):
@@ -38,9 +37,15 @@ class ContactReadSerializer(serializers.ModelSerializer):
         model = models.Contact
         fields = '__all__'
 
+
 class ContactSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Contact
         fields = '__all__'
-    
+
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Note
+        fields = '__all__'

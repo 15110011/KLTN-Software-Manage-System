@@ -10,15 +10,20 @@ from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView
 from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView
+from orders.views import OrderHistoryView, OrderView, PackageOrderView
 
 router = DefaultRouter(trailing_slash=False)
 #package app
 router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
 #campaign app
-router.register('marketing_plan', MarketingPlanView, base_name='marketing_plan')
-router.register('followup_plan', FollowUpPlanView, base_name='followup_plan')
+router.register('marketing-plan', MarketingPlanView, base_name='marketing_plan')
+router.register('followup-plan', FollowUpPlanView, base_name='followup_plan')
 router.register('campaign', CampaignView, base_name='campaign')
+#order app
+router.register('orders', OrderView, base_name='orders')
+router.register('order-histories', OrderHistoryView, base_name='order-histories')
+router.register('package-orders', PackageOrderView, base_name='package-orders')
 #contact app
 router.register('contacts', ContactView, base_name='contacts')
 router.register('contactgroups', ContactGroupView, base_name='contactgroups')
