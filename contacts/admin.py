@@ -1,10 +1,15 @@
 from django.contrib import admin
-from . import models
+from .models import Contact, ContactGroup, Note
 
-@admin.register(models.Contact)
+
+@admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    pass
+    pass    
 
-@admin.register(models.ContactGroup)
+@admin.register(ContactGroup)
 class ContactGroupAdmin(admin.ModelAdmin):
+    pass    
+
+@admin.register(Note)
+class NoteAdmin(admin.ModelAdmin):
     pass

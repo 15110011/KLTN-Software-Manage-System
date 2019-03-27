@@ -14,7 +14,7 @@ class Order(BaseModel):
     sale_rep = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='orders')
     note = models.ForeignKey(
-        Note, on_delete=models.CASCADE, related_name='orders')
+        Note, on_delete=models.CASCADE, related_name='orders', null=True)
     name = models.CharField(max_length=255)
     status = models.CharField(max_length=100)
     packages = models.ManyToManyField(
