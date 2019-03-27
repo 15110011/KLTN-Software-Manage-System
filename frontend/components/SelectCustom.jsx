@@ -55,8 +55,7 @@ const styles = theme => ({
     }
   },
   paper: {
-    position: 'absolute',
-    zIndex: 100000000000,
+    position: 'static',
     left: 0,
     right: 0
   },

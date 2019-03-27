@@ -32,7 +32,7 @@ function ProductList(props) {
         <Grid item xs={12}>
             <MaterialTable
               columns={[
-                { title: '#', field: 'numeral', type: 'numeric' },
+                { title: '#', field: 'numeral', type: 'numeric', cellStyle: {width: '50px'}, filtering: false },
                 { title: 'Name', field: 'name' },
                 { title: 'Description', field: 'description' },
                 {
@@ -42,9 +42,9 @@ function ProductList(props) {
               ]}
               data={products.data.map(
                 (product, index) => ({
-                  numberal: index + 1,
+                  numeral: index + 1,
                   name: product.name,
-                  description: product.description,
+                  description: product.desc,
                   status: product.status
                 })
               )}
@@ -61,7 +61,7 @@ function ProductList(props) {
               options={{
                 selection: true,
                 filtering: true,
-                paging: false
+                paging: true
               }}
             />
         </Grid>

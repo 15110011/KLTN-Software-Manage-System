@@ -11,7 +11,15 @@ import CreateProduct from './CreateProduct/CreateProduct';
 
 function ProductsContainer(props) {
   const [status, setStatus] = React.useState(false)
-  
+  const [checkCreateProductButton, setcheckCreateProductButton] = React.useState(true)
+
+  React.useEffect(() => {
+    if (window.location.pathname == '/products') {
+      setcheckCreateProductButton(true)
+    } else {
+      setcheckCreateProductButton(false)
+    }
+  })
   return (
     <div>
       <Paper className="d-flex justify-content-between" style={{
@@ -29,12 +37,18 @@ function ProductsContainer(props) {
             style: { color: 'black' }
           }}
         />
-        <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/products/add')}><AddIcon />&nbsp;Add Product</Button>
+        {
+          props.user.profile.is_manager && checkCreateProductButton &&
+          <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/products/add')}><AddIcon />&nbsp;Add Product</Button>
+        }
       </Paper>
       <BreadcrumbsItem to='/products'>Products</BreadcrumbsItem>
       <Switch>
         <Route exact path="/products" component={(props) => (<ProductList {...props} />)} />
-        <Route path="/products/add" component={(props) => (<CreateProduct {...props} setStatus={setStatus} />)} />
+        {
+          props.user.profile.is_manager &&
+          <Route path="/products/add" component={(props) => (<CreateProduct {...props} setStatus={setStatus} />)} />
+        }
         <Route path="/products/:id" component={(props) => (<ProductDetail {...props} />)} />
       </Switch>
     </div>
