@@ -29,7 +29,7 @@ class ContactGroupView(ModelViewSet):
     serializer_class = serializers.GroupSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = serializers.GroupWithoutContactSerializer(data=request.data)
+        serializer = serializers.GroupWithoutContactSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
 
@@ -37,7 +37,7 @@ class ContactGroupView(ModelViewSet):
     
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = serializers.GroupWithoutContactSerializer(instance, data=request.data)
+        serializer = serializers.GroupWithoutContactSerializer(instance, data=request.data, partial=True ,context={"request": request})
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
