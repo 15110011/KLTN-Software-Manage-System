@@ -12,7 +12,8 @@ from .models import Order, OrderHistory, PackageOrder
 class OrderView(ModelViewSet):
     queryset = Order.objects
     serializer_class = OrderSerializer
-
+    permission_classes = (IsAuthenticated,)
+    
     def create(self, request, *args, **kwargs):
         serializer = CreateOrderSerialzier(
             data=request.data, context={'request': request})
@@ -33,8 +34,11 @@ class OrderView(ModelViewSet):
 class OrderHistoryView(ModelViewSet):
     queryset = OrderHistory.objects
     serializer_class = OrderHistorySerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class PackageOrderView(ModelViewSet):
     queryset = PackageOrder.objects
     serializer_class = PackageOrderSerialzier
+    permission_classes = (IsAuthenticated,)
+

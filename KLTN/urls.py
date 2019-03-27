@@ -11,6 +11,7 @@ from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView
 from orders.views import OrderHistoryView, OrderView, PackageOrderView
+from steps.views import StepView, StepDetailView
 
 router = DefaultRouter(trailing_slash=False)
 #package app
@@ -27,6 +28,10 @@ router.register('package-orders', PackageOrderView, base_name='package-orders')
 #contact app
 router.register('contacts', ContactView, base_name='contacts')
 router.register('contactgroups', ContactGroupView, base_name='contactgroups')
+#step app
+router.register('steps', StepView, base_name='steps')
+router.register('step-detail', StepDetailView, base_name='step-detail')
+
 
 urlpatterns = []
 urlpatterns += router.urls
