@@ -12,8 +12,10 @@ from .serializers import StepSerialzier, StepDetailSerialzier
 class StepView(ModelViewSet):
     queryset = Step.objects
     serializer_class = StepSerialzier
+    permission_classes = (IsAuthenticated,)
 
 
 class StepDetailView(ModelViewSet):
     queryset = StepDetail.objects
     serializer_class = StepDetailSerialzier
+    permission_classes = (IsAuthenticated,)

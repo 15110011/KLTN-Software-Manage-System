@@ -16,7 +16,7 @@ class Step(BaseModel):
 
 class StepDetail(BaseModel):
     step = models.ForeignKey(
-        Step, on_delete=models.CASCADE, related_name='step_detail')
+        Step, on_delete=models.CASCADE, related_name='step_detail', null=True)
     order = models.ForeignKey(
         'orders.Order', on_delete=models.CASCADE, related_name='step_details')
     information = JSONField()
