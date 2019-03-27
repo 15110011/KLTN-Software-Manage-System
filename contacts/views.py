@@ -29,7 +29,6 @@ class ContactGroupView(ModelViewSet):
     serializer_class = serializers.GroupSerializer
 
     def create(self, request, *args, **kwargs):
-        # queryset = self.get_queryset()
         serializer = serializers.GroupWithoutContactSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)

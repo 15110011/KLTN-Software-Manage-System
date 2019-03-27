@@ -10,12 +10,13 @@ from .models import Product, Package, PackageHistory
 
 
 class ProductViewSet(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     serializer_class = ProductSerializier
-    queryset = Product.objects.prefetch_related('packages')
+    queryset = Product.objects.prefetch_related('features')
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
-        serializer = CreateProductSerializer(data=request.data)
+        serializer = CreateProductSerializer(
+            data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -26,6 +27,7 @@ class PackageViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = PackageSerializer
     queryset = Package.objects
+
 
 class PackageHistoryViewSet(ModelViewSet):
     serializer_class = PackageHistorySerializer

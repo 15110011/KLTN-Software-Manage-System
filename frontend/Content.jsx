@@ -58,9 +58,6 @@ class Content extends React.Component {
       if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
         this.props.history.push('/logout')
       }
-      else {
-        this.setState({ user: res.data })
-      }
     })
   }
 
@@ -89,15 +86,15 @@ class Content extends React.Component {
     // }
   }
 
-  setLogin = (status)  => {
-    this.setState({login: status})
+  setLogin = (status) => {
+    this.setState({ login: status })
   }
 
 
   render() {
     const { classes } = this.props;
     const { user, initUrl, login } = this.state;
-    
+
     return (
       <USER_CONTEXT.Provider value={{ user }}>
         <div className={classes.root}>
@@ -133,7 +130,7 @@ class Content extends React.Component {
                 <Route path="/" component={props => {
                   return <Redirect to="/login" />
                 }} />
-                
+
               </Switch>}
               )}
             </Switch>
