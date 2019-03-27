@@ -29,83 +29,22 @@ const MONTHS = [
 ]
 
 function FormPackage(props) {
-  const [anchorEl, setAnchorEl] = React.useState(null)
+  const { 
+    createProduct, 
+    classes, 
+    anchorEl, 
+    handleProfileMenuOpen, 
+    onRemoveLicenseType, 
+    handleAddPackageForm, 
+    setAnchorEl, 
+    onLicenseTypeClick,
+    onChangeLicenseInput,
+    handleRemovePackageForm
+   } = props;
 
-  const [createProduct, setCreateProduct] = React.useState({
-    productName: '',
-    description: '',
-    active: 'ACTIVE',
-    saleStarDate: '',
-    supportStartDate: '',
-    packages: [
-      {
-        name: '',
-        prices: [
-          { month: '', value: '' }
-        ],
-        discount: 0,
-        features: []
-      }
-    ],
-    features: []
-  })
-  const handleProfileMenuOpen = e => {
-    setAnchorEl(e.currentTarget);
-  };
-  let InputLabelRef = ''
-  const onLicenseTypeClick = (packageIndex) => {
-    const packages = createProduct.packages.concat([])
-    packages[packageIndex].prices.push({ month: '', value: '' })
-    setCreateProduct({ ...createProduct, packages })
-  }
-
-  const onRemoveLicenseType = (packageIndex, priceIndex) => {
-    const packages = createProduct.packages.concat([])
-    packages[packageIndex].prices = packages[packageIndex].prices.slice(0, priceIndex)
-      .concat(packages[packageIndex].prices.slice(priceIndex + 1))
-    setCreateProduct({ ...createProduct, packages })
-  }
-
-  const onChangeLicenseInput = (e, packageIndex, priceIndex) => {
-    const packages = createProduct.packages.concat([])
-    packages[packageIndex].prices[priceIndex][e.target.name] = e.target.value
-    setCreateProduct({ ...createProduct, packages })
-  }
-
-  const handleAddPackageForm = () => {
-    const packages = createProduct.packages.concat([])
-    packages.push({
-      name: '',
-      prices: [
-        { month: '', value: '' }
-      ],
-      discount: 0,
-      features: []
-    })
-    setCreateProduct({ ...createProduct, packages })
-  }
-
-  const handleRemovePackageForm = (packageIndex) => {
-    let packages = createProduct.packages.concat([])
-    packages = packages.slice(0, packageIndex)
-    .concat(packages.slice(packageIndex + 1))
-    setCreateProduct({ ...createProduct, packages })
-  }
-
-  const handleChangeSearch = search => e => {
-    setSearch(e.target.value);
-  };
-  const [addBtn, setAddBtn] = React.useState({
-    add: '',
-    labelWidth: 0
-  })
-  const { classes, theme } = props;
-  const handleChange = e => {
-    setAddBtn({ [e.target.name]: e.target.value });
-  }
   return (
-    <div>
-      <MaterialTable 
+    <Grid item xs={12}>
+      <MaterialTable
         columns={[
           { title: '', field: 'actions' },
           { title: 'Package Name', field: 'packageName' },
@@ -140,7 +79,7 @@ function FormPackage(props) {
                         <MenuItem onClick={() => {
                           handleAddPackageForm()
                         }}>
-                        Add
+                          Add
                         </MenuItem>
                         <MenuItem onClick={() => { handleRemovePackageForm(packageIndex) }}>Remove</MenuItem>
                       </Menu>
@@ -172,17 +111,17 @@ function FormPackage(props) {
                 sellPrice:
                   (<div style={{ display: 'inline-grid' }}>
                     {
-                      p.prices.map((price, priceIndex) => {
+                      Object.keys(p.prices).map((pkey, priceIndex) => {
                         let thisScopeIndex = priceIndex
                         return (
                           <>
                             <FormLicensePrice key={`priceIndex${thisScopeIndex}`}
-                              onRemoveLicenseType={() => { onRemoveLicenseType(packageIndex, thisScopeIndex) }}
-                              price={price}
-                              onInputChange={(e) => onChangeLicenseInput(e, packageIndex, thisScopeIndex)}
+                              onRemoveLicenseType={() => { onRemoveLicenseType(packageIndex, pkey) }}
+                              price={{ value: p.prices[pkey], month: pkey }}
+                              onInputChange={(e, curMonth) => onChangeLicenseInput(e, packageIndex, curMonth)}
                               months={
                                 MONTHS.reduce((acc, m) => {
-                                  if (p.prices.findIndex(pr => pr.month == m.value && pr.month != price.month) == -1) {
+                                  if (Object.keys(p.prices).findIndex(pr => pr == m.value && pr != pkey) == -1) {
                                     acc.push(<MenuItem value={m.value}>{m.label}</MenuItem>)
                                   }
                                   return acc
@@ -193,9 +132,7 @@ function FormPackage(props) {
                           </>
                         )
                       })
-
                     }
-
                     <Button onClick={() => {
                       onLicenseTypeClick(packageIndex)
                     }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
@@ -223,7 +160,7 @@ function FormPackage(props) {
           paging: false,
         }}
       />
-    </div>
+    </Grid>
   )
 }
 

@@ -44,7 +44,7 @@ function FormLicensePrice(props) {
             </InputLabel>
             <Select
               value={price.month}
-              onChange={props.onInputChange}
+              onChange={e=>props.onInputChange(e,price.month)}
               input={
                 <OutlinedInput
                   labelWidth={addBtn.labelWidth}
@@ -64,11 +64,10 @@ function FormLicensePrice(props) {
             label="Price"
             name='value'
             value={price.value}
-            onChange={props.onInputChange}
+            onChange={e=>props.onInputChange(e,price.month)}
             InputProps={{
               inputComponent: NumberFormatCustom
             }}
-            required
             fullWidth
             className={classes.input}
           />
