@@ -8,8 +8,15 @@ contacts.settings(
     number_of_replicas=0
 )
 
+
 @contacts.doc_type
 class ContactDocument(DocType):
+    full_name = fields.TextField(attr='_get_fullname',
+                                 fields={
+                                     'raw': fields.StringField(analyzer='keyword'),
+                                     'suggest': fields.CompletionField(attr='_get_fullname')
+                                 })
+
     class Meta:
         model = Contact
-        fields = Contact.field_names
+        fields = []

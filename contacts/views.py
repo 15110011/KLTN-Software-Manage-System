@@ -77,15 +77,20 @@ class ContactGroupView(ModelViewSet):
         if query is not None:
             search = documents.ContactDocument.search()
             match = MultiMatch(query=query, fields=[
-                               'first_name', 'last_name'], type='best_fields')
+                               'full_name'], type='best_fields')
             search = search.query(match)
-            contacts = [model_to_dict(contact) for contact in search.to_queryset()]
-            return Response(contacts)
+            suggest = search.suggest('auto_complete', query, completion={
+                                     'field': 'full_name.suggest'})
+            response = suggest.execute()
+            suggestion = [option._source.full_name for option in response.suggest.auto_complete[0].options]
+            contacts = [model_to_dict(contact)
+                        for contact in search.to_queryset()]
+            return Response({"contacts": contacts, "suggestions": suggestion})
         queryset = models.Contact.objects.filter(groups__id=instance.id)
 
         serializer = serializers.ContactWithoutGroupSerializer(
             queryset, many=True)
-       
+
         contacts = {
             "data": serializer.data,
             "total": queryset.count()
