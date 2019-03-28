@@ -93,9 +93,6 @@ function CreateProduct(props) {
   }
 
   const handleUpdateFeature = (e, rowData) => {
-
-    console.log('OnRow')
-
     setUpdatingUnit(rowData.tableData.id)
     setCreateFeature({
       name: rowData.fname,
@@ -137,7 +134,6 @@ function CreateProduct(props) {
       packages[packageIndex].prices = { ...packages[packageIndex].prices, [remainMonths[0].value]: '' }
       setCreateProduct({ ...createProduct, packages })
     }
-
   }
 
   const onRemoveLicenseType = (packageIndex, month) => {
@@ -321,7 +317,7 @@ function CreateProduct(props) {
                             focused: classes.cssFocused,
                           }}
                         >
-                          Product Description
+                          Description
                             </InputLabel>
                       </Grid>
                       <Grid item xs={8}>
@@ -594,7 +590,6 @@ function CreateProduct(props) {
                           })
                         }
                         onRowClick={(e, rowData) => handleUpdateFeature(e, rowData)}
-                        // onSelectionChange={onSelectionChange}
                         title="Basic"
                         options={{
                           toolbar: false,

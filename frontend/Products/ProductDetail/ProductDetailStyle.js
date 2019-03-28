@@ -27,6 +27,14 @@ const styles = theme => ({
     width: '50px',
     padding: '12px',
   },
+  cssLabel: {
+    position: 'absolute',
+    bottom: 20,
+    marginBottom: '0'
+  },
+  inputCustom: {
+    position: 'relative'
+  },
 });
 
 export default styles;

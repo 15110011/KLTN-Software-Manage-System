@@ -86,7 +86,7 @@ export const apiPut = (url, data, multipart, authorization) => {
     .then(res => ({ data: res }))
 }
 
-export const apiPatch = (url, data, authorization) => {
+export const apiPatch = (url, data, multipart, authorization) => {
   const headers = {
     'Content-type': multipart ? 'multipart/form-data' : 'application/json',
     'X-CSRFToken': Cookies.get('csrftoken')

@@ -7,8 +7,26 @@ from rest_framework import serializers
 from .models import Product, Package, Feature, PackageHistory
 from account.serializers import MeSerializer
 
+class FeatureSerializer(serializers.ModelSerializer):
+
+    label = serializers.SerializerMethodField()
+    value = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Feature
+        exclude = ['product']
+
+    def get_label(self, instance):
+
+        return instance.name
+    
+    def get_value(self, instance):
+
+        return instance.id
 
 class PackageSerializer(serializers.ModelSerializer):
+
+    numbers = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
@@ -18,12 +36,9 @@ class PackageSerializer(serializers.ModelSerializer):
         package = super().create(validated_data)
         return package
 
-
-class FeatureSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Feature
-        exclude = ['product']
+    def get_numbers(self, instance):
+        features_serialized = FeatureSerializer(instance.features.all(), many=True)
+        return features_serialized.data
 
 
 class PackageHistorySerializer(serializers.ModelSerializer):
