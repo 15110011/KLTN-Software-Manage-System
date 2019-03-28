@@ -1,12 +1,17 @@
 from django.shortcuts import render
 from django.db.models import Q
+from django.http import JsonResponse
+from django.forms.models import model_to_dict
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from elasticsearch_dsl.query import MultiMatch
+from elasticsearch_dsl import Q
 from . import serializers
 from . import models
+from . import documents
 
 # Create your views here.
 
@@ -68,12 +73,19 @@ class ContactGroupView(ModelViewSet):
     @action(detail=True, methods=['GET'])
     def contacts(self, request, pk=None):
         instance = self.get_object()
-
+        query = request.query_params.get('q', None)
+        if query is not None:
+            search = documents.ContactDocument.search()
+            match = MultiMatch(query=query, fields=[
+                               'first_name', 'last_name'], type='best_fields')
+            search = search.query(match)
+            contacts = [model_to_dict(contact) for contact in search.to_queryset()]
+            return Response(contacts)
         queryset = models.Contact.objects.filter(groups__id=instance.id)
 
         serializer = serializers.ContactWithoutGroupSerializer(
             queryset, many=True)
-
+       
         contacts = {
             "data": serializer.data,
             "total": queryset.count()

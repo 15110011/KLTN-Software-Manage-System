@@ -17,6 +17,7 @@ class Contact(BaseModel):
     country = models.CharField(max_length=15, null=True, blank=True)
     zipcode = models.IntegerField(null=True, blank=True)
 
+Contact.field_names = [f.name for f in Contact._meta.fields[4:6]]
 
 class ContactGroup(BaseModel):
 
