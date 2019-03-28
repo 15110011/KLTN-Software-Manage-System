@@ -137,6 +137,12 @@ RQ_QUEUES = {
     }
 }
 
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': os.getenv('ELASTICSEARCH_URL', 'elasticsearch:9200')
+    },
+}
+
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
