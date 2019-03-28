@@ -3,13 +3,24 @@ import { withStyles } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
 import { Grid, TextField, Button, Input, InputLabel } from '@material-ui/core'
 
+import SelectCustom from '../../../components/SelectCustom'
 import styles from './styles'
+import { apiGet } from '../../common/Request';
 
 function GroupDialog(props) {
 
   const [createObj, setCreateObj] = React.useState({
-
+    contacts: [],
+    name: ''
   })
+
+  const [allContacts, setAllContacts] = React.useState({ data: [] })
+
+  React.useEffect(() => {
+    // Effect
+    apiGet()    
+  })
+  
 
 
   const { toggleGroupDialog, canAddContacts, classes } = props
@@ -18,6 +29,10 @@ function GroupDialog(props) {
   // event handler 
   const onChangeInput = (e) => {
     setCreateObj({ ...createObj, [e.target.name]: e.target.value })
+  }
+
+  const handleChangeSelect = (values, element) => {
+    setCreateObj({ ...createObj, contacts: values })
   }
 
   return (
@@ -63,7 +78,24 @@ function GroupDialog(props) {
                 </InputLabel>
               </Grid>
               <Grid item xs={9}>
-                  
+                <SelectCustom
+                  options={contacts.map(c => ({
+                    label: `${c.first_name} ${c.last_name}`,
+                    value: c.d,
+                    ...f
+                  }))}
+                  handleChange={(values, element) => handleChangeSelect(values, element)}
+                  data={
+                    createObj.contacts
+                      .reduce((acc, c) => {
+                        acc.push({ label: `${c.first_name} ${c.last_name}`, value: c.id, ...c })
+                        return acc
+                      }, [])
+                  }
+                  multi
+                  placeholder=""
+                  label=""
+                />
               </Grid>
             </>
           }
