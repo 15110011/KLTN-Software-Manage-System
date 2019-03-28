@@ -4,7 +4,6 @@ from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.fields import set_value
 
 from importlib import import_module
-from django.conf import settings
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model, authenticate, login
@@ -14,6 +13,7 @@ from django.template.loader import render_to_string
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from . import models
+from KLTN import settings
 
 import re
 
@@ -105,8 +105,10 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
     def create(self, validated_data):
         profile = validated_data.pop('profile')
         self.user = User.objects.create_user(**validated_data)
-        # mail_subject = 'Activate your AQV Management System account.'
-        
+        self.user.is_active = False
+        mail_subject = 'Activate your AQV Management System account.'
+        message = 'Please click this link below to activate your account'
+        send_mail(mail_subject, message,settings.EMAIL_HOST_USER,[self.user.email])
         new_profile = models.Profile(
             user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
         new_profile.save()
