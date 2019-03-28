@@ -8,6 +8,8 @@ from django.conf import settings
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model, authenticate, login
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -55,8 +57,6 @@ class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSeria
     def create(self, validated_data):
         username = validated_data.get("username")
         password = validated_data.get("password")
-        # print(validated_data)
-        print('1111111111111111111111')
         self.user = authenticate(username=username, password=password)
 
         if self.user is None:
@@ -71,7 +71,6 @@ class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSeria
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
         if 'oldPassword' in data:
-            # set_value(ret, ['old_password'], data['oldPassword'])
             username = ret["username"]
             old_password = ret["old_password"]
             self.user = authenticate(username=username, password=old_password)
@@ -90,6 +89,7 @@ class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSeria
     def validate(self, attrs):
         return attrs
 
+
 class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer):
     username = serializers.CharField(write_only=True)
     profile = ProfileSerializer()
@@ -103,26 +103,14 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
         }
 
     def create(self, validated_data):
-        # if hasattr(self.context.get('request'), 'register'):
         profile = validated_data.pop('profile')
-        # try:
         self.user = User.objects.create_user(**validated_data)
-
+        # mail_subject = 'Activate your AQV Management System account.'
+        
         new_profile = models.Profile(
             user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
         new_profile.save()
         self.user.profile = new_profile
-        # self.user.save()
-        # except:
-        #     raise ValidationError(detail={"username": "Username is existed"})
-        # elif hasattr(self.context.get('request'), 'login'):
-        #     username = validated_data.get("username")
-        #     password = validated_data.get("password")
-        #     self.user = authenticate(username=username, password=password)
-
-        #     if self.user is None:
-        #         raise ValidationError(
-        #             detail={'all': 'Sai username hoặc mật khẩu'})
         return self.user
 
     def validate(self, attrs):
