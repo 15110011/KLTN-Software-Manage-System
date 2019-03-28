@@ -21,7 +21,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
-import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
+import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
+
+// API
+import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { apiGet, apiPost } from '../../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
 
 import styles from './ProductDetailStyle'
 
@@ -33,7 +38,6 @@ function TabContainer(props) {
   );
 }
 
-
 function ProductDetail(props) {
   const { classes, theme } = props;
   const [value, setValue] = React.useState(0)
@@ -43,6 +47,31 @@ function ProductDetail(props) {
   })
   const [search, setSearch] = React.useState('')
   const [month, setMonth] = React.useState('')
+  const [error, setError] = React.useState({})
+  const [productDetailData, setProductDetailData] = React.useState({})
+
+  React.useEffect(() => {
+    const id = props.match.params.id
+    const data = apiGet(PRODUCTS_URL + "/" + id, true)
+      .then(res => {
+        console.log(res);
+
+        if (res.data.code == "token_not_valid") {
+          apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
+              this.props.history.push('/logout')
+            }
+            else {
+              localStorage.setItem("token", res.data.access)
+            }
+          })
+        }
+        else if (res.data.code == BAD_REQUEST) {
+          setError(res.data)
+        }
+        setProductDetailData(data)
+      })
+  },[])
 
   const handleChangeMonth = month => e => {
     setMonth(e.target.value)
@@ -125,7 +154,7 @@ function ProductDetail(props) {
                           focused: classes.cssFocused,
                         }}
                       >
-                        Product Active:
+                        Status
                     </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
@@ -310,7 +339,7 @@ function ProductDetail(props) {
                     ]}
                     title="Basic"
                     options={{
-                      headerStyle: {fontSize: '16px', fontWeight: '600'},
+                      headerStyle: { fontSize: '16px', fontWeight: '600' },
                       toolbar: false,
                       paging: false,
                     }}

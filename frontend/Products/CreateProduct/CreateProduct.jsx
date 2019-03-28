@@ -15,11 +15,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import * as cn from 'classnames'
+
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
 import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 import TableHeader from 'material-table/dist/m-table-header'
+
 // Components 
 import FormPackage from './FormPackage/FormPackage';
 
@@ -344,7 +346,7 @@ function CreateProduct(props) {
                             focused: classes.cssFocused,
                           }}
                         >
-                          Product Active
+                          Status
                           </InputLabel>
                       </Grid>
                       <Grid item xs={8}>
