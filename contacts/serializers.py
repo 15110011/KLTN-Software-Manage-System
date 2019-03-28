@@ -10,7 +10,8 @@ class ContactWithoutGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Contact
-        exclude = ['groups']
+        # exclude = ['groups']
+        fields='__all__'
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -25,9 +26,17 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class GroupWithoutContactSerializer(serializers.ModelSerializer):
 
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # contacts = serializers.PrimaryKeyRelatedField(
+    #     many=True, read_only=True)
+
     class Meta:
         model = models.ContactGroup
-        exclude = ['contacts']
+        fields = "__all__"
+
+    def update(self, instance, validated_data):
+        print(validated_data)
+        return super().update(instance, validated_data)
 
 
 class ContactReadSerializer(serializers.ModelSerializer):
