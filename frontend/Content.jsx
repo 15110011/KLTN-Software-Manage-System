@@ -24,6 +24,7 @@ import Register from './auth/Register';
 import Dashboard from './Dashboard/DashboardContainer';
 import ProductsContainer from './Products/ProductsContainer';
 import ContactContainer from './Contacts/ContactsContainer';
+import { ObjectFlags } from 'typescript';
 
 const styles = theme => ({
   root: {
@@ -135,7 +136,7 @@ class Content extends React.Component {
               )}
             </Switch>
 
-            {login &&
+            {login && Object.keys(user).length > 0 &&
               <Switch>
                 <Route
                   path="/dashboard"
@@ -146,7 +147,6 @@ class Content extends React.Component {
                   component={ProductsContainer}
                 />
                 <Route
-                  exact
                   path="/contacts"
                   component={ContactContainer}
                 />

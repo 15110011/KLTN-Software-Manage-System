@@ -29,18 +29,18 @@ const MONTHS = [
 ]
 
 function FormPackage(props) {
-  const { 
-    createProduct, 
-    classes, 
-    anchorEl, 
-    handleProfileMenuOpen, 
-    onRemoveLicenseType, 
-    handleAddPackageForm, 
-    setAnchorEl, 
+  const {
+    createProduct,
+    classes,
+    anchorEl,
+    handleProfileMenuOpen,
+    onRemoveLicenseType,
+    handleAddPackageForm,
+    setAnchorEl,
     onLicenseTypeClick,
     onChangeLicenseInput,
     handleRemovePackageForm
-   } = props;
+  } = props;
 
   return (
     <Grid item xs={12}>
