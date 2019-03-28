@@ -7,11 +7,25 @@ import AddIcon from '@material-ui/icons/Add';
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 
 import Breadcrumb from '../components/Breadcrumb'
-port ContactDetail from './ContactDetail';
-import CreateContact from './CreateProduct';
+import ContactDetail from './ContactDetail';
+import CreateContact from './CreateContact';
 import ContactList from './ContactList';
 
 function ContactContainer(props) {
+
+  const [canClickAdd, setCanClickAdd] = React.useState(false)
+
+  React.useEffect(() => {
+    // Effect
+    if (window.location.pathname == '/contacts') {
+      setCanClickAdd(true)
+    }
+    else {
+      setCanClickAdd(false)
+    }
+  })
+
+
   return (
     <div>
       <Paper className="d-flex justify-content-between" style={{
@@ -29,12 +43,17 @@ function ContactContainer(props) {
             style: { color: 'black' }
           }}
         />
-        <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/contacts/add')}><AddIcon />&nbsp;Add Contact</Button>
+
+        {canClickAdd &&
+          <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/contacts/add')}><AddIcon />&nbsp;Add Contact</Button>
+        }
+
+
       </Paper>
       <BreadcrumbsItem to='/contacts'>Contacts</BreadcrumbsItem>
       <Switch>
         <Route exact path="/contacts" component={(props) => (<ContactList {...props} />)} />
-        <Route path="/contacts/add" component={(props) => (<CreateContact {...props} setStatus={setStatus} />)} />
+        <Route path="/contacts/add" component={(props) => (<CreateContact {...props} />)} />
         <Route path="/contacts/:id" component={(props) => (<ContactDetail {...props} />)} />
       </Switch>
     </div>

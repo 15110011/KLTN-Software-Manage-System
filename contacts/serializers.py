@@ -10,7 +10,8 @@ class ContactWithoutGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Contact
-        exclude = ['groups']
+        # exclude = ['groups']
+        fields='__all__'
 
 
 class GroupSerializer(serializers.ModelSerializer):

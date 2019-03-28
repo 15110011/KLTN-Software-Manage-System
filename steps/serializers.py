@@ -12,3 +12,15 @@ class StepDetailSerialzier(serializers.ModelSerializer):
     class Meta:
         model = StepDetail
         fields = '__all__'
+
+
+class StepWithOutFollowUpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Step
+        exclude = ['follow_up']
+
+
+class StepDetailWithoutOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = StepDetail
+        exclude = ['order']

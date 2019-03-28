@@ -12,12 +12,14 @@ import Divider from '@material-ui/core/Divider';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import IconButton from '@material-ui/core/IconButton';
+import DeleteIcon from '@material-ui/icons/Delete';
 import * as cn from 'classnames'
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
 import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
-
+import TableHeader from 'material-table/dist/m-table-header'
 // Components 
 import FormPackage from './FormPackage/FormPackage';
 
@@ -34,16 +36,18 @@ const MONTHS = [
 function CreateProduct(props) {
   const [createProductStep, setCreateProductStep] = React.useState(1)
   const [anchorEl, setAnchorEl] = React.useState(null)
+  const [updatingUnit, setUpdatingUnit] = React.useState(-1)
   const [addBtn, setAddBtn] = React.useState({
     add: '',
     labelWidth: 0
   })
+  const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
   const [error, setError] = React.useState({})
 
   const [createProduct, setCreateProduct] = React.useState({
-    productName: '',
-    description: '',
-    active: 'ACTIVE',
+    name: '',
+    desc: '',
+    status: 'ACTIVE',
     saleStarDate: '',
     supportStartDate: '',
     packages: [
@@ -52,17 +56,64 @@ function CreateProduct(props) {
         prices:
           { '1': '' },
         discount: 0,
-        features: []
+        features: [],
+        numbers: []
       }
     ],
     features: []
   })
 
+  const handleChangeSelect = (values, element, packageIndex) => {
+    const packages = createProduct.packages.concat([])
+    packages[packageIndex].numbers = values
+    setCreateProduct({ ...createProduct, packages })
+  }
+
   const [createFeature, setCreateFeature] = React.useState({
     name: '',
     price: '',
-    desc: ''
+    desc: '',
+    number: ''
   })
+
+  const handleDeleteFeature = (e, unitIndex) => {
+    e.stopPropagation()
+    let features = createProduct.features.concat([])
+    features = features.slice(0, unitIndex)
+      .concat(features.slice(unitIndex + 1))
+    setCreateProduct({ ...createProduct, features })
+    setCreateFeature({
+      name: '',
+      price: '',
+      desc: '',
+      number: ''
+    })
+  }
+
+  const handleUpdateFeature = (e, rowData) => {
+
+    console.log('OnRow')
+
+    setUpdatingUnit(rowData.tableData.id)
+    setCreateFeature({
+      name: rowData.fname,
+      price: rowData.fprice,
+      desc: rowData.fdesc,
+    })
+    setUpdateFeatureBtn(true)
+  }
+
+  const onClickUpdateFeature = (e) => {
+    const features = createProduct.features.concat([])
+    features[updatingUnit] = { ...features[updatingUnit], ...createFeature }
+    setCreateProduct({ ...createProduct, features })
+    toggleUpdateFeature()
+  }
+
+
+  const toggleUpdateFeature = e => {
+    setUpdateFeatureBtn(!updateFeatureBtn)
+  }
 
   const { classes } = props;
 
@@ -88,25 +139,18 @@ function CreateProduct(props) {
   }
 
   const onRemoveLicenseType = (packageIndex, month) => {
-
     const packages = createProduct.packages.concat([])
-
     delete packages[packageIndex].prices[month]
     setCreateProduct({ ...createProduct, packages })
-
   }
 
   const onChangeLicenseInput = (e, packageIndex, curMonth) => {
     const packages = createProduct.packages.concat([])
     if (e.target.name == 'month') {
-      // if (!packages[packageIndex].prices[cur]) {
-      //   packages[packageIndex].prices[e.target.value] = ''
-      // }
-      // else {
       if (e.target.value != curMonth) {
         packages[packageIndex].prices[e.target.value] = packages[packageIndex].prices[curMonth]
         delete packages[packageIndex].prices[curMonth]
-      }    // }
+      }
     }
     else if (e.target.name == 'value') {
       packages[packageIndex].prices[curMonth] = e.target.value
@@ -123,16 +167,21 @@ function CreateProduct(props) {
         { '1': '' }
       ,
       discount: 0,
-      features: []
+      features: [],
+      numbers: []
     })
     setCreateProduct({ ...createProduct, packages })
   }
 
   const handleRemovePackageForm = (packageIndex) => {
     let packages = createProduct.packages.concat([])
-    packages = packages.slice(0, packageIndex)
-      .concat(packages.slice(packageIndex + 1))
-    setCreateProduct({ ...createProduct, packages })
+    if (packages.length == 1) {
+      return;
+    } else {
+      packages = packages.slice(0, packageIndex)
+        .concat(packages.slice(packageIndex + 1))
+      setCreateProduct({ ...createProduct, packages })
+    }
   }
 
   const handleChangeSearch = search => e => {
@@ -154,16 +203,21 @@ function CreateProduct(props) {
 
   const onCreateProduct = (e, buttonName) => {
     e.preventDefault()
-    if (buttonName == 'nextProduct') {
-      return
-    }
-    else {
-      apiPostProduct()
-    }
+    // if (buttonName == 'nextProduct') {
+    //   return
+    // }
+    // else {
+    // }
+    apiPostProduct()
   }
 
   const apiPostProduct = () => {
-    apiPost(PRODUCTS_URL, createProduct, false, true)
+    const cloneProduct = JSON.parse(JSON.stringify(createProduct))
+    cloneProduct.packages = cloneProduct.packages.map(p => {
+      p.numbers = p.numbers.map(n => n.number)
+      return p
+    })
+    apiPost(PRODUCTS_URL, cloneProduct, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -187,9 +241,24 @@ function CreateProduct(props) {
 
   const handleCreateFeature = (e) => {
     const features = createProduct.features.concat([])
-    features.push(createFeature)
-
-    setCreateProduct({ ...CreateProduct, features })
+    let err = {}
+    if (createFeature.name == '') {
+      err.fname = 'You must fill in feature name field'
+    }
+    if (createFeature.price == '') {
+      err.fprice = 'You must fill in feature price field'
+    }
+    if (!Object.keys(err).length) {
+      features.push({ ...createFeature, number: features.length + 1 })
+      setCreateProduct({ ...createProduct, features })
+    }
+    setCreateFeature({
+      name: '',
+      price: '',
+      desc: '',
+      number: ''
+    })
+    setError({ ...err })
   }
 
   const onChangeCreateProduct = e => {
@@ -201,7 +270,10 @@ function CreateProduct(props) {
       <BreadcrumbsItem to='/products/add'>ABC</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Paper className={classes.paper}>
-          <form onSubmit={() => onCreateProduct(e, buttonName)}>
+          <form onSubmit={(e) => {
+            onCreateProduct(e)
+          }
+          }>
             <div style={{ textAlign: 'left', padding: '40px' }}>
               {
                 createProductStep == 1 &&
@@ -230,7 +302,7 @@ function CreateProduct(props) {
                           fullWidth
                           required
                           onChange={onChangeCreateProduct}
-                          value={createProduct.productName}
+                          value={createProduct.name}
                           name="name"
                           classes={{
                             underline: classes.cssUnderline,
@@ -278,16 +350,16 @@ function CreateProduct(props) {
                       <Grid item xs={8}>
                         <FormControl fullWidth className={classes.formControl}>
                           <Select
-                            value={createProduct.active}
+                            value={createProduct.status}
                             onChange={onChangeCreateProduct}
                             displayEmpty
-                            name="Active"
+                            name="status"
                             className={classes.selectEmpty}
                           >
-                            <MenuItem value="active">
+                            <MenuItem value="ACTIVE">
                               ACTIVE
                             </MenuItem>
-                            <MenuItem value="inactive">IN-ACTIVE</MenuItem>
+                            <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
                           </Select>
                         </FormControl>
                       </Grid>
@@ -373,9 +445,11 @@ function CreateProduct(props) {
                             </InputLabel>
                         </Grid>
                         <Grid item xs={8}>
+
                           <Input
                             fullWidth
                             required
+                            error={error.fname}
                             onChange={onChangeCreateFeature}
                             value={createFeature.name}
                             name="name"
@@ -385,6 +459,7 @@ function CreateProduct(props) {
                           />
                         </Grid>
                       </Grid>
+
                       <Grid container spacing={40}>
                         <Grid className={classes.inputCustom} item xs={4}>
                           <InputLabel
@@ -402,6 +477,7 @@ function CreateProduct(props) {
                           <Input
                             fullWidth
                             required
+                            error={error.fprice}
                             type="number"
                             onChange={onChangeCreateFeature}
                             value={createFeature.price}
@@ -438,23 +514,60 @@ function CreateProduct(props) {
                           />
                         </Grid>
                       </Grid>
+
                     </Grid>
-                    <Grid xs={12} className="d-flex justify-content-center">
-                      <Button
-                        type="button"
-                        variant="contained"
-                        color="primary"
-                        onClick={handleCreateFeature}
-                      >
-                        Add Feature
+                    <Grid item xs={12}>
+                      {
+                        Object.keys(error).map(k => (<p className="text-danger">
+                          {error[k]}
+                        </p>
+                        ))
+                      }
+                    </Grid>
+                    <Grid item xs={12} className="d-flex justify-content-center">
+
+                      {
+                        updateFeatureBtn == false &&
+                        <Button
+                          type="button"
+                          variant="contained"
+                          color="primary"
+                          onClick={handleCreateFeature}
+                        >
+                          Add Feature
                       </Button>
+                      }
+                      {
+                        updateFeatureBtn == true &&
+                        <>
+                          <Button
+                            type="button"
+                            variant="contained"
+                            color="default"
+                            onClick={toggleUpdateFeature}
+                          >
+                            cancel
+                      </Button>
+                          &nbsp;
+                          <Button
+                            type="button"
+                            variant="contained"
+                            color="primary"
+                            onClick={onClickUpdateFeature}
+                          >
+                            Update
+                      </Button>
+                        </>
+                      }
                     </Grid>
                   </Grid>
 
                   <Grid container spacing={40} className="mt-4">
                     <Grid item xs={12}>
                       <MaterialTable
+                        // components={{ Header: TableHeader}}
                         columns={[
+                          // { render: () => { return (<div>cac</div>) } },
                           { title: '#', field: 'numeral' },
                           { title: 'Feature Name', field: 'fname' },
                           { title: 'Feature Price', field: 'fprice', type: 'numeric' },
@@ -462,6 +575,7 @@ function CreateProduct(props) {
                             title: 'Feature Description',
                             field: 'fdesc',
                           },
+                          { title: 'Action', field: 'action' }
                         ]}
                         data={
                           createProduct.features.map((f, index) => {
@@ -469,10 +583,16 @@ function CreateProduct(props) {
                               numeral: (index + 1),
                               fname: (f.name),
                               fprice: (f.price),
-                              fdesc: (f.desc)
+                              fdesc: (f.desc),
+                              action:
+                                <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
                             })
                           })
                         }
+                        onRowClick={(e, rowData) => handleUpdateFeature(e, rowData)}
+                        // onSelectionChange={onSelectionChange}
                         title="Basic"
                         options={{
                           toolbar: false,
@@ -490,7 +610,7 @@ function CreateProduct(props) {
                       className={classes.submit}
                       onClick={() => {
                         setCreateProductStep(2)
-                        onClickButton()
+                        // onClickButton()
                       }}
                     >
                       Next
@@ -520,6 +640,7 @@ function CreateProduct(props) {
                     onLicenseTypeClick={onLicenseTypeClick}
                     onChangeLicenseInput={onChangeLicenseInput}
                     handleRemovePackageForm={handleRemovePackageForm}
+                    handleChangeSelect={handleChangeSelect}
                   />
                   <Grid container>
                     <Grid item xs={12} className={cn("justify-content-center", "mt-3", "d-flex")}>
@@ -540,7 +661,7 @@ function CreateProduct(props) {
                 </Grid>
               }
               <input type="submit" name="nextProduct" className="d-none" ref={buttonRef}></input>
-            </div>
+            </p>
           </form>
         </Paper>
       </Grid>

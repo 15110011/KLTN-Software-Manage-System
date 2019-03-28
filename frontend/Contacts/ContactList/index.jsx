@@ -4,8 +4,20 @@ import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
+import Select from '@material-ui/core/Select'
+import MenuItem from '@material-ui/core/MenuItem'
+import Menu from '@material-ui/core/Menu';
+import FormControl from '@material-ui/core/FormControl'
+import Button from '@material-ui/core/Button'
+import { InputLabel } from '@material-ui/core';
+
+
 import useFetchData from '../../CustomHook/useFetchData'
 import { CONTACT_URL, GROUP_URL } from "../../common/urls";
+import { apiGet } from '../../common/Request';
+import { getDefaultCompilerOptions } from 'typescript';
+import GroupDialog from '../GroupDialog'
+
 
 const styles = theme => ({
   root: {
@@ -22,18 +34,99 @@ const styles = theme => ({
     maxWidth: '90%',
   }
 });
+
 function ContactList(props) {
-  const [contacts, setContacts, setContactURL, forceUpdateContact] = useFetchData(CONTACT_URL, props.history, { data: [], total: 0 })
+  const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
+  const [selectingGroup, setSelectingGroup] = React.useState(-1)
+  const [actionAnchorEl, setActionAnchorEl] = React.useState(null)
+  const [groupDialog, setGroupDialog] = React.useState(false)
+
+
+
+
+
+  // const [contacts, setContacts] = React.useState({ data: [], total: 0 })
+  React.useEffect(() => {
+    // Effect
+    if (groups.data[0]) {
+      setSelectingGroup(groups.data[0].id)
+      apiGet(GROUP_URL + '/' + groups.data[0].id + '/contacts', true).then(res => {
+        setContacts({ ...res.data })
+      })
+    }
+
+  }, [groups.data.length])
+
+
+
+
   const { classes } = props;
+
+  //event handler 
+
+  const onChangeGroup = (e) => {
+
+    setSelectingGroup(e.target.value)
+    apiGet(GROUP_URL + '/' + e.target.value + '/contacts', true).then(res => {
+      setContacts({ ...res.data })
+    })
+  }
+
+  const onClickActionBtn = e => {
+    setActionAnchorEl(e.currentTarget)
+  }
+
+  const toggleGroupDialog = () => {
+    setGroupDialog(!groupDialog)
+  }
 
   return (
     <div className={classes.root}>
+      {
+        groupDialog && <GroupDialog toggleGroupDialog={toggleGroupDialog}/>
+      }
+      <Menu
+        anchorEl={actionAnchorEl}
+        // anchorOrigin={{ horizontal: 'center' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        open={Boolean(actionAnchorEl)}
+        onClose={() => setActionAnchorEl(null)}
+      >
+
+        <MenuItem onClick={() => toggleGroupDialog()}>Create Contact Group</MenuItem>
+      </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
+        <Grid item xs={2} className='my-3'>
+          <FormControl fullWidth className={classes.formControl}>
+            <InputLabel>Contact Group</InputLabel>
+            <Select
+              value={selectingGroup}
+              onChange={onChangeGroup}
+              displayEmpty
+              name="Active"
+              variant="filled"
+              className={classes.selectEmpty}
+            >
+              {
+                groups.data.map(g => {
+                  return (
+                    <MenuItem value={g.id} key={`groups${g.id}`}>
+                      {g.name}
+                    </MenuItem>
+                  )
+                })
+              }
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={1} className='my-3 d-flex flex-column justify-content-end'>
+          <Button onClick={onClickActionBtn}>Action</Button>
+        </Grid>
         <Grid item xs={12}>
           <MaterialTable
             columns={[
-              { title: '#', field: '#', type: 'numeric' },
+              { title: '#', field: '#', type: 'numeric', cellStyle: { width: '100px' } },
               { title: 'Full name', field: 'fullName' },
               { title: 'Email', field: 'email' },
               {

@@ -33,7 +33,6 @@ const styles = theme => ({
   },
   content: {
     flexGrow: 1,
-    height: '100vh',
     justifyContent: 'center',
     paddingTop: '65px'
   },
@@ -42,7 +41,11 @@ const styles = theme => ({
 
 class Content extends React.Component {
   state = {
-    user: {},
+    user: {
+      profile: {
+        is_manager: false
+      }
+    },
     login: Boolean(localStorage.getItem('token')),
     initUrl: window.location.pathname == '/register' || window.location.pathname == '/login' ? '/dashboard' : window.location.pathname
   };
@@ -95,6 +98,7 @@ class Content extends React.Component {
   render() {
     const { classes } = this.props;
     const { user, initUrl, login } = this.state;
+    
 
     return (
       <USER_CONTEXT.Provider value={{ user }}>
@@ -144,7 +148,7 @@ class Content extends React.Component {
                 />
                 <Route
                   path="/products"
-                  component={ProductsContainer}
+                  component={props=><ProductsContainer {...props} user={user} />}
                 />
                 <Route
                   path="/contacts"

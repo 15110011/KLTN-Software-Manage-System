@@ -17,9 +17,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 
 // Components
 import FormLicensePrice from '../FormLicensePrice/FormLicensePrice'
+import SelectCustom from '../../../components/SelectCustom'
 
 
 import styles from './FormPackageStyle'
+import { element } from 'prop-types';
 
 const MONTHS = [
   { value: '1', label: '1 Month' },
@@ -39,9 +41,10 @@ function FormPackage(props) {
     setAnchorEl,
     onLicenseTypeClick,
     onChangeLicenseInput,
-    handleRemovePackageForm
+    handleRemovePackageForm,
+    handleChangeSelect
   } = props;
-
+  
   return (
     <Grid item xs={12}>
       <MaterialTable
@@ -100,10 +103,20 @@ function FormPackage(props) {
                         />
                       </Grid>
                       <Grid item xs={12}>
-                        <Button variant="outlined" color="default" className={classes.addFeatureButton}>
-                          Add Feature
-                                  {/* <AddIcon className={classes.addIcon} /> */}
-                        </Button>
+                        <SelectCustom
+                          options={createProduct.features.map(f => ({ label: f.name, value: f.number, ...f }))}
+                          handleChange={(values, element) => handleChangeSelect(values, element, packageIndex)}
+                          data={
+                            createProduct.packages[packageIndex].numbers
+                              .reduce((acc, p) => {
+                                acc.push({ label: p.name, value: p.number, ...p })
+                                return acc
+                              }, [])
+                          }
+                          multi
+                          placeholder=""
+                          label="Features"
+                        />
                       </Grid>
                     </Grid>
                   </form>)
