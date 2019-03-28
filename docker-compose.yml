@@ -11,12 +11,23 @@ services:
     depends_on:
       - postgres
       - redis
+      - elasticsearch
     restart: always
+  
   postgres:
     image: postgres:alpine
     environment:
       - POSTGRES_PASSWORD=postgres
     ports:
       - 5443:5432
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.5.0
+    ports:
+      - 9200:9200
+      - 9300:9300
+  
   redis:
     image: redis:alpine
+    ports:
+      - 6379:6379

@@ -18,6 +18,8 @@ requests = "*"
 redis = "*"
 rq = "*"
 django-redis = "*"
+django-elasticsearch-dsl = {git = "https://github.com/HansAdema/django-elasticsearch-dsl.git",ref = "elasticsearch-6"}
+elasticsearch-dsl = "==6.1.0"
 django-rq = "*"
 rq-scheduler = "*"
 

@@ -2,7 +2,7 @@ from rest_framework import serializers
 from account.serializers import MeSerializer
 from contacts.serializers import ContactSerializer, NoteSerializer
 from packages.serializers import PackageSerializer
-from steps.serializers import StepDetailSerialzier
+from steps.serializers import StepDetailWithoutOrderSerializer
 from steps.models import StepDetail
 
 from . import models
@@ -20,7 +20,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerialzier(serializers.ModelSerializer):
-    step_details = StepDetailSerialzier(many=True)
+    step_details = StepDetailWithoutOrderSerializer(many=True)
 
     class Meta:
         model = models.Order
