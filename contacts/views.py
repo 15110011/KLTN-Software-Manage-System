@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
@@ -14,6 +15,7 @@ class ContactView(ModelViewSet):
 
     queryset = models.Contact.objects
     serializer_class = serializers.ContactSerializer
+    permission_class = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -32,7 +34,10 @@ class ContactGroupView(ModelViewSet):
     serializer_class = serializers.GroupSerializer
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset().filter(user=request.user)
+        filters = Q(user=request.user)
+        if 'groups' in request.query_params:
+            filters.add(Q(groups__name=request.query_params['groups']))
+        queryset = self.get_queryset().filter(filters)
         serializer = serializers.GroupWithoutContactSerializer(
             queryset, many=True, context={'request': request})
         new_serializer = {
@@ -74,4 +79,3 @@ class ContactGroupView(ModelViewSet):
             "total": queryset.count()
         }
         return Response(contacts, status=status.HTTP_200_OK)
-
