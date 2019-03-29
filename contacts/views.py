@@ -35,15 +35,25 @@ class ContactGroupView(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         filters = Q(user=request.user)
-        if 'groups' in request.query_params:
-            filters.add(Q(groups__name=request.query_params['groups']))
+        isFindGroupDefault = False
+        if 'group' in request.query_params:
+            filters.add(Q(name=request.query_params['group']), Q.AND)
+            if request.query_params['group'] == 'ALL':
+                isFindGroupDefault = True
         queryset = self.get_queryset().filter(filters)
-        serializer = serializers.GroupWithoutContactSerializer(
-            queryset, many=True, context={'request': request})
-        new_serializer = {
-            "data": serializer.data,
-            "total": self.get_queryset().filter(user=request.user).count()
-        }
+        if isFindGroupDefault:
+            serializer = serializers.GroupSerializer(
+                queryset, context={'request': request}, many=True)
+
+            new_serializer = serializer.data[0]
+
+        else:
+            serializer = serializers.GroupWithoutContactSerializer(
+                queryset, many=True, context={'request': request})
+            new_serializer = {
+                "data": serializer.data,
+                "total": self.get_queryset().filter(user=request.user).count()
+            }
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
@@ -52,9 +62,12 @@ class ContactGroupView(ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = serializers.GroupWithoutContactSerializer(
             data=request.data, context={"request": request})
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
 
+        try:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+        except:
+            return Response({"name": 'This name is existed'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):

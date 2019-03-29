@@ -1,11 +1,16 @@
 const styles = theme => ({
   root: {
     flexGrow: 1,
+    display: 'flex',
+    justifyContent: 'center'
   },
   paper: {
     padding: theme.spacing.unit * 4,
     textAlign: 'center',
     color: theme.palette.text.secondary,
+  },
+  fixTable: {
+    maxWidth: '90%',
   },
   cssLabel: {
     position: 'absolute',
@@ -36,10 +41,13 @@ const styles = theme => ({
     padding: '12px',
   },
   addIcon: {
-    marginLeft: theme.spacing.unit 
+    marginLeft: theme.spacing.unit
   },
   addFeatureButton: {
     padding: 10
+  },
+  completeNotice: {
+    backgroundColor: '#68d668db'
   }
 });
 

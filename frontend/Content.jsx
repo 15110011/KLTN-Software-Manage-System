@@ -140,7 +140,7 @@ class Content extends React.Component {
               )}
             </Switch>
 
-            {login && Object.keys(user).length > 0 &&
+            {login && user.username &&
               <Switch>
                 <Route
                   path="/dashboard"

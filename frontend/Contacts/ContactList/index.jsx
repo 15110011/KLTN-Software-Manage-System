@@ -10,6 +10,7 @@ import Menu from '@material-ui/core/Menu';
 import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
 import { InputLabel } from '@material-ui/core';
+import Snackbar from '@material-ui/core/Snackbar'
 
 
 import useFetchData from '../../CustomHook/useFetchData'
@@ -18,22 +19,23 @@ import { apiGet } from '../../common/Request';
 import { getDefaultCompilerOptions } from 'typescript';
 import GroupDialog from '../GroupDialog'
 
+import styles from './ContactListStyle'
 
-const styles = theme => ({
-  root: {
-    display: 'flex',
-    flexGrow: 1,
-    justifyContent: 'center'
-  },
-  paper: {
-    padding: theme.spacing.unit * 4,
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-  },
-  fixTable: {
-    maxWidth: '90%',
-  }
-});
+// const styles = theme => ({
+//   root: {
+//     display: 'flex',
+//     flexGrow: 1,
+//     justifyContent: 'center'
+//   },
+//   paper: {
+//     padding: theme.spacing.unit * 4,
+//     textAlign: 'center',
+//     color: theme.palette.text.secondary,
+//   },
+//   fixTable: {
+//     maxWidth: '90%',
+//   }
+// });
 
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
@@ -42,9 +44,7 @@ function ContactList(props) {
   const [actionAnchorEl, setActionAnchorEl] = React.useState(null)
   const [groupDialog, setGroupDialog] = React.useState(false)
 
-
-
-
+  const [completeNotice, setCompleteNotice] = React.useState(false)
 
   // const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   React.useEffect(() => {
@@ -59,9 +59,12 @@ function ContactList(props) {
   }, [groups.data.length])
 
 
+  //Clean all timer
 
 
   const { classes } = props;
+
+  let notiTimeout = null
 
   //event handler 
 
@@ -77,14 +80,48 @@ function ContactList(props) {
     setActionAnchorEl(e.currentTarget)
   }
 
+
   const toggleGroupDialog = () => {
     setGroupDialog(!groupDialog)
   }
 
+  const onCreateGroupSuccess = (newGroup) => {
+
+    setGroups({ data: groups.data.concat(newGroup), total: groups.total + 1 })
+    setCompleteNotice('Successfully Create')
+    toggleGroupDialog()
+  }
+
+  const onDeleteGroup = ()=>{
+
+  }
+
   return (
     <div className={classes.root}>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        open={completeNotice}
+        autoHideDuration={100000}
+        ContentProps={{
+          classes: {
+            root: classes.completeNotice
+          }
+        }}
+        onClose={() => { setCompleteNotice(false) }}
+        message={
+          <div >
+          {completeNotice}
+        </div>
+        }
+        classes={{ root: classes.completeNoti }}
+      />
       {
-        groupDialog && <GroupDialog toggleGroupDialog={toggleGroupDialog}/>
+        groupDialog && <GroupDialog toggleGroupDialog={toggleGroupDialog}
+          canAddContacts={true}
+          onCreateGroupSuccess={onCreateGroupSuccess} />
       }
       <Menu
         anchorEl={actionAnchorEl}

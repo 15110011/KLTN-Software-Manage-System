@@ -2,7 +2,7 @@ const style = theme => ({
 
   cssLabel: {
     position: 'absolute',
-    bottom: 0,
+    top: 20,
     marginBottom: '0'
   },
 })

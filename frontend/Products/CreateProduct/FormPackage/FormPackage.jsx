@@ -109,6 +109,7 @@ function FormPackage(props) {
                           data={
                             createProduct.packages[packageIndex].numbers
                               .reduce((acc, p) => {
+                                console.log(p)
                                 acc.push({ label: p.name, value: p.number, ...p })
                                 return acc
                               }, [])

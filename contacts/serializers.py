@@ -24,6 +24,7 @@ class GroupSerializer(serializers.ModelSerializer):
         exclude = ['user']
 
 
+
 class GroupWithoutContactSerializer(serializers.ModelSerializer):
 
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())

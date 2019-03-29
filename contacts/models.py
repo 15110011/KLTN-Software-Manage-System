@@ -23,7 +23,10 @@ class ContactGroup(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='contact_groups')
     name = models.CharField(max_length=100)
-    contacts = models.ManyToManyField(Contact, related_name='groups')
+    contacts = models.ManyToManyField(Contact, related_name='groups', blank=True)
+
+    class Meta:
+        unique_together = (("user", "name"),)
 
 
 class Note(BaseModel):

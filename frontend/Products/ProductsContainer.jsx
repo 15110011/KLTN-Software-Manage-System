@@ -10,7 +10,6 @@ import ProductDetail from './ProductDetail/ProductDetail';
 import CreateProduct from './CreateProduct/CreateProduct';
 
 function ProductsContainer(props) {
-  const [status, setStatus] = React.useState(false)
   const [checkCreateProductButton, setcheckCreateProductButton] = React.useState(true)
 
   React.useEffect(() => {
@@ -47,7 +46,7 @@ function ProductsContainer(props) {
         <Route exact path="/products" component={(props) => (<ProductList {...props} />)} />
         {
           props.user.profile.is_manager &&
-          <Route path="/products/add" component={(props) => (<CreateProduct {...props} setStatus={setStatus} />)} />
+          <Route path="/products/add" component={(props) => (<CreateProduct {...props}  />)} />
         }
         <Route path="/products/:id" component={(props) => (<ProductDetail {...props} />)} />
       </Switch>
