@@ -25,6 +25,7 @@ import Dashboard from './Dashboard/DashboardContainer';
 import ProductsContainer from './Products/ProductsContainer';
 import ContactContainer from './Contacts/ContactsContainer';
 import { ObjectFlags } from 'typescript';
+import CampaignContainer from './Campaigns/CampaignsContainer';
 
 const styles = theme => ({
   root: {
@@ -152,6 +153,10 @@ class Content extends React.Component {
                 <Route
                   path="/contacts"
                   component={ContactContainer}
+                />
+                <Route
+                  path="/campaigns"
+                  component={CampaignContainer}
                 />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />
