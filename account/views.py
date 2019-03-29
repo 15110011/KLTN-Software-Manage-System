@@ -62,6 +62,10 @@ def LogoutView(request):
     logout(request)
     return Response({'msg': "Logout successfully"})
 
+@api_view(['GET'])
+def ActivateView(request):
+    print ('hi')
+    return
 
 class RegisterView(generics.CreateAPIView):
     serializer_class = serializers.RegisterSerializer
