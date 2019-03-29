@@ -99,7 +99,6 @@ class Content extends React.Component {
     const { classes } = this.props;
     const { user, initUrl, login } = this.state;
     
-
     return (
       <USER_CONTEXT.Provider value={{ user }}>
         <div className={classes.root}>

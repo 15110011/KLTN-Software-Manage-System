@@ -44,7 +44,6 @@ function FormPackage(props) {
     handleRemovePackageForm,
     handleChangeSelect
   } = props;
-  
   return (
     <Grid item xs={12}>
       <MaterialTable
@@ -100,6 +99,7 @@ function FormPackage(props) {
                           inputProps={{
                             'aria-label': 'Package Name',
                           }}
+                          value={p.name}
                         />
                       </Grid>
                       <Grid item xs={12}>

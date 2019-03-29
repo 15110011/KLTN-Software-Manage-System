@@ -15,11 +15,13 @@ import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import * as cn from 'classnames'
+
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
 import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 import TableHeader from 'material-table/dist/m-table-header'
+
 // Components 
 import FormPackage from './FormPackage/FormPackage';
 
@@ -91,9 +93,6 @@ function CreateProduct(props) {
   }
 
   const handleUpdateFeature = (e, rowData) => {
-
-    console.log('OnRow')
-
     setUpdatingUnit(rowData.tableData.id)
     setCreateFeature({
       name: rowData.fname,
@@ -135,7 +134,6 @@ function CreateProduct(props) {
       packages[packageIndex].prices = { ...packages[packageIndex].prices, [remainMonths[0].value]: '' }
       setCreateProduct({ ...createProduct, packages })
     }
-
   }
 
   const onRemoveLicenseType = (packageIndex, month) => {
@@ -319,7 +317,7 @@ function CreateProduct(props) {
                             focused: classes.cssFocused,
                           }}
                         >
-                          Product Description
+                          Description
                             </InputLabel>
                       </Grid>
                       <Grid item xs={8}>
@@ -344,7 +342,7 @@ function CreateProduct(props) {
                             focused: classes.cssFocused,
                           }}
                         >
-                          Product Active
+                          Status
                           </InputLabel>
                       </Grid>
                       <Grid item xs={8}>
@@ -592,7 +590,6 @@ function CreateProduct(props) {
                           })
                         }
                         onRowClick={(e, rowData) => handleUpdateFeature(e, rowData)}
-                        // onSelectionChange={onSelectionChange}
                         title="Basic"
                         options={{
                           toolbar: false,

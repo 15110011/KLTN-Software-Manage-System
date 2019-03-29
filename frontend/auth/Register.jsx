@@ -213,6 +213,7 @@ function Register(props) {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
+                        onClick={submitRegister}
                       >
                         Register
                       </Button>{' '}

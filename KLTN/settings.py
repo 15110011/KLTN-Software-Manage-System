@@ -30,8 +30,8 @@ ALLOWED_HOSTS = ['*']
 ADMINS = [('Dang Ho Vu', 'vudangho96@gmail.com')]
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'MOTCAIGMAILNAODO@gmail.com'
-EMAIL_HOST_PASSWORD = 'PASSS'
+EMAIL_HOST_USER = 'theaqvteam@gmail.com'
+EMAIL_HOST_PASSWORD = 'aqvteam123'
 EMAIL_PORT = 587
 
 # Application definition
