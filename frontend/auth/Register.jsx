@@ -32,6 +32,7 @@ import { BAD_REQUEST } from "../common/Code";
 function Register(props) {
   const { classes } = props;
   const [step, setStep] = React.useState(1)
+  const [success, setSuccess] = React.useState(false)
   const [user, setUser] = React.useState({
     username: '',
     password: '',
@@ -64,10 +65,9 @@ function Register(props) {
           this.setState({ error })
         }
         else {
-          props.setUser(res.data);
-          localStorage.setItem('token', res.data.access)
-          localStorage.setItem('refresh', res.data.refresh)
-          props.setLogin(true)
+          setSuccess(true)
+          // props.setUser(res.data);
+          // props.setLogin(true)
         }
       })
   }
@@ -84,6 +84,11 @@ function Register(props) {
 
   return (
     <div>
+      {
+        success && <div class="alert alert-primary" role="alert">
+          Register successfully, please click the confirmation link we sent to your  <strong class="alert-link">{user.email}</strong>
+        </div>
+      }
       <Paper className={classes.paper}>
         <Grid container style={{ height: '100%' }}>
           <Grid item md={6} className={classes.rightBorder}>
