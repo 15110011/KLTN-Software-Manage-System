@@ -13,6 +13,7 @@ from django.template.loader import render_to_string
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from . import models
+from contacts.models import ContactGroup
 from KLTN import settings
 
 import re
@@ -94,6 +95,7 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
     username = serializers.CharField(write_only=True)
     profile = ProfileSerializer()
 
+
     class Meta:
         model = User
         exclude = ['last_login', 'date_joined',
@@ -106,13 +108,15 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
         profile = validated_data.pop('profile')
         self.user = User.objects.create_user(**validated_data)
         self.user.is_active = False
-        mail_subject = 'Activate your AQV Management System account.'
-        message = 'Please click this link below to activate your account'
-        send_mail(mail_subject, message,settings.EMAIL_HOST_USER,[self.user.email])
+        # mail_subject = 'Activate your AQV Management System account.'
+        # message = 'Please click this link below to activate your account'
+        # send_mail(mail_subject, message,
+        #           settings.EMAIL_HOST_USER, [self.user.email])
         new_profile = models.Profile(
             user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
         new_profile.save()
         self.user.profile = new_profile
+        ContactGroup.objects.create(name='All Contacts', user=self.user)        
         return self.user
 
     def validate(self, attrs):

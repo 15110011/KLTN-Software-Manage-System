@@ -9,15 +9,18 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu';
 import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
-import { InputLabel } from '@material-ui/core';
+import { InputLabel, DialogTitle } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
+import { Dialog, DialogActions, DialogContent } from '@material-ui/core'
 
 
 import useFetchData from '../../CustomHook/useFetchData'
 import { CONTACT_URL, GROUP_URL } from "../../common/urls";
-import { apiGet } from '../../common/Request';
+import { apiGet, apiDelete } from '../../common/Request';
 import { getDefaultCompilerOptions } from 'typescript';
 import GroupDialog from '../GroupDialog'
+import CreateContact from '../CreateContact'
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 import styles from './ContactListStyle'
 
@@ -43,8 +46,12 @@ function ContactList(props) {
   const [selectingGroup, setSelectingGroup] = React.useState(-1)
   const [actionAnchorEl, setActionAnchorEl] = React.useState(null)
   const [groupDialog, setGroupDialog] = React.useState(false)
-
   const [completeNotice, setCompleteNotice] = React.useState(false)
+  const [errNotice, setErrNotice] = React.useState(false)
+  const [confirmDelete, setConfirmDelete] = React.useState(false)
+  const [createContactDialog, setCreateContactDialog] = React.useState(false)
+
+
 
   // const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   React.useEffect(() => {
@@ -59,12 +66,20 @@ function ContactList(props) {
   }, [groups.data.length])
 
 
-  //Clean all timer
-
-
   const { classes } = props;
 
-  let notiTimeout = null
+  let notiTimeout = {}
+  //Clear timer
+  React.useEffect(() => {
+
+    // Cleanup
+    return () => {
+      Object.keys(notiTimeout).forEach(k => {
+        clearTimeout(notiTimeout[k])
+      })
+    }
+  })
+
 
   //event handler 
 
@@ -86,38 +101,82 @@ function ContactList(props) {
   }
 
   const onCreateGroupSuccess = (newGroup) => {
-
     setGroups({ data: groups.data.concat(newGroup), total: groups.total + 1 })
     setCompleteNotice('Successfully Create')
     toggleGroupDialog()
   }
 
-  const onDeleteGroup = ()=>{
 
+  const onDeleteGroup = () => {
+
+    apiDelete(GROUP_URL + '/' + selectingGroup, true).then(res => {
+      if (!res.data.code) {
+        setCompleteNotice('Successfully Delete')
+        notiTimeout.success = setTimeout(() => {
+          setCompleteNotice(false)
+        }, 2000);
+
+        forceUpdateGroup()
+        setConfirmDelete(false)
+        setActionAnchorEl(null)
+        setSelectingGroup(groups.data[0].id)
+      }
+      else {
+        setErrNotice(res.data.msg)
+        notiTimeout.err = setTimeout(() => {
+          setErrNotice(false)
+        }, 2000);
+      }
+    })
   }
+
+  const toggleCreateDialog = () => {
+    setCreateContactDialog(false)
+  }
+
+  const onCreateContactSuccess = (newContact, isAddedToGroups) => {
+    setCompleteNotice('Successfully Create')
+    setCreateContactDialog(false)
+    const newContacts = [].concat(contacts.data)
+    if (selectingGroup in isAddedToGroups) {
+      forceUpdateGroup()
+      apiGet(GROUP_URL + '/' + selectingGroup + '/contacts', true).then(res => {
+        setContacts({ ...res.data })
+      })
+
+    }
+    else {
+      setSelectingGroup(groups.data[0].id)
+      forceUpdateGroup()
+      apiGet(GROUP_URL + '/' + groups.data[0].id + '/contacts', true).then(res => {
+        setContacts({ ...res.data })
+      })
+    }
+  }
+
 
   return (
     <div className={classes.root}>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        open={completeNotice}
-        autoHideDuration={100000}
-        ContentProps={{
-          classes: {
-            root: classes.completeNotice
-          }
-        }}
-        onClose={() => { setCompleteNotice(false) }}
-        message={
-          <div >
-          {completeNotice}
-        </div>
-        }
-        classes={{ root: classes.completeNoti }}
-      />
+      {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
+      {errNotice != '' && <CustomSnackbar isErr msg={errNotice} />}
+      {createContactDialog &&
+        <CreateContact onCreateSuccess={onCreateContactSuccess} groups={groups} toggleDialog={toggleCreateDialog} />
+      }
+      <Dialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+      >
+        <DialogTitle>
+          Delete group <strong>{contacts.group}</strong>
+        </DialogTitle>
+        <DialogContent>
+          This action cannot be undone
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setConfirmDelete(false) }}>Cancel</Button>
+          <Button onClick={() => { onDeleteGroup() }}>Delete group</Button>
+        </DialogActions>
+      </Dialog>
       {
         groupDialog && <GroupDialog toggleGroupDialog={toggleGroupDialog}
           canAddContacts={true}
@@ -130,8 +189,13 @@ function ContactList(props) {
         open={Boolean(actionAnchorEl)}
         onClose={() => setActionAnchorEl(null)}
       >
-
         <MenuItem onClick={() => toggleGroupDialog()}>Create Contact Group</MenuItem>
+        {
+          contacts.group != "All Contacts" ?
+            <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting:w Contact Group</MenuItem>
+            :
+            <MenuItem disabled>Cannot Delete Default Contact Group</MenuItemdisabled>
+        }
       </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={2} className='my-3'>
@@ -149,7 +213,7 @@ function ContactList(props) {
                 groups.data.map(g => {
                   return (
                     <MenuItem value={g.id} key={`groups${g.id}`}>
-                      {g.name}
+                      {g.name} ({g.total_contact})
                     </MenuItem>
                   )
                 })
@@ -182,11 +246,12 @@ function ContactList(props) {
             title="Contacts List"
             actions={[
               {
-                icon: 'done_all',
-                tooltip: 'Do',
+                icon: 'add',
+                tooltip: 'Create New Contact',
                 onClick: (event, rows) => {
-                  alert('You selected ' + rows.length + ' rows')
+                  setCreateContactDialog(true)
                 },
+                isFreeAction: true
               },
             ]}
             options={{

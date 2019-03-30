@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { Route, NavLink, Switch } from 'react-router-dom'
+import { Route, NavLink, Switch, Redirect } from 'react-router-dom'
 
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
@@ -8,7 +8,6 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 
 import Breadcrumb from '../components/Breadcrumb'
 import ContactDetail from './ContactDetail';
-import CreateContact from './CreateContact';
 import ContactList from './ContactList';
 
 function ContactContainer(props) {
@@ -44,17 +43,16 @@ function ContactContainer(props) {
           }}
         />
 
-        {canClickAdd &&
+        {/* {canClickAdd &&
           <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/contacts/add')}><AddIcon />&nbsp;Add Contact</Button>
-        }
-
+        } */}
 
       </Paper>
       <BreadcrumbsItem to='/contacts'>Contacts</BreadcrumbsItem>
       <Switch>
         <Route exact path="/contacts" component={(props) => (<ContactList {...props} />)} />
-        <Route path="/contacts/add" component={(props) => (<CreateContact {...props} />)} />
         <Route path="/contacts/:id" component={(props) => (<ContactDetail {...props} />)} />
+        <Route path="/" component={(props) => (<Redirect to='/contacts' />)} />
       </Switch>
     </div>
   )

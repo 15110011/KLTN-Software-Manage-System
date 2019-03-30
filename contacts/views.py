@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from elasticsearch_dsl.query import MultiMatch
-from elasticsearch_dsl import Q
+# from elasticsearch_dsl import Q
 from . import serializers
 from . import models
 from . import documents
@@ -35,15 +35,17 @@ class ContactView(ModelViewSet):
 
 class ContactGroupView(ModelViewSet):
 
-    queryset = models.ContactGroup.objects
+    queryset = models.ContactGroup.objects.prefetch_related('contacts')
     serializer_class = serializers.GroupSerializer
 
     def list(self, request, *args, **kwargs):
-        filters = Q(user=request.user)
+        filters = Q()
+        filters.add(Q(user=request.user), Q.AND)
+
         isFindGroupDefault = False
         if 'group' in request.query_params:
             filters.add(Q(name=request.query_params['group']), Q.AND)
-            if request.query_params['group'] == 'ALL':
+            if request.query_params['group'] == 'All Contacts':
                 isFindGroupDefault = True
         queryset = self.get_queryset().filter(filters)
         if isFindGroupDefault:
@@ -54,7 +56,7 @@ class ContactGroupView(ModelViewSet):
 
         else:
             serializer = serializers.GroupWithoutContactSerializer(
-                queryset, many=True, context={'request': request})
+                queryset.order_by('id'), many=True, context={'request': request})
             new_serializer = {
                 "data": serializer.data,
                 "total": self.get_queryset().filter(user=request.user).count()
@@ -63,6 +65,7 @@ class ContactGroupView(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
+    
 
     def create(self, request, *args, **kwargs):
         serializer = serializers.GroupWithoutContactSerializer(
@@ -82,6 +85,15 @@ class ContactGroupView(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()        
+
+        if instance.name == 'All Contacts':
+            return Response({"msg":"Cannot delete default group"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            instance.delete()
+        return Response({"msg":"DEL OK"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
     def contacts(self, request, pk=None):
@@ -106,6 +118,7 @@ class ContactGroupView(ModelViewSet):
 
         contacts = {
             "data": serializer.data,
-            "total": queryset.count()
+            "total": queryset.count(),
+            "group": instance.name
         }
         return Response(contacts, status=status.HTTP_200_OK)

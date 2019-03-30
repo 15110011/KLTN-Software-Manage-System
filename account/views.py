@@ -74,6 +74,7 @@ class RegisterView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         data = serializer.data
+
         data['username'] = request.data['username']
 
         return Response(data, status=status.HTTP_200_OK, headers=headers)

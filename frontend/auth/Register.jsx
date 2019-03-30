@@ -44,6 +44,8 @@ function Register(props) {
       manager: null
     }
   })
+  const [error, setError] = React.useState({})
+
 
   React.useEffect(() => {
     // Effect
@@ -61,12 +63,12 @@ function Register(props) {
     apiPost(RegisterURL, user)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
-          this.setState({ error })
+          setError({ ...res.data })
         }
         else {
-          props.setUser(res.data);
           localStorage.setItem('token', res.data.access)
           localStorage.setItem('refresh', res.data.refresh)
+          props.setUser(res.data);
           props.setLogin(true)
         }
       })
@@ -81,6 +83,7 @@ function Register(props) {
       setUser({ ...user, [e.target.name]: e.target.value })
     }
   }
+  console.log('REGISTER')
 
   return (
     <div>

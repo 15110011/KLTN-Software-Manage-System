@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from KLTN.models import BaseModel
 # Create your models here.
 
-SEX_CHOICES = (('MALE', 'Male'), ('FEMALE', 'Female'), ('UNKNOWN', 'Unknown'))
+SEX_CHOICES = (('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other'))
 
 
 class Contact(BaseModel):

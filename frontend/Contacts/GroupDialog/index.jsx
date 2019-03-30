@@ -3,10 +3,11 @@ import { withStyles } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
 import { Grid, TextField, Button, Input, InputLabel } from '@material-ui/core'
 
-import SelectCustom from '../../../components/SelectCustom'
+import SelectCustom from '../../../../components/SelectCustom'
 import styles from './styles'
 import { apiGet, apiPost } from '../../common/Request';
-import { GROUP_URL } from '../../common/urls';
+import { GROUP_URL, REFRESH_TOKEN_URL } from '../../common/urls';
+import { BAD_REQUEST } from '../../common/Code';
 
 function GroupDialog(props) {
 
@@ -19,11 +20,10 @@ function GroupDialog(props) {
 
   React.useEffect(() => {
     // Effect
-    apiGet(GROUP_URL + '?group=ALL', true).then(res => {
+    apiGet(GROUP_URL + '?group=All Contacts', true).then(res => {
       setAllContacts(res.data)
     })
   }, [])
-
 
 
   const { toggleGroupDialog, canAddContacts, classes } = props
@@ -35,19 +35,35 @@ function GroupDialog(props) {
   }
 
   const handleChangeSelect = (values, element) => {
-    console.log(values)
     setCreateObj({ ...createObj, contacts: values })
   }
 
-  const onCreateForm = e=>{
-    e.preventDefault()
+  const onPostData = () => {
+
     const cloneObj = JSON.parse(JSON.stringify(createObj))
 
-    cloneObj.contacts = cloneObj.contacts.map(c=>c.id)
-    
-    apiPost(GROUP_URL, cloneObj, false, true).then(res=>{
-      props.onCreateGroupSuccess(res.data)
+    cloneObj.contacts = cloneObj.contacts.map(c => c.id)
+
+    apiPost(GROUP_URL, cloneObj, false, true).then(res => {
+      if (res.data.code == "token_not_valid") {
+        apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+          if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+            this.props.history.push('/logout')
+          }
+          else {
+            localStorage.setItem("token", res.data.access)
+            onPostData()
+          }
+        })
+      }
+      else {
+        props.onCreateGroupSuccess(res.data)
+      }
     })
+  }
+
+  const onCreateForm = e => {
+    e.preventDefault()
   }
 
   return (
@@ -66,8 +82,9 @@ function GroupDialog(props) {
                 classes={{
                   root: classes.cssLabel
                 }}
+                required
               >
-                Contact Name
+                Group Name
             </InputLabel>
             </Grid>
             <Grid item xs={9}>
@@ -79,6 +96,7 @@ function GroupDialog(props) {
                 classes={{
                   underline: classes.cssUnderline,
                 }}
+                required
               />
             </Grid>
             {

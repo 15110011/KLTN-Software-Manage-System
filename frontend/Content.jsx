@@ -98,15 +98,13 @@ class Content extends React.Component {
   render() {
     const { classes } = this.props;
     const { user, initUrl, login } = this.state;
-    
+
     return (
       <USER_CONTEXT.Provider value={{ user }}>
         <div className={classes.root}>
           <CssBaseline />
 
-          {login &&
-            <SidebarContainer />
-          }
+          {login && <SidebarContainer /> }
           <div className={classes.content}>
             {/* {login && <div className={classes.appBarSpacer} />} */}
             <Switch>
@@ -117,7 +115,7 @@ class Content extends React.Component {
                 )}
               />
 
-              {!login && <Switch>
+              {!login && !user.username && <Switch>
 
                 <Route
                   path="/register"
@@ -147,7 +145,7 @@ class Content extends React.Component {
                 />
                 <Route
                   path="/products"
-                  component={props=><ProductsContainer {...props} user={user} />}
+                  component={props => <ProductsContainer {...props} user={user} />}
                 />
                 <Route
                   path="/contacts"

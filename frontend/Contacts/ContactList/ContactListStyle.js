@@ -46,9 +46,6 @@ const styles = theme => ({
   addFeatureButton: {
     padding: 10
   },
-  completeNotice: {
-    backgroundColor: '#68d668db'
-  }
 });
 
 export default styles;
