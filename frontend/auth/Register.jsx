@@ -66,8 +66,6 @@ function Register(props) {
         }
         else {
           setSuccess(true)
-          // props.setUser(res.data);
-          // props.setLogin(true)
         }
       })
   }
@@ -86,7 +84,7 @@ function Register(props) {
     <div>
       {
         success && <div class="alert alert-primary" role="alert">
-          Register successfully, please click the confirmation link we sent to your  <strong class="alert-link">{user.email}</strong>
+          One more step to finish the registration, please click the confirmation link we sent to your email address  <strong class="alert-link">{user.email}</strong>
         </div>
       }
       <Paper className={classes.paper}>
