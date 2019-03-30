@@ -31,7 +31,7 @@ router.register('contactgroups', ContactGroupView, base_name='contactgroups')
 #step app
 router.register('steps', StepView, base_name='steps')
 router.register('step-detail', StepDetailView, base_name='step-detail')
-
+#activate
 
 urlpatterns = []
 urlpatterns += router.urls

@@ -8,7 +8,6 @@ from importlib import import_module
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model, authenticate, login
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -16,6 +15,7 @@ from . import models
 from KLTN import settings
 
 import re
+import jwt
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -58,10 +58,9 @@ class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSeria
         username = validated_data.get("username")
         password = validated_data.get("password")
         self.user = authenticate(username=username, password=password)
-
         if self.user is None:
             raise ValidationError(
-                detail={'all': 'Sai username hoặc mật khẩu'})
+                detail={'all': 'Sai username, mật khẩu hoặc tài khoản của bạn chưa xác nhận email'})
         return self.user
 
     def update(self, instance, validated_data):
@@ -106,9 +105,13 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
         profile = validated_data.pop('profile')
         self.user = User.objects.create_user(**validated_data)
         self.user.is_active = False
+        self.user.save()
+        payloads = {"id": self.user.id, "is_active": self.user.is_active}
+        activate_token = jwt.encode(payloads, settings.SECRET_KEY,algorithm='HS256')
         mail_subject = 'Activate your AQV Management System account.'
-        message = 'Please click this link below to activate your account'
-        send_mail(mail_subject, message,settings.EMAIL_HOST_USER,[self.user.email])
+        message = f"Please click this link below to activate your account http://localhost:8000/api/v1/activate?activate_token={activate_token}"
+        send_mail(mail_subject, message,
+                  settings.EMAIL_HOST_USER, [self.user.email])
         new_profile = models.Profile(
             user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
         new_profile.save()
@@ -118,10 +121,10 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
     def validate(self, attrs):
         return attrs
 
-    def to_representation(self, instance):
-        ret = super().to_representation(instance)
-        refresh = self.get_token(self.user)
-        set_value(ret, ['username'], instance.username)
-        set_value(ret, ['refresh'], str(refresh))
-        set_value(ret, ['access'], str(refresh.access_token))
-        return ret
+    # def to_representation(self, instance):
+    #     ret = super().to_representation(instance)
+    #     refresh = self.get_token(self.user)
+    #     set_value(ret, ['username'], instance.username)
+    #     set_value(ret, ['refresh'], str(refresh))
+    #     set_value(ret, ['access'], str(refresh.access_token))
+    #     return ret
