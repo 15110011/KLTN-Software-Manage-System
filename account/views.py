@@ -1,14 +1,18 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
-from django.contrib.auth import logout 
+from django.contrib.auth import logout, get_user_model, login
 
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework_simplejwt.backends import TokenBackend
+
 
 from . import serializers
+from KLTN import settings
+import jwt
 
 # Create your views here.
 
@@ -47,7 +51,8 @@ class LoginAndUpdateView(generics.CreateAPIView, generics.UpdateAPIView):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -61,6 +66,24 @@ class LoginAndUpdateView(generics.CreateAPIView, generics.UpdateAPIView):
 def LogoutView(request):
     logout(request)
     return Response({'msg': "Logout successfully"})
+
+
+@api_view(['GET'])
+def ActivateView(request):
+    activate_token = request.query_params.get('activate_token')
+    info = jwt.decode(activate_token[2:], settings.SECRET_KEY, algorithms=['HS256'])
+    User = get_user_model()
+    try:
+        user = User.objects.get(id=info['id'])
+    except User.DoesNotExist:
+        user = None
+    if user is not None:
+        user.is_active = True
+        user.save()
+        login(request, user)
+        return Response('Thank you for your email confirmation, now you can login')
+    else:
+        return Response('Activation link is not valid')
 
 
 class RegisterView(generics.CreateAPIView):

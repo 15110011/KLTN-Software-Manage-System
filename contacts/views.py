@@ -107,7 +107,8 @@ class ContactGroupView(ModelViewSet):
             suggest = search.suggest('auto_complete', query, completion={
                                      'field': 'full_name.suggest'})
             response = suggest.execute()
-            suggestion = [option._source.full_name for option in response.suggest.auto_complete[0].options]
+            suggestion = [
+                option._source.full_name for option in response.suggest.auto_complete[0].options]
             contacts = [model_to_dict(contact)
                         for contact in search.to_queryset()]
             return Response({"contacts": contacts, "suggestions": suggestion})

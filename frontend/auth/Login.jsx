@@ -88,7 +88,7 @@ export default class Login extends React.Component {
     apiPost(LoginURL, loginDetail)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
-          error.all = 'Sai tên đăng nhập hoặc mật khẩu'
+          error.all = res.data.all
           this.setState({ error })
         }
         else {

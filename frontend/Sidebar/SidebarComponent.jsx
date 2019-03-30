@@ -202,25 +202,25 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/campaigns')}>
                 <ListItemIcon>
                   <CampaignIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/marketingplans')}>
                 <ListItemIcon>
                   <MarketingListIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Marketing list" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/emailtemplates')}>
                 <ListItemIcon>
                   <EmailTemplateIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Email templates" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/followupplans')}>
                 <ListItemIcon>
                   <FollowUpPlanIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -249,19 +249,19 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Products" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/invoices')}>
                 <ListItemIcon>
                   <InvoiceIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Invoices" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/orders')}>
                 <ListItemIcon>
                   <SaleOrderIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Sale Orders" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/deals')}>
                 <ListItemIcon>
                   <DealIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -290,7 +290,7 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Dashboard" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/reports')}>
                 <ListItemIcon>
                   <ReportIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -313,13 +313,13 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle3} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/inbox')}>
                 <ListItemIcon>
                   <InboxIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Inbox" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/notes')}>
                 <ListItemIcon>
                   <NoteIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -342,7 +342,7 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle4} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/calendar')}>
                 <ListItemIcon>
                   <CalendarIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
