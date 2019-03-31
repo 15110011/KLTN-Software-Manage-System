@@ -16,7 +16,7 @@ class ProductViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        queryset = self.get_queryset().filter(manager=request.user)
         serializer = self.get_serializer(queryset, many=True)
         filters = Q()
         new_serializer ={}

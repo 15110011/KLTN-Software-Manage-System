@@ -153,6 +153,10 @@ function CreateProduct(props) {
     else if (e.target.name == 'value') {
       packages[packageIndex].prices[curMonth] = e.target.value
     }
+    else {
+      packages[packageIndex][e.target.name] = e.target.value
+
+    }
     // packages[packageIndex].prices[priceIndex][e.target.name] = e.target.value
     setCreateProduct({ ...createProduct, packages })
   }

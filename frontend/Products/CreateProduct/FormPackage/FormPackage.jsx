@@ -99,7 +99,10 @@ function FormPackage(props) {
                           inputProps={{
                             'aria-label': 'Package Name',
                           }}
+                          name='name'
                           value={p.name}
+                          onChange={(e) => onChangeLicenseInput(e, packageIndex)}
+
                         />
                       </Grid>
                       <Grid item xs={12}>
@@ -162,6 +165,9 @@ function FormPackage(props) {
                     inputProps={{
                       'aria-label': 'Description',
                     }}
+                    onChange={(e) => onChangeLicenseInput(e, packageIndex)}
+                    name='note'
+                    value={p.note}
                   />)
 
               }
