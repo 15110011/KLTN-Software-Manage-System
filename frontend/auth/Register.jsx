@@ -177,6 +177,11 @@ function Register(props) {
                         Next
                     </Button>
                     </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant='subtitle2' style={{ lineHeight: '2.5', paddingTop: '16px' }}>
+                        You can Login from <Link to='/login' style={{ textDecoration: 'underline', color: 'red' }}>here</Link>
+                      </Typography>
+                    </Grid>
                   </>
                 }
                 {step == 2 &&
