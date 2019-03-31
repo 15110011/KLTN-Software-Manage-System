@@ -95,7 +95,6 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
     username = serializers.CharField(write_only=True)
     profile = ProfileSerializer()
 
-
     class Meta:
         model = User
         exclude = ['last_login', 'date_joined',
@@ -110,14 +109,15 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
         try:
             self.user = User.objects.get(username=validated_data['username'])
             if self.user is not None:
-                 raise ValidationError(
+                raise ValidationError(
                     detail={'message': 'Username already existed'})
         except User.DoesNotExist:
             self.user = User.objects.create_user(**validated_data)
             self.user.is_active = False
             self.user.save()
             payloads = {"id": self.user.id, "is_active": self.user.is_active}
-            activate_token = jwt.encode(payloads, settings.SECRET_KEY,algorithm='HS256')
+            activate_token = jwt.encode(
+                payloads, settings.SECRET_KEY, algorithm='HS256')
             mail_subject = 'Activate your AQV Management System account.'
             message = f"Please click this link below to activate your account http://localhost:8000/api/v1/activate?activate_token={activate_token}"
             send_mail(mail_subject, message,
@@ -125,7 +125,11 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
             new_profile = models.Profile(
                 user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
             new_profile.save()
+            default_group = ContactGroup.objects.create(
+                user=self.user, name='All Contacts'
+            )
             self.user.profile = new_profile
+            
             return self.user
 
     def validate(self, attrs):
