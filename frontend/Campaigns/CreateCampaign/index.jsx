@@ -78,7 +78,7 @@ function CreateCampaign(props) {
                           focused: classes.cssFocused,
                         }}
                       >
-                        Campaign Type
+                        Follow-up Plan
                             </InputLabel>
                     </Grid>
                     <Grid item xs={8}>
@@ -134,7 +134,7 @@ function CreateCampaign(props) {
                           focused: classes.cssFocused,
                         }}
                       >
-                        Assigned To
+                        Marketing Plan
                             </InputLabel>
                     </Grid>
                     <Grid item xs={8}>
@@ -189,7 +189,7 @@ function CreateCampaign(props) {
                           focused: classes.cssFocused,
                         }}
                       >
-                        Status
+                        Assigned to
                             </InputLabel>
                     </Grid>
                     <Grid item xs={8}>
@@ -217,6 +217,34 @@ function CreateCampaign(props) {
                         }}
                       >
                         Products
+                            </InputLabel>
+                    </Grid>
+                    <Grid item xs={8}>
+                      <Input
+                        fullWidth
+                        required
+                        // onChange={onChangeCreateProduct}
+                        // value={createProduct.name}
+                        name="name"
+                        classes={{
+                          underline: classes.cssUnderline,
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </Grid>
+                <Grid item xs={6}>
+                  <Grid container spacing={40}>
+                    <Grid className={classes.inputCustom} item xs={4}>
+                      <InputLabel
+                        required
+                        htmlFor="custom-css-standard-input"
+                        classes={{
+                          root: classes.cssLabel,
+                          focused: classes.cssFocused,
+                        }}
+                      >
+                        Status
                             </InputLabel>
                     </Grid>
                     <Grid item xs={8}>

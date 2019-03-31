@@ -10,7 +10,7 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import Breadcrumb from '../components/Breadcrumb'
 import CampaignList from './CampaignList';
 import CreateCampaign from './CreateCampaign';
-import CampaignDetail from './CampaignDetail/CampaignDetail';
+import CampaignDetail from './CampaignDetail';
 
 function CampaignContainer (props) {
 
@@ -52,8 +52,8 @@ function CampaignContainer (props) {
       <BreadcrumbsItem to='/campaigns'>Campaigns</BreadcrumbsItem>
       <Switch>
         <Route exact path="/campaigns" component={(props) => (<CampaignList {...props} />)} />
-        <Route exact path="/campaigns/add" component={(props) => (<CreateCampaign {...props} />)} />
-        <Route exact path="/campaigns/:id" component={(props) => (<CampaignDetail {...props} />)} />
+        <Route path="/campaigns/add" component={(props) => (<CreateCampaign {...props} />)} />
+        <Route path="/campaigns/:id" component={(props) => (<CampaignDetail {...props} />)} />
       </Switch>
     </div>
     </div>
