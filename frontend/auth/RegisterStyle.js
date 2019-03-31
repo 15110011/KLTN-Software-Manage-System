@@ -1,9 +1,10 @@
 const styles = theme => ({
   loginBorder: {
     '& img': {
+      width: '100%',
       height: '100%',
-      width: '672px',
-      borderRadius: '2px'
+      borderEadius: 2,
+      objectFit: 'cover'
     }
   },
   layout: {
