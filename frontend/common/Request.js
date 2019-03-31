@@ -112,7 +112,7 @@ export const apiPatch = (url, data, multipart, authorization) => {
     .then(res => ({ data: res }))
 }
 
-export const apiDelete = (url, authorization) => {
+export const apiDelete = (url, data, authorization) => {
   const headers = {
     'Content-type': 'application/json',
     'X-CSRFToken': Cookies.get('csrftoken')
@@ -123,6 +123,7 @@ export const apiDelete = (url, authorization) => {
   return fetch(url, {
     method: 'DELETE',
     credentials: 'include',
+    body: JSON.stringify(data),
     headers
   })
     .then(response => {

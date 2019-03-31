@@ -13,6 +13,7 @@ from django.core.mail import send_mail
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from . import models
+from contacts.models import ContactGroup
 from KLTN import settings
 
 import re
@@ -93,6 +94,7 @@ class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSeria
 class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer):
     username = serializers.CharField(write_only=True)
     profile = ProfileSerializer()
+
 
     class Meta:
         model = User

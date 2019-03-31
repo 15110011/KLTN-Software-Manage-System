@@ -7,7 +7,6 @@ import ProductDetail from './ProductDetail/ProductDetail';
 import CreateProduct from './CreateProduct/CreateProduct';
 import ProductBreadcrumb from './ProductBreadcrumb'
 
-
 function ProductsContainer(props) {
   return (
     <div>

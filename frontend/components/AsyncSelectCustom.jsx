@@ -1,6 +1,6 @@
 import * as React from 'react';
 import classNames from 'classnames';
-import Select from 'react-select';
+import AsyncSelect from 'react-select/lib/Async';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
@@ -178,7 +178,7 @@ const components = {
 
 const IntegrationReactSelect = (props) => {
 
-  const { classes, theme, single, multi, data, handleChange, options,
+  const { classes, theme, single, multi, data, handleChange, onChangeSelect, loadOptions,
     placeholder, label, name, required, error, disabled, fullWidth } = props;
 
   const selectStyles = {
@@ -193,10 +193,12 @@ const IntegrationReactSelect = (props) => {
 
   return (
     <div className={classes.root}>
-      {single && <Select
+      {single && <AsyncSelect
+        cacheOptions
+        defaultOptions
+        loadOptions={loadOptions}
         classes={classes}
         styles={selectStyles}
-        options={options}
         components={components}
         value={data}
         textFieldProps={{
@@ -212,7 +214,8 @@ const IntegrationReactSelect = (props) => {
           disabled: disabled
 
         }}
-        onChange={handleChange}
+        onInputChange={handleChange}
+        onChange={onChangeSelect}
         placeholder={placeholder}
         name={name}
         isClearable
@@ -221,7 +224,10 @@ const IntegrationReactSelect = (props) => {
         fullWidth={fullWidth}
       />}
 
-      {multi && <Select
+      {multi && <AsyncSelect
+        cacheOptions
+        defaultOptions
+        loadOptions={loadOptions}
         classes={classes}
         styles={selectStyles}
         textFieldProps={{
@@ -233,10 +239,10 @@ const IntegrationReactSelect = (props) => {
           required: required ? true : undefined,
           disabled: disabled
         }}
-        options={options}
         components={components}
         value={data}
-        onChange={handleChange}
+        onInputChange={handleChange}
+        onChange={onChangeSelect}
         placeholder={placeholder}
         isMulti
         name={name}

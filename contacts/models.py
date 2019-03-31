@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from KLTN.models import BaseModel
 # Create your models here.
 
-SEX_CHOICES = (('MALE', 'Male'), ('FEMALE', 'Female'), ('UNKNOWN', 'Unknown'))
+SEX_CHOICES = (('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other'))
 
 
 class Contact(BaseModel):
@@ -16,9 +16,15 @@ class Contact(BaseModel):
     address = models.CharField(max_length=15, null=True, blank=True)
     country = models.CharField(max_length=15, null=True, blank=True)
     zipcode = models.IntegerField(null=True, blank=True)
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='contacts')
 
     def _get_fullname(self):
         return f'{self.first_name} {self.last_name}'
+
+    class Meta:
+        unique_together = (("user", "first_name", "last_name"),)
+
 
 Contact.field_names = [f.name for f in Contact._meta.fields[4:6]]
 
@@ -28,7 +34,11 @@ class ContactGroup(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='contact_groups')
     name = models.CharField(max_length=100)
-    contacts = models.ManyToManyField(Contact, related_name='groups')
+    contacts = models.ManyToManyField(
+        Contact, related_name='groups', blank=True)
+
+    class Meta:
+        unique_together = (("user", "name"),)
 
 
 class Note(BaseModel):
