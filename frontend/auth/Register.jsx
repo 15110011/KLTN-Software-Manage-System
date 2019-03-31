@@ -33,6 +33,7 @@ function Register(props) {
   const { classes } = props;
   const [step, setStep] = React.useState(1)
   const [success, setSuccess] = React.useState(false)
+  const [error, setError] = React.useState({})
   const [user, setUser] = React.useState({
     username: '',
     password: '',
@@ -59,25 +60,27 @@ function Register(props) {
 
   const submitRegister = (e) => {
     e.preventDefault()
-    if (user.password != user.confirmPassword)
+    let errors = {}
+    if (user.password != user.confirmPassword) {
+      errors.password = 'Password and confirm password is not match'
+    }
+    if (Object.keys(errors).length > 0) {
+      setError(errors)
       return
+    }
     apiPost(RegisterURL, user)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
-          setError({ ...res.data })
+          if (res.data.message) errors.message = res.data.message
         }
         else {
-          props.history.push('/login')
-          // localStorage.setItem('token', res.data.access)
-          // localStorage.setItem('refresh', res.data.refresh)
-          // props.setUser(res.data);
-          // props.setLogin(true)
-          // setSuccess(true)
-          // props.setUser(res.data);
-          // props.setLogin(true)
+          setSuccess(true)
         }
+        setError(errors)
       })
   }
+
+
 
   const onChangeRegister = (e) => {
     if (e.target.name == 'company_name' || e.target.name == 'phone') {
@@ -94,7 +97,7 @@ function Register(props) {
     <div>
       {
         success && <div class="alert alert-primary" role="alert">
-          Register successfully, please click the confirmation link we sent to your  <strong class="alert-link">{user.email}</strong>
+          One more step to finish the registration, please click the confirmation link we sent to your email address  <strong class="alert-link">{user.email}</strong>
         </div>
       }
       <Paper className={classes.paper}>
@@ -103,9 +106,15 @@ function Register(props) {
             <Typography component="h1" variant='h4' gutterBottom>
               {/* {status ? 'Admin' : 'Staff'} Login */}
               Get started absolutely free
-              </Typography>
+            </Typography>
+            {
+              error.password && <p class="text-danger">{error.password}</p>
+            }
+            {
+              error.message && <p className="text-danger">{error.message}</p>
+            }
             <br />
-            <FormControl className={classes.form} onSubmit={submitRegister}>
+            <form className={classes.form} onSubmit={submitRegister}>
               <Grid container>
                 {step == 1 &&
                   <>
@@ -115,6 +124,7 @@ function Register(props) {
                         <Input
                           type="text"
                           name="username"
+                          required
                           value={user.username}
                           onChange={onChangeRegister}
                           startAdornment={
@@ -131,6 +141,7 @@ function Register(props) {
                         <Input
                           type="password"
                           name="password"
+                          required
                           value={user.password}
                           onChange={onChangeRegister}
                           startAdornment={
@@ -147,6 +158,7 @@ function Register(props) {
                         <Input
                           type="password"
                           name="confirmPassword"
+                          required
                           value={user.confirmPassword}
                           onChange={onChangeRegister}
                           startAdornment={
@@ -178,6 +190,7 @@ function Register(props) {
                         <Input
                           type="text"
                           name="company_name"
+                          required
                           value={user.profile.company_name}
                           onChange={onChangeRegister}
                           startAdornment={
@@ -194,6 +207,7 @@ function Register(props) {
                         <Input
                           type="email"
                           name="email"
+                          required
                           value={user.email}
                           onChange={onChangeRegister}
                           startAdornment={
@@ -210,6 +224,7 @@ function Register(props) {
                         <Input
                           type="text"
                           name="phone"
+                          required
                           value={user.profile.phone}
                           onChange={onChangeRegister}
                           startAdornment={
@@ -226,7 +241,7 @@ function Register(props) {
                         variant="contained"
                         color="primary"
                         className={classes.submit}
-                        onClick={submitRegister}
+                      // onClick={submitRegister}
                       >
                         Register
                       </Button>{' '}
@@ -248,7 +263,7 @@ function Register(props) {
                   </>
                 }
               </Grid>
-            </FormControl>
+            </form>
           </Grid>
           <Grid item md={6} className={classes.loginBorder}>
             <img src={RegisterImage} alt='image' />

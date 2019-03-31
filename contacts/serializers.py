@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 
 from rest_framework import serializers
 from rest_framework.fields import set_value
-from rest_framework.validators import ValidationError
+from rest_framework.validators import ValidationError, UniqueTogetherValidator
 
 from . import models
 from account.serializers import MeSerializer
@@ -56,13 +56,22 @@ class ContactReadSerializer(serializers.ModelSerializer):
 
 class ContactSerializer(serializers.ModelSerializer):
 
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = models.Contact
         fields = '__all__'
+        validators = [
+            UniqueTogetherValidator(
+                queryset=models.Contact.objects.all(),
+                fields=('first_name', 'last_name', 'user'),
+                message='This contact is existed'
+            )
+        ]
 
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
-        if 'groups' in data :
+        if 'groups' in data:
             set_value(ret, ['groups'], data['groups'])
         return ret
 
@@ -74,6 +83,7 @@ class ContactSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
         instance.groups.set(groups)
         return instance
+
 
 
 class NoteSerializer(serializers.ModelSerializer):

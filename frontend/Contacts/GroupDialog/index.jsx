@@ -3,7 +3,7 @@ import { withStyles } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
 import { Grid, TextField, Button, Input, InputLabel } from '@material-ui/core'
 
-import SelectCustom from '../../../../components/SelectCustom'
+import AsyncSelect from '../../components/AsyncSelectCustom'
 import styles from './styles'
 import { apiGet, apiPost } from '../../common/Request';
 import { GROUP_URL, REFRESH_TOKEN_URL } from '../../common/urls';
@@ -18,15 +18,15 @@ function GroupDialog(props) {
 
   const [allContacts, setAllContacts] = React.useState({ contacts: [] })
 
-  React.useEffect(() => {
-    // Effect
-    apiGet(GROUP_URL + '?group=All Contacts', true).then(res => {
-      setAllContacts(res.data)
-    })
-  }, [])
+  // React.useEffect(() => {
+  //   // Effect
+  //   apiGet(GROUP_URL + '?group=All Contacts', true).then(res => {
+  //     setAllContacts(res.data)
+  //   })
+  // }, [])
 
 
-  const { toggleGroupDialog, canAddContacts, classes } = props
+  const { toggleGroupDialog, canAddContacts, classes, defaultGroup } = props
 
 
   // event handler 
@@ -34,8 +34,31 @@ function GroupDialog(props) {
     setCreateObj({ ...createObj, [e.target.name]: e.target.value })
   }
 
-  const handleChangeSelect = (values, element) => {
-    setCreateObj({ ...createObj, contacts: values })
+  const handleChangeSelect = (value, action, a) => {
+    if (action.action == 'input-change') {
+
+    }
+    else if (action.action == 'select-option') {
+      apiGet(GROUP_URL + '/' + defaultGroup + "/contacts?q=" + action.option.value).then(res => {
+        const cloneContacts = [].concat(createObj.contacts)
+        const realResult = res.data.contacts.find(c => {
+          console.log(c)
+          return c.first_name + ' ' + c.last_name == action.option.value
+        })
+        cloneContacts.push({
+          ...realResult,
+          label: realResult.first_name + ' ' + realResult.last_name,
+          value: realResult.first_name + ' ' + realResult.last_name
+        })
+        setCreateObj({ ...createObj, contacts: cloneContacts })
+      })
+    }
+  }
+
+  const fetchSuggestion = (input) => {
+    return apiGet(GROUP_URL + '/' + defaultGroup + "/contacts?q=" + input).then(res => {
+      return res.data.suggestions.map(s => ({ label: s, value: s }))
+    })
   }
 
   const onPostData = () => {
@@ -64,6 +87,7 @@ function GroupDialog(props) {
 
   const onCreateForm = e => {
     e.preventDefault()
+    onPostData()
   }
 
   return (
@@ -112,17 +136,17 @@ function GroupDialog(props) {
                 </InputLabel>
                 </Grid>
                 <Grid item xs={9}>
-                  <SelectCustom
+                  <AsyncSelect
                     options={allContacts.contacts.map(c => ({
                       label: `${c.first_name} ${c.last_name}`,
                       value: c.id,
                       ...c
                     }))}
                     handleChange={(values, element) => handleChangeSelect(values, element)}
+                    onChangeSelect={(values, element) => handleChangeSelect(values, element)}
                     data={
                       createObj.contacts
                         .reduce((acc, c) => {
-                          console.log(c)
                           acc.push({ label: `${c.label}`, value: c.id, ...c })
                           return acc
                         }, [])
@@ -130,6 +154,7 @@ function GroupDialog(props) {
                     multi
                     placeholder=""
                     label=""
+                    loadOptions={fetchSuggestion}
                   />
                 </Grid>
               </>

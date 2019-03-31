@@ -69,7 +69,7 @@ function CreateContact(props) {
       if (res.data.code == 'token_not_valid') {
         apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
           if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
-            this.props.history.push('/logout')
+            props.history.push('/logout')
           }
           else {
             localStorage.setItem("token", res.data.access)
@@ -79,7 +79,7 @@ function CreateContact(props) {
       }
       else if (res.data.code == BAD_REQUEST) {
         const { code, ...rest } = res.data
-        setError(rest)
+        setError({ ...rest })
       }
       else {
         props.onCreateSuccess(res.data, createObj.groups.map(g => g.id))
@@ -119,6 +119,13 @@ function CreateContact(props) {
         <DialogContent className='my-3'>
           <DialogContentText variant='title' component=''>Required Fields</DialogContentText>
           <Grid container spacing={8}>
+            {Object.keys(error).map(k => {
+              return (
+                <Grid item xs={12}>
+                  <p className="text-danger">{error[k]}</p>
+                </Grid>
+              )
+            })}
             <Grid item xs={2} style={{ position: 'relative' }}>
               <InputLabel
                 classes={{

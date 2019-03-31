@@ -11,6 +11,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
 import { InputLabel, DialogTitle } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
+import Popover from '@material-ui/core/Popover'
 import { Dialog, DialogActions, DialogContent } from '@material-ui/core'
 
 
@@ -23,22 +24,9 @@ import CreateContact from '../CreateContact'
 import CustomSnackbar from '../../components/CustomSnackbar'
 
 import styles from './ContactListStyle'
+import { BAD_REQUEST } from '../../common/Code';
+import AddToGroup from '../AddToGroup';
 
-// const styles = theme => ({
-//   root: {
-//     display: 'flex',
-//     flexGrow: 1,
-//     justifyContent: 'center'
-//   },
-//   paper: {
-//     padding: theme.spacing.unit * 4,
-//     textAlign: 'center',
-//     color: theme.palette.text.secondary,
-//   },
-//   fixTable: {
-//     maxWidth: '90%',
-//   }
-// });
 
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
@@ -50,6 +38,14 @@ function ContactList(props) {
   const [errNotice, setErrNotice] = React.useState(false)
   const [confirmDelete, setConfirmDelete] = React.useState(false)
   const [createContactDialog, setCreateContactDialog] = React.useState(false)
+
+  const [deleteContactConfirm, setDeleteContactConfirm] = React.useState(false)
+  const [deleteContacts, setDeleteContacts] = React.useState([])
+  const [changeGroupDialog, setChangeGroupDialog] = React.useState(false)
+
+  const [selectingContacts, setSelectingContacts] = React.useState([])
+
+
 
 
 
@@ -137,6 +133,9 @@ function ContactList(props) {
   const onCreateContactSuccess = (newContact, isAddedToGroups) => {
     setCompleteNotice('Successfully Create')
     setCreateContactDialog(false)
+    notiTimeout.success = setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
     const newContacts = [].concat(contacts.data)
     if (selectingGroup in isAddedToGroups) {
       forceUpdateGroup()
@@ -154,7 +153,45 @@ function ContactList(props) {
     }
   }
 
+  const onDeleteContacts = () => {
+    const contactsInfo = {
+      contacts: deleteContacts, group: selectingGroup,
+      isDefaultGroup: selectingGroup == groups.data[0].id
+    }
+    apiDelete(CONTACT_URL + '/' + 'batchdelete', contactsInfo, true).then(res => {
+      if (res.data.code == BAD_REQUEST) {
+        setErrNotice('Delete failed')
+        notiTimeout.err = setTimeout(() => {
+          setErrNotice(false)
+        }, 2000);
+      } else {
+        setCompleteNotice('Successfully Delete')
+        notiTimeout.success = setTimeout(() => {
+          setCompleteNotice(false)
+        }, 2000);
+        forceUpdateGroup()
+        apiGet(GROUP_URL + '/' + selectingGroup + '/contacts', true).then(res => {
+          setContacts({ ...res.data })
+        })
+        setDeleteContactConfirm(false)
+      }
+    })
+  }
 
+  //Move contacts
+  const toggleAddToGroupDialog = () => {
+    setChangeGroupDialog(!changeGroupDialog)
+  }
+
+
+  const onMoveContactSuccess = (newContact, isAddedToGroups) => {
+    setCompleteNotice('Successfully Added')
+    notiTimeout.success = setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+    setChangeGroupDialog(false)
+    forceUpdateGroup()
+  }
   return (
     <div className={classes.root}>
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
@@ -162,6 +199,37 @@ function ContactList(props) {
       {createContactDialog &&
         <CreateContact onCreateSuccess={onCreateContactSuccess} groups={groups} toggleDialog={toggleCreateDialog} />
       }
+
+      {/*
+        Move contacts Popover 
+      */}
+      {changeGroupDialog &&
+        <AddToGroup groups={groups} selectingGroup={selectingGroup}
+          toggleDialog={toggleAddToGroupDialog} selectingContacts={selectingContacts}
+          onSuccess={onMoveContactSuccess}
+        />
+      }
+
+      {/*END*/}
+
+      <Dialog
+        open={deleteContactConfirm}
+        onClose={() => setDeleteContactConfirm(false)}
+      >
+        <DialogTitle>
+          Delete contacts
+        </DialogTitle>
+        <DialogContent>
+          This action cannot be undone
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => {
+            setDeleteContacts([])
+            setDeleteContactConfirm(false)
+          }}>Cancel</Button>
+          <Button onClick={() => { onDeleteContacts() }}>Delete</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
@@ -179,7 +247,7 @@ function ContactList(props) {
       </Dialog>
       {
         groupDialog && <GroupDialog toggleGroupDialog={toggleGroupDialog}
-          canAddContacts={true}
+          canAddContacts={true} defaultGroup={groups.data[0].id}
           onCreateGroupSuccess={onCreateGroupSuccess} />
       }
       <Menu
@@ -240,7 +308,8 @@ function ContactList(props) {
                 '#': index + 1,
                 fullName: c.first_name + ' ' + c.last_name,
                 email: c.mail,
-                phone: c.phone
+                phone: c.phone,
+                id: c.id
               })
             )}
             title="Contacts List"
@@ -253,6 +322,26 @@ function ContactList(props) {
                 },
                 isFreeAction: true
               },
+              {
+
+                icon: 'delete',
+                tooltip: 'Delate Contacts',
+                onClick: (event, rows) => {
+                  // setCreateContactDialog(true)
+                  setDeleteContacts(rows.map(r => r.id))
+                  setDeleteContactConfirm(true)
+                },
+              },
+              {
+
+                icon: 'swap_horiz',
+                tooltip: 'Add these contacts to group',
+                onClick: (event, rows) => {
+                  // setCreateContactDialog(true)
+                  setSelectingContacts(rows)
+                  setChangeGroupDialog(true)
+                },
+              }
             ]}
             options={{
               selection: true,

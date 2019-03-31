@@ -18,6 +18,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialTable from 'material-table'
@@ -152,6 +153,16 @@ function ProductDetail(props) {
   const handleSave = e => {
     const id = props.match.params.id
     apiPatch(PRODUCTS_URL + '/' + id, productDetailData, false, true)
+      .then(res => {
+        setProductDetailData(res.data)
+      })
+  }
+
+  const handleSaveProductDetail = e => {
+    e.preventDefault()
+    const id = props.match.params.id
+    let {features, packages, manager, ...productDetail} = productDetailData
+    apiPatch(PRODUCTS_URL + '/' + id, productDetail, false, true)
       .then(res => {
         setProductDetailData(res.data)
       })
@@ -356,14 +367,30 @@ function ProductDetail(props) {
                     </InputLabel>
                     </Grid>
                     <Grid item xs={10}>
-                      <Input
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          value={productDetailData.status}
+                          onChange={onChangeCreateProduct}
+                          displayEmpty
+                          name="status"
+                          className={classes.selectEmpty}
+                        >
+                          <MenuItem value="ACTIVE">
+                            ACTIVE
+                          </MenuItem>
+                          <MenuItem value="INACTIVE">
+                            INACTIVE
+                          </MenuItem>
+                        </Select>
+                      </FormControl>
+                      {/* <Input
                         onChange={onChangeCreateProduct}
                         name="status"
                         classes={{
                           underline: classes.cssUnderline,
                         }}
-                        value={productDetailData.status}
-                      />
+                        value={productDetailData.status} */}
+                      {/* /> */}
                     </Grid>
                   </Grid>
                   <Grid container spacing={24}>
@@ -421,7 +448,7 @@ function ProductDetail(props) {
                       <Button onClick={handleResetData} variant="contained" className={classes.button}>
                         RESET
                       </Button>&nbsp;&nbsp;
-                      <Button onClick={handleSave} variant="contained" color="primary" className={classes.button}>
+                      <Button onClick={handleSaveProductDetail} variant="contained" color="primary" className={classes.button}>
                         SAVE
                       </Button>
                     </Grid>

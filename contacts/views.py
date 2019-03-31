@@ -32,6 +32,22 @@ class ContactView(ModelViewSet):
         serializer = serializers.ContactReadSerializer(self.get_object())
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['DELETE'])
+    def batchdelete(self, request):
+        is_default_group = request.data.get('isDefaultGroup', None)
+        contacts = models.Contact.objects.filter(
+            id__in=request.data['contacts'])
+        if is_default_group:
+            groups = models.ContactGroup.objects.filter(
+                contacts__in=request.data['contacts'])
+            for g in groups:
+                g.contacts.remove(*contacts)
+        else:
+            models.ContactGroup.objects.get(
+                id=request.data['group']).contacts.remove(*contacts)
+
+        return Response({"msg": 'OK'}, status=status.HTTP_200_OK)
+
 
 class ContactGroupView(ModelViewSet):
 
@@ -65,7 +81,6 @@ class ContactGroupView(ModelViewSet):
 
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
-    
 
     def create(self, request, *args, **kwargs):
         serializer = serializers.GroupWithoutContactSerializer(
@@ -87,13 +102,13 @@ class ContactGroupView(ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
-        instance = self.get_object()        
+        instance = self.get_object()
 
         if instance.name == 'All Contacts':
-            return Response({"msg":"Cannot delete default group"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"msg": "Cannot delete default group"}, status=status.HTTP_400_BAD_REQUEST)
         else:
             instance.delete()
-        return Response({"msg":"DEL OK"}, status=status.HTTP_200_OK)
+        return Response({"msg": "DEL OK"}, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['GET'])
     def contacts(self, request, pk=None):
@@ -112,7 +127,7 @@ class ContactGroupView(ModelViewSet):
             contacts = [model_to_dict(contact)
                         for contact in search.to_queryset()]
             return Response({"contacts": contacts, "suggestions": suggestion})
-        queryset = models.Contact.objects.filter(groups__id=instance.id)
+        queryset = models.Contact.objects.filter(groups__id=instance.id).order_by('first_name')
 
         serializer = serializers.ContactWithoutGroupSerializer(
             queryset, many=True)
@@ -123,3 +138,13 @@ class ContactGroupView(ModelViewSet):
             "group": instance.name
         }
         return Response(contacts, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['PATCH'])
+    def addcontacts(self, request):
+
+        for g in request.data.get('groups', []):
+            cur_g = models.ContactGroup.objects.get(id=g)
+            cur_cs = models.Contact.objects.filter(
+                id__in=request.data['contacts'])
+            cur_g.contacts.add(*cur_cs)
+        return Response({"msg": 'COMPLETE'}, status=status.HTTP_200_OK)
