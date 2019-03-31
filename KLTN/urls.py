@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView
 from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView
@@ -31,7 +31,7 @@ router.register('contactgroups', ContactGroupView, base_name='contactgroups')
 #step app
 router.register('steps', StepView, base_name='steps')
 router.register('step-detail', StepDetailView, base_name='step-detail')
-
+#activate
 
 urlpatterns = []
 urlpatterns += router.urls
@@ -50,4 +50,5 @@ urlpatterns = [
     path('api/v1/login/<int:pk>', LoginAndUpdateView.as_view()),
     path('api/v1/logout', LogoutView),
     path('api/v1/register', RegisterView.as_view()),
+    path('api/v1/activate', ActivateView)
 ]

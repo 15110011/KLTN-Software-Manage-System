@@ -28,42 +28,44 @@ function ProductList(props) {
 
   return (
     <div className={classes.root}>
-      <Grid classes={{container: classes.fixTable}} container spacing={8}>
+      <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
-            <MaterialTable
-              columns={[
-                { title: '#', field: 'numeral', type: 'numeric', cellStyle: {width: '50px'}, filtering: false },
-                { title: 'Name', field: 'name' },
-                { title: 'Description', field: 'description' },
-                {
-                  title: 'Status',
-                  field: 'status',
+          <MaterialTable
+            columns={[
+              { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
+              { title: 'Name', field: 'name' },
+              { title: 'Description', field: 'description' },
+              {
+                title: 'Status',
+                field: 'status',
+              },
+            ]}
+            data={products.data.map(
+              (product, index) => ({
+                numeral: index + 1,
+                name: product.name,
+                description: product.desc,
+                status: product.status,
+                id: product.id
+              })
+            )}
+            title="Product List"
+            actions={[
+              {
+                icon: 'done_all',
+                tooltip: 'Do',
+                onClick: (event, rows) => {
+                  alert('You selected ' + rows.length + ' rows')
                 },
-              ]}
-              data={products.data.map(
-                (product, index) => ({
-                  numeral: index + 1,
-                  name: product.name,
-                  description: product.desc,
-                  status: product.status
-                })
-              )}
-              title="Product List"
-              actions={[
-                {
-                  icon: 'done_all',
-                  tooltip: 'Do',
-                  onClick: (event, rows) => {
-                    alert('You selected ' + rows.length + ' rows')
-                  },
-                },
-              ]}
-              options={{
-                selection: true,
-                filtering: true,
-                paging: true
-              }}
-            />
+              },
+            ]}
+            options={{
+              selection: true,
+              filtering: true,
+              paging: true
+            }}
+            onRowClick={(e, rowData) => { props.history.push('/products/' + rowData.id) }}
+          />
         </Grid>
       </Grid>
     </div>
