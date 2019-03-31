@@ -108,7 +108,7 @@ export default class Login extends React.Component {
       <div>
         <Paper className={classes.paper}>
           <Grid container style={{ height: '100%' }}>
-            <Grid item md={6} className={classes.loginBorder}>
+            <Grid item xs={6} className={classes.loginBorder}>
               <div>
                 <Typography component="h1" variant="h4" gutterBottom>
                   Manage Your Business Account
@@ -119,7 +119,7 @@ export default class Login extends React.Component {
               </div>
               <img src={LoginImage} alt='image' />
             </Grid>
-            <Grid item md={6} className={classes.rightBorder}>
+            <Grid item xs={6} className={classes.rightBorder}>
               <Typography component="h1" variant='h4' gutterBottom>
                 {/* {status ? 'Admin' : 'Staff'} Login */}
                 Login To Your Account
@@ -129,8 +129,8 @@ export default class Login extends React.Component {
               </Typography>
               <br />
               <FormControl className={classes.form}>
-                <Grid container>
-                  <Grid item md={9}>
+                <Grid container spacing={8}>
+                  <Grid item xs={12}>
                     <FormControl margin="normal" fullWidth error={error.all} required>
                       <InputLabel htmlFor="email" className={error.username ? classes.danger : null}>Username</InputLabel>
                       <Input
@@ -145,7 +145,7 @@ export default class Login extends React.Component {
                       />
                     </FormControl>
                   </Grid>
-                  <Grid item md={9}>
+                  <Grid item xs={12}>
                     <FormControl margin="normal" fullWidth error={error.all} required>
                       <InputLabel htmlFor="password" className={error.password ? classes.danger : null}>Password</InputLabel>
                       <Input
