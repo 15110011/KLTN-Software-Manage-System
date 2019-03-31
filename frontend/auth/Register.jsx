@@ -264,7 +264,7 @@ function Register(props) {
               </Grid>
             </form>
           </Grid>
-          <Grid item md={6} className={classes.loginBorder}>
+          <Grid item xs={12} md={6} className={classes.loginBorder}>
             <img src={RegisterImage} alt='image' />
           </Grid>
         </Grid>
