@@ -46,7 +46,6 @@ function Register(props) {
       manager: null
     }
   })
-  const [error, setError] = React.useState({})
 
 
   React.useEffect(() => {
