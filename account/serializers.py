@@ -8,17 +8,18 @@ from importlib import import_module
 
 from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model, authenticate, login
-from django.core.mail import send_mail
 
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from . import models
 from contacts.models import ContactGroup
 from KLTN import settings
+from .utils import send_email_register
 
 import re
-import jwt
+import django_rq
 
+queue = django_rq.get_queue('default', is_async=True)
 
 class ProfileSerializer(serializers.ModelSerializer):
 
@@ -115,13 +116,7 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
             self.user = User.objects.create_user(**validated_data)
             self.user.is_active = False
             self.user.save()
-            payloads = {"id": self.user.id, "is_active": self.user.is_active}
-            activate_token = jwt.encode(
-                payloads, settings.SECRET_KEY, algorithm='HS256')
-            mail_subject = 'Activate your AQV Management System account.'
-            message = f"Please click this link below to activate your account http://localhost:8000/api/v1/activate?activate_token={activate_token}"
-            send_mail(mail_subject, message,
-                      settings.EMAIL_HOST_USER, [self.user.email])
+            queue.enqueue(send_email_register, self.user)
             new_profile = models.Profile(
                 user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
             new_profile.save()
