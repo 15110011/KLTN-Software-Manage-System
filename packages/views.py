@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer, PackageHistorySerializer
 from .models import Product, Package, PackageHistory
+from .documents import ProductDocument
 # Create your views here.
 
 
@@ -14,6 +15,10 @@ class ProductViewSet(ModelViewSet):
     serializer_class = ProductSerializier
     queryset = Product.objects.prefetch_related('features')
     permission_classes = (IsAuthenticated,)
+
+
+    # def get_queryset(self):
+
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset().filter(manager=request.user)

@@ -22,6 +22,8 @@ class Product(BaseModel):
     start_sale_date = models.DateField(auto_now_add=True)
     start_support_date = models.DateField(auto_now_add=True)
 
+    def _get_product_name(self):
+        return f'{self.name}'
 
 
 class Feature(BaseModel):

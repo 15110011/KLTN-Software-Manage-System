@@ -26,9 +26,6 @@ class Contact(BaseModel):
         unique_together = (("user", "first_name", "last_name"),)
 
 
-Contact.field_names = [f.name for f in Contact._meta.fields[4:6]]
-
-
 class ContactGroup(BaseModel):
 
     user = models.ForeignKey(

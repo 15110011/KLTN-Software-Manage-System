@@ -19,4 +19,4 @@ class ContactDocument(DocType):
 
     class Meta:
         model = Contact
-        fields = []
+        fields = ['first_name', 'last_name']
