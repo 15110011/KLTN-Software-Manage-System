@@ -103,7 +103,9 @@ function ProductDetail(props) {
       err.fprice = 'You must fill in feature price field'
     }
     if (!Object.keys(err).length) {
-      features.push({ ...createFeature, number: features.length + 1 })
+      let number = 1
+      if (features[features.length - 1]) { number = features[features.length - 1].number + 1 }
+      features.push({ ...createFeature, number })
       setProductDetailData({ ...productDetailData, features })
     }
     setCreateFeature({
@@ -133,7 +135,7 @@ function ProductDetail(props) {
     getProductDetail()
   }, [])
 
-  const getProductDetail =()=>{
+  const getProductDetail = () => {
     const id = props.match.params.id
 
     apiGet(PRODUCTS_URL + "/" + id, true)
@@ -284,7 +286,6 @@ function ProductDetail(props) {
   const handleChangeSelect = (values, element, packageIndex) => {
     const packages = productDetailData.packages.concat([])
     packages[packageIndex].numbers = values
-    console.log(values)
     setProductDetailData({ ...productDetailData, packages })
   }
 
@@ -623,16 +624,32 @@ function ProductDetail(props) {
                         ]}
                         data={
                           productDetailData.features.map((f, index) => {
-                            return ({
-                              numeral: (index + 1),
-                              fname: (f.name),
-                              fprice: (f.price),
-                              fdesc: (f.desc),
-                              action:
-                                <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                            })
+                            for (let y = 0; y < productDetailData.packages.length; y++) {
+                              console.log(productDetailData.packages[y].numbers, f)
+                              if (productDetailData.packages[y].numbers.findIndex(i => {
+                                return i.number == f.number
+                              }) != -1) {
+                                return ({
+                                  numeral: (index + 1),
+                                  fname: (f.name),
+                                  fprice: (f.price),
+                                  fdesc: (f.desc),
+                                  action: <div></div>
+
+                                })
+                              } else {
+                                return ({
+                                  numeral: (index + 1),
+                                  fname: (f.name),
+                                  fprice: (f.price),
+                                  fdesc: (f.desc),
+                                  action:
+                                    <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                })
+                              }
+                            }
                           })
                         }
                         onRowClick={(e, rowData) => handleUpdateFeature(e, rowData)}
