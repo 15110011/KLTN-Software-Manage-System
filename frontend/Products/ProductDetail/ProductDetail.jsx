@@ -27,7 +27,7 @@ import IconButton from '@material-ui/core/IconButton';
 
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
-import { apiGet, apiPost, apiPatch } from '../../common/Request'
+import { apiGet, apiPost, apiPatch, apiPut } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 // Components 
@@ -130,8 +130,13 @@ function ProductDetail(props) {
   }
 
   React.useEffect(() => {
+    getProductDetail()
+  }, [])
+
+  const getProductDetail =()=>{
     const id = props.match.params.id
-    const data = apiGet(PRODUCTS_URL + "/" + id, true)
+
+    apiGet(PRODUCTS_URL + "/" + id, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -148,20 +153,24 @@ function ProductDetail(props) {
         }
         setProductDetailData({ ...res.data })
       })
-  }, [])
-
+  }
   const handleSave = e => {
     const id = props.match.params.id
-    apiPatch(PRODUCTS_URL + '/' + id, productDetailData, false, true)
+    let { packages, features } = productDetailData
+    packages.forEach(p => {
+      p.numbers = p.numbers.map(n => n.number)
+    })
+    apiPut(PRODUCTS_URL + '/' + id, { packages, features }, false, true)
       .then(res => {
-        setProductDetailData(res.data)
+        // setProductDetailData(res.data)
+        getProductDetail()
       })
   }
 
   const handleSaveProductDetail = e => {
     e.preventDefault()
     const id = props.match.params.id
-    let {features, packages, manager, ...productDetail} = productDetailData
+    let { features, packages, manager, ...productDetail } = productDetailData
     apiPatch(PRODUCTS_URL + '/' + id, productDetail, false, true)
       .then(res => {
         setProductDetailData(res.data)
@@ -255,7 +264,9 @@ function ProductDetail(props) {
     else if (e.target.name == 'value') {
       packages[packageIndex].prices[curMonth] = e.target.value
     }
-    // packages[packageIndex].prices[priceIndex][e.target.name] = e.target.value
+    else {
+      packages[packageIndex][e.target.name] = e.target.value
+    }
     setProductDetailData({ ...productDetailData, packages })
   }
 
@@ -273,6 +284,7 @@ function ProductDetail(props) {
   const handleChangeSelect = (values, element, packageIndex) => {
     const packages = productDetailData.packages.concat([])
     packages[packageIndex].numbers = values
+    console.log(values)
     setProductDetailData({ ...productDetailData, packages })
   }
 

@@ -128,6 +128,7 @@ class CreateProductSerializer(serializers.ModelSerializer):
 
         packages = validated_data.get('packages')
         features = validated_data.get('features')
+        cur_features = []
         if features is not None:
             for item in features:
                 try:
@@ -141,19 +142,34 @@ class CreateProductSerializer(serializers.ModelSerializer):
                 except:
                     feature = Feature(**item, product=instance)
                     feature.save()
+                finally: 
+                    cur_features.append(feature)
+        
+        serialized_features = FeatureSerializer(instance.features.all(), many = True)
+        print(serialized_features)
+        print(cur_features)
+        have_to_remove = [d['id'] for d in serialized_features.data if d['id'] not in [f.id for f in cur_features]]
+        Feature.objects.filter(id__in=have_to_remove).delete()
+
         if packages is not None:
             instance.packages = []
             for item in packages:
+                features = item.pop('features')
+                numbers = item.pop('numbers')
                 try:
                     package_id = item['id']
                     package = Package.objects.get(id=package_id)
                     package.name = item.get('name', package.name)
                     package.discount = item.get('discount', package.discount)
                     package.prices = item.get('prices', package.prices)
+                    package.note = item.get('note', package.note)
                     package.save()
                 except:
                     package = Package(**item)
                     package.save()
+                finally: 
+                    found_features = [f for f in cur_features if f.number in numbers]
+                    package.features.set(found_features)
         return instance
 
     def to_internal_value(self, data):

@@ -30,7 +30,7 @@ class Feature(BaseModel):
     name = models.CharField(max_length=255)
     desc = models.TextField()
     price = models.IntegerField()
-    number = models.IntegerField()
+    number = models.IntegerField()  
 
 class Package(BaseModel):
     name = models.CharField(max_length=255)
