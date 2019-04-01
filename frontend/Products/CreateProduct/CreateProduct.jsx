@@ -193,7 +193,6 @@ function CreateProduct(props) {
       }
     }
     else if (e.target.name == 'value') {
-      console.log(packageIndex)
       packages[packageIndex].prices[curMonth] = e.target.value
     }
     else {
