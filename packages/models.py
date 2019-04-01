@@ -25,6 +25,8 @@ class Product(BaseModel):
     def _get_product_name(self):
         return f'{self.name}'
 
+    def _get_manager_product(self):
+        return self.manager.id
 
 class Feature(BaseModel):
     product = models.ForeignKey(

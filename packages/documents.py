@@ -11,11 +11,13 @@ products.settings(
 
 @products.doc_type
 class ProductDocument(DocType):
+    manager = fields.TextField(attr='_get_manager_product')
     product_name = fields.TextField(attr='_get_product_name',
-                                 fields={
-                                     'raw': fields.StringField(analyzer='keyword'),
-                                     'suggest': fields.CompletionField(attr='_get_product_name')
-                                 })
+                                    fields={
+                                        'raw': fields.StringField(analyzer='keyword'),
+                                        'suggest': fields.CompletionField(attr='_get_product_name'),
+                                    }
+                                    )
 
     class Meta:
         model = Product
