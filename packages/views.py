@@ -44,9 +44,10 @@ class ProductViewSet(ModelViewSet):
             return {"products": products, "elastic_search": True}
 
     def list(self, request, *args, **kwargs):
-        if self.get_queryset().get('elastic_search') is True:
-            return Response(self.get_queryset())
-        queryset = self.get_queryset().filter(manager=request.user)
+        qs = self.get_queryset()
+        if type(qs) is dict and qs.get('elastic_search', None):
+            return Response(qs)
+        queryset = qs.filter(manager=request.user)
         serializer = self.get_serializer(queryset, many=True)
         filters = Q()
         new_serializer = {}
