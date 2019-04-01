@@ -84,6 +84,11 @@ function ProductDetail(props) {
 
   const toggleUpdateFeature = e => {
     setUpdateFeatureBtn(!updateFeatureBtn)
+    setCreateFeature({
+      name: '',
+      price: '',
+      desc: '',
+    })
   }
 
   const onClickUpdateFeature = (e) => {
