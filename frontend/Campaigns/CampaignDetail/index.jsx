@@ -23,6 +23,8 @@ import DetailTab from './DetailTab';
 
 import styles from './CampaignDetailStyle'
 import MarketingTab from './MarketingTab';
+import FollowUpTab from './FollowUpTab';
+import InvoiceTab from './InvoiceTab';
 
 function TabContainer(props) {
   return (
@@ -76,14 +78,17 @@ function CampaignDetail(props) {
                 </TabContainer>}
               {value === 2 &&
                 <TabContainer>
-                  Item Three
+                  <FollowUpTab />
+                </TabContainer>}
+              {value === 3 && 
+              <TabContainer>
+                <InvoiceTab />
               </TabContainer>}
-              {value === 3 && <TabContainer>Item Three</TabContainer>}
             </div>
           </Paper>
         </Grid>
       </Grid>
-    </div >
+    </div>
   )
 }
 
