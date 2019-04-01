@@ -19,6 +19,7 @@ function CustomSnackbar(props) {
 
   const { classes, isSuccess, isErr, msg } = props
 
+  console.log(msg, completeNotice, isSuccess)
   return (
     <>
       {isErr && <Snackbar
@@ -27,7 +28,7 @@ function CustomSnackbar(props) {
           horizontal: 'right',
         }}
         open={errNotice}
-        autoHideDuration={20000}
+        autoHideDuration={2000}
         ContentProps={{
           classes: {
             root: classes.errNotice
@@ -41,25 +42,24 @@ function CustomSnackbar(props) {
         }
       />
       }
-      {isSuccess && <Snackbar
+       <Snackbar
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'right',
         }}
-        open={completeNotice}
-        autoHideDuration={2000}
+        open={true}
         ContentProps={{
           classes: {
             root: classes.completeNotice
           }
         }}
-        onClose={() => { setCompleteNotice(false) }}
+        // onClose={() => { setCompleteNotice(false) }}
         message={
           <div >
             {msg}
           </div>
         }
-      />}
+      />
 
     </>
 

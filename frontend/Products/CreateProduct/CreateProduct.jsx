@@ -24,6 +24,7 @@ import TableHeader from 'material-table/dist/m-table-header'
 
 // Components 
 import FormPackage from './FormPackage/FormPackage';
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 
 import styles from './CreateProductStyle'
@@ -43,6 +44,7 @@ function CreateProduct(props) {
     add: '',
     labelWidth: 0
   })
+
   const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
   const [error, setError] = React.useState({})
 
@@ -65,18 +67,54 @@ function CreateProduct(props) {
     features: []
   })
 
-  const handleChangeSelect = (values, element, packageIndex) => {
-    const packages = createProduct.packages.concat([])
-    packages[packageIndex].numbers = values
-    setCreateProduct({ ...createProduct, packages })
-  }
-
   const [createFeature, setCreateFeature] = React.useState({
     name: '',
     price: '',
     desc: '',
     number: ''
   })
+
+  const [completeNotice, setCompleteNotice] = React.useState(false)
+  const [errNotice, setErrNotice] = React.useState(false)
+  let notiTimeout = {}
+  //Clear timer
+
+  const notification = e => {
+    setCompleteNotice('Successfully Added')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+  }
+
+  React.useEffect(() => {
+    // Cleanup
+    return () => {
+      Object.keys(notiTimeout).forEach(k => {
+        clearTimeout(notiTimeout[k])
+      })
+    }
+  })
+
+  const isUserTyped = {
+    "1": false, "6": false, "12": false, "999": false
+  }
+  const handleChangeSelect = (values, element, packageIndex) => {
+    const packages = createProduct.packages.concat([])
+    packages[packageIndex].numbers = values
+
+    Object.keys(packages[packageIndex].prices).forEach(m => {
+      if (!isUserTyped[m]) {
+        packages[packageIndex].prices[m] = packages[packageIndex].numbers.reduce((acc, n) => {
+          return acc += parseInt(n.price)
+        }, 0) * parseInt(m)
+      }
+    })
+
+    setCreateProduct({ ...createProduct, packages })
+
+  }
+
+
 
   const handleDeleteFeature = (e, unitIndex) => {
     e.stopPropagation()
@@ -131,7 +169,10 @@ function CreateProduct(props) {
       return acc
     }, [])
     if (remainMonths.length != 0) {
-      packages[packageIndex].prices = { ...packages[packageIndex].prices, [remainMonths[0].value]: '' }
+      const pricePerMonth = packages[packageIndex].numbers.reduce((acc, n) => {
+        return acc += parseInt(n.price)
+      }, 0)
+      packages[packageIndex].prices = { ...packages[packageIndex].prices, [remainMonths[0].value]: pricePerMonth * parseInt(remainMonths[0].value) }
       setCreateProduct({ ...createProduct, packages })
     }
   }
@@ -146,11 +187,13 @@ function CreateProduct(props) {
     const packages = createProduct.packages.concat([])
     if (e.target.name == 'month') {
       if (e.target.value != curMonth) {
+
         packages[packageIndex].prices[e.target.value] = packages[packageIndex].prices[curMonth]
         delete packages[packageIndex].prices[curMonth]
       }
     }
     else if (e.target.name == 'value') {
+      console.log(packageIndex)
       packages[packageIndex].prices[curMonth] = e.target.value
     }
     else {
@@ -213,6 +256,8 @@ function CreateProduct(props) {
     apiPostProduct()
   }
 
+
+
   const apiPostProduct = () => {
     const cloneProduct = JSON.parse(JSON.stringify(createProduct))
     cloneProduct.packages = cloneProduct.packages.map(p => {
@@ -229,6 +274,7 @@ function CreateProduct(props) {
             else {
               localStorage.setItem("token", res.data.access)
               apiPostProduct()
+              notification()
             }
           })
         }
@@ -236,7 +282,7 @@ function CreateProduct(props) {
           setError(res.data)
         }
         else {
-          props.history.push('/products')
+          notification()
         }
       })
   }
@@ -269,6 +315,8 @@ function CreateProduct(props) {
 
   return (
     <div className={classes.root}>
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+      {errNotice && <CustomSnackbar isErr msg={errNotice} />}
       <BreadcrumbsItem to='/products/add'>ABC</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Paper className={classes.paper}>
