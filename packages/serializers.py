@@ -146,8 +146,6 @@ class CreateProductSerializer(serializers.ModelSerializer):
                     cur_features.append(feature)
         
         serialized_features = FeatureSerializer(instance.features.all(), many = True)
-        print(serialized_features)
-        print(cur_features)
         have_to_remove = [d['id'] for d in serialized_features.data if d['id'] not in [f.id for f in cur_features]]
         Feature.objects.filter(id__in=have_to_remove).delete()
 
