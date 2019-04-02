@@ -19,6 +19,7 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import * as cn from 'classnames'
 import styles from './CreateFollowUpPlanStyle'
+import StepDetail from './StepDetail'
 
 function CreateFollowUpPlan(props) {
   const { classes } = props
@@ -26,6 +27,7 @@ function CreateFollowUpPlan(props) {
   const getSteps = () => {
     return ['Step 1', 'Step 2', 'Step 3'];
   }
+
   const handleNext = () => {
     setActiveStep(activeStep + 1)
   }
@@ -34,36 +36,67 @@ function CreateFollowUpPlan(props) {
   }
   const steps = getSteps();
   return (
-    <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Iformations</BreadcrumbsItem>
     <div className={classes.root}>
+      <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
+      <div style={{ textAlign: 'left', padding: '40px' }}>
+        <Grid item xs={6}>
+          <Grid container spacing={40}>
+            <Grid className={classes.inputCustom} item xs={4}>
+              <InputLabel
+                required
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+              >
+                Plan name
+            </InputLabel>
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                fullWidth
+                required
+                // onChange={onChangeCreateProduct}
+                // value={createProduct.name}
+                name="name"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+              />
+            </Grid>
+          </Grid>
+        </Grid>
+      </div>
       <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map(label => (
+        {steps.map((label, index) => (
           <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+            <StepLabel onClick={() => setActiveStep(index)}
+              style={{ cursor: 'pointer' }}
+            >{label}</StepLabel>
           </Step>
         ))}
       </Stepper>
       <div>
-        {activeStep === steps.length ? (
-          <div>
-            <Typography className={classes.instructions}>All steps completed</Typography>
+        <div className={cn(classes.actionsContainer, 'mt-5')}>
+
+          {
+            activeStep === 0 && <StepDetail {...props} />
+          }
+          {/* <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography> */}
+          <div className="d-flex justify-content-center">
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              className={classes.backButton}
+            >
+              Back
+                </Button>
+            <Button variant="contained" color="primary" onClick={handleNext}>
+              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+            </Button>
           </div>
-        ) : (
-            <div>
-              <div>
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  className={classes.backButton}
-                >
-                  Back
-                </Button>
-                <Button variant="contained" color="primary" onClick={handleNext}>
-                  {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
-                </Button>
-              </div>
-            </div>
-          )}
+        </div>
       </div>
     </div>
   )
