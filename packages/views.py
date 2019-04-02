@@ -65,7 +65,8 @@ class ProductViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
-        new_serializer['total'] = queryset.count()
+        new_serializer['total'] = Product.objects.filter(
+            manager=request.user).count()
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):

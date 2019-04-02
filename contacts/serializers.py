@@ -48,10 +48,15 @@ class GroupWithoutContactSerializer(serializers.ModelSerializer):
 
 class ContactReadSerializer(serializers.ModelSerializer):
     groups = GroupWithoutContactSerializer(many=True)
+    full_name = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Contact
         fields = '__all__'
+
+    def get_full_name(self, instance):
+
+        return f'{instance.first_name} {instance.last_name}'
 
 
 class ContactSerializer(serializers.ModelSerializer):
@@ -83,7 +88,6 @@ class ContactSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
         instance.groups.set(groups)
         return instance
-
 
 
 class NoteSerializer(serializers.ModelSerializer):

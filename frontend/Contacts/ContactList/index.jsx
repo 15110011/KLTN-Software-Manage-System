@@ -82,7 +82,7 @@ function ContactList(props) {
         clearTimeout(notiTimeout[k])
       })
     }
-  },[])
+  }, [])
 
 
 
@@ -326,7 +326,7 @@ function ContactList(props) {
                       else if (columnId == 4) {
                         search.phone = value
                       }
-                        activePage=0
+                      activePage = 0
                       props.onFilterChanged(columnId, value);
                       //Columnid la thu tu cot tren bang (ko tinh selection)
                     }} />,
@@ -336,7 +336,7 @@ function ContactList(props) {
                       onChangePage={(e, nextPage) => {
                         props.onChangePage(a, nextPage)
                         // setActivePage(nextPage)
-                        activePage=nextPage
+                        activePage = nextPage
                       }}
                     />
                   }
@@ -363,7 +363,7 @@ function ContactList(props) {
                       + '/contacts' +
                       `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
                         const data = res.data.data.map((d, index) => ({
-                          '#': index + 1,
+                          '#': activePage * query.pageSize + index + 1,
                           fullName: d.first_name + ' ' + d.last_name,
                           firstName: d.first_name,
                           lastName: d.last_name,
@@ -410,12 +410,18 @@ function ContactList(props) {
                     },
                   }
                 ]}
+                onRowClick={
+                  (e, rowData) => {
+
+                    props.history.push('/contacts/' + rowData.id)
+                  }
+                }
                 options={{
                   search: false,
                   selection: true,
                   filtering: true,
                   paging: true,
-                  debounceInterval: 1000
+                  debounceInterval: 300
                 }}
               />
           }

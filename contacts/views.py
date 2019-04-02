@@ -29,10 +29,9 @@ class ContactView(ModelViewSet):
         # return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
-
-        return Response({"msg": 'WHAT ARE U LOOKING FOR???'}, status=status.HTTP_200_OK)
-        # serializer = serializers.ContactReadSerializer(self.get_object())
-        # return Response(serializer.data, status=status.HTTP_200_OK)
+        # return Response({"msg": 'WHAT ARE U LOOKING FOR???'}, status=status.HTTP_200_OK)
+        serializer = serializers.ContactReadSerializer(self.get_object())
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['DELETE'])
     def batchdelete(self, request):
