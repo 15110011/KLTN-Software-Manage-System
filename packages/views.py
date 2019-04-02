@@ -27,12 +27,11 @@ class ProductViewSet(ModelViewSet):
             suggest = search.suggest('auto_complete', qs, completion={
                                      'field': 'product_name.suggest',
                                      'contexts': {'manager': self.request.user.id}
-                                    })
+                                     })
             response = suggest.execute()
             suggestion = [
                 option._source.product_name for option in response.suggest.auto_complete[0].options]
             return {"suggestion": suggestion, "elastic_search": True}
-
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4']).filter(
@@ -40,7 +39,7 @@ class ProductViewSet(ModelViewSet):
             response = search.execute()
             products = [model_to_dict(product)
                         for product in search.to_queryset()]
-            return {"products": products, "elastic_search": True}
+            return {"data": products, "elastic_search": True}
 
         if 'status' in self.request.query_params.keys():
             qs = self.request.query_params.get('status')
@@ -48,13 +47,21 @@ class ProductViewSet(ModelViewSet):
                 'term', manager=self.request.user.id)
             products = [model_to_dict(product)
                         for product in search.to_queryset()]
-            return {"products": products, "elastic_search": True}
+            return {"data": products, "elastic_search": True}
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
-        queryset = qs.filter(manager=request.user)
+
+        limit = self.request.query_params.get('limit', None)
+        page = self.request.query_params.get('page') if int(
+            self.request.query_params.get('page', 0)) > 0 else 0
+        if limit is not None:
+            queryset = Product.objects.filter(manager=request.user)[
+                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+        else:
+            queryset = qs.filter(manager=request.user)
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
