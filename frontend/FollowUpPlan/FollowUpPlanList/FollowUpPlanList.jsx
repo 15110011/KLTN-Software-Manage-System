@@ -35,14 +35,33 @@ function FollowUpPlanList(props) {
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
+            tableRef={tableRef}
+            components={
+              {
+                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
+                  if (columnId === 1) search.name = value
+                  if (columnId === 3) search.status = value
+                  props.onFilterChanged(columnId, value)
+                }}
+                />,
+                Pagination: props => <TablePagination {...props}
+                  page={activePage} rowsPerPageOptions={[5, 10, 20]}
+                  count={props.count}
+                  onChangePage={(e, nextPage) => {
+                    props.onChangePage(e, nextPage)
+                    activePage = nextPage
+                  }}
+                />
+              }
+            }
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description' },
+              { title: 'Steps', field: 'steps' },
               {
                 title: 'Status',
                 field: 'status',
-                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE'}
+                lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
               },
             ]}
             // data={products.data.map(
@@ -53,7 +72,7 @@ function FollowUpPlanList(props) {
             //     status: product.status
             //   })
             // )}
-            title="Campaign List"
+            title="Follow Up Plan List"
             actions={[
               {
                 icon: 'done_all',
@@ -64,6 +83,7 @@ function FollowUpPlanList(props) {
               },
             ]}
             options={{
+              search: false,
               selection: true,
               filtering: true,
               paging: true
