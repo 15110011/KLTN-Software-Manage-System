@@ -37,6 +37,7 @@ class ProductViewSet(ModelViewSet):
             qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4']).filter(
                 'term', manager=self.request.user.id)
+            response = search.execute()
             products = [model_to_dict(product)
                         for product in search.to_queryset()]
             return {"products": products, "elastic_search": True}
