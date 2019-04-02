@@ -65,13 +65,13 @@ function ProductList(props) {
               {
                 title: 'Status',
                 field: 'status',
-                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE', 'ALL': 'ALL'}
+                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE'}
               },
             ]}
             data={(query) => 
               new Promise((resolve, reject) => {
                 let searchString = `${search.name ? '&name=' + search.name : ''}`
-                if (search.status && search.status[0] !== 'ALL' && search.status.length === 1) 
+                if (search.status && search.status.length === 1) 
                   searchString += `${search.status ? '&status=' + search.status : ''}`
                 apiGet(PRODUCTS_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true)
                   .then(json => {
