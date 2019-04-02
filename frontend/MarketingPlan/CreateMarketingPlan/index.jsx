@@ -5,19 +5,65 @@ import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import StepContent from '@material-ui/core/StepContent';
 import Button from '@material-ui/core/Button';
+import Grid from '@material-ui/core/Grid';
+import InputLabel from '@material-ui/core/InputLabel';
+import Input from '@material-ui/core/Input';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
+import cn from 'classnames'
+import StepButton from '@material-ui/core/StepButton';
 
 import styles from './CreateMarketingPlanStyle'
 
-const stepName = ['Select campaign settings', 'Create an ad group', 'Create an ad'];
+const stepName = ['Basic Infomation', 'Choose Search Conditions', 'Choose Actions'];
 
-function getStepContent(step) {
+function getStepContent(step, props, error) {
+  const { classes } = props;
   switch (step) {
     case 0:
-      return `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`;
+      return (
+        <Grid container spacing={24}>
+          <Grid item xs={12}>
+            {
+              Object.keys(error[0]).map(k => (
+                <p className='text-danger'>
+                  {error[0][k]}
+                </p>
+              ))
+            }
+          </Grid>
+          <Grid item xs={6}>
+            <Grid container spacing={24}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Campaign Name
+                  </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                <Input
+                  fullWidth
+                  required
+                  // onChange={onChangeCreateCampaign}
+                  // value={createCampaign.name}
+                  // name="name"
+                  error={error[0].name}
+                  classes={{
+                    underline: classes.cssUnderline,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={6}></Grid>
+        </Grid>
+      )
     case 1:
       return 'An ad group contains one or more ads which target a shared set of keywords.';
     case 2:
@@ -33,8 +79,10 @@ function getStepContent(step) {
 function CreateMarketingPlan(props) {
 
   const [activeStep, setActiveStep] = React.useState(0)
-
+  const [error, setError] = React.useState([{name:'asdsa'}, {}, {}])
   const { classes } = props;
+
+
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)
@@ -50,13 +98,19 @@ function CreateMarketingPlan(props) {
 
   return (
     <div className={classes.root}>
-      <Stepper activeStep={activeStep} orientation="vertical">
+      <Stepper nonLinear activeStep={activeStep} orientation="vertical">
         {stepName.map((label, index) => (
-          <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+          <Step key={label} >
+            <StepLabel onClick={() => { setActiveStep(index) }}
+              style={{ cursor: 'pointer' }}
+              error={Object.keys(error[index]).length}>{label}</StepLabel>
             <StepContent>
-              <Typography>{getStepContent(index)}</Typography>
-              <div className={classes.actionsContainer}>
+              <Grid container spacing={24} className="mt-5">
+                <Grid item xs={12}>
+                  {getStepContent(index, props, error)}
+                </Grid>
+              </Grid>
+              <div className={cn(classes.actionsContainer, 'mt-5')}>
                 <div>
                   <Button
                     disabled={activeStep === 0}
