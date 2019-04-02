@@ -128,6 +128,7 @@ export default class Login extends React.Component {
                 Enter your details to login.
               </Typography>
               <br />
+              <form onSubmit={this.onLogin}>
               <FormControl className={classes.form}>
                 <Grid container spacing={8}>
                   <Grid item xs={12}>
@@ -168,7 +169,6 @@ export default class Login extends React.Component {
                 <br />
                 <Button
                   type="submit"
-                  onClick={this.onLogin}
                   variant="contained"
                   color="primary"
                   className={classes.submit}
@@ -184,6 +184,7 @@ export default class Login extends React.Component {
                   Don't have an account? Register <Link to='/register' style={{ textDecoration: 'underline', color: 'red' }}>here</Link>
                 </Typography>
               </FormControl>
+              </form>
             </Grid>
           </Grid>
         </Paper>

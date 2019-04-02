@@ -13,7 +13,7 @@ const styles = theme => ({
   },
   cssLabel: {
     position: 'absolute',
-    bottom: 20,
+    top: 35,
     marginBottom: '0'
   },
   fixTextArea: {

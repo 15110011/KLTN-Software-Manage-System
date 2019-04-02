@@ -19,8 +19,8 @@ class Product(BaseModel):
         User, on_delete=models.CASCADE, related_name='products')
     desc = models.TextField()
     status = models.TextField(choices=PRODUCT_CHOICES, default='ACTIVE')
-    start_sale_date = models.DateField(auto_now_add=True)
-    start_support_date = models.DateField(auto_now_add=True)
+    start_sale_date = models.DateField()
+    start_support_date = models.DateField()
 
     def _get_product_name(self):
         return f'{self.name}'

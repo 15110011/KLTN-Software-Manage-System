@@ -60,8 +60,8 @@ function ProductDetail(props) {
     name: '',
     desc: '',
     status: 'ACTIVE',
-    saleStarDate: '',
-    supportStartDate: '',
+    start_sale_date: '',
+    start_support_date: '',
     packages: [
       {
         name: '',
@@ -81,7 +81,7 @@ function ProductDetail(props) {
     desc: '',
     number: ''
   })
-
+  
   const toggleUpdateFeature = e => {
     setUpdateFeatureBtn(!updateFeatureBtn)
     setCreateFeature({
@@ -294,6 +294,8 @@ function ProductDetail(props) {
     setProductDetailData({ ...productDetailData, packages })
   }
 
+  console.log(productDetailData)
+
   return (
     <div className={classes.root}>
       <BreadcrumbsItem to={`/products/ + ${productDetailData.id}`}>{productDetailData.name}</BreadcrumbsItem>
@@ -426,7 +428,7 @@ function ProductDetail(props) {
                     <Grid item xs={10}>
                       <Input
                         onChange={onChangeCreateProduct}
-                        name="saleStarDate"
+                        name="start_sale_date"
                         type="date"
                         classes={{
                           underline: classes.cssUnderline,
@@ -450,7 +452,7 @@ function ProductDetail(props) {
                     <Grid item xs={10}>
                       <Input
                         onChange={onChangeCreateProduct}
-                        name="supportStartDate"
+                        name="start_support_date"
                         type="date"
                         classes={{
                           underline: classes.cssUnderline,
