@@ -28,12 +28,10 @@ const styles = theme => ({
 });
 
 function ProductList(props) {
-  // const [products, setProducts, setURL, forceUpdate] = useFetchData(PRODUCTS_URL, props.history, { data: [], total: 0 })
   const { classes } = props;
   const tableRef = React.useRef(null);
   const search = {}
   let activePage = 0
-
   return (
     <div className={classes.root}>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
@@ -52,7 +50,7 @@ function ProductList(props) {
                   page={activePage} rowsPerPageOptions={[5, 10, 20]}
                   count={props.count}
                   onChangePage={(e, nextPage) => {
-                    props.onChangePage(a, nextPage)
+                    props.onChangePage(e, nextPage)
                     activePage = nextPage
                   }}
                 />
@@ -101,6 +99,7 @@ function ProductList(props) {
               },
             ]}
             options={{
+              search: false,
               selection: true,
               filtering: true,
               paging: true
