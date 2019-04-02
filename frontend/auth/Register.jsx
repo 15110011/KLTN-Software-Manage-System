@@ -90,7 +90,6 @@ function Register(props) {
       setUser({ ...user, [e.target.name]: e.target.value })
     }
   }
-  console.log('REGISTER')
 
   return (
     <div>

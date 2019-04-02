@@ -14,7 +14,7 @@ import IconButton from '@material-ui/core/IconButton'
 import Menu from '@material-ui/core/Menu';
 import AccountCircle from '@material-ui/icons/PersonPin';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import * as numeral from 'numeral'
 // Components
 import FormLicensePrice from '../FormLicensePrice/FormLicensePrice'
 import SelectCustom from '../../../components/SelectCustom'
@@ -107,12 +107,11 @@ function FormPackage(props) {
                       </Grid>
                       <Grid item xs={12}>
                         <SelectCustom
-                          options={createProduct.features.map(f => ({ label: f.name, value: f.number, ...f }))}
+                          options={createProduct.features.map(f => ({ label: f.name + `(${numeral(f.price).format('0,0.00')} VND)`, value: f.number, ...f }))}
                           handleChange={(values, element) => handleChangeSelect(values, element, packageIndex)}
                           data={
                             createProduct.packages[packageIndex].numbers
                               .reduce((acc, p) => {
-                                console.log(p)
                                 acc.push({ label: p.name, value: p.number, ...p })
                                 return acc
                               }, [])

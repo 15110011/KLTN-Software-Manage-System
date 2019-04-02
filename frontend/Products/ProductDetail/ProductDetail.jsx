@@ -23,11 +23,12 @@ import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialTable from 'material-table'
 import IconButton from '@material-ui/core/IconButton';
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
-import { apiGet, apiPost, apiPatch } from '../../common/Request'
+import { apiGet, apiPost, apiPatch, apiPut } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 // Components 
@@ -56,6 +57,7 @@ function ProductDetail(props) {
   const [error, setError] = React.useState({})
   const [updatingUnit, setUpdatingUnit] = React.useState(-1)
   const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
+  const [completeNotice, setCompleteNotice] = React.useState(false)
   const [productDetailData, setProductDetailData] = React.useState({
     name: '',
     desc: '',
@@ -84,6 +86,18 @@ function ProductDetail(props) {
 
   const toggleUpdateFeature = e => {
     setUpdateFeatureBtn(!updateFeatureBtn)
+    setCreateFeature({
+      name: '',
+      price: '',
+      desc: '',
+    })
+  }
+
+  const updateNotification = () => {
+    setCompleteNotice('Succesfully updated')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000)
   }
 
   const onClickUpdateFeature = (e) => {
@@ -103,7 +117,9 @@ function ProductDetail(props) {
       err.fprice = 'You must fill in feature price field'
     }
     if (!Object.keys(err).length) {
-      features.push({ ...createFeature, number: features.length + 1 })
+      let number = 1
+      if (features[features.length - 1]) { number = features[features.length - 1].number + 1 }
+      features.push({ ...createFeature, number })
       setProductDetailData({ ...productDetailData, features })
     }
     setCreateFeature({
@@ -130,8 +146,13 @@ function ProductDetail(props) {
   }
 
   React.useEffect(() => {
+    getProductDetail()
+  }, [])
+
+  const getProductDetail = () => {
     const id = props.match.params.id
-    const data = apiGet(PRODUCTS_URL + "/" + id, true)
+
+    apiGet(PRODUCTS_URL + "/" + id, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -148,23 +169,28 @@ function ProductDetail(props) {
         }
         setProductDetailData({ ...res.data })
       })
-  }, [])
-
+  }
   const handleSave = e => {
     const id = props.match.params.id
-    apiPatch(PRODUCTS_URL + '/' + id, productDetailData, false, true)
+    let { packages, features } = productDetailData
+    packages.forEach(p => {
+      p.numbers = p.numbers.map(n => n.number)
+    })
+    apiPut(PRODUCTS_URL + '/' + id, { packages, features }, false, true)
       .then(res => {
-        setProductDetailData(res.data)
+        // setProductDetailData(res.data)
+        getProductDetail()
       })
   }
 
   const handleSaveProductDetail = e => {
     e.preventDefault()
     const id = props.match.params.id
-    let {features, packages, manager, ...productDetail} = productDetailData
+    let { features, packages, manager, ...productDetail } = productDetailData
     apiPatch(PRODUCTS_URL + '/' + id, productDetail, false, true)
       .then(res => {
         setProductDetailData(res.data)
+        updateNotification()
       })
   }
 
@@ -255,7 +281,9 @@ function ProductDetail(props) {
     else if (e.target.name == 'value') {
       packages[packageIndex].prices[curMonth] = e.target.value
     }
-    // packages[packageIndex].prices[priceIndex][e.target.name] = e.target.value
+    else {
+      packages[packageIndex][e.target.name] = e.target.value
+    }
     setProductDetailData({ ...productDetailData, packages })
   }
 
@@ -278,6 +306,7 @@ function ProductDetail(props) {
 
   return (
     <div className={classes.root}>
+     {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       <BreadcrumbsItem to={`/products/ + ${productDetailData.id}`}>{productDetailData.name}</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={12}>
@@ -611,16 +640,32 @@ function ProductDetail(props) {
                         ]}
                         data={
                           productDetailData.features.map((f, index) => {
-                            return ({
-                              numeral: (index + 1),
-                              fname: (f.name),
-                              fprice: (f.price),
-                              fdesc: (f.desc),
-                              action:
-                                <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
-                                  <DeleteIcon fontSize="small" />
-                                </IconButton>
-                            })
+                            for (let y = 0; y < productDetailData.packages.length; y++) {
+                              console.log(productDetailData.packages[y].numbers, f)
+                              if (productDetailData.packages[y].numbers.findIndex(i => {
+                                return i.number == f.number
+                              }) != -1) {
+                                return ({
+                                  numeral: (index + 1),
+                                  fname: (f.name),
+                                  fprice: (f.price),
+                                  fdesc: (f.desc),
+                                  action: <div></div>
+
+                                })
+                              } else {
+                                return ({
+                                  numeral: (index + 1),
+                                  fname: (f.name),
+                                  fprice: (f.price),
+                                  fdesc: (f.desc),
+                                  action:
+                                    <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
+                                      <DeleteIcon fontSize="small" />
+                                    </IconButton>
+                                })
+                              }
+                            }
                           })
                         }
                         onRowClick={(e, rowData) => handleUpdateFeature(e, rowData)}

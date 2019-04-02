@@ -5,6 +5,7 @@ import {
   BrowserRouter
 } from 'react-router-dom'
 import Content from './Content'
+import './assets/index.css'
 
 const ProvidedContent = () => (
   <BrowserRouter>

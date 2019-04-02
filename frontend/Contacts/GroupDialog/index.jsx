@@ -42,7 +42,6 @@ function GroupDialog(props) {
       apiGet(GROUP_URL + '/' + defaultGroup + "/contacts?q=" + action.option.value).then(res => {
         const cloneContacts = [].concat(createObj.contacts)
         const realResult = res.data.contacts.find(c => {
-          console.log(c)
           return c.first_name + ' ' + c.last_name == action.option.value
         })
         cloneContacts.push({

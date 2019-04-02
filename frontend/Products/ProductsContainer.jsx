@@ -6,12 +6,17 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import ProductDetail from './ProductDetail/ProductDetail';
 import CreateProduct from './CreateProduct/CreateProduct';
 import ProductBreadcrumb from './ProductBreadcrumb'
+import CustomSnackbar from '../components/CustomSnackbar'
+
 
 function ProductsContainer(props) {
+  const { classes } = props
+
   return (
     <div>
+      
       <ProductBreadcrumb user={props.user} history={props.history} />
-      <BreadcrumbsItem to='/products'>Products</BreadcrumbsItem>
+      <BreadcrumbsItem to='/products'>PRODUCTS</BreadcrumbsItem>
       <Switch>
         <Route exact path="/products" component={(props) => (<ProductList {...props} />)} />
         {

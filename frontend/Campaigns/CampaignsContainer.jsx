@@ -49,7 +49,7 @@ function CampaignContainer (props) {
           <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/campaigns/add')}><AddIcon />&nbsp;Add Campaigns</Button>
         }
       </Paper>
-      <BreadcrumbsItem to='/campaigns'>Campaigns</BreadcrumbsItem>
+      <BreadcrumbsItem to='/campaigns'>CAMPAIGNS</BreadcrumbsItem>
       <Switch>
         <Route exact path="/campaigns" component={(props) => (<CampaignList {...props} />)} />
         <Route path="/campaigns/add" component={(props) => (<CreateCampaign {...props} />)} />
