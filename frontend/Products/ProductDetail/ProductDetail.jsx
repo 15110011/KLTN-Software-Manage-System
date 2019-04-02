@@ -306,7 +306,7 @@ function ProductDetail(props) {
 
   return (
     <div className={classes.root}>
-     {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       <BreadcrumbsItem to={`/products/ + ${productDetailData.id}`}>{productDetailData.name}</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={12}>

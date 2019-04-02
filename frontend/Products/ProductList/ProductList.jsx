@@ -65,18 +65,18 @@ function ProductList(props) {
               {
                 title: 'Status',
                 field: 'status',
-                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE'}
+                lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
               },
             ]}
-            data={(query) => 
+            data={(query) =>
               new Promise((resolve, reject) => {
                 let searchString = `${search.name ? '&name=' + search.name : ''}`
-                if (search.status && search.status.length === 1) 
+                if (search.status && search.status.length === 1)
                   searchString += `${search.status ? '&status=' + search.status : ''}`
                 apiGet(PRODUCTS_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true)
                   .then(json => {
                     const data = json.data.data.map((product, index) => ({
-                      numeral: index + 1,
+                      numeral: activePage * query.pageSize + index + 1,
                       name: product.name,
                       description: product.desc,
                       status: product.status,
