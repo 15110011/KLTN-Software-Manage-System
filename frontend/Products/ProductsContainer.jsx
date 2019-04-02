@@ -14,7 +14,6 @@ function ProductsContainer(props) {
 
   return (
     <div>
-      
       <ProductBreadcrumb user={props.user} history={props.history} />
       <BreadcrumbsItem to='/products'>PRODUCTS</BreadcrumbsItem>
       <Switch>

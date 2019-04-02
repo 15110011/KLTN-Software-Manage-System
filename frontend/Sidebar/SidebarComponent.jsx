@@ -208,7 +208,7 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/marketingplans')}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/marketing-plans')}>
                 <ListItemIcon>
                   <MarketingListIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>

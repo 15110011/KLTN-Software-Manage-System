@@ -28,6 +28,7 @@ function CampaignList(props) {
               {
                 title: 'Status',
                 field: 'status',
+                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE'}
               },
             ]}
             // data={products.data.map(

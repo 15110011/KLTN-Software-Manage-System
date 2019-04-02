@@ -26,6 +26,7 @@ import ProductsContainer from './Products/ProductsContainer';
 import ContactContainer from './Contacts/ContactsContainer';
 import { ObjectFlags } from 'typescript';
 import CampaignContainer from './Campaigns/CampaignsContainer';
+import MarketingPlanContainer from './MarketingPlan/MarketingPlanContainer';
 
 const styles = theme => ({
   root: {
@@ -105,7 +106,7 @@ class Content extends React.Component {
         <div className={classes.root}>
           <CssBaseline />
 
-          {login && <SidebarContainer /> }
+          {login && <SidebarContainer />}
           <div className={classes.content}>
             {/* {login && <div className={classes.appBarSpacer} />} */}
             <Switch>
@@ -155,6 +156,10 @@ class Content extends React.Component {
                 <Route
                   path="/campaigns"
                   component={CampaignContainer}
+                />
+                <Route
+                  path="/marketing-plans"
+                  component={props => <MarketingPlanContainer {...props} user={user} />}
                 />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />
