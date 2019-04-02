@@ -61,7 +61,7 @@ function ProductList(props) {
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description' },
+              { title: 'Description', field: 'description', filtering: false },
               {
                 title: 'Status',
                 field: 'status',
