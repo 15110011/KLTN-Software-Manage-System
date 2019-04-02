@@ -82,7 +82,6 @@ function ProductList(props) {
                       status: product.status,
                       id: product.id
                     }))
-                    searchString = ''
                     resolve({
                       data,
                       page: json.data.page,
