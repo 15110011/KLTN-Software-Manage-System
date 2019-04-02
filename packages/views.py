@@ -23,12 +23,13 @@ class ProductViewSet(ModelViewSet):
             return super().get_queryset()
         search = ProductDocument.search()
         if 'product_suggest' in self.request.query_params.keys():
+            qs = self.request.query_params.get('product_suggest')
             suggest = search.suggest('auto_complete', qs, completion={
                                      'field': 'product_name.suggest'})
             response = suggest.execute()
             suggestion = [
                 option._source.product_name for option in response.suggest.auto_complete[0].options]
-            return Response({"suggestion": suggestion, "elastics_search": True})
+            return {"suggestion": suggestion, "elastic_search": True}
 
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
