@@ -9,10 +9,11 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu';
 import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
-import { InputLabel, DialogTitle } from '@material-ui/core';
+import { InputLabel, DialogTitle, TablePagination } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
 import Popover from '@material-ui/core/Popover'
 import { Dialog, DialogActions, DialogContent } from '@material-ui/core'
+import MTableBody from 'material-table/dist/m-table-body'
 
 
 import useFetchData from '../../CustomHook/useFetchData'
@@ -26,6 +27,7 @@ import CustomSnackbar from '../../components/CustomSnackbar'
 import styles from './ContactListStyle'
 import { BAD_REQUEST } from '../../common/Code';
 import AddToGroup from '../AddToGroup';
+import { ConsolidatePluginClass } from 'fuse-box/plugins/ConsolidatePlugin';
 
 
 function ContactList(props) {
@@ -42,10 +44,16 @@ function ContactList(props) {
   const [deleteContactConfirm, setDeleteContactConfirm] = React.useState(false)
   const [deleteContacts, setDeleteContacts] = React.useState([])
   const [changeGroupDialog, setChangeGroupDialog] = React.useState(false)
+  // const [activePage, setActivePage] = React.useState(0)
+  let activePage = 0
+
+  const search = {}
+
+
 
   const [selectingContacts, setSelectingContacts] = React.useState([])
 
-
+  const tableRef = React.useRef(null);
 
 
 
@@ -54,9 +62,9 @@ function ContactList(props) {
     // Effect
     if (groups.data[0]) {
       setSelectingGroup(groups.data[0].id)
-      apiGet(GROUP_URL + '/' + groups.data[0].id + '/contacts', true).then(res => {
-        setContacts({ ...res.data })
-      })
+      // apiGet(GROUP_URL + '/' + groups.data[0].id + '/contacts', true).then(res => {
+      //   setContacts({ ...res.data })
+      // })
     }
 
   }, [groups.data.length])
@@ -74,7 +82,8 @@ function ContactList(props) {
         clearTimeout(notiTimeout[k])
       })
     }
-  })
+  },[])
+
 
 
   //event handler 
@@ -83,7 +92,8 @@ function ContactList(props) {
 
     setSelectingGroup(e.target.value)
     apiGet(GROUP_URL + '/' + e.target.value + '/contacts', true).then(res => {
-      setContacts({ ...res.data })
+      // setContacts({ ...res.data })
+      tableRef.current.onQueryChange(123123)
     })
   }
 
@@ -98,7 +108,7 @@ function ContactList(props) {
 
   const onCreateGroupSuccess = (newGroup) => {
     setGroups({ data: groups.data.concat(newGroup), total: groups.total + 1 })
-    setCompleteNotice('Successfully Create')
+    setCompleteNotice('Successfully Created')
     toggleGroupDialog()
   }
 
@@ -107,7 +117,7 @@ function ContactList(props) {
 
     apiDelete(GROUP_URL + '/' + selectingGroup, true).then(res => {
       if (!res.data.code) {
-        setCompleteNotice('Successfully Delete')
+        setCompleteNotice('Successfully Deleted')
         notiTimeout.success = setTimeout(() => {
           setCompleteNotice(false)
         }, 2000);
@@ -131,16 +141,16 @@ function ContactList(props) {
   }
 
   const onCreateContactSuccess = (newContact, isAddedToGroups) => {
-    setCompleteNotice('Successfully Create')
+    setCompleteNotice('Successfully Created')
     setCreateContactDialog(false)
     notiTimeout.success = setTimeout(() => {
       setCompleteNotice(false)
     }, 2000);
-    const newContacts = [].concat(contacts.data)
     if (selectingGroup in isAddedToGroups) {
       forceUpdateGroup()
       apiGet(GROUP_URL + '/' + selectingGroup + '/contacts', true).then(res => {
-        setContacts({ ...res.data })
+        // setContacts({ ...res.data })
+        tableRef.current.onQueryChange(123123)
       })
 
     }
@@ -148,7 +158,8 @@ function ContactList(props) {
       setSelectingGroup(groups.data[0].id)
       forceUpdateGroup()
       apiGet(GROUP_URL + '/' + groups.data[0].id + '/contacts', true).then(res => {
-        setContacts({ ...res.data })
+        // setContacts({ ...res.data })
+        tableRef.current.onQueryChange()
       })
     }
   }
@@ -165,13 +176,14 @@ function ContactList(props) {
           setErrNotice(false)
         }, 2000);
       } else {
-        setCompleteNotice('Successfully Delete')
+        setCompleteNotice('Successfully Deleted')
         notiTimeout.success = setTimeout(() => {
           setCompleteNotice(false)
         }, 2000);
         forceUpdateGroup()
         apiGet(GROUP_URL + '/' + selectingGroup + '/contacts', true).then(res => {
-          setContacts({ ...res.data })
+          // setContacts({ ...res.data })
+          tableRef.current.onQueryChange()
         })
         setDeleteContactConfirm(false)
       }
@@ -260,7 +272,7 @@ function ContactList(props) {
         <MenuItem onClick={() => toggleGroupDialog()}>Create Contact Group</MenuItem>
         {
           contacts.group != "All Contacts" ?
-            <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting:w Contact Group</MenuItem>
+            <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting Contact Group</MenuItem>
             :
             <MenuItem disabled>Cannot Delete Default Contact Group</MenuItemdisabled>
         }
@@ -293,62 +305,120 @@ function ContactList(props) {
           <Button onClick={onClickActionBtn}>Action</Button>
         </Grid>
         <Grid item xs={12}>
-          <MaterialTable
-            columns={[
-              { title: '#', field: '#', type: 'numeric', cellStyle: { width: '100px' } },
-              { title: 'Full name', field: 'fullName' },
-              { title: 'Email', field: 'email' },
-              {
-                title: 'Phone',
-                field: 'phone',
-              },
-            ]}
-            data={contacts.data.map(
-              (c, index) => ({
-                '#': index + 1,
-                fullName: c.first_name + ' ' + c.last_name,
-                email: c.mail,
-                phone: c.phone,
-                id: c.id
-              })
-            )}
-            title="Contacts List"
-            actions={[
-              {
-                icon: 'add',
-                tooltip: 'Create New Contact',
-                onClick: (event, rows) => {
-                  setCreateContactDialog(true)
-                },
-                isFreeAction: true
-              },
-              {
+          {
+            selectingGroup == -1 ?
+              ''
+              :
+              <MaterialTable
+                tableRef={tableRef}
+                components={
+                  {
+                    Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
+                      if (columnId == 1) {
+                        search.first_name = value
+                      }
+                      else if (columnId == 2) {
+                        search.last_name = value
+                      }
+                      else if (columnId == 3) {
+                        search.mail = value
+                      }
+                      else if (columnId == 4) {
+                        search.phone = value
+                      }
+                        activePage=0
+                      props.onFilterChanged(columnId, value);
+                      //Columnid la thu tu cot tren bang (ko tinh selection)
+                    }} />,
+                    Pagination: props => <TablePagination {...props}
+                      page={activePage} rowsPerPageOptions={[5, 10, 20]}
+                      count={props.count}
+                      onChangePage={(e, nextPage) => {
+                        props.onChangePage(a, nextPage)
+                        // setActivePage(nextPage)
+                        activePage=nextPage
+                      }}
+                    />
+                  }
+                }
+                columns={[
+                  { title: '#', field: '#', type: 'numeric', cellStyle: { width: '100px' }, filtering: false },
+                  { title: 'First name', field: 'firstName' },
+                  { title: 'Last name', field: 'lastName' },
+                  {
+                    title: 'Email', field: 'email'
+                  },
+                  {
+                    title: 'Phone',
+                    field: 'phone',
+                  },
+                ]}
+                data={(query) =>
+                  new Promise((resolve, reject) => {
+                    let searchString = `${search.first_name ? '&first_name=' + search.first_name : ''}`
+                    searchString += `${search.last_name ? '&last_name=' + search.last_name : ''}`
+                    searchString += `${search.mail ? '&mail=' + search.mail : ''}`
+                    searchString += `${search.phone ? '&phone=' + search.phone : ''}`
+                    apiGet(GROUP_URL + '/' + selectingGroup
+                      + '/contacts' +
+                      `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
+                        const data = res.data.data.map((d, index) => ({
+                          '#': index + 1,
+                          fullName: d.first_name + ' ' + d.last_name,
+                          firstName: d.first_name,
+                          lastName: d.last_name,
+                          email: d.mail,
+                          phone: d.phone,
+                          id: d.id
+                        })
+                        )
+                        resolve({
+                          data,
+                          page: res.data.page,
+                          totalCount: res.data.total
+                        })
+                      })
+                  })
+                }
 
-                icon: 'delete',
-                tooltip: 'Delate Contacts',
-                onClick: (event, rows) => {
-                  // setCreateContactDialog(true)
-                  setDeleteContacts(rows.map(r => r.id))
-                  setDeleteContactConfirm(true)
-                },
-              },
-              {
+                title="Contacts List"
+                actions={[
+                  {
+                    icon: 'add',
+                    tooltip: 'Create New Contact',
+                    onClick: (event, rows) => {
+                      setCreateContactDialog(true)
+                    },
+                    isFreeAction: true
+                  },
+                  {
 
-                icon: 'swap_horiz',
-                tooltip: 'Add these contacts to group',
-                onClick: (event, rows) => {
-                  // setCreateContactDialog(true)
-                  setSelectingContacts(rows)
-                  setChangeGroupDialog(true)
-                },
-              }
-            ]}
-            options={{
-              selection: true,
-              filtering: true,
-              paging: false
-            }}
-          />
+                    icon: 'delete',
+                    tooltip: 'Delete Contacts',
+                    onClick: (event, rows) => {
+                      // setCreateContactDialog(true)
+                      setDeleteContacts(rows.map(r => r.id))
+                      setDeleteContactConfirm(true)
+                    },
+                  },
+                  {
+                    icon: 'swap_horiz',
+                    tooltip: 'Add these contacts to group',
+                    onClick: (event, rows) => {
+                      setSelectingContacts(rows)
+                      setChangeGroupDialog(true)
+                    },
+                  }
+                ]}
+                options={{
+                  search: false,
+                  selection: true,
+                  filtering: true,
+                  paging: true,
+                  debounceInterval: 1000
+                }}
+              />
+          }
         </Grid>
       </Grid>
     </div>

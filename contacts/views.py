@@ -23,14 +23,16 @@ class ContactView(ModelViewSet):
     permission_class = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = serializers.ContactReadSerializer(queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"msg": 'WHAT ARE U LOOKING FOR???'}, status=status.HTTP_200_OK)
+        # queryset = self.get_queryset()
+        # serializer = serializers.ContactReadSerializer(queryset, many=True)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
 
     def retrieve(self, request, *args, **kwargs):
 
-        serializer = serializers.ContactReadSerializer(self.get_object())
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"msg": 'WHAT ARE U LOOKING FOR???'}, status=status.HTTP_200_OK)
+        # serializer = serializers.ContactReadSerializer(self.get_object())
+        # return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['DELETE'])
     def batchdelete(self, request):
@@ -127,14 +129,40 @@ class ContactGroupView(ModelViewSet):
             contacts = [model_to_dict(contact)
                         for contact in search.to_queryset()]
             return Response({"contacts": contacts, "suggestions": suggestion})
-        queryset = models.Contact.objects.filter(groups__id=instance.id).order_by('first_name')
+        page = request.query_params.get(
+            'page') if int(request.query_params.get('page', 0)) > 0 else 0
+
+        limit = None
+        if 'limit' in self.request.query_params:
+            limit = self.request.query_params.get('limit')
+
+        filters = Q(groups__id=instance.id)
+
+        f_first_name = request.query_params.get('first_name', None)
+        f_last_name = request.query_params.get('last_name', None)
+        f_phone = request.query_params.get('phone', None)
+        f_mail = request.query_params.get('mail', None)
+        if f_first_name:
+            filters.add(Q(first_name__icontains=f_first_name), Q.AND)
+        if f_last_name:
+            filters.add(Q(last_name__icontains=f_last_name), Q.AND)
+        if f_phone:
+            filters.add(Q(phone__icontains=f_phone), Q.AND)
+        if f_mail:
+            filters.add(Q(mail__icontains=f_mail), Q.AND)
+        if limit:
+            queryset = models.Contact.objects.filter(filters).order_by(
+                'first_name')[int(page)*int(limit):int(page)*int(limit)+int(limit)]
+        else:
+            queryset = models.Contact.objects.filter(
+                filters).order_by('first_name')
 
         serializer = serializers.ContactWithoutGroupSerializer(
             queryset, many=True)
-
         contacts = {
             "data": serializer.data,
-            "total": queryset.count(),
+            "total": models.Contact.objects.filter(filters).count(),
+            "page": page,
             "group": instance.name
         }
         return Response(contacts, status=status.HTTP_200_OK)
