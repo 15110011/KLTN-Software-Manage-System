@@ -274,7 +274,7 @@ function ContactList(props) {
           contacts.group != "All Contacts" ?
             <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting Contact Group</MenuItem>
             :
-            <MenuItem disabled>Cannot Delete Default Contact Group</MenuItemdisabled>
+            <MenuItem disabled>Cannot Delete Default Contact Group</MenuItem>
         }
       </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
