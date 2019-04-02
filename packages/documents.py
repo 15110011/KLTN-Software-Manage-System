@@ -15,7 +15,8 @@ class ProductDocument(DocType):
     product_name = fields.TextField(attr='_get_product_name',
                                     fields={
                                         'raw': fields.StringField(analyzer='keyword'),
-                                        'suggest': fields.CompletionField(attr='_get_product_name'),
+                                        'suggest': fields.CompletionField(attr='_get_product_name',
+                                         contexts=[{"name": "manager", "type": "category", "path": "manager"}]),
                                     }
                                     )
 

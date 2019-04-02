@@ -316,7 +316,7 @@ function CreateProduct(props) {
     <div className={classes.root}>
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice && <CustomSnackbar isErr msg={errNotice} />}
-      <BreadcrumbsItem to='/products/add'>ABC</BreadcrumbsItem>
+      <BreadcrumbsItem to='/products/add'>Product Informations</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Paper className={classes.paper}>
           <form onSubmit={(e) => {

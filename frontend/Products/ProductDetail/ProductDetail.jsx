@@ -23,6 +23,7 @@ import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialTable from 'material-table'
 import IconButton from '@material-ui/core/IconButton';
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 
 // API
@@ -56,6 +57,7 @@ function ProductDetail(props) {
   const [error, setError] = React.useState({})
   const [updatingUnit, setUpdatingUnit] = React.useState(-1)
   const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
+  const [completeNotice, setCompleteNotice] = React.useState(false)
   const [productDetailData, setProductDetailData] = React.useState({
     name: '',
     desc: '',
@@ -89,6 +91,13 @@ function ProductDetail(props) {
       price: '',
       desc: '',
     })
+  }
+
+  const updateNotification = () => {
+    setCompleteNotice('Succesfully updated')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000)
   }
 
   const onClickUpdateFeature = (e) => {
@@ -181,6 +190,7 @@ function ProductDetail(props) {
     apiPatch(PRODUCTS_URL + '/' + id, productDetail, false, true)
       .then(res => {
         setProductDetailData(res.data)
+        updateNotification()
       })
   }
 
@@ -298,6 +308,7 @@ function ProductDetail(props) {
 
   return (
     <div className={classes.root}>
+     {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       <BreadcrumbsItem to={`/products/ + ${productDetailData.id}`}>{productDetailData.name}</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={12}>
