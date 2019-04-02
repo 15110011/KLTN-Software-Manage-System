@@ -52,8 +52,8 @@ function CreateProduct(props) {
     name: '',
     desc: '',
     status: 'ACTIVE',
-    saleStarDate: '',
-    supportStartDate: '',
+    start_sale_date: '',
+    start_support_date: '',
     packages: [
       {
         name: '',
@@ -433,8 +433,8 @@ function CreateProduct(props) {
                           fullWidth
                           required
                           onChange={onChangeCreateProduct}
-                          value={createProduct.saleStarDate}
-                          name="saleStarDate"
+                          value={createProduct.start_sale_date}
+                          name="start_sale_date"
                           type="date"
                           classes={{
                             underline: classes.cssUnderline,
@@ -460,8 +460,8 @@ function CreateProduct(props) {
                           fullWidth
                           required
                           onChange={onChangeCreateProduct}
-                          value={createProduct.supportStartDate}
-                          name="supportStartDate"
+                          value={createProduct.start_support_date}
+                          name="start_support_date"
                           type="date"
                           classes={{
                             underline: classes.cssUnderline,

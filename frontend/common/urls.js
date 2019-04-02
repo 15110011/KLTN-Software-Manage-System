@@ -19,5 +19,6 @@ export const PRODUCTS_URL = `${API_URL}products`
 export const CONTACT_URL = `${API_URL}contacts`
 export const GROUP_URL = `${API_URL}contactgroups`
 export const PACKAGES_URL = `${API_URL}packages`
+export const CAMPAIGN_URL = `${API_URL}campaigns`
 
 export { serverUrl, API_URL }

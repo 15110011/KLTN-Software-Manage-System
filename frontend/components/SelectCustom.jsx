@@ -8,11 +8,12 @@ import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
+import NoSsr from '@material-ui/core/NoSsr'
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
 
 const styles = theme => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   input: {
     display: 'flex',
@@ -27,9 +28,6 @@ const styles = theme => ({
   },
   chip: {
     margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '0.8rem'
-    }
   },
   chipFocused: {
     backgroundColor: emphasize(
@@ -42,31 +40,22 @@ const styles = theme => ({
   },
   singleValue: {
     fontSize: 16,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '0.8rem'
-    }
   },
   placeholder: {
     position: 'absolute',
     left: 2,
     fontSize: 16,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '0.8rem'
-    }
   },
   paper: {
-    position: 'static',
+    position: 'absolute',
+    zIndex: '1000 !impotant',
+    marginTop: theme.spacing.unit,
     left: 0,
-    right: 0
+    right: 0,
   },
   divider: {
     height: theme.spacing.unit * 2,
   },
-  inputLabel: {
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '0.8rem'
-    }
-  }
 });
 
 function NoOptionsMessage(props) {
@@ -193,56 +182,58 @@ const IntegrationReactSelect = (props) => {
 
   return (
     <div className={classes.root}>
-      {single && <Select
-        classes={classes}
-        styles={selectStyles}
-        options={options}
-        components={components}
-        value={data}
-        textFieldProps={{
-          label: label,
-          InputLabelProps: {
-            shrink: true,
-            classes: {
-              root: classes.inputLabel
-            }
-          },
-          required: required ? true : undefined,
-          error,
-          disabled: disabled
+      <NoSsr>
+        {single && <Select
+          classes={classes}
+          styles={selectStyles}
+          options={options}
+          components={components}
+          value={data}
+          textFieldProps={{
+            label: label,
+            InputLabelProps: {
+              shrink: true,
+              classes: {
+                root: classes.inputLabel
+              }
+            },
+            required: required ? true : undefined,
+            error,
+            disabled: disabled
 
-        }}
-        onChange={handleChange}
-        placeholder={placeholder}
-        name={name}
-        isClearable
-        required
-        isDisabled={disabled}
-        fullWidth={fullWidth}
-      />}
+          }}
+          onChange={handleChange}
+          placeholder={placeholder}
+          name={name}
+          isClearable
+          required
+          isDisabled={disabled}
+          fullWidth={fullWidth}
+        />}
 
-      {multi && <Select
-        classes={classes}
-        styles={selectStyles}
-        textFieldProps={{
-          label: label,
-          InputLabelProps: {
-            shrink: true,
-          },
-          error,
-          required: required ? true : undefined,
-          disabled: disabled
-        }}
-        options={options}
-        components={components}
-        value={data}
-        onChange={handleChange}
-        placeholder={placeholder}
-        isMulti
-        name={name}
-        isDisabled={disabled}
-        fullWidth={fullWidth}
-      />}
+        {multi && <Select
+          classes={classes}
+          styles={selectStyles}
+          textFieldProps={{
+            label: label,
+            InputLabelProps: {
+              shrink: true,
+            },
+            error,
+            required: required ? true : undefined,
+            disabled: disabled
+          }}
+          options={options}
+          components={components}
+          value={data}
+          onChange={handleChange}
+          placeholder={placeholder}
+          isMulti
+          name={name}
+          isDisabled={disabled}
+          fullWidth={fullWidth}
+        />}
+      </NoSsr>
     </div>
   );
 

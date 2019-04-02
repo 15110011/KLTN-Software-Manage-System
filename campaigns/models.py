@@ -25,5 +25,5 @@ class Campaign(BaseModel):
     name = models.CharField(max_length=255)
     start_date = models.DateField(auto_now_add=True)
     end_date = models.DateField(auto_now_add=True)
-    description = models.TextField()
+    desc = models.TextField()
 
