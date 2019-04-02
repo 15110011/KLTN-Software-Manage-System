@@ -35,7 +35,7 @@ function FollowUpPlanBreadcrumb(props) {
       />
       {
         props.user.profile.is_manager && checkCreateFollowUpPlanButton &&
-        <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/follow-up-plans/add')}><AddIcon />&nbsp;Add Follow Up Plan</Button>
+        <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/follow-up-plans/add')}><AddIcon />&nbsp;Add Plan</Button>
       }
     </Paper>)
 }

@@ -35,38 +35,25 @@ function FollowUpPlanList(props) {
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
-            tableRef={tableRef}
-            components={
-              {
-                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
-                  if (columnId === 1) search.name = value
-                  if (columnId === 3) search.status = value
-                  props.onFilterChanged(columnId, value)
-                }}
-                />,
-                Pagination: props => <TablePagination {...props}
-                  page={activePage} rowsPerPageOptions={[5, 10, 20]}
-                  count={props.count}
-                  onChangePage={(e, nextPage) => {
-                    props.onChangePage(e, nextPage)
-                    activePage = nextPage
-                  }}
-                />
-              }
-            }
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description', filtering: false },
+              { title: 'Description', field: 'description' },
               {
                 title: 'Status',
                 field: 'status',
-                lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
+                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE'}
               },
             ]}
-            data={
-            }
-            title="Follow Up Plan List"
+            // data={products.data.map(
+            //   (product, index) => ({
+            //     numeral: index + 1,
+            //     name: product.name,
+            //     description: product.desc,
+            //     status: product.status
+            //   })
+            // )}
+            title="Campaign List"
             actions={[
               {
                 icon: 'done_all',
@@ -77,12 +64,10 @@ function FollowUpPlanList(props) {
               },
             ]}
             options={{
-              search: false,
               selection: true,
               filtering: true,
               paging: true
             }}
-            onRowClick={(e, rowData) => { props.history.push('/follow-up-plans/' + rowData.id) }}
           />
         </Grid>
       </Grid>
