@@ -25,7 +25,9 @@ class ProductViewSet(ModelViewSet):
         if 'product_suggest' in self.request.query_params.keys():
             qs = self.request.query_params.get('product_suggest')
             suggest = search.suggest('auto_complete', qs, completion={
-                                     'field': 'product_name.suggest'})
+                                     'field': 'product_name.suggest',
+                                     'contexts': {'manager': self.request.user.id}
+                                    })
             response = suggest.execute()
             suggestion = [
                 option._source.product_name for option in response.suggest.auto_complete[0].options]
