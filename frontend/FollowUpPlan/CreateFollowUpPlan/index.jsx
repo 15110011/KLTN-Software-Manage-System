@@ -8,6 +8,7 @@ import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
+import { apiPost } from '../../common/Request';
 
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -15,38 +16,78 @@ import StepLabel from '@material-ui/core/StepLabel';
 import * as cn from 'classnames'
 import styles from './CreateFollowUpPlanStyle'
 import StepDetail from './StepDetail'
+import { FOLLOWUPPLAN_URL, REFRESH_TOKEN_URL } from '../../common/urls';
 
 function CreateFollowUpPlan(props) {
   const { classes } = props
   const [activeStep, setActiveStep] = React.useState(0)
-  const [steps, setAddStep] = React.useState(Array.from({ length: 3 }, (v, i) => v = 'Step'))
   const [followUpPlan, setCreatePlan] = React.useState({
     name: '',
     steps: [
       {
-        'nth': '',
-        'action': '',
-        'duration': 0,
-        'conditions': {
+        nth: '',
+        action: '',
+        duration: 0,
+        conditions: {
           '': ''
-        }
+        },
       }
     ]
   })
 
   const handleNext = () => {
+    if (activeStep === followUpPlan.steps.length - 1) return apiCreateFollowUpPlan()
     setActiveStep(activeStep + 1)
   }
   const handleBack = () => {
     setActiveStep(activeStep - 1)
   }
   const addMoreSteps = () => {
-    steps.push('Step')
-    setAddStep([...steps])
+    const steps = [...followUpPlan.steps]
+    steps.push({
+      nth: '',
+      action: '',
+      duration: 0,
+      conditions: {
+        '': ''
+      },
+    })
+    setCreatePlan({ ...followUpPlan, steps })
+
   }
   const onChangeCreatePlan = e => {
-    setCreatePlan({...followUpPlan, [e.target.name]: e.target.value})
+    setCreatePlan({ ...followUpPlan, [e.target.name]: e.target.value })
   }
+  const onChangeCreateSteps = (e, index) => {
+    const steps = [...followUpPlan.steps]
+    steps[index][e.target.name] = e.target.value
+    steps[index]['nth'] = index
+    setCreatePlan({ ...followUpPlan, steps })
+  }
+
+  const apiCreateFollowUpPlan = () => {
+    apiPost(FOLLOWUPPLAN_URL, { ...followUpPlan }, false, true)
+      .then(res => {
+        if (res.data.code == "token_not_valid") {
+          apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
+              this.props.history.push('/logout')
+            }
+            else {
+              localStorage.setItem("token", res.data.access)
+              // notification()
+            }
+          })
+        }
+        else if (res.data.code == BAD_REQUEST) {
+          // setError(res.data)
+        }
+        else {
+          // notification()
+        }
+      })
+  }
+
   return (
     <div className={classes.root}>
       <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
@@ -87,11 +128,11 @@ function CreateFollowUpPlan(props) {
       </Tooltip>
       <div className={cn(classes.stepper)}>
         <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label, index) => (
-            <Step key={label}>
+          {followUpPlan.steps.map((label, index) => (
+            <Step key={'steplabel' + index}>
               <StepLabel onClick={() => setActiveStep(index)}
                 style={{ cursor: 'pointer' }}
-              >{label} {index + 1}</StepLabel>
+              >Step {index + 1}</StepLabel>
             </Step>
           ))}
         </Stepper>
@@ -99,13 +140,20 @@ function CreateFollowUpPlan(props) {
       <div>
         <div className={cn(classes.actionsContainer, 'mt-5')}>
           {
-            steps.map((label, index) => {
-              if (activeStep === index) {
+            followUpPlan.steps.map((step, index) => {
+              let curStep = step
+              if (activeStep == index) {
                 return (
-                  <StepDetail {...props} activeStep={activeStep} />
+                  <StepDetail
+                    key={'step' + index}
+                    activeStep={activeStep}
+                    onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
+                    createStep={curStep}
+                  />
                 )
-              } 
-              })
+              }
+              else return <></>
+            })
 
           }
           <div className="d-flex justify-content-center">
@@ -117,7 +165,7 @@ function CreateFollowUpPlan(props) {
               Back
                 </Button>
             <Button variant="contained" color="primary" onClick={handleNext}>
-              {activeStep === steps.length - 1 ? 'Finish' : 'Next'}
+              {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
             </Button>
           </div>
         </div>

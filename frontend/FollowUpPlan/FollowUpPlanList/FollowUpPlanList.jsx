@@ -7,6 +7,8 @@ import MTableBody from 'material-table/dist/m-table-body'
 import useFetchData from '../../CustomHook/useFetchData'
 import { TablePagination } from '@material-ui/core';
 import { apiGet, apiDelete } from '../../common/Request';
+import { FOLLOWUPPLAN_URL } from "../../common/urls";
+
 
 
 const styles = theme => ({
@@ -64,14 +66,23 @@ function FollowUpPlanList(props) {
                 lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
               },
             ]}
-            // data={products.data.map(
-            //   (product, index) => ({
-            //     numeral: index + 1,
-            //     name: product.name,
-            //     description: product.desc,
-            //     status: product.status
-            //   })
-            // )}
+            data={(query) =>
+              new Promise((resolve, reject) => {
+                apiGet(FOLLOWUPPLAN_URL + `?page=${activePage}&limit=${query.pageSize}`, true)
+                  .then(json => {
+                    console.log(json)
+                    const data = json.data.data.map((plan, i) => ({
+                      numeral: activePage * query.pageSize + i + 1,
+                      name: plan.name,
+                    }))
+                    resolve({
+                      data,
+                      page: json.data.page,
+                      totalCount: json.data.total
+                    })
+                  })
+              })
+            }
             title="Follow Up Plan List"
             actions={[
               {

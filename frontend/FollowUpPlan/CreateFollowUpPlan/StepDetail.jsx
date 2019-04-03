@@ -20,7 +20,7 @@ import styles from './CreateFollowUpPlanStyle'
 
 
 function StepDetail(props) {
-  const { classes } = props
+  const { classes, createStep, onChangeCreateSteps } = props
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -38,16 +38,20 @@ function StepDetail(props) {
             </InputLabel>
           </Grid>
           <Grid item xs={8}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.name}
-              name="name"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
+            <FormControl fullWidth className={classes.formControl}>
+              <Select
+                value={createStep.action}
+                onChange={onChangeCreateSteps}
+                displayEmpty
+                name="action"
+                className={classes.selectEmpty}
+              >
+                <MenuItem value="ACTIVE">
+                  ACTIVE
+                </MenuItem>
+                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
         </Grid>
         <Grid container spacing={40} >
@@ -59,50 +63,23 @@ function StepDetail(props) {
                 focused: classes.cssFocused,
               }}
             >
-              Start Date
+              Duration (days)
             </InputLabel>
           </Grid>
           <Grid item xs={8}>
             <Input
               fullWidth
               required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              type="date"
-              name="desc"
+              onChange={onChangeCreateSteps}
+              value={createStep.duration}
+              type="number"
+              name="duration"
               classes={{
                 underline: classes.cssUnderline,
               }}
             />
           </Grid>
         </Grid>
-        <Grid container spacing={40} >
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              End Date
-            </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              type="date"
-              name="desc"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
-          </Grid>
-        </Grid>
-
       </Grid>
       <Grid item xs={12}>
         <Grid container spacing={40}>
@@ -121,10 +98,10 @@ function StepDetail(props) {
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
+                value={createStep.conditions}
+                onChange={onChangeCreateSteps}
                 displayEmpty
-                name="status"
+                name="conditions"
                 className={classes.selectEmpty}
               >
                 <MenuItem value="ACTIVE">

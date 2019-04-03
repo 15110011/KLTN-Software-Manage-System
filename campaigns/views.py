@@ -19,6 +19,20 @@ class FollowUpPlanView(ModelViewSet):
     queryset = FollowUpPlan.objects
     serializer_class = FollowUpPlanSerializer
 
+    def list(self, request):
+        limit = self.request.query_params.get('limit', None)
+        page = self.request.query_params.get('page') if int(self.request.query_params.get('page', 0)) > 0 else 0
+        if limit is not None:
+            queryset = FollowUpPlan.objects.all()[
+                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+        else:
+            queryset = FollowUpPlan.objects
+        serializer = self.get_serializer(queryset, many=True)
+        new_serializer = {}
+        new_serializer['data'] = serializer.data
+        new_serializer['total'] = FollowUpPlan.objects.all().count()
+        return Response(new_serializer, status=status.HTTP_200_OK)
+
     def create(self, request):
         serializer = CreateFollowUpPlanSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
