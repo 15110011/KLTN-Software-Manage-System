@@ -1,4 +1,4 @@
-const styles = theme =>({
+const styles = theme => ({
   root: {
     padding: 35
   },
@@ -11,6 +11,13 @@ const styles = theme =>({
   },
   resetContainer: {
     padding: theme.spacing.unit * 3,
+  },
+  inputCustom: {
+    position: 'relative',
+    '& label': {
+      position: 'absolute',
+      bottom: 0
+    }
   },
 })
 
