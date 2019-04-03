@@ -59,7 +59,7 @@ function FollowUpPlanList(props) {
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Steps', field: 'steps' },
+              { title: 'Number of steps', field: 'steps' },
               {
                 title: 'Status',
                 field: 'status',
@@ -74,6 +74,7 @@ function FollowUpPlanList(props) {
                     const data = json.data.data.map((plan, i) => ({
                       numeral: activePage * query.pageSize + i + 1,
                       name: plan.name,
+                      steps: plan.steps.length
                     }))
                     resolve({
                       data,

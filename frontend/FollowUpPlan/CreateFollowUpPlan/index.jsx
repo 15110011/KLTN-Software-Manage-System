@@ -9,7 +9,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
 import { apiPost } from '../../common/Request';
-
+import CustomSnackbar from '../../components/CustomSnackbar'
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -17,10 +17,14 @@ import * as cn from 'classnames'
 import styles from './CreateFollowUpPlanStyle'
 import StepDetail from './StepDetail'
 import { FOLLOWUPPLAN_URL, REFRESH_TOKEN_URL } from '../../common/urls';
+import { BAD_REQUEST } from "../../common/Code";
+
 
 function CreateFollowUpPlan(props) {
   const { classes } = props
   const [activeStep, setActiveStep] = React.useState(0)
+  const [completeNotice, setCompleteNotice] = React.useState(false)
+  const [error, setError] = React.useState(false)
   const [followUpPlan, setCreatePlan] = React.useState({
     name: '',
     steps: [
@@ -39,9 +43,18 @@ function CreateFollowUpPlan(props) {
     if (activeStep === followUpPlan.steps.length - 1) return apiCreateFollowUpPlan()
     setActiveStep(activeStep + 1)
   }
+
   const handleBack = () => {
     setActiveStep(activeStep - 1)
   }
+
+  const notification = () => {
+    setCompleteNotice('Successfully Added')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+  }
+
   const addMoreSteps = () => {
     const steps = [...followUpPlan.steps]
     steps.push({
@@ -53,7 +66,6 @@ function CreateFollowUpPlan(props) {
       },
     })
     setCreatePlan({ ...followUpPlan, steps })
-
   }
   const onChangeCreatePlan = e => {
     setCreatePlan({ ...followUpPlan, [e.target.name]: e.target.value })
@@ -75,21 +87,27 @@ function CreateFollowUpPlan(props) {
             }
             else {
               localStorage.setItem("token", res.data.access)
-              // notification()
             }
           })
         }
         else if (res.data.code == BAD_REQUEST) {
-          // setError(res.data)
+          let errors = {}
+          if (res.data.name) errors.name = 'Name cannot be blank'
+          if (res.data.steps.action) errors.steps = 'Actions cannot be blank'
+          setError({ ...errors })
         }
         else {
-          // notification()
+          notification()
         }
       })
   }
 
   return (
     <div className={classes.root}>
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+      {error && (
+        Object.keys(error).forEach((key) => <CustomSnackbar isErr msg={error[key]} />)
+        )}
       <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
       <div style={{ textAlign: 'left', padding: '40px' }}>
         <Grid item xs={6}>

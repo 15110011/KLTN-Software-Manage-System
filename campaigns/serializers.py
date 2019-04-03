@@ -13,6 +13,7 @@ class MarketingPlanSerialier(serializers.ModelSerializer):
 
 
 class FollowUpPlanSerializer(serializers.ModelSerializer):
+    steps = StepWithOutFollowUpSerializer(many=True)
     class Meta:
         model = models.FollowUpPlan
         fields = '__all__'
