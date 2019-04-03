@@ -18,8 +18,8 @@ router = DefaultRouter(trailing_slash=False)
 router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
 #campaign app
-router.register('marketing-plan', MarketingPlanView, base_name='marketing_plan')
-router.register('followup-plan', FollowUpPlanView, base_name='followup_plan')
+router.register('marketing-plan', MarketingPlanView, base_name='marketing-plan')
+router.register('follow-up-plan', FollowUpPlanView, base_name='follow-up-plan')
 router.register('campaign', CampaignView, base_name='campaign')
 #order app
 router.register('orders', OrderView, base_name='orders')

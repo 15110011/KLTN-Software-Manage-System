@@ -1,15 +1,10 @@
 import * as React from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
-import MaterialTable from 'material-table'
-import Divider from '@material-ui/core/Divider';
-import DeleteIcon from '@material-ui/icons/Delete';
+import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import Tooltip from '@material-ui/core/Tooltip';
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
@@ -24,9 +19,20 @@ import StepDetail from './StepDetail'
 function CreateFollowUpPlan(props) {
   const { classes } = props
   const [activeStep, setActiveStep] = React.useState(0)
-  const getSteps = () => {
-    return ['Step 1', 'Step 2', 'Step 3'];
-  }
+  const [steps, setAddStep] = React.useState(Array.from({ length: 3 }, (v, i) => v = 'Step'))
+  const [followUpPlan, setCreatePlan] = React.useState({
+    name: '',
+    steps: [
+      {
+        'nth': '',
+        'action': '',
+        'duration': 0,
+        'conditions': {
+          '': ''
+        }
+      }
+    ]
+  })
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)
@@ -34,7 +40,13 @@ function CreateFollowUpPlan(props) {
   const handleBack = () => {
     setActiveStep(activeStep - 1)
   }
-  const steps = getSteps();
+  const addMoreSteps = () => {
+    steps.push('Step')
+    setAddStep([...steps])
+  }
+  const onChangeCreatePlan = e => {
+    setCreatePlan({...followUpPlan, [e.target.name]: e.target.value})
+  }
   return (
     <div className={classes.root}>
       <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
@@ -57,8 +69,8 @@ function CreateFollowUpPlan(props) {
               <Input
                 fullWidth
                 required
-                // onChange={onChangeCreateProduct}
-                // value={createProduct.name}
+                onChange={onChangeCreatePlan}
+                value={followUpPlan.name}
                 name="name"
                 classes={{
                   underline: classes.cssUnderline,
@@ -69,9 +81,9 @@ function CreateFollowUpPlan(props) {
         </Grid>
       </div>
       <Tooltip title="Add more steps">
-      <Fab onClick={() => console.log('hi')} size={'small'} color="primary" className={classes.fab}>
-        <AddIcon />
-      </Fab>
+        <Fab onClick={addMoreSteps} size={'small'} color="primary" className={classes.fab}>
+          <AddIcon />
+        </Fab>
       </Tooltip>
       <div className={cn(classes.stepper)}>
         <Stepper activeStep={activeStep} alternativeLabel>
@@ -79,24 +91,23 @@ function CreateFollowUpPlan(props) {
             <Step key={label}>
               <StepLabel onClick={() => setActiveStep(index)}
                 style={{ cursor: 'pointer' }}
-              >{label}</StepLabel>
+              >{label} {index + 1}</StepLabel>
             </Step>
           ))}
         </Stepper>
       </div>
       <div>
         <div className={cn(classes.actionsContainer, 'mt-5')}>
+          {
+            steps.map((label, index) => {
+              if (activeStep === index) {
+                return (
+                  <StepDetail {...props} activeStep={activeStep} />
+                )
+              } 
+              })
 
-          {
-            activeStep === 0 && <StepDetail {...props} />
           }
-          {
-            activeStep === 1 && <StepDetail {...props} />
-          }
-          {
-            activeStep === 2 && <StepDetail {...props} />
-          }
-          {/* <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography> */}
           <div className="d-flex justify-content-center">
             <Button
               disabled={activeStep === 0}
