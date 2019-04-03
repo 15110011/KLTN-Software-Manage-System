@@ -25,6 +25,11 @@ const styles = theme => ({
   stepper: {
     border: '3px solid white',
     boxShadow: '0 1px 20px 0 rgba(0,0,0,0.16)'
+  },
+  fab: {
+    position: 'absolute',
+    right: theme.spacing.unit * 3,
+    top: '20%'
   }
 })
 

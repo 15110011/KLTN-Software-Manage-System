@@ -9,11 +9,11 @@ import InputLabel from '@material-ui/core/InputLabel';
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import MaterialTable from 'material-table'
 import Divider from '@material-ui/core/Divider';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
-import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import Tooltip from '@material-ui/core/Tooltip';
+import AddIcon from '@material-ui/icons/Add';
+import Fab from '@material-ui/core/Fab';
+
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
@@ -68,6 +68,11 @@ function CreateFollowUpPlan(props) {
           </Grid>
         </Grid>
       </div>
+      <Tooltip title="Add more steps">
+      <Fab onClick={() => console.log('hi')} size={'small'} color="primary" className={classes.fab}>
+        <AddIcon />
+      </Fab>
+      </Tooltip>
       <div className={cn(classes.stepper)}>
         <Stepper activeStep={activeStep} alternativeLabel>
           {steps.map((label, index) => (
