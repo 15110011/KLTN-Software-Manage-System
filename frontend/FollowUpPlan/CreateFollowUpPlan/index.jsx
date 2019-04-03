@@ -68,20 +68,28 @@ function CreateFollowUpPlan(props) {
           </Grid>
         </Grid>
       </div>
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {steps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel onClick={() => setActiveStep(index)}
-              style={{ cursor: 'pointer' }}
-            >{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
+      <div className={cn(classes.stepper)}>
+        <Stepper activeStep={activeStep} alternativeLabel>
+          {steps.map((label, index) => (
+            <Step key={label}>
+              <StepLabel onClick={() => setActiveStep(index)}
+                style={{ cursor: 'pointer' }}
+              >{label}</StepLabel>
+            </Step>
+          ))}
+        </Stepper>
+      </div>
       <div>
         <div className={cn(classes.actionsContainer, 'mt-5')}>
 
           {
             activeStep === 0 && <StepDetail {...props} />
+          }
+          {
+            activeStep === 1 && <StepDetail {...props} />
+          }
+          {
+            activeStep === 2 && <StepDetail {...props} />
           }
           {/* <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography> */}
           <div className="d-flex justify-content-center">

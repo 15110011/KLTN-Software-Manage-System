@@ -24,7 +24,7 @@ import styles from './CreateFollowUpPlanStyle'
 function StepDetail(props) {
   const { classes } = props
   return (
-    <div style={{textAlign:'left', padding: '40px'}}>
+    <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
         <Grid container spacing={40}>
           <Grid className={classes.inputCustom} item xs={4}>
@@ -104,8 +104,11 @@ function StepDetail(props) {
             />
           </Grid>
         </Grid>
+
+      </Grid>
+      <Grid item xs={12}>
         <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={4}>
+          <Grid className={classes.inputCustom} item xs={2}>
             <InputLabel
               required
               htmlFor="custom-css-standard-input"
@@ -117,7 +120,7 @@ function StepDetail(props) {
               Conditions (start)
             </InputLabel>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
                 // value={createProduct.status}
@@ -133,9 +136,37 @@ function StepDetail(props) {
               </Select>
             </FormControl>
           </Grid>
+          <Grid item xs={2}>
+            <FormControl fullWidth className={classes.formControl}>
+              <Select
+                // value={createProduct.status}
+                // onChange={onChangeCreateProduct}
+                displayEmpty
+                name="status"
+                className={classes.selectEmpty}
+              >
+                <MenuItem value="ACTIVE">
+                  ACTIVE
+                            </MenuItem>
+                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={4}>
+            <Input
+              fullWidth
+              required
+              // onChange={onChangeCreateProduct}
+              // value={createProduct.desc}
+              name="desc"
+              classes={{
+                underline: classes.cssUnderline,
+              }}
+            />
+          </Grid>
         </Grid>
         <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={4}>
+          <Grid className={classes.inputCustom} item xs={2}>
             <InputLabel
               required
               htmlFor="custom-css-standard-input"
@@ -147,7 +178,7 @@ function StepDetail(props) {
               Conditions (end)
             </InputLabel>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
                 // value={createProduct.status}
@@ -162,6 +193,34 @@ function StepDetail(props) {
                 <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
               </Select>
             </FormControl>
+          </Grid>
+          <Grid item xs={2}>
+            <FormControl fullWidth className={classes.formControl}>
+              <Select
+                // value={createProduct.status}
+                // onChange={onChangeCreateProduct}
+                displayEmpty
+                name="status"
+                className={classes.selectEmpty}
+              >
+                <MenuItem value="ACTIVE">
+                  ACTIVE
+                            </MenuItem>
+                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={4}>
+            <Input
+              fullWidth
+              required
+              // onChange={onChangeCreateProduct}
+              // value={createProduct.desc}
+              name="desc"
+              classes={{
+                underline: classes.cssUnderline,
+              }}
+            />
           </Grid>
         </Grid>
       </Grid>

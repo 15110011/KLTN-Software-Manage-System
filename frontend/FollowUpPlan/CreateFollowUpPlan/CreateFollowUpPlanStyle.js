@@ -1,4 +1,4 @@
-export const styles = theme => ({
+const styles = theme => ({
   root: {
     width: '90%',
   },
@@ -21,4 +21,11 @@ export const styles = theme => ({
   },
   resetContainer: {
     padding: theme.spacing.unit * 3,
+},
+  stepper: {
+    border: '3px solid white',
+    boxShadow: '0 1px 20px 0 rgba(0,0,0,0.16)'
+  }
 })
+
+export default styles
