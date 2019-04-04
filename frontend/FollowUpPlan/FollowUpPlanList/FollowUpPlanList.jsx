@@ -70,11 +70,11 @@ function FollowUpPlanList(props) {
               new Promise((resolve, reject) => {
                 apiGet(FOLLOWUPPLAN_URL + `?page=${activePage}&limit=${query.pageSize}`, true)
                   .then(json => {
-                    console.log(json)
                     const data = json.data.data.map((plan, i) => ({
                       numeral: activePage * query.pageSize + i + 1,
                       name: plan.name,
-                      steps: plan.steps.length
+                      steps: plan.steps.length,
+                      id: plan.id
                     }))
                     resolve({
                       data,
@@ -100,6 +100,7 @@ function FollowUpPlanList(props) {
               filtering: true,
               paging: true
             }}
+            onRowClick={(e, rowData) => { props.history.push('/follow-up-plans/' + rowData.id) }}
           />
         </Grid>
       </Grid>

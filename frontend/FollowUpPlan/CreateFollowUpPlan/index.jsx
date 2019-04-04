@@ -36,7 +36,8 @@ function CreateFollowUpPlan(props) {
           '': ''
         },
       }
-    ]
+    ],
+    manager: ''
   })
 
   const handleNext = () => {
@@ -78,7 +79,7 @@ function CreateFollowUpPlan(props) {
   }
 
   const apiCreateFollowUpPlan = () => {
-    apiPost(FOLLOWUPPLAN_URL, { ...followUpPlan }, false, true)
+    apiPost(FOLLOWUPPLAN_URL, { ...followUpPlan, manager: props.user.id }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
