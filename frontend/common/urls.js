@@ -20,7 +20,7 @@ export const CONTACT_URL = `${API_URL}contacts`
 export const GROUP_URL = `${API_URL}contactgroups`
 export const PACKAGES_URL = `${API_URL}packages`
 export const CAMPAIGNS_URL = `${API_URL}campaigns`
-export const MARKETINGPLANS_URL = `${API_URL}marketing-plans`
-export const FOLLOWUPPLAN_URL = `${API_URL}follow-up-plan`
+export const MARKETING_PLANS_URL = `${API_URL}marketing-plans`
+export const FOLLOW_UP_PLANS_URL = `${API_URL}follow-up-plans`
 
 export { serverUrl, API_URL }
