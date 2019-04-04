@@ -8,11 +8,11 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
-import styles from './CreateFollowUpPlanStyle'
+import styles from './FollowUpPlanStyles'
 
 
-function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps } = props
+function StepPlanDetail(props) {
+  const { classes, followUpPlanDetail, onChangeStepDetailInput } = props
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -32,8 +32,8 @@ function StepDetail(props) {
           <Grid item xs={8}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                value={createStep.action}
-                onChange={onChangeCreateSteps}
+                value={followUpPlanDetail.action}
+                onChange={onChangeStepDetailInput}
                 displayEmpty
                 name="action"
                 className={classes.selectEmpty}
@@ -62,8 +62,8 @@ function StepDetail(props) {
             <Input
               fullWidth
               required
-              onChange={onChangeCreateSteps}
-              value={createStep.duration}
+              onChange={onChangeStepDetailInput}
+              value={followUpPlanDetail.duration}
               type="number"
               name="duration"
               classes={{
@@ -90,8 +90,8 @@ function StepDetail(props) {
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                value={createStep.conditions}
-                onChange={onChangeCreateSteps}
+                value={followUpPlanDetail.conditions}
+                onChange={onChangeStepDetailInput}
                 displayEmpty
                 name="conditions"
                 className={classes.selectEmpty}
@@ -194,4 +194,4 @@ function StepDetail(props) {
     </div>
   )
 }
-export default withStyles(styles)(StepDetail)
+export default withStyles(styles)(StepPlanDetail)
