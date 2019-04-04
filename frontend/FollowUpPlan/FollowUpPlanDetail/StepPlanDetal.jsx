@@ -132,64 +132,6 @@ function StepPlanDetail(props) {
             />
           </Grid>
         </Grid>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={2}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Conditions (end)
-            </InputLabel>
-          </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
-                displayEmpty
-                name="status"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
-                displayEmpty
-                name="status"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={4}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              name="desc"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
-          </Grid>
-        </Grid>
       </Grid>
     </div>
   )
