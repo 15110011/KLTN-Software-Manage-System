@@ -1,7 +1,5 @@
 import * as React from 'react'
-import ReactDOM from 'react-dom';
 
-import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -17,9 +15,11 @@ import DetailIcon from '@material-ui/icons/Assignment'
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
-import Select from '@material-ui/core/Select';
-import FormControl from '@material-ui/core/FormControl';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
+import Stepper from '@material-ui/core/Stepper';
+import Step from '@material-ui/core/Step';
+import StepLabel from '@material-ui/core/StepLabel'
+import * as cn from 'classnames'
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import CustomSnackbar from '../../components/CustomSnackbar'
@@ -44,10 +44,13 @@ function TabContainer(props) {
   );
 }
 function FollowUpPlanDetail(props) {
+  const { classes } = props
 
   const followUpPlanId = props.match.params.id
 
   const [value, setValue] = React.useState(0)
+
+  const [activeStep, setActiveStep] = React.useState(0)
 
   const [completeNotice, setCompleteNotice] = React.useState(false)
 
@@ -65,16 +68,23 @@ function FollowUpPlanDetail(props) {
         }
       ],
     })
-  const { classes } = props
 
   // Event handler
-  console.log(followUpPlanDetail)
 
   const notification = () => {
     setCompleteNotice('Successfully Updated')
     setTimeout(() => {
       setCompleteNotice(false)
     }, 2000);
+  }
+
+  const handleNext = () => {
+    if (activeStep === followUpPlanDetail.steps.length - 1) return handleSavePlanDetail()
+    setActiveStep(activeStep + 1)
+  }
+
+  const handleBack = () => {
+    setActiveStep(activeStep - 1)
   }
 
   const handleSavePlanDetail = () => {
@@ -89,10 +99,10 @@ function FollowUpPlanDetail(props) {
     setFollowUpPlanDetail({ ...followUpPlanDetail, [e.target.name]: e.target.value })
   }
 
-  const onChangeStepDetailInput = e => {
+  const onChangeStepDetailInput = (e, index) => {
     const steps = [...followUpPlanDetail.steps]
     steps[index][e.target.name] = e.target.value
-    setFollowUpPlanDetail({...followUpPlanDetail, steps })
+    setFollowUpPlanDetail({ ...followUpPlanDetail, steps })
   }
 
   return (
@@ -165,10 +175,49 @@ function FollowUpPlanDetail(props) {
               }
               {value === 1 &&
                 <TabContainer>
-                  <StepPlanDetail
-                  onChangeStepDetailInput={onChangeStepDetailInput}
-                  followUpPlanDetail={followUpPlanDetail}
-                   />
+                  <div className={cn(classes.stepper)}>
+                    <Stepper activeStep={activeStep} alternativeLabel>
+                      {
+                        followUpPlanDetail.steps.map((step, index) => (
+                          <Step key={'steplabel' + index}>
+                            <StepLabel onClick={() => setActiveStep(index)}
+                              style={{ cursor: 'pointer' }}
+                            >Step {index + 1}</StepLabel>
+                          </Step>
+                        ))
+                      }
+
+                    </Stepper>
+                  </div>
+                  <div className={cn(classes.actionsContainer, 'mt-5')}>
+                    {
+                      followUpPlanDetail.steps.map((step, index) => {
+                        if (activeStep === index) {
+                          return (
+                            <>
+                              <StepPlanDetail
+                                onChangeStepDetailInput={e => onChangeStepDetailInput(e, index)}
+                                step={step}
+                              />
+                            </>
+                          )
+                        } else return <></>
+                      })
+                    }
+                  </div>
+
+                  <div className="d-flex justify-content-center">
+                    <Button
+                      disabled={activeStep === 0}
+                      onClick={handleBack}
+                      className={classes.backButton}
+                    >
+                      Back
+                    </Button>
+                    <Button variant="contained" color="primary" onClick={handleNext}>
+                      {activeStep === followUpPlanDetail.steps.length - 1 ? 'Save' : 'Next'}
+                    </Button>
+                  </div>
                 </TabContainer>}
             </div>
           </Paper>

@@ -35,6 +35,21 @@ const styles = theme => ({
   inputCustom: {
     position: 'relative'
   },
+  stepper: {
+    border: '3px solid white',
+    boxShadow: '0 1px 20px 0 rgba(0,0,0,0.16)'
+  },
+  fab: {
+    position: 'absolute',
+    right: theme.spacing.unit * 3,
+    top: '20%'
+  },
+  backButton: {
+    marginRight: theme.spacing.unit,
+  },
+  actionsContainer: {
+    marginBottom: theme.spacing.unit * 2,
+  },
 });
 
 export default styles;

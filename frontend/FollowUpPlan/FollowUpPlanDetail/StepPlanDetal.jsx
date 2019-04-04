@@ -12,7 +12,7 @@ import styles from './FollowUpPlanStyles'
 
 
 function StepPlanDetail(props) {
-  const { classes, followUpPlanDetail, onChangeStepDetailInput } = props
+  const { classes, step, onChangeStepDetailInput } = props
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -32,7 +32,7 @@ function StepPlanDetail(props) {
           <Grid item xs={8}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                value={followUpPlanDetail.action}
+                value={step.action}
                 onChange={onChangeStepDetailInput}
                 displayEmpty
                 name="action"
@@ -63,7 +63,7 @@ function StepPlanDetail(props) {
               fullWidth
               required
               onChange={onChangeStepDetailInput}
-              value={followUpPlanDetail.duration}
+              value={step.duration}
               type="number"
               name="duration"
               classes={{
@@ -90,7 +90,7 @@ function StepPlanDetail(props) {
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                value={followUpPlanDetail.conditions}
+                value={step.conditions}
                 onChange={onChangeStepDetailInput}
                 displayEmpty
                 name="conditions"
