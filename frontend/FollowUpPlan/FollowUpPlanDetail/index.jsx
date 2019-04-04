@@ -27,7 +27,7 @@ import CustomSnackbar from '../../components/CustomSnackbar'
 import useFetchData from '../../CustomHook/useFetchData'
 
 // API
-import { FOLLOWUPPLAN_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { FOLLOW_UP_PLANS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
 import { apiGet, apiPost, apiPatch, apiPut } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
@@ -55,7 +55,7 @@ function FollowUpPlanDetail(props) {
   const [completeNotice, setCompleteNotice] = React.useState(false)
 
   const [followUpPlanDetail, setFollowUpPlanDetail, setUrl, forceUpdate] =
-    useFetchData(FOLLOWUPPLAN_URL + '/' + followUpPlanId, props.history, {
+    useFetchData(FOLLOW_UP_PLANS_URL + '/' + followUpPlanId, props.history, {
       name: '',
       steps: [
         {
@@ -88,7 +88,7 @@ function FollowUpPlanDetail(props) {
   }
 
   const handleSavePlanDetail = () => {
-    apiPatch(FOLLOWUPPLAN_URL + '/' + followUpPlanId, { ...followUpPlanDetail }, false, true)
+    apiPatch(FOLLOW_UP_PLANS_URL + '/' + followUpPlanId, { ...followUpPlanDetail }, false, true)
       .then(json => {
         if (json.data) return notification()
       })

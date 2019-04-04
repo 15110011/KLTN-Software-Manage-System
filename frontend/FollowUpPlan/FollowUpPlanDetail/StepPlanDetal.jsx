@@ -84,24 +84,20 @@ function StepPlanDetail(props) {
                 focused: classes.cssFocused,
               }}
             >
-              Conditions (start)
+              Required Fields
             </InputLabel>
           </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                value={step.conditions}
-                onChange={onChangeStepDetailInput}
-                displayEmpty
-                name="conditions"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
-            </FormControl>
+          <Grid item xs={4}>
+            <Input
+              fullWidth
+              required
+              // onChange={onChangeCreateProduct}
+              // value={createProduct.desc}
+              name="desc"
+              classes={{
+                underline: classes.cssUnderline,
+              }}
+            />
           </Grid>
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
@@ -112,10 +108,13 @@ function StepPlanDetail(props) {
                 name="status"
                 className={classes.selectEmpty}
               >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
+                <MenuItem value="text">
+                  Text Field
                 </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
+                <MenuItem value="number">Number</MenuItem>
+                <MenuItem value="check_box">
+                  Check Box
+                </MenuItem>
               </Select>
             </FormControl>
           </Grid>

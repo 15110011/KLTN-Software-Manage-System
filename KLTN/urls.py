@@ -19,7 +19,7 @@ router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
 #campaign app
 router.register('marketing-plans', MarketingPlanView, base_name='marketing_plans')
-router.register('follow-up-plan', FollowUpPlanView, base_name='follow-up-plan')
+router.register('follow-up-plans', FollowUpPlanView, base_name='follow-up-plans')
 router.register('campaigns', CampaignView, base_name='campaigns')
 #order app
 router.register('orders', OrderView, base_name='orders')

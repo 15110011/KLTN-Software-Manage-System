@@ -16,7 +16,7 @@ import StepLabel from '@material-ui/core/StepLabel';
 import * as cn from 'classnames'
 import styles from './CreateFollowUpPlanStyle'
 import StepDetail from './StepDetail'
-import { FOLLOWUPPLAN_URL, REFRESH_TOKEN_URL } from '../../common/urls';
+import { FOLLOW_UP_PLANS_URL, REFRESH_TOKEN_URL } from '../../common/urls';
 import { BAD_REQUEST } from "../../common/Code";
 
 
@@ -79,7 +79,7 @@ function CreateFollowUpPlan(props) {
   }
 
   const apiCreateFollowUpPlan = () => {
-    apiPost(FOLLOWUPPLAN_URL, { ...followUpPlan, manager: props.user.id }, false, true)
+    apiPost(FOLLOW_UP_PLANS_URL, { ...followUpPlan, manager: props.user.id }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
