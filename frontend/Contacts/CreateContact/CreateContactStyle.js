@@ -1,5 +1,7 @@
 const style = theme => ({
-
+  paperRoot: {
+    overflowY: 'unset'
+  },
   cssLabel: {
     position: 'absolute',
     top: 20,

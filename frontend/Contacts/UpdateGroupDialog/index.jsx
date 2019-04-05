@@ -49,6 +49,7 @@ function GroupDialog(props) {
       }
       else {
         // props.onCreateGroupSuccess(res.data)
+        props.onUpdateSuccess()
       }
       setError(cloneErr)
     })

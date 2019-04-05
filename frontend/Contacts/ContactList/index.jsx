@@ -113,6 +113,9 @@ function ContactList(props) {
   const onCreateGroupSuccess = (newGroup) => {
     setGroups({ data: groups.data.concat(newGroup), total: groups.total + 1 })
     setCompleteNotice('Successfully Created')
+    notiTimeout.success = setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
     toggleGroupDialog()
   }
 
@@ -209,6 +212,16 @@ function ContactList(props) {
     forceUpdateGroup()
   }
 
+  const onUpdateGroupSuccess = () => {
+
+    setCompleteNotice('Successfully Updated')
+    notiTimeout.success = setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+    forceUpdateGroup()
+    setUpdateGroupDialog(false)
+  }
+
   const cantUpdateGroup = (groups.data[0] && selectingGroup != groups.data[0].id)
     || (groups.data[0] && groups.data[selectingGroupIndex]._type == 'PUBLIC')
   return (
@@ -236,7 +249,7 @@ function ContactList(props) {
       */}
       {updateGroupDialog && <UpdateGroup group={groups.data[selectingGroupIndex]}
         toggleDialog={() => { setUpdateGroupDialog(!updateGroupDialog) }}
-        onUpdateSuccess={() => { console.log(44444444) }}
+        onUpdateSuccess={() => { onUpdateGroupSuccess() }}
         user={props.user}
       />}
 
