@@ -79,10 +79,11 @@ function AddToGroup(props) {
       onClose={() => { toggleDialog() }}
       fullWidth
       maxWidth="sm"
+      classes={{ paper: classes.paperRoot }}
     >
-      <DialogTitle>Add {selectingContacts.length} contact(s)</DialogTitle>
+      <DialogTitle>ADD {selectingContacts.length} CONTACT(s)</DialogTitle>
       <form onSubmit={onSubmit}>
-        <DialogContent>
+        <DialogContent style={{ overflowY: 'unset' }}>
           <Grid container spacing={8} className='m-3'>
             <Grid item xs={2} style={{ position: 'relative' }}>
               <InputLabel
@@ -92,7 +93,7 @@ function AddToGroup(props) {
                 required
               >
                 Contacts:
-                </InputLabel>
+              </InputLabel>
             </Grid>
             <Grid item xs={9} className='pr-5'>
               <SelectCustom

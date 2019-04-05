@@ -48,7 +48,7 @@ const styles = theme => ({
   },
   paper: {
     position: 'absolute',
-    zIndex: '1000 !impotant',
+    zIndex: '1000',
     marginTop: theme.spacing.unit,
     left: 0,
     right: 0,
@@ -167,7 +167,7 @@ const components = {
 
 const IntegrationReactSelect = (props) => {
 
-  const { classes, theme, single, multi, data, handleChange, options,
+  const { classes, theme, single, multi, data, handleChange, options, onInputChange,
     placeholder, label, name, required, error, disabled, fullWidth } = props;
 
   const selectStyles = {
@@ -203,6 +203,7 @@ const IntegrationReactSelect = (props) => {
 
           }}
           onChange={handleChange}
+          onInputChange={onInputChange}
           placeholder={placeholder}
           name={name}
           isClearable
@@ -227,6 +228,7 @@ const IntegrationReactSelect = (props) => {
           components={components}
           value={data}
           onChange={handleChange}
+          onInputChange={onInputChange}
           placeholder={placeholder}
           isMulti
           name={name}

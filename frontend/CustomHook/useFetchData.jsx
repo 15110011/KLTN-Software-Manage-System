@@ -1,6 +1,7 @@
 import * as React from 'react'
-import { apiGet } from '../common/Request'
+import { apiGet, apiPost } from '../common/Request'
 import * as CODE from '../common/Code'
+import { REFRESH_TOKEN_URL } from '../common/urls'
 
 export default function FetchData(inputUrl, history, init = null) {
   const [data, setData] = React.useState(init)
@@ -11,7 +12,18 @@ export default function FetchData(inputUrl, history, init = null) {
 
   const getData = () => {
     apiGet(url, true).then(res => {
-      if (res.data.code == CODE.NOT_AUTHORIZED) {
+      if (res.data.code == "token_not_valid") {
+        apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+          if (res.data.code == "token_not_valid" || res.data.code == CODE.BAD_REQUEST) {
+            history.push('/logout')
+          }
+          else {
+            localStorage.setItem("token", res.data.access)
+            getData()
+          }
+        })
+      }
+      else if (res.data.code == CODE.NOT_AUTHORIZED) {
         history.push('/logout')
       }
       else {

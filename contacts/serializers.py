@@ -6,6 +6,7 @@ from rest_framework.validators import ValidationError, UniqueTogetherValidator
 
 from . import models
 from account.serializers import MeSerializer
+import re
 
 
 class ContactWithoutGroupSerializer(serializers.ModelSerializer):
@@ -15,21 +16,33 @@ class ContactWithoutGroupSerializer(serializers.ModelSerializer):
         # exclude = ['groups']
         fields = '__all__'
 
+    def validate_phone(self, value):
+        is_valid_phone_num = re.compile('^\d{10}$')
+        if not is_valid_phone_num.match(value):
+            raise serializers.ValidationError(
+                'Invalid phone number, it must be 10 digits in length (Ex: 0123456789)')
+        return value
+
 
 class GroupSerializer(serializers.ModelSerializer):
     contacts = ContactWithoutGroupSerializer(many=True)
-    # user = MeSerializer()
+    total_contact = serializers.SerializerMethodField()
+    editor = MeSerializer()
 
     class Meta:
         model = models.ContactGroup
         # fields = '__all__'
         exclude = ['user']
 
+    def get_total_contact(self, instance):
+
+        return instance.contacts.count()
 
 class GroupWithoutContactSerializer(serializers.ModelSerializer):
 
     total_contact = serializers.SerializerMethodField()
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    # editor = MeSerializer()
     # contacts = serializers.PrimaryKeyRelatedField(
     #     many=True, read_only=True)
 
@@ -38,7 +51,6 @@ class GroupWithoutContactSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def update(self, instance, validated_data):
-        print(validated_data)
         return super().update(instance, validated_data)
 
     def get_total_contact(self, instance):
@@ -88,6 +100,20 @@ class ContactSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
         instance.groups.set(groups)
         return instance
+
+    def validate_phone(self, value):
+        is_valid_phone_num = re.compile('^\d{10}$')
+        if not is_valid_phone_num.match(value):
+            raise serializers.ValidationError(
+                'Invalid phone number, it must be 10 digits in length (Ex: 0123456789)')
+        return value
+
+    def validate_zipcode(self, value):
+        is_valid_zipcode = re.compile('^\d{6}$')
+        if not is_valid_zipcode.match(str(value)):
+            raise serializers.ValidationError(
+                'Zipcode must be 6 digits in length')
+        return value
 
 
 class NoteSerializer(serializers.ModelSerializer):

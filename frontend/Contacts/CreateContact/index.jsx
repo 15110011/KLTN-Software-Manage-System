@@ -113,7 +113,7 @@ function CreateContact(props) {
       maxWidth='md'
       onClose={props.toggleDialog}
     >
-      <DialogTitle>Create New Contact</DialogTitle>
+      <DialogTitle>CREATE NEW CONTACT</DialogTitle>
       <form onSubmit={onSubmit}>
         <Divider></Divider>
         <DialogContent className='my-3'>

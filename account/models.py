@@ -9,5 +9,4 @@ class Profile (BaseModel):
     manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sale_reps', null=True, blank=True)
     is_manager = models.BooleanField()
     phone = models.TextField(max_length=15)
-    
     company_name = models.TextField(max_length=100)

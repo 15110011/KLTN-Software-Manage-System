@@ -20,6 +20,20 @@ import re
 import django_rq
 
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        exclude = ['last_login', 'date_joined',
+                   'groups', 'user_permissions', 'password']
+
+class ProfileWithUserSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = models.Profile
+        fields = '__all__' 
+
 class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -34,9 +48,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         return value
 
 
+
 class MeSerializer(serializers.ModelSerializer):
 
     profile = ProfileSerializer(read_only=True)
+    sale_reps = ProfileWithUserSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
@@ -121,7 +137,7 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
                 user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
             new_profile.save()
             default_group = ContactGroup.objects.create(
-                user=self.user, name='All Contacts'
+                user=self.user, name='All Contacts', _type=''
             )
             self.user.profile = new_profile
             

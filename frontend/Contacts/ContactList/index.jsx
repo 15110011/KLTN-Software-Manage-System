@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button'
 import { InputLabel, DialogTitle, TablePagination } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
 import Popover from '@material-ui/core/Popover'
-import { Dialog, DialogActions, DialogContent } from '@material-ui/core'
+import { Dialog, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
 import MTableBody from 'material-table/dist/m-table-body'
 
 
@@ -27,13 +27,16 @@ import CustomSnackbar from '../../components/CustomSnackbar'
 import styles from './ContactListStyle'
 import { BAD_REQUEST } from '../../common/Code';
 import AddToGroup from '../AddToGroup';
-import { ConsolidatePluginClass } from 'fuse-box/plugins/ConsolidatePlugin';
+import UpdateGroup from '../UpdateGroupDialog'
 
 
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
+
   const [selectingGroup, setSelectingGroup] = React.useState(-1)
+  const [selectingGroupIndex, setSelectingGroupIndex] = React.useState(0)
+
   const [actionAnchorEl, setActionAnchorEl] = React.useState(null)
   const [groupDialog, setGroupDialog] = React.useState(false)
   const [completeNotice, setCompleteNotice] = React.useState(false)
@@ -44,6 +47,7 @@ function ContactList(props) {
   const [deleteContactConfirm, setDeleteContactConfirm] = React.useState(false)
   const [deleteContacts, setDeleteContacts] = React.useState([])
   const [changeGroupDialog, setChangeGroupDialog] = React.useState(false)
+  const [updateGroupDialog, setUpdateGroupDialog] = React.useState(false)
   // const [activePage, setActivePage] = React.useState(0)
   let activePage = 0
 
@@ -88,12 +92,12 @@ function ContactList(props) {
 
   //event handler 
 
-  const onChangeGroup = (e) => {
-
+  const onChangeGroup = (e, i) => {
     setSelectingGroup(e.target.value)
+    setSelectingGroupIndex(parseInt(i.props.name))
     apiGet(GROUP_URL + '/' + e.target.value + '/contacts', true).then(res => {
       // setContacts({ ...res.data })
-      tableRef.current.onQueryChange(123123)
+      tableRef.current.onQueryChange()
     })
   }
 
@@ -204,6 +208,9 @@ function ContactList(props) {
     setChangeGroupDialog(false)
     forceUpdateGroup()
   }
+
+  const cantUpdateGroup = (groups.data[0] && selectingGroup != groups.data[0].id)
+    || (groups.data[0] && groups.data[selectingGroupIndex]._type == 'PUBLIC')
   return (
     <div className={classes.root}>
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
@@ -224,22 +231,35 @@ function ContactList(props) {
 
       {/*END*/}
 
+      {/*
+        update selecting group
+      */}
+      {updateGroupDialog && <UpdateGroup group={groups.data[selectingGroupIndex]}
+        toggleDialog={() => { setUpdateGroupDialog(!updateGroupDialog) }}
+        onUpdateSuccess={() => { console.log(44444444) }}
+        user={props.user}
+      />}
+
+      {/* END */}
+
       <Dialog
         open={deleteContactConfirm}
         onClose={() => setDeleteContactConfirm(false)}
       >
         <DialogTitle>
-          Delete contacts
+          DELETE CONTACT(S)
         </DialogTitle>
         <DialogContent>
-          This action cannot be undone
+          <DialogContentText>
+            This action cannot be undone
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => {
             setDeleteContacts([])
             setDeleteContactConfirm(false)
           }}>Cancel</Button>
-          <Button onClick={() => { onDeleteContacts() }}>Delete</Button>
+          <Button onClick={() => { onDeleteContacts() }} color='primary'>Delete</Button>
         </DialogActions>
       </Dialog>
       <Dialog
@@ -247,19 +267,22 @@ function ContactList(props) {
         onClose={() => setConfirmDelete(false)}
       >
         <DialogTitle>
-          Delete group <strong>{contacts.group}</strong>
+          DELETE GROUP <strong>{contacts.group}</strong>
         </DialogTitle>
         <DialogContent>
-          This action cannot be undone
+          <DialogContentText>
+            This action cannot be undone
+          </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setConfirmDelete(false) }}>Cancel</Button>
-          <Button onClick={() => { onDeleteGroup() }}>Delete group</Button>
+          <Button onClick={() => { onDeleteGroup() }} color='primary' >Delete group</Button>
         </DialogActions>
       </Dialog>
       {
         groupDialog && <GroupDialog toggleGroupDialog={toggleGroupDialog}
           canAddContacts={true} defaultGroup={groups.data[0].id}
+          user={props.user}
           onCreateGroupSuccess={onCreateGroupSuccess} />
       }
       <Menu
@@ -271,10 +294,16 @@ function ContactList(props) {
       >
         <MenuItem onClick={() => toggleGroupDialog()}>Create Contact Group</MenuItem>
         {
-          contacts.group != "All Contacts" ?
+          selectingGroupIndex !== 0 ?
             <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting Contact Group</MenuItem>
             :
             <MenuItem disabled>Cannot Delete Default Contact Group</MenuItem>
+        }
+
+        {cantUpdateGroup &&
+          <MenuItem onClick={() => setUpdateGroupDialog(true)}>Update Selecting Contact Group's Detail</MenuItem>}
+        {groups.data[0] && selectingGroup == groups.data[0].id &&
+          < MenuItem disabled>Cannot Update Default Contact Group's Detail</MenuItem>
         }
       </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
@@ -290,9 +319,9 @@ function ContactList(props) {
               className={classes.selectEmpty}
             >
               {
-                groups.data.map(g => {
+                groups.data.map((g, index) => {
                   return (
-                    <MenuItem value={g.id} key={`groups${g.id}`}>
+                    <MenuItem value={g.id} name={index} key={`groups${g.id}`}>
                       {g.name} ({g.total_contact})
                     </MenuItem>
                   )
@@ -408,11 +437,11 @@ function ContactList(props) {
                       setSelectingContacts(rows)
                       setChangeGroupDialog(true)
                     },
-                  }
+
+                  },
                 ]}
                 onRowClick={
                   (e, rowData) => {
-
                     props.history.push('/contacts/' + rowData.id)
                   }
                 }
@@ -427,7 +456,7 @@ function ContactList(props) {
           }
         </Grid>
       </Grid>
-    </div>
+    </div >
   )
 }
 

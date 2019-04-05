@@ -19,7 +19,6 @@ function CustomSnackbar(props) {
 
   const { classes, isSuccess, isErr, msg } = props
 
-  console.log(msg, completeNotice, isSuccess)
   return (
     <>
       {isErr && <Snackbar

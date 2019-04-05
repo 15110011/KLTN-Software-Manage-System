@@ -22,15 +22,22 @@ class Contact(BaseModel):
     def _get_fullname(self):
         return f'{self.first_name} {self.last_name}'
 
-    class Meta:
-        unique_together = (("user", "first_name", "last_name"),)
+    # class Meta:
+    #     unique_together = (("user", "first_name", "last_name"),)
 
+GROUP_TYPES=(
+    ('PUBLIC', 'PUBLIC'),
+    ('PRIVATE', 'PRIVATE')
+)
 
 class ContactGroup(BaseModel):
 
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='contact_groups')
+    editor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cant_edit_contact_groups',
+        null=True, blank= True)
     name = models.CharField(max_length=100)
+    _type = models.CharField(max_length=20, choices=GROUP_TYPES, default='PRIVATE')
     contacts = models.ManyToManyField(
         Contact, related_name='groups', blank=True)
 

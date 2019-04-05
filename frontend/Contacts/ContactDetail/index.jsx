@@ -1,5 +1,4 @@
 import * as React from 'react'
-import ReactDOM from 'react-dom';
 
 import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
@@ -22,7 +21,9 @@ import FormControl from '@material-ui/core/FormControl';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
-import CustomSnackbar from '../../components/CustomSnackbar'
+import GroupIcon from '@material-ui/icons/Group'
+import { Divider } from '@material-ui/core';
+
 
 // Hooks
 import useFetchData from '../../CustomHook/useFetchData'
@@ -35,6 +36,9 @@ import { BAD_REQUEST } from "../../common/Code";
 // Components 
 
 import styles from './ContactDetailStyle'
+import CustomSnackbar from '../../components/CustomSnackbar'
+import Groups from './Groups'
+import USERCONTEXT from '../../components/UserContext'
 
 function TabContainer(props) {
   return (
@@ -48,6 +52,10 @@ function ContactDetail(props) {
   const contactId = props.match.params.id
 
   const [value, setValue] = React.useState(0)
+  const [error, setError] = React.useState({})
+  const [successNoti, setSuccessNoti] = React.useState(false)
+
+
 
   const [contactDetail, setContactDetail, setUrl, forceUpdate] =
     useFetchData(CONTACT_URL + '/' + contactId, props.history, {
@@ -61,11 +69,59 @@ function ContactDetail(props) {
     })
   const { classes } = props
 
+  const timer = {}
+
+  //clear timer
+
+  React.useEffect(() => {
+    // Cleanup
+    return () => {
+
+      Object.keys(timer).forEach(k => {
+        clearTimeout(timer[k])
+      })
+    }
+  }, [])
+
+
   // Event handler
 
-  const handleSaveContactDetail = () => {
-    console.log('askfjlasl');
+  const patchData = () => {
 
+    let patchError = {}
+    const { groups, ...patchDetail } = contactDetail
+
+    apiPatch(CONTACT_URL + '/' + contactId, patchDetail, false, true)
+      .then(res => {
+        if (res.data.code == "token_not_valid") {
+          apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+              props.history.push('/logout')
+            }
+            else {
+              localStorage.setItem("token", res.data.access)
+              patchData()
+            }
+          })
+        }
+        else if (res.data.code == BAD_REQUEST) {
+          const { code, ...rest } = res.data
+          patchError = rest
+        }
+        else {
+          setContactDetail(res.data)
+          setSuccessNoti('Successfully Updated')
+          timer.success = setTimeout(() => {
+            setSuccessNoti(false)
+          }, 2000);
+        }
+        setError(patchError)
+      })
+  }
+
+  const handleSaveContactDetail = (e) => {
+    e.preventDefault()
+    patchData()
   }
 
   const onChangeInput = (e) => {
@@ -74,6 +130,7 @@ function ContactDetail(props) {
 
   return (
     <div className={classes.root}>
+      {successNoti && <CustomSnackbar isSuccess msg={successNoti}></CustomSnackbar>}
       <BreadcrumbsItem to={`/contacts/ + ${contactId}`}>{contactDetail.full_name}</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={12}>
@@ -97,53 +154,232 @@ function ContactDetail(props) {
                 classes={{ indicator: classes.tabSelected }}
               >
 
-                <Tab label={<span><PersonalIcon />&nbsp;Contact Detail</span>} />
+                <Tab label={<span><PersonalIcon />&nbsp;Detail</span>} />
+                <Tab label={<span><GroupIcon />&nbsp;Groups</span>} />
                 <Tab label={<span><DetailIcon /> Notes </span>} />
               </Tabs>
             </AppBar>
-            <div style={{ textAlign: 'left' }}>
-              {value === 0 &&
-                <TabContainer>
-                  <Grid container>
-                    <Grid item xs={3}>
-                      <InputLabel
-                        htmlFor="custom-css-standard-input"
-                        classes={{
-                          root: classes.cssLabel,
-                          focused: classes.cssFocused,
-                        }}
-                      >
-                        First name
-                      </InputLabel>
-                    </Grid>
-                    <Grid item xs={8}>
-                      <Input
-                        onChange={onChangeInput}
-                        name="first_name"
-                        classes={{
-                          underline: classes.cssUnderline,
-                        }}
-                        value={contactDetail.first_name}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <Grid item xs={12} className="d-flex justify-content-center mt-3">
-                        <Button onClick={forceUpdate} variant="contained" className={classes.button}>
-                          RESET
-                        </Button>&nbsp;&nbsp;
-                        <Button onClick={handleSaveContactDetail} variant="contained" color="primary" className={classes.button}>
-                          SAVE
-                        </Button>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </TabContainer>
-              }
-              {value === 1 &&
-                <TabContainer>
-                  NOTES
-                </TabContainer>}
-            </div>
+            <USERCONTEXT.Consumer>
+              {({ user }) => (
+                <div style={{ textAlign: 'left' }}>
+                  {value === 0 &&
+                    <TabContainer>
+                      <form onSubmit={handleSaveContactDetail}>
+
+                        <Grid container spacing={16}>
+                          <Grid item xs={12}>
+                            {
+                              Object.keys(error).map(k => {
+                                console.log(error[k])
+                                return <p className="text-danger">{error[k]}</p>
+                              })
+
+                            }
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Grid container spacing={16}>
+
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                  required
+                                >
+                                  First name
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="first_name"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.first_name}
+                                  required
+                                  fullWidth
+                                />
+                              </Grid>
+
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                  required
+                                >
+                                  Last name
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="last_name"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.last_name}
+                                  required
+                                  fullWidth
+                                />
+                              </Grid>
+
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                  required
+                                >
+                                  Phone
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="phone"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.phone}
+                                  required
+                                  fullWidth
+                                  error={error.phone}
+                                />
+                              </Grid>
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                  required
+                                >
+                                  Email
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="mail"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.mail}
+                                  required
+                                  type='email'
+                                  fullWidth
+                                />
+                              </Grid>
+
+                            </Grid>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Grid container spacing={16}>
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                >
+                                  Address
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="address"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.address}
+                                  fullWidth
+                                />
+                              </Grid>
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                >
+                                  Zipcode
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="zipcode"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.zipcode}
+                                  fullWidth
+                                  error={error.zipcode}
+                                />
+                              </Grid>
+
+                              <Grid item xs={3} style={{ position: 'relative' }}>
+                                <InputLabel
+                                  htmlFor="custom-css-standard-input"
+                                  classes={{
+                                    root: classes.cssLabel,
+                                    focused: classes.cssFocused,
+                                  }}
+                                >
+                                  Country
+                              </InputLabel>
+                              </Grid>
+                              <Grid item xs={8}>
+                                <Input
+                                  onChange={onChangeInput}
+                                  name="country"
+                                  classes={{
+                                    underline: classes.cssUnderline,
+                                  }}
+                                  value={contactDetail.country}
+                                  fullWidth
+                                />
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid item xs={12}>
+                            <Grid item xs={12} className="d-flex justify-content-center mt-3">
+                              <Button onClick={forceUpdate} variant="contained" className={classes.button}>
+                                RESET
+                            </Button>&nbsp;&nbsp;
+                            <Button type='submit' variant="contained"
+                                color="primary" className={classes.button}>
+                                SAVE
+                            </Button>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+
+                      </form>
+                    </TabContainer>
+                  }
+                  {value === 1 &&
+                    <TabContainer>
+                      <Groups history={props.history} user={user} />
+                    </TabContainer>}
+                  {value === 2 &&
+                    <TabContainer>
+                      NOTES
+                  </TabContainer>}
+                </div>)}
+            </USERCONTEXT.Consumer>
           </Paper>
         </Grid>
       </Grid>
