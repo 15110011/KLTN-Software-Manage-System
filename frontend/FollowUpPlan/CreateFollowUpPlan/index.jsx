@@ -16,7 +16,8 @@ import StepLabel from '@material-ui/core/StepLabel';
 import * as cn from 'classnames'
 import styles from './CreateFollowUpPlanStyle'
 import StepDetail from './StepDetail'
-import { FOLLOW_UP_PLANS_URL, REFRESH_TOKEN_URL } from '../../common/urls';
+import { FOLLOW_UP_PLANS_URL, GET_ACTIONS_URL, REFRESH_TOKEN_URL } from '../../common/urls';
+import useFetchData from '../../CustomHook/useFetchData'
 import { BAD_REQUEST } from "../../common/Code";
 
 
@@ -25,12 +26,13 @@ function CreateFollowUpPlan(props) {
   const [activeStep, setActiveStep] = React.useState(0)
   const [completeNotice, setCompleteNotice] = React.useState(false)
   const [error, setError] = React.useState(false)
+  const [actions, setActions] = useFetchData(GET_ACTIONS_URL, props.history, {})
   const [followUpPlan, setCreatePlan] = React.useState({
     name: '',
     steps: [
       {
         nth: '',
-        action: '',
+        actions: [],
         duration: 0,
         conditions: {
           '': ''
@@ -39,6 +41,7 @@ function CreateFollowUpPlan(props) {
     ],
     manager: ''
   })
+
 
   const handleNext = () => {
     if (activeStep === followUpPlan.steps.length - 1) return apiCreateFollowUpPlan()
@@ -68,9 +71,17 @@ function CreateFollowUpPlan(props) {
     })
     setCreatePlan({ ...followUpPlan, steps })
   }
+
   const onChangeCreatePlan = e => {
     setCreatePlan({ ...followUpPlan, [e.target.name]: e.target.value })
   }
+  
+  const handleChangeSelect = (values, element, index) => {
+    let stepsClone = [...followUpPlan.steps]
+    stepsClone[index].actions = values
+    setCreatePlan({ ...followUpPlan, steps: stepsClone })
+  }
+  
   const onChangeCreateSteps = (e, index) => {
     const steps = [...followUpPlan.steps]
     steps[index][e.target.name] = e.target.value
@@ -108,7 +119,7 @@ function CreateFollowUpPlan(props) {
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       {error && (
         Object.keys(error).forEach((key) => <CustomSnackbar isErr msg={error[key]} />)
-        )}
+      )}
       <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
       <div style={{ textAlign: 'left', padding: '40px' }}>
         <Grid item xs={6}>
@@ -167,7 +178,9 @@ function CreateFollowUpPlan(props) {
                     key={'step' + index}
                     activeStep={activeStep}
                     onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
+                    handleChangeSelect={(values,e) => handleChangeSelect(values, e, index)}
                     createStep={curStep}
+                    actions={actions}
                   />
                 )
               }

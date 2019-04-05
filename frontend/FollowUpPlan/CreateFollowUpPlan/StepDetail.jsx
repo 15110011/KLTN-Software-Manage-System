@@ -7,12 +7,13 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import SelectCustom from '../../components/SelectCustom'
 import styles from './CreateFollowUpPlanStyle'
 
 
 function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps } = props
+  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect } = props
+ 
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -31,18 +32,25 @@ function StepDetail(props) {
           </Grid>
           <Grid item xs={8}>
             <FormControl fullWidth className={classes.formControl}>
-              <Select
-                value={createStep.action}
-                onChange={onChangeCreateSteps}
-                displayEmpty
-                name="action"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
+            {
+              actions.actions &&  <SelectCustom
+                options={actions.actions.map((g, i) => ({
+                  label: `${g}`,
+                  value: `${g}`,
+                }))}
+                handleChange={(values, element) => handleChangeSelect(values, element)}
+                data={
+                  createStep.actions
+                    .reduce((acc, g) => {
+                      acc.push({ label: `${g.label}`, value: g.value})
+                      return acc
+                    }, [])
+                }
+                multi
+                placeholder=""
+                label=""
+              />
+            }
             </FormControl>
           </Grid>
         </Grid>

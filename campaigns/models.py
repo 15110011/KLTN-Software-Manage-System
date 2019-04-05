@@ -9,11 +9,14 @@ class MarketingPlan(BaseModel):
     name = models.CharField(max_length=255)
     condition = JSONField()
     actions = JSONField()
+    manager = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='marketing_plan')
 
 
 class FollowUpPlan(BaseModel):
     name = models.CharField(max_length=255)
-    manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='follow_up_plan')
+    manager = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='follow_up_plan')
 
 
 class Campaign(BaseModel):
