@@ -13,27 +13,26 @@ import styles from './CreateFollowUpPlanStyle'
 
 function StepDetail(props) {
   const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect } = props
- 
+
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
-      <Grid item xs={6}>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Action
+      <Grid container spacing={40}>
+        <Grid className={classes.inputCustom} item xs={4}>
+          <InputLabel
+            required
+            htmlFor="custom-css-standard-input"
+            classes={{
+              root: classes.cssLabel,
+              focused: classes.cssFocused,
+            }}
+          >
+            Action
             </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <FormControl fullWidth className={classes.formControl}>
+        </Grid>
+        <Grid item xs={8}>
+          <FormControl fullWidth className={classes.formControl}>
             {
-              actions.actions &&  <SelectCustom
+              actions.actions && <SelectCustom
                 options={actions.actions.map((g, i) => ({
                   label: `${g}`,
                   value: `${g}`,
@@ -42,7 +41,7 @@ function StepDetail(props) {
                 data={
                   createStep.actions
                     .reduce((acc, g) => {
-                      acc.push({ label: `${g.label}`, value: g.value})
+                      acc.push({ label: `${g.label}`, value: g.value })
                       return acc
                     }, [])
                 }
@@ -51,92 +50,93 @@ function StepDetail(props) {
                 label=""
               />
             }
-            </FormControl>
-          </Grid>
-        </Grid>
-        <Grid container spacing={40} >
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Duration (days)
-            </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <Input
-              fullWidth
-              required
-              onChange={onChangeCreateSteps}
-              value={createStep.duration}
-              type="number"
-              name="duration"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
-          </Grid>
+          </FormControl>
         </Grid>
       </Grid>
-      <Grid item xs={12}>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={2}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Required Fields
+      <Grid container spacing={40}>
+        <Grid className={classes.inputCustom} item xs={4}>
+          <InputLabel
+            htmlFor="custom-css-standard-input"
+            classes={{
+              root: classes.cssLabel,
+              focused: classes.cssFocused,
+            }}
+          >
+            Duration (days)
             </InputLabel>
-          </Grid>
-          <Grid item xs={4}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              name="desc"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
-          </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                // value={createProduct.status}
+        </Grid>
+        <Grid item xs={8}>
+          <Input
+            fullWidth
+            required
+            onChange={onChangeCreateSteps}
+            value={createStep.duration}
+            type="number"
+            name="duration"
+            classes={{
+              underline: classes.cssUnderline,
+            }}
+          />
+        </Grid>
+      </Grid>
+      <Grid container spacing={40}>
+        <Grid className={classes.inputCustom} item xs={4}>
+          <InputLabel
+            required
+            htmlFor="custom-css-standard-input"
+            classes={{
+              root: classes.cssLabel,
+              focused: classes.cssFocused,
+            }}
+          >
+            Required Fields
+            </InputLabel>
+        </Grid>
+        <Grid item xs={8}>
+          <Grid container spacing={40}>
+            <Grid item xs={5}>
+              <Input
+                fullWidth
+                required
                 // onChange={onChangeCreateProduct}
-                displayEmpty
-                name="status"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="text">
-                  Text Field
+                // value={createProduct.desc}
+                name="desc"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <FormControl fullWidth className={classes.formControl}>
+                <Select
+                  // value={createProduct.status}
+                  // onChange={onChangeCreateProduct}
+                  displayEmpty
+                  name="status"
+                  className={classes.selectEmpty}
+                >
+                  <MenuItem value="text">
+                    Text Field
                 </MenuItem>
-                <MenuItem value="number">Number</MenuItem>
-                <MenuItem value="check_box">
-                  Check Box
+                  <MenuItem value="number">Number</MenuItem>
+                  <MenuItem value="check_box">
+                    Check Box
                 </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={4}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              name="desc"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={5}>
+              <Input
+                fullWidth
+                required
+                // onChange={onChangeCreateProduct}
+                // value={createProduct.desc}
+                name="desc"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+              />
+            </Grid>
           </Grid>
         </Grid>
       </Grid>

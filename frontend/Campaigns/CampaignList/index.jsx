@@ -9,12 +9,20 @@ import Menu from '@material-ui/core/Menu';
 import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
 import { InputLabel } from '@material-ui/core';
+import useFetchData from '../../CustomHook/useFetchData'
 
 import styles from './CampaignListStyle'
+
+// API
+import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL } from "../../common/urls";
+import { apiPost, apiGet } from '../../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
 
 function CampaignList(props) {
 
   const { classes } = props;
+
+  const [campaignData, setCampaignData, setCampaignURL, forceUpdateCampaign] = useFetchData(CAMPAIGNS_URL, props.history, { data: [], total: 0 })
 
   return (
     <div className={classes.root}>
@@ -28,17 +36,17 @@ function CampaignList(props) {
               {
                 title: 'Status',
                 field: 'status',
-                lookup: {'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE'}
+                lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
               },
             ]}
-            // data={products.data.map(
-            //   (product, index) => ({
-            //     numeral: index + 1,
-            //     name: product.name,
-            //     description: product.desc,
-            //     status: product.status
-            //   })
-            // )}
+            data={campaignData.data.map(
+              (c, i) => ({
+                numeral: i + 1,
+                name: c.name,
+                description: c.desc,
+                status: c.status
+              })
+            )}
             title="Campaign List"
             actions={[
               {
