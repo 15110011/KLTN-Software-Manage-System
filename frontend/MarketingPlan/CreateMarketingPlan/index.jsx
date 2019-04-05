@@ -42,7 +42,9 @@ function getStepContent(
   handleAddAtLeastConditions,
   onChangeCreateMarketingPlan,
   createMarketingPlan,
-  setCreateMarketingPlan
+  setCreateMarketingPlan,
+  handleRemoveMustConditions,
+  handleRemoveAtLeastConditions
 ) {
 
   const { classes } = props;
@@ -104,34 +106,6 @@ function getStepContent(
               ))
             }
           </Grid>
-          {/* <Grid container spacing={24}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabel,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Load contacts from
-                    </InputLabel>
-              </Grid>
-              <Grid item xs={8}>
-                <FormControl fullWidth className={classes.formControl}>
-                  <Select
-                    value={createMarketingPlan.status}
-                    // onChange={onChangeCreateProduct}
-                    displayEmpty
-                    name="status"
-                    className={classes.selectEmpty}
-                  >
-                    <MenuItem value="ACTIVE">
-                      Contacts Address
-                </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-            </Grid> */}
           <Grid className={classes.inputCustom} item xs={4}>
             <InputLabel
               htmlFor="custom-css-standard-input"
@@ -193,7 +167,7 @@ function getStepContent(
                       </FormControl>
                     </Grid>
                     <Grid item xs={1}>
-                      <IconButton aria-label="Delete" classes={{ root: classes.fixButton }}>
+                      <IconButton onClick={(e) => handleRemoveMustConditions(e, i)} aria-label="Delete" classes={{ root: classes.fixButton }}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Grid>
@@ -275,7 +249,7 @@ function getStepContent(
                       </FormControl>
                     </Grid>
                     <Grid item xs={1}>
-                      <IconButton aria-label="Delete" classes={{ root: classes.fixButton }}>
+                      <IconButton onClick={(e) => handleRemoveAtLeastConditions(e, i)} aria-label="Delete" classes={{ root: classes.fixButton }}>
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </Grid>
@@ -306,45 +280,6 @@ function getStepContent(
               <Button variant="contained" color="primary">Apply</Button>
             </Grid>
           </Grid>
-          {/* <Grid classes={{ container: classes.fixTable }} container spacing={8}>
-            <Grid item xs={12}>
-              <MaterialTable
-                columns={[
-                  { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
-                  { title: 'Name', field: 'name' },
-                  { title: 'Description', field: 'description' },
-                  {
-                    title: 'Status',
-                    field: 'status',
-                    lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
-                  },
-                ]}
-                // data={products.data.map(
-                //   (product, index) => ({
-                //     numeral: index + 1,
-                //     name: product.name,
-                //     description: product.desc,
-                //     status: product.status
-                //   })
-                // )}
-                title="Campaign List"
-                actions={[
-                  {
-                    icon: 'done_all',
-                    tooltip: 'Do',
-                    onClick: (event, rows) => {
-                      alert('You selected ' + rows.length + ' rows')
-                    },
-                  },
-                ]}
-                options={{
-                  selection: true,
-                  filtering: true,
-                  paging: true
-                }}
-              />
-            </Grid>
-          </Grid> */}
         </Grid>
       )
     case 2:
@@ -432,6 +367,27 @@ function CreateMarketingPlan(props) {
     setCreateMarketingPlan({ ...createMarketingPlan, condition })
   }
 
+  const handleRemoveMustConditions = (e, index) => {
+    let must = createMarketingPlan.condition.must.concat([])
+    if (must.length == 1) {
+      return;
+    } else {
+      must = must.slice(0, index).concat(must.slice(index + 1))
+      setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, must } })
+    }
+  }
+
+  const handleRemoveAtLeastConditions = (e, index) => {
+    let at_least = createMarketingPlan.condition.at_least.concat([])
+    if (at_least.length == 1) {
+      return;
+    } else {
+      at_least = at_least.slice(0, index).concat(at_least.slice(index + 1))
+      setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, at_least } })
+    }
+  }
+
+
   const onChangeCreateMarketingPlan = (e, index, conditionType) => {
     if (e.target.name == 'name') {
       setCreateMarketingPlan({ ...createMarketingPlan, [e.target.name]: e.target.value })
@@ -512,7 +468,8 @@ function CreateMarketingPlan(props) {
         <Stepper nonLinear activeStep={activeStep} orientation="vertical">
           {stepName.map((label, index) => (
             <Step key={label} >
-              <StepLabel onClick={() => { setActiveStep(index) }}
+              <StepLabel 
+                onClick={() => { setActiveStep(index) }}
                 style={{ cursor: 'pointer' }}
                 error={Object.keys(error[index]).length}>{label}
               </StepLabel>
@@ -527,7 +484,9 @@ function CreateMarketingPlan(props) {
                       handleAddAtLeastConditions,
                       onChangeCreateMarketingPlan,
                       createMarketingPlan,
-                      setCreateMarketingPlan
+                      setCreateMarketingPlan,
+                      handleRemoveMustConditions,
+                      handleRemoveAtLeastConditions
                     )}
                   </Grid>
                 </Grid>

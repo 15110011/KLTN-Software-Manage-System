@@ -21,8 +21,13 @@ import Typography from '@material-ui/core/Typography';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider'
-import DeleteIcon from '@material-ui/icons/Delete';
+import EditIcon from '@material-ui/icons/Edit';
+import PreviewIcon from '@material-ui/icons/RemoveRedEye';
 import MaterialTable from 'material-table'
+import Input from '@material-ui/core/Input';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
 
 import * as cn from 'classnames'
 
@@ -328,7 +333,7 @@ function getStepContent(
                     Plan name
                     </InputLabel>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={7}>
                   <Input
                     fullWidth
                     required
@@ -340,6 +345,11 @@ function getStepContent(
                       underline: classes.cssUnderline,
                     }}
                   />
+                </Grid>
+                <Grid item xs={1}>
+                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
                 </Grid>
               </Grid>
             </Grid>
@@ -356,7 +366,7 @@ function getStepContent(
                     Load contacts from
                     </InputLabel>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={7}>
                   <FormControl fullWidth className={classes.formControl}>
                     <Select
                       // value={createMarketingPlan.status}
@@ -370,6 +380,11 @@ function getStepContent(
                 </MenuItem>
                     </Select>
                   </FormControl>
+                </Grid>
+                <Grid item xs={1}>
+                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
                 </Grid>
               </Grid>
             </Grid>
@@ -386,7 +401,7 @@ function getStepContent(
                     All Conditions(All conditions must be met)
                     </InputLabel>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={7}>
                   <Grid container spacing={24}>
                     <Grid item xs={5}>
                       <FormControl fullWidth className={classes.formControl}>
@@ -434,6 +449,11 @@ function getStepContent(
                     </Grid>
                   </Grid>
                 </Grid>
+                <Grid item xs={1}>
+                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Grid>
               </Grid>
             </Grid>
             <Grid item xs={10}>
@@ -449,7 +469,7 @@ function getStepContent(
                     Any Conditions(At least one condition must be met)
                     </InputLabel>
                 </Grid>
-                <Grid item xs={8}>
+                <Grid item xs={7}>
                   <Grid container spacing={24}>
                     <Grid item xs={5}>
                       <FormControl fullWidth className={classes.formControl}>
@@ -496,6 +516,78 @@ function getStepContent(
                       </FormControl>
                     </Grid>
                   </Grid>
+                </Grid>
+                <Grid item xs={1}>
+                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={10}>
+              <Grid container spacing={24}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabel,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Actions
+                    </InputLabel>
+                </Grid>
+                <Grid item xs={7}>
+                  <SelectCustom
+                    // options={"asdsa"}
+                    // handleChange={(values, element) => handleChangeSelect(values, element)}
+                    // data={
+
+                    // }
+                    multi
+                    placeholder=""
+                    label=""
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={10}>
+              <Grid container spacing={24}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabel,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Choose Email Template
+                    </InputLabel>
+                </Grid>
+                <Grid item xs={7}>
+                  <FormControl fullWidth className={classes.formControl}>
+                    <InputLabel htmlFor="age-simple">Email Template</InputLabel>
+                    <Select
+                      // value={this.state.age}
+                      // onChange={this.handleChange}
+                      inputProps={{
+                        name: 'age',
+                        id: 'age-simple',
+                      }}
+                    >
+                      <MenuItem value="">
+                        <em>None</em>
+                      </MenuItem>
+                      <MenuItem value={10}>Ten</MenuItem>
+                      <MenuItem value={20}>Twenty</MenuItem>
+                      <MenuItem value={30}>Thirty</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={1}>
+                  <IconButton aria-label="Preview" classes={{ root: classes.fixButton }}>
+                    <PreviewIcon fontSize="small" />
+                  </IconButton>
                 </Grid>
               </Grid>
             </Grid>
@@ -627,9 +719,14 @@ function CreateCampaign(props) {
     <div className={classes.root}>
       <BreadcrumbsItem to='/campaigns/add'>ABC</BreadcrumbsItem>
       <Stepper activeStep={activeStep} alternativeLabel>
-        {getSteps.map(label => (
+        {getSteps.map((label, index) => (
           <Step key={label}>
-            <StepLabel>{label}</StepLabel>
+            <StepLabel
+              onClick={() => { setActiveStep(index) }}
+              style={{ cursor: 'pointer' }}
+            >
+              {label}
+            </StepLabel>
           </Step>
         ))}
       </Stepper>
