@@ -34,9 +34,7 @@ function CreateFollowUpPlan(props) {
         nth: '',
         actions: [],
         duration: 0,
-        conditions: {
-          '': ''
-        },
+        conditions: {},
       }
     ],
     manager: ''
@@ -65,9 +63,7 @@ function CreateFollowUpPlan(props) {
       nth: '',
       action: '',
       duration: 0,
-      conditions: {
-        '': ''
-      },
+      conditions: {},
     })
     setCreatePlan({ ...followUpPlan, steps })
   }
@@ -80,6 +76,12 @@ function CreateFollowUpPlan(props) {
     let stepsClone = [...followUpPlan.steps]
     stepsClone[index].actions = values
     setCreatePlan({ ...followUpPlan, steps: stepsClone })
+  }
+
+  const handleChangeStepCondition = (e, index) => {
+    const steps = [...followUpPlan.steps]
+    steps[index].conditions[e.target.name] = e.target.value
+    setCreatePlan({ ...followUpPlan, steps })
   }
 
   const onChangeCreateSteps = (e, index) => {
@@ -181,6 +183,7 @@ function CreateFollowUpPlan(props) {
                     activeStep={activeStep}
                     onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
                     handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
+                    handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
                     createStep={curStep}
                     actions={actions}
                   />

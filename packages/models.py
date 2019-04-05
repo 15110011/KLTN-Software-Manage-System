@@ -22,11 +22,9 @@ class Product(BaseModel):
     start_sale_date = models.DateField()
     start_support_date = models.DateField()
 
-    def _get_product_name(self):
-        return f'{self.name}'
-
     def _get_manager_product(self):
         return self.manager.id
+
 
 class Feature(BaseModel):
     product = models.ForeignKey(
@@ -34,18 +32,27 @@ class Feature(BaseModel):
     name = models.CharField(max_length=255)
     desc = models.TextField()
     price = models.IntegerField()
-    number = models.IntegerField()  
+    number = models.IntegerField()
+
 
 class Package(BaseModel):
     name = models.CharField(max_length=255)
     prices = JSONField()
-    discount = models.IntegerField(blank= True, null=True)
+    discount = models.IntegerField(blank=True, null=True)
     features = models.ManyToManyField(
         Feature, related_name="packages")
+
+    def _get_package_name(self):
+        return f'{self.name}'
+
+    # def _get_manager_product(self):
+    #     return self.manager.id
+
 
 class PackageHistory(BaseModel):
     package = models.ForeignKey(
         Package, on_delete=models.CASCADE, related_name='package_history')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='package_history')
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='package_history')
     date = models.DateField(auto_now_add=True)
     action = models.TextField()

@@ -14,7 +14,7 @@ import styles from './FollowUpPlanStyles'
 
 
 function StepPlanDetail(props) {
-  const { classes, step, onChangeStepDetailInput, actions, handleChangeSelect } = props
+  const { classes, step, onChangeStepDetailInput, handleChangeStepCondition, actions, handleChangeSelect } = props
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -100,9 +100,11 @@ function StepPlanDetail(props) {
             <Input
               fullWidth
               required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              name="desc"
+              onChange={handleChangeStepCondition}
+              value={
+                Object.keys(step.conditions).length === 0 ? '' : step.conditions['field_name']
+              }
+              name="field_name"
               classes={{
                 underline: classes.cssUnderline,
               }}
@@ -111,10 +113,12 @@ function StepPlanDetail(props) {
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
+                value={
+                  Object.keys(step.conditions).length === 0 ? '' : step.conditions['field_type']
+                }
+                onChange={handleChangeStepCondition}
                 displayEmpty
-                name="status"
+                name="field_type"
                 className={classes.selectEmpty}
               >
                 <MenuItem value="text">
@@ -131,8 +135,10 @@ function StepPlanDetail(props) {
             <Input
               fullWidth
               required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
+              onChange={handleChangeStepCondition}
+              value={
+                Object.keys(step.conditions).length === 0 ? '' : step.conditions['field_desc']
+              }
               name="desc"
               classes={{
                 underline: classes.cssUnderline,

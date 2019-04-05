@@ -6,6 +6,9 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MarketingPlan, FollowUpPlan, Campaign
 from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer
 from rest_framework import status
+from .documents import MarketingPlanDocument
+from django.forms.models import model_to_dict
+
 # Create your views here.
 
 ACTIONS = ['Send Email', 'Call Clients', 'Send Email Manually', 'Chat']
@@ -20,6 +23,28 @@ class MarketingPlanView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = MarketingPlan.objects
     serializer_class = MarketingPlanSerialier
+
+    def get_queryset(self):
+        if not bool(self.request.query_params):
+            return super().get_queryset()
+        search = MarketingPlanDocument.search()
+
+        if 'marketing_plan_suggest' in self.request.query_params.keys():
+            qs = self.request.query_params.get('marketing_plan_suggest')
+            suggest = search.suggest('auto_complete', qs, completion={
+                                     'field': 'marketing_plans_name.suggest'
+                                     })
+            response = suggest.execute()
+            suggestion = [
+                option._source.marketing_plans_name for option in response.suggest.auto_complete[0].options]
+            return {"suggestion": suggestion, "elastic_search": True}
+
+        if 'name' in self.request.query_params.keys():
+            qs = self.request.query_params.get('name')
+            search = search.query('multi_match', query=qs, fields=['name^4'])
+            marketing_plans = [model_to_dict(marketing_plans)
+                               for marketing_plans in search.to_queryset()]
+            return {"data": marketing_plans, "elastic_search": True}
 
 
 class FollowUpPlanView(ModelViewSet):

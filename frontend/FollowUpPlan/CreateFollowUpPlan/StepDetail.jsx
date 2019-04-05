@@ -12,7 +12,7 @@ import styles from './CreateFollowUpPlanStyle'
 
 
 function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect } = props
+  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect, handleChangeStepCondition } = props
 
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
