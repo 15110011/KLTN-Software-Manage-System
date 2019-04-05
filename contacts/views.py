@@ -33,6 +33,9 @@ class ContactView(ModelViewSet):
         serializer = serializers.ContactReadSerializer(self.get_object())
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
     @action(detail=False, methods=['DELETE'])
     def batchdelete(self, request):
         is_default_group = request.data.get('isDefaultGroup', None)
@@ -72,7 +75,7 @@ class ContactGroupView(ModelViewSet):
             new_serializer = serializer.data[0]
 
         else:
-            serializer = serializers.GroupWithoutContactSerializer(
+            serializer = serializers.GroupSerializer(
                 queryset.order_by('id'), many=True, context={'request': request})
             new_serializer = {
                 "data": serializer.data,
@@ -87,11 +90,11 @@ class ContactGroupView(ModelViewSet):
         serializer = serializers.GroupWithoutContactSerializer(
             data=request.data, context={"request": request})
 
-        try:
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-        except:
-            return Response({"name": 'This name is existed'}, status=status.HTTP_400_BAD_REQUEST)
+        # try:
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        # except:
+        #     return Response({"name": 'This name is existed'}, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def update(self, request, *args, **kwargs):

@@ -65,6 +65,11 @@ class Content extends React.Component {
       if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
         this.props.history.push('/logout')
       }
+      else {
+        localStorage.setItem("token", res.data.access)
+        this.getMe()
+      }
+
     })
   }
 

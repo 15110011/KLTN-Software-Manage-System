@@ -157,7 +157,7 @@ function ProductDetail(props) {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
             if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
-              this.props.history.push('/logout')
+              props.history.push('/logout')
             }
             else {
               localStorage.setItem("token", res.data.access)
@@ -205,7 +205,7 @@ function ProductDetail(props) {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
             if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
-              this.props.history.push('/logout')
+              props.history.push('/logout')
             }
             else {
               localStorage.setItem("token", res.data.access)

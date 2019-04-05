@@ -3,7 +3,11 @@ import { withStyles } from '@material-ui/core';
 import { Dialog, DialogActions, DialogContent, DialogTitle } from '@material-ui/core'
 import { Grid, TextField, Button, Input, InputLabel } from '@material-ui/core'
 
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
+
 import AsyncSelect from '../../components/AsyncSelectCustom'
+import SelectCustom from '../../components/SelectCustom'
 import styles from './styles'
 import { apiGet, apiPost } from '../../common/Request';
 import { GROUP_URL, REFRESH_TOKEN_URL } from '../../common/urls';
@@ -13,8 +17,13 @@ function GroupDialog(props) {
 
   const [createObj, setCreateObj] = React.useState({
     contacts: [],
-    name: ''
+    name: '',
+    editor: null,
+    _type: 'PRIVATE'
   })
+
+  const [error, setError] = React.useState({})
+
 
   const [allContacts, setAllContacts] = React.useState({ contacts: [] })
 
@@ -26,7 +35,7 @@ function GroupDialog(props) {
   // }, [])
 
 
-  const { toggleGroupDialog, canAddContacts, classes, defaultGroup } = props
+  const { toggleGroupDialog, canAddContacts, classes, defaultGroup, user } = props
 
 
   // event handler 
@@ -34,7 +43,7 @@ function GroupDialog(props) {
     setCreateObj({ ...createObj, [e.target.name]: e.target.value })
   }
 
-  const handleChangeSelect = (value, action, a) => {
+  const handleChangeSelect = (value, action) => {
     if (action.action == 'input-change') {
 
     }
@@ -54,6 +63,13 @@ function GroupDialog(props) {
     }
   }
 
+  const handleChangeSelectEditor = (value, action) => {
+    if (action.action == 'select-option') {
+
+      setCreateObj({ ...createObj, editor: value })
+    }
+  }
+
   const fetchSuggestion = (input) => {
     return apiGet(GROUP_URL + '/' + defaultGroup + "/contacts?q=" + input).then(res => {
       return res.data.suggestions.map(s => ({ label: s, value: s }))
@@ -64,13 +80,15 @@ function GroupDialog(props) {
 
     const cloneObj = JSON.parse(JSON.stringify(createObj))
 
-    cloneObj.contacts = cloneObj.contacts.map(c => c.id)
+    let cloneErr = {}
 
+    cloneObj.contacts = cloneObj.contacts.map(c => c.id)
+    cloneObj.editor = cloneObj.editor.id
     apiPost(GROUP_URL, cloneObj, false, true).then(res => {
       if (res.data.code == "token_not_valid") {
         apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
           if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
-            this.props.history.push('/logout')
+            props.history.push('/logout')
           }
           else {
             localStorage.setItem("token", res.data.access)
@@ -78,9 +96,14 @@ function GroupDialog(props) {
           }
         })
       }
+      else if (res.data.code == BAD_REQUEST) {
+        const { code, ...rest } = res.data
+        cloneErr = rest
+      }
       else {
         props.onCreateGroupSuccess(res.data)
       }
+      setError(cloneErr)
     })
   }
 
@@ -95,10 +118,16 @@ function GroupDialog(props) {
       onClose={toggleGroupDialog}
       maxWidth='sm'
       fullWidth
+      classes={{ paper: classes.dialogRoot }}
     >
-      <DialogTitle>Create New Contact Group</DialogTitle>
+      <DialogTitle>CREATE NEW CONTACT GROUP</DialogTitle>
       <form onSubmit={onCreateForm}>
-        <DialogContent>
+        <DialogContent style={{ overflowY: 'unset' }}>
+          {Object.keys(error).map((k) => {
+            return (
+              <div className="text-danger">{error[k]}</div>
+            )
+          })}
           <Grid container spacing={8} >
             <Grid item xs={3} style={{ position: 'relative' }}>
               <InputLabel
@@ -120,6 +149,7 @@ function GroupDialog(props) {
                   underline: classes.cssUnderline,
                 }}
                 required
+                error={error.name}
               />
             </Grid>
             {
@@ -157,6 +187,75 @@ function GroupDialog(props) {
                   />
                 </Grid>
               </>
+            }
+            <Grid item xs={3} style={{ position: 'relative' }}>
+              <InputLabel
+                classes={{
+                  root: classes.cssLabel
+                }}
+              >
+                Group type
+              </InputLabel>
+            </Grid>
+            <Grid item xs={9}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={createObj._type == 'PRIVATE'}
+                    onChange={onChangeInput}
+                    value='PRIVATE'
+                    color="primary"
+                    name='_type'
+                  />
+                }
+                label="Private"
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={createObj._type == 'PUBLIC'}
+                    onChange={onChangeInput}
+                    value='PUBLIC'
+                    color="primary"
+                    name='_type'
+                  />
+                }
+                label="Public"
+              />
+            </Grid>
+            {createObj._type == 'PUBLIC' &&
+              <Grid item xs={3} style={{ position: 'relative' }}>
+                <InputLabel
+                  classes={{
+                    root: classes.cssLabel
+                  }}
+                >
+                  Editor
+                </InputLabel>
+              </Grid>
+            }
+            {createObj._type == 'PUBLIC' &&
+              <Grid item xs={9}>
+                <SelectCustom
+                  options={user.sale_reps.map(r => {
+                    return {
+                      label: r.user.username + ` (${r.user.email})`,
+                      value: r.user.id,
+                      ...r.user
+                    }
+                  })}
+                  handleChange={handleChangeSelectEditor}
+                  value={createObj.editor}
+                  name="editor"
+                  fullWidth
+                  single
+                  data={createObj.editor && {
+                    label: `${createObj.editor.label}`,
+                    value: createObj.editor.id,
+                    ...createObj.editor
+                  }}
+                />
+              </Grid>
             }
           </Grid>
         </DialogContent>
