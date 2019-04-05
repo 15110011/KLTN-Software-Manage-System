@@ -44,9 +44,7 @@ function GroupDialog(props) {
   }
 
   const handleChangeSelect = (value, action) => {
-    if (action.action == 'input-change') {
-
-    }
+    if (action.action == 'input-change') { }
     else if (action.action == 'select-option') {
       apiGet(GROUP_URL + '/' + defaultGroup + "/contacts?q=" + action.option.value).then(res => {
         const cloneContacts = [].concat(createObj.contacts)
@@ -60,6 +58,9 @@ function GroupDialog(props) {
         })
         setCreateObj({ ...createObj, contacts: cloneContacts })
       })
+    }
+    else if (action.action == 'remove-value' || action.action == 'clear') {
+      setCreateObj({ ...createObj, contacts: value })
     }
   }
 
@@ -83,7 +84,9 @@ function GroupDialog(props) {
     let cloneErr = {}
 
     cloneObj.contacts = cloneObj.contacts.map(c => c.id)
-    cloneObj.editor = cloneObj.editor.id
+    if (cloneObj.editor) {
+      cloneObj.editor = cloneObj.editor.id
+    }
     apiPost(GROUP_URL, cloneObj, false, true).then(res => {
       if (res.data.code == "token_not_valid") {
         apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {

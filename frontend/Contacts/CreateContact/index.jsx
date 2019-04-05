@@ -95,15 +95,20 @@ function CreateContact(props) {
   }
 
   const handleChangeSelect = (values, element) => {
-
     if (element.action == 'remove-value' && element.removedValue.name == 'All Contacts') {
       return
+    }
+    else if (element.action == 'pop-value') {
+      if (values.length == 0) {
+        return
+      }
     }
     else if (element.action == 'clear') {
       const remainGroups = [].concat([createObj.groups[0]])
       setCreateObj({ ...createObj, groups: remainGroups })
       return
     }
+
     setCreateObj({ ...createObj, groups: values })
   }
 
@@ -112,11 +117,15 @@ function CreateContact(props) {
       open={true}
       maxWidth='md'
       onClose={props.toggleDialog}
+      classes={{ paper: classes.paperRoot }}
     >
       <DialogTitle>CREATE NEW CONTACT</DialogTitle>
       <form onSubmit={onSubmit}>
         <Divider></Divider>
-        <DialogContent className='my-3'>
+        <DialogContent className='my-3'
+
+          classes={{ root: classes.paperRoot }}
+        >
           <DialogContentText variant='title' component=''>Required Fields</DialogContentText>
           <Grid container spacing={8}>
             {Object.keys(error).map(k => {
