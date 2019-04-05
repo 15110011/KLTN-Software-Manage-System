@@ -7,12 +7,13 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-
+import SelectCustom from '../../components/SelectCustom'
 import styles from './CreateFollowUpPlanStyle'
 
 
 function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps } = props
+  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect } = props
+ 
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -31,18 +32,25 @@ function StepDetail(props) {
           </Grid>
           <Grid item xs={8}>
             <FormControl fullWidth className={classes.formControl}>
-              <Select
-                value={createStep.action}
-                onChange={onChangeCreateSteps}
-                displayEmpty
-                name="action"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
+            {
+              actions.actions &&  <SelectCustom
+                options={actions.actions.map((g, i) => ({
+                  label: `${g}`,
+                  value: `${g}`,
+                }))}
+                handleChange={(values, element) => handleChangeSelect(values, element)}
+                data={
+                  createStep.actions
+                    .reduce((acc, g) => {
+                      acc.push({ label: `${g.label}`, value: g.value})
+                      return acc
+                    }, [])
+                }
+                multi
+                placeholder=""
+                label=""
+              />
+            }
             </FormControl>
           </Grid>
         </Grid>
@@ -84,40 +92,8 @@ function StepDetail(props) {
                 focused: classes.cssFocused,
               }}
             >
-              Conditions (start)
+              Required Fields
             </InputLabel>
-          </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                value={createStep.conditions}
-                onChange={onChangeCreateSteps}
-                displayEmpty
-                name="conditions"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
-                displayEmpty
-                name="status"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
-                </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
-            </FormControl>
           </Grid>
           <Grid item xs={4}>
             <Input
@@ -131,20 +107,6 @@ function StepDetail(props) {
               }}
             />
           </Grid>
-        </Grid>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={2}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Conditions (end)
-            </InputLabel>
-          </Grid>
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
@@ -154,26 +116,13 @@ function StepDetail(props) {
                 name="status"
                 className={classes.selectEmpty}
               >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
+                <MenuItem value="text">
+                  Text Field
                 </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={2}>
-            <FormControl fullWidth className={classes.formControl}>
-              <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
-                displayEmpty
-                name="status"
-                className={classes.selectEmpty}
-              >
-                <MenuItem value="ACTIVE">
-                  ACTIVE
+                <MenuItem value="number">Number</MenuItem>
+                <MenuItem value="check_box">
+                  Check Box
                 </MenuItem>
-                <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
               </Select>
             </FormControl>
           </Grid>

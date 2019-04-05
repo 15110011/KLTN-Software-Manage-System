@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from KLTN.models import BaseModel
 from campaigns.models import FollowUpPlan
 
@@ -9,7 +9,7 @@ class Step(BaseModel):
     follow_up = models.ForeignKey(
         FollowUpPlan, on_delete=models.CASCADE, related_name='steps')
     nth = models.IntegerField()
-    action = models.TextField()
+    actions = ArrayField(base_field=JSONField(), default=list)
     duration = models.IntegerField()
     conditions = JSONField()
 

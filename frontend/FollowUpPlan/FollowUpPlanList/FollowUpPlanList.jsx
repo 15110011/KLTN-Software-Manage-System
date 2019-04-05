@@ -7,7 +7,7 @@ import MTableBody from 'material-table/dist/m-table-body'
 import useFetchData from '../../CustomHook/useFetchData'
 import { TablePagination } from '@material-ui/core';
 import { apiGet, apiDelete } from '../../common/Request';
-import { FOLLOWUPPLAN_URL } from "../../common/urls";
+import { FOLLOW_UP_PLANS_URL } from "../../common/urls";
 
 
 
@@ -68,7 +68,7 @@ function FollowUpPlanList(props) {
             ]}
             data={(query) =>
               new Promise((resolve, reject) => {
-                apiGet(FOLLOWUPPLAN_URL + `?page=${activePage}&limit=${query.pageSize}`, true)
+                apiGet(FOLLOW_UP_PLANS_URL + `?page=${activePage}&limit=${query.pageSize}`, true)
                   .then(json => {
                     const data = json.data.data.map((plan, i) => ({
                       numeral: activePage * query.pageSize + i + 1,
