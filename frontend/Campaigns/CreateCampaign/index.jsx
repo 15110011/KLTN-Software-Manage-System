@@ -382,9 +382,7 @@ function getStepContent(
                   </FormControl>
                 </Grid>
                 <Grid item xs={1}>
-                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+                  
                 </Grid>
               </Grid>
             </Grid>
@@ -450,9 +448,6 @@ function getStepContent(
                   </Grid>
                 </Grid>
                 <Grid item xs={1}>
-                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
                 </Grid>
               </Grid>
             </Grid>
@@ -518,9 +513,7 @@ function getStepContent(
                   </Grid>
                 </Grid>
                 <Grid item xs={1}>
-                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+                 
                 </Grid>
               </Grid>
             </Grid>
@@ -652,13 +645,13 @@ function CreateCampaign(props) {
 
   const [createCampaign, setCreateCampaign] = React.useState({
     name: '',
+    packages: [],
     start_date: '',
     end_date: '',
-    packages: [],
+    assigned_to: [],
     follow_up_plan: '',
     marketing_plan: '',
     manager: '',
-    assigned_to: [],
     status: '',
     desc: ''
   })
