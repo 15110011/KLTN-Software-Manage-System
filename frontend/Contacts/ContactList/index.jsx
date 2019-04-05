@@ -9,11 +9,12 @@ import MenuItem from '@material-ui/core/MenuItem'
 import Menu from '@material-ui/core/Menu';
 import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
-import { InputLabel, DialogTitle, TablePagination } from '@material-ui/core';
+import { InputLabel, DialogTitle, TablePagination, Divider } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar'
 import Popover from '@material-ui/core/Popover'
 import { Dialog, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
 import MTableBody from 'material-table/dist/m-table-body'
+import BookmarkIcon from '@material-ui/icons/Bookmark'
 
 
 import useFetchData from '../../CustomHook/useFetchData'
@@ -33,6 +34,8 @@ import UpdateGroup from '../UpdateGroupDialog'
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
+  const [publicGroups, setPublicGroups, setPublicGroupURL, forceUpdatePublicGroup] =
+    useFetchData(GROUP_URL + '?public=true', props.history, { data: [], total: 0 })
 
   const [selectingGroup, setSelectingGroup] = React.useState(-1)
   const [selectingGroupIndex, setSelectingGroupIndex] = React.useState(0)
@@ -52,7 +55,6 @@ function ContactList(props) {
   let activePage = 0
 
   const search = {}
-
 
 
   const [selectingContacts, setSelectingContacts] = React.useState([])
@@ -222,8 +224,9 @@ function ContactList(props) {
     setUpdateGroupDialog(false)
   }
 
-  const cantUpdateGroup = (groups.data[0] && selectingGroup != groups.data[0].id)
-    || (groups.data[0] && groups.data[selectingGroupIndex]._type == 'PUBLIC')
+  const canUpdateGroup = ((groups.data[0] && selectingGroup != groups.data[0].id)
+    || (groups.data[0] && groups.data[selectingGroupIndex]._type == 'PUBLIC'))
+    && (groups.data[selectingGroupIndex].creator.id == props.user.id)
   return (
     <div className={classes.root}>
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
@@ -307,17 +310,12 @@ function ContactList(props) {
       >
         <MenuItem onClick={() => toggleGroupDialog()}>Create Contact Group</MenuItem>
         {
-          selectingGroupIndex !== 0 ?
-            <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting Contact Group</MenuItem>
-            :
-            <MenuItem disabled>Cannot Delete Default Contact Group</MenuItem>
+          selectingGroupIndex !== 0 && groups.data[selectingGroupIndex].creator.id == props.user.id &&
+          <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting Contact Group</MenuItem>
         }
 
-        {cantUpdateGroup &&
+        {canUpdateGroup &&
           <MenuItem onClick={() => setUpdateGroupDialog(true)}>Update Selecting Contact Group's Detail</MenuItem>}
-        {groups.data[0] && selectingGroup == groups.data[0].id &&
-          < MenuItem disabled>Cannot Update Default Contact Group's Detail</MenuItem>
-        }
       </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={2} className='my-3'>
@@ -333,9 +331,19 @@ function ContactList(props) {
             >
               {
                 groups.data.map((g, index) => {
+                  let classRoot = {}
+                  if (index == 0) {
+
+                  }
+                  else if (g._type == 'PUBLIC') {
+                    classRoot = classes.groupPublic
+                  }
+                  else {
+                    classRoot = classes.groupPrivate
+                  }
                   return (
                     <MenuItem value={g.id} name={index} key={`groups${g.id}`}>
-                      {g.name} ({g.total_contact})
+                      <BookmarkIcon classes={{ root: classRoot }} />&nbsp;&nbsp;{g.name} ({g.total_contact})
                     </MenuItem>
                   )
                 })

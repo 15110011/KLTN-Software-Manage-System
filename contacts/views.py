@@ -67,19 +67,33 @@ class ContactGroupView(ModelViewSet):
             filters.add(Q(name=request.query_params['group']), Q.AND)
             if request.query_params['group'] == 'All Contacts':
                 isFindGroupDefault = True
+
         queryset = self.get_queryset().filter(filters)
         if isFindGroupDefault:
             serializer = serializers.GroupSerializer(
                 queryset, context={'request': request}, many=True)
 
             new_serializer = serializer.data[0]
-
         else:
+            self_g = []
+            public_g = []
+            queryset = self.get_queryset().filter(filters)
             serializer = serializers.GroupSerializer(
                 queryset.order_by('id'), many=True, context={'request': request})
+            total_groups = self.get_queryset().count()
+            self_g = serializer.data
+            default_group = self_g.pop(0)
+            self_g.sort(key=lambda x: x['_type'], reverse=True)
+            if request.user.profile.manager:
+                public_groups = models.ContactGroup.objects.filter(
+                    user=request.user.profile.manager).filter(_type='PUBLIC')
+                public_g_serializer = serializers.GroupSerializer(
+                    public_groups.order_by('id'), many=True, context={'request': request})
+                total_groups += len(public_g_serializer.data)
+                public_g = public_g_serializer.data
             new_serializer = {
-                "data": serializer.data,
-                "total": self.get_queryset().filter(user=request.user).count()
+                "data":  [default_group] + public_g + self_g,
+                "total": total_groups
             }
         return Response(new_serializer, status=status.HTTP_200_OK)
 

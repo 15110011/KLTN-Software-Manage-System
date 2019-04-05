@@ -107,43 +107,47 @@ function GroupDialog(props) {
               />
             </Grid>
 
-            <Grid item xs={3} style={{ position: 'relative' }}>
-              <InputLabel
-                classes={{
-                  root: classes.cssLabel
-                }}
-                required
-              >
-                Group type
+            {user.profile.is_manager &&
+              <>
+                <Grid item xs={3} style={{ position: 'relative' }}>
+                  <InputLabel
+                    classes={{
+                      root: classes.cssLabel
+                    }}
+                    required
+                  >
+                    Group type
               </InputLabel>
-            </Grid>
+                </Grid>
 
-            <Grid item xs={9}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={updateObj._type == 'PRIVATE'}
-                    onChange={onChangeInput}
-                    value='PRIVATE'
-                    color="primary"
-                    name='_type'
+                <Grid item xs={9}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={updateObj._type == 'PRIVATE'}
+                        onChange={onChangeInput}
+                        value='PRIVATE'
+                        color="primary"
+                        name='_type'
+                      />
+                    }
+                    label="Private"
                   />
-                }
-                label="Private"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={updateObj._type == 'PUBLIC'}
-                    onChange={onChangeInput}
-                    value='PUBLIC'
-                    color="primary"
-                    name='_type'
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={updateObj._type == 'PUBLIC'}
+                        onChange={onChangeInput}
+                        value='PUBLIC'
+                        color="primary"
+                        name='_type'
+                      />
+                    }
+                    label="Public"
                   />
-                }
-                label="Public"
-              />
-            </Grid>
+                </Grid>
+              </>
+            }
             {updateObj._type == 'PUBLIC' &&
               <>
                 <Grid item xs={3} style={{ position: 'relative' }}>

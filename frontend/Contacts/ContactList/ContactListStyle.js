@@ -46,6 +46,12 @@ const styles = theme => ({
   addFeatureButton: {
     padding: 10
   },
+  groupPublic: {
+    color: 'red'
+  },
+  groupPrivate: {
+    color: '#8BC34A'
+  }
 });
 
 export default styles;

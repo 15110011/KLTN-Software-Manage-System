@@ -28,6 +28,7 @@ class GroupSerializer(serializers.ModelSerializer):
     contacts = ContactWithoutGroupSerializer(many=True)
     total_contact = serializers.SerializerMethodField()
     editor = MeSerializer()
+    creator =serializers.SerializerMethodField()
 
     class Meta:
         model = models.ContactGroup
@@ -37,6 +38,10 @@ class GroupSerializer(serializers.ModelSerializer):
     def get_total_contact(self, instance):
 
         return instance.contacts.count()
+
+    def get_creator(self, instance):
+        
+        return MeSerializer(instance.user).data
 
 class GroupWithoutContactSerializer(serializers.ModelSerializer):
 

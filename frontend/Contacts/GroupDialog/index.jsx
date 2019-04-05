@@ -191,41 +191,45 @@ function GroupDialog(props) {
                 </Grid>
               </>
             }
-            <Grid item xs={3} style={{ position: 'relative' }}>
-              <InputLabel
-                classes={{
-                  root: classes.cssLabel
-                }}
-              >
-                Group type
+            {user.profile.is_manager &&
+              <>
+                <Grid item xs={3} style={{ position: 'relative' }}>
+                  <InputLabel
+                    classes={{
+                      root: classes.cssLabel
+                    }}
+                  >
+                    Group type
               </InputLabel>
-            </Grid>
-            <Grid item xs={9}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={createObj._type == 'PRIVATE'}
-                    onChange={onChangeInput}
-                    value='PRIVATE'
-                    color="primary"
-                    name='_type'
+                </Grid>
+                <Grid item xs={9}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={createObj._type == 'PRIVATE'}
+                        onChange={onChangeInput}
+                        value='PRIVATE'
+                        color="primary"
+                        name='_type'
+                      />
+                    }
+                    label="Private"
                   />
-                }
-                label="Private"
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={createObj._type == 'PUBLIC'}
-                    onChange={onChangeInput}
-                    value='PUBLIC'
-                    color="primary"
-                    name='_type'
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={createObj._type == 'PUBLIC'}
+                        onChange={onChangeInput}
+                        value='PUBLIC'
+                        color="primary"
+                        name='_type'
+                      />
+                    }
+                    label="Public"
                   />
-                }
-                label="Public"
-              />
-            </Grid>
+                </Grid>
+              </>
+            }
             {createObj._type == 'PUBLIC' &&
               <Grid item xs={3} style={{ position: 'relative' }}>
                 <InputLabel
