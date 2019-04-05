@@ -106,6 +106,12 @@ function FollowUpPlanDetail(props) {
     setFollowUpPlanDetail({ ...followUpPlanDetail, [e.target.name]: e.target.value })
   }
 
+  const handleChangeStepCondition = (e, index) => {
+    const steps = [...followUpPlanDetail.steps]
+    steps[index].conditions[e.target.name] = e.target.value
+    setFollowUpPlanDetail({ ...followUpPlanDetail, steps })
+  }
+
   const onChangeStepDetailInput = (e, index) => {
     const steps = [...followUpPlanDetail.steps]
     steps[index][e.target.name] = e.target.value
@@ -205,6 +211,7 @@ function FollowUpPlanDetail(props) {
                               <StepPlanDetail
                                 onChangeStepDetailInput={e => onChangeStepDetailInput(e, index)}
                                 handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
+                                handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
                                 actions={actions}
                                 step={step}
                               />

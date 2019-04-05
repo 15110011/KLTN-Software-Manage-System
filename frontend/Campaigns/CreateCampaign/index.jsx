@@ -35,11 +35,11 @@ import styles from './CreateCampaignStyle'
 
 // Components 
 import SelectCustom from '../../components/SelectCustom'
-
+import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // API
-import { CAMPAIGNS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
-import { apiPost } from '../../common/Request'
+import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL } from "../../common/urls";
+import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 const BootstrapInput = withStyles(theme => ({
@@ -85,7 +85,10 @@ function getStepContent(
   step,
   classes,
   onChangeCreateCampaign,
-  createCampaign
+  createCampaign,
+  activeStep,
+  handleChangePackageSelect,
+  fetchPackageSuggestion
 ) {
   switch (step) {
     case 0:
@@ -173,14 +176,20 @@ function getStepContent(
                             </InputLabel>
                   </Grid>
                   <Grid item xs={8}>
-                    <SelectCustom
-                      onChange={onChangeCreateCampaign}
-                      value={createCampaign.packages}
-                      name="packages"
-                      fullWidth
+                    <AsyncSelect
+                      handleChange={(values, element) => handleChangePackageSelect(values, element)}
+                      onChangeSelect={(values, element) => handleChangePackageSelect(values, element)}
+                      data={
+                        createCampaign.packages
+                          .reduce((acc, p) => {
+                            acc.push({ label: `${p.label}`, value: p.id, ...p })
+                            return acc
+                          }, [])
+                      }
                       multi
-                      label=""
                       placeholder=""
+                      label=""
+                      loadOptions={fetchPackageSuggestion}
                     />
                   </Grid>
                 </Grid>
@@ -334,16 +343,15 @@ function getStepContent(
                     </InputLabel>
                 </Grid>
                 <Grid item xs={7}>
-                  <Input
-                    fullWidth
-                    required
-                    // onChange={onChangeCreateMarketingPlan}
-                    // value={createMarketingPlan.name}
-                    // name="name"
-                    // error={error[0].name}
-                    classes={{
-                      underline: classes.cssUnderline,
-                    }}
+                  <AsyncSelect
+                    // options={"asdsa"}
+                    // handleChange={(values, element) => handleChangeSelect(values, element)}
+                    // data={
+
+                    // }
+                    multi
+                    placeholder=""
+                    label=""
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -382,9 +390,7 @@ function getStepContent(
                   </FormControl>
                 </Grid>
                 <Grid item xs={1}>
-                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+
                 </Grid>
               </Grid>
             </Grid>
@@ -450,9 +456,6 @@ function getStepContent(
                   </Grid>
                 </Grid>
                 <Grid item xs={1}>
-                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
                 </Grid>
               </Grid>
             </Grid>
@@ -518,9 +521,7 @@ function getStepContent(
                   </Grid>
                 </Grid>
                 <Grid item xs={1}>
-                  <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                    <EditIcon fontSize="small" />
-                  </IconButton>
+
                 </Grid>
               </Grid>
             </Grid>
@@ -642,7 +643,181 @@ function getStepContent(
         </Grid>
       )
     case 2:
-      return 'This is the bit I really care about!';
+      return (
+        <Grid container spacing={24}>
+          <Grid item xs={10}>
+            <div className={cn(classes.stepper)}>
+              <Stepper activeStep={activeStep} alternativeLabel>
+                {/* {followUpPlan.steps.map((label, index) => (
+                <Step key={'steplabel' + index}>
+                  <StepLabel onClick={() => setActiveStep(index)}
+                    style={{ cursor: 'pointer' }}
+                  >Step {index + 1}</StepLabel>
+                </Step>
+              ))} */}
+                <Step>
+                  <StepLabel>
+                    aa
+                </StepLabel>
+                </Step>
+              </Stepper>
+            </div>
+          </Grid>
+          <Grid item xs={10}>
+            <Grid container spacing={24}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Plan name
+            </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                <Input
+                  fullWidth
+                  required
+                  // onChange={onChangeCreatePlan}
+                  // value={followUpPlan.name}
+                  name="name"
+                  classes={{
+                    underline: classes.cssUnderline,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+
+          <Grid item xs={10}>
+            <Grid container spacing={40}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Action
+            </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                <FormControl fullWidth className={classes.formControl}>
+                  <SelectCustom
+                    // options={actions.actions.map((g, i) => ({
+                    //   label: `${g}`,
+                    //   value: `${g}`,
+                    // }))}
+                    // handleChange={(values, element) => handleChangeSelect(values, element)}
+                    // data={
+                    //   createStep.actions
+                    //     .reduce((acc, g) => {
+                    //       acc.push({ label: `${g.label}`, value: g.value })
+                    //       return acc
+                    //     }, [])
+                    // }
+                    multi
+                    placeholder=""
+                    label=""
+                  />
+                </FormControl>
+              </Grid>
+            </Grid>
+            <Grid container spacing={40}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Duration (days)
+            </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                <Input
+                  fullWidth
+                  required
+                  // onChange={onChangeCreateSteps}
+                  // value={createStep.duration}
+                  type="number"
+                  name="duration"
+                  classes={{
+                    underline: classes.cssUnderline,
+                  }}
+                />
+              </Grid>
+            </Grid>
+            <Grid container spacing={40}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Required Fields
+            </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                <Grid container spacing={40}>
+                  <Grid item xs={5}>
+                    <Input
+                      fullWidth
+                      required
+                      // onChange={onChangeCreateProduct}
+                      // value={createProduct.desc}
+                      name="desc"
+                      classes={{
+                        underline: classes.cssUnderline,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={2}>
+                    <FormControl fullWidth className={classes.formControl}>
+                      <Select
+                        // value={createProduct.status}
+                        // onChange={onChangeCreateProduct}
+                        displayEmpty
+                        name="status"
+                        className={classes.selectEmpty}
+                      >
+                        <MenuItem value="text">
+                          Text Field
+                </MenuItem>
+                        <MenuItem value="number">Number</MenuItem>
+                        <MenuItem value="check_box">
+                          Check Box
+                </MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={5}>
+                    <Input
+                      fullWidth
+                      required
+                      // onChange={onChangeCreateProduct}
+                      // value={createProduct.desc}
+                      name="desc"
+                      classes={{
+                        underline: classes.cssUnderline,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      )
     default:
       return 'Unknown step';
   }
@@ -652,20 +827,21 @@ function CreateCampaign(props) {
 
   const [createCampaign, setCreateCampaign] = React.useState({
     name: '',
+    packages: [],
     start_date: '',
     end_date: '',
-    packages: [],
-    follow_up_plan: '',
-    marketing_plan: '',
-    manager: '',
     assigned_to: [],
+    follow_up_plan: {},
+    marketing_plan: {},
     status: '',
-    desc: ''
+    desc: '',
+    mail_template: {} 
   })
 
   const [error, setError] = React.useState({})
 
   const [activeStep, setActiveStep] = React.useState(0)
+
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)
@@ -679,14 +855,40 @@ function CreateCampaign(props) {
     setActiveStep(0)
   };
 
-
-  const onCreateCampaign = e => {
+  const handleCreateCampaign = e => {
     e.preventDefault()
     apiPostCampaign()
   }
 
+  const fetchPackageSuggestion = (input) => {
+    return apiGet(PACKAGES_URL + "?q=" + input, true).then(res => {
+      return res.data.suggestions.map(s => ({ label: s, value: s }))
+    })
+  }
+
+  const handleChangePackageSelect = (value, action) => {
+    if (action.action == 'input-change') { }
+    else if (action.action == 'select-option') {
+      apiGet(PACKAGES_URL + "?q=" + action.option.value, true).then(res => {
+        const clonePackage = [].concat(createCampaign.packages)
+        const realResult = res.data.packages.find(p => {
+          return p.name == action.option.value
+        })
+        clonePackage.push({
+          ...realResult,
+          label: realResult.name,
+          value: realResult.id
+        })
+        setCreateCampaign({ ...createCampaign, packages: clonePackage })
+      })
+    }
+    else if (action.action == 'remove-value' || action.action == 'clear') {
+      setCreateCampaign({ ...createCampaign, packages: value })
+    }
+  }
+
   const apiPostCampaign = () => {
-    apiPost(CAMPAIGN_URL, false, true)
+    apiPost(CAMPAIGNS_URL, createCampaign, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -731,37 +933,41 @@ function CreateCampaign(props) {
         ))}
       </Stepper>
       <div>
-        {activeStep === getSteps.length ? (
-          <div>
-            <Typography className={classes.instructions}>All steps completed</Typography>
-            <Button onClick={handleReset}>Reset</Button>
-          </div>
-        ) : (
-            <Paper className={classes.paper}>
+        <form onSubmit={handleCreateCampaign}>
+          <Paper className={classes.paper}>
+            {
+              getStepContent(
+                activeStep,
+                classes,
+                onChangeCreateCampaign,
+                createCampaign,
+                activeStep,
+                handleChangePackageSelect,
+                fetchPackageSuggestion
+              )
+            }
+            <div style={{ marginTop: '140px' }}>
+              <Button
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                className={classes.backButton}
+                variant="outlined"
+              >
+                Back
+                </Button>
+              {' '}
+              <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
+                Next
+            </Button>
               {
-                getStepContent(
-                  activeStep,
-                  classes,
-                  onChangeCreateCampaign,
-                  createCampaign
+                activeStep === getSteps.length - 1 &&
+                (
+                  <Button variant="contained" color="primary" type="submit">Create</Button>
                 )
               }
-              <div style={{ marginTop: '140px' }}>
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  className={classes.backButton}
-                  variant="outlined"
-                >
-                  Back
-                </Button>
-                {' '}
-                <Button variant="contained" color="primary" onClick={handleNext}>
-                  {activeStep === getSteps.length - 1 ? 'Finish' : 'Next'}
-                </Button>
-              </div>
-            </Paper>
-          )}
+            </div>
+          </Paper>
+        </form>
       </div>
     </div>
   )

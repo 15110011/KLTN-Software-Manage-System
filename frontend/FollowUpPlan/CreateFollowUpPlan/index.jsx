@@ -34,9 +34,7 @@ function CreateFollowUpPlan(props) {
         nth: '',
         actions: [],
         duration: 0,
-        conditions: {
-          '': ''
-        },
+        conditions: {},
       }
     ],
     manager: ''
@@ -65,9 +63,7 @@ function CreateFollowUpPlan(props) {
       nth: '',
       action: '',
       duration: 0,
-      conditions: {
-        '': ''
-      },
+      conditions: {},
     })
     setCreatePlan({ ...followUpPlan, steps })
   }
@@ -75,13 +71,19 @@ function CreateFollowUpPlan(props) {
   const onChangeCreatePlan = e => {
     setCreatePlan({ ...followUpPlan, [e.target.name]: e.target.value })
   }
-  
+
   const handleChangeSelect = (values, element, index) => {
     let stepsClone = [...followUpPlan.steps]
     stepsClone[index].actions = values
     setCreatePlan({ ...followUpPlan, steps: stepsClone })
   }
-  
+
+  const handleChangeStepCondition = (e, index) => {
+    const steps = [...followUpPlan.steps]
+    steps[index].conditions[e.target.name] = e.target.value
+    setCreatePlan({ ...followUpPlan, steps })
+  }
+
   const onChangeCreateSteps = (e, index) => {
     const steps = [...followUpPlan.steps]
     steps[index][e.target.name] = e.target.value
@@ -122,31 +124,33 @@ function CreateFollowUpPlan(props) {
       )}
       <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
       <div style={{ textAlign: 'left', padding: '40px' }}>
-        <Grid item xs={6}>
-          <Grid container spacing={40}>
-            <Grid className={classes.inputCustom} item xs={4}>
-              <InputLabel
-                required
-                htmlFor="custom-css-standard-input"
-                classes={{
-                  root: classes.cssLabel,
-                  focused: classes.cssFocused,
-                }}
-              >
-                Plan name
+        <Grid container spacing={24}>
+          <Grid item xs={8}>
+            <Grid container spacing={24}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Plan name
             </InputLabel>
-            </Grid>
-            <Grid item xs={8}>
-              <Input
-                fullWidth
-                required
-                onChange={onChangeCreatePlan}
-                value={followUpPlan.name}
-                name="name"
-                classes={{
-                  underline: classes.cssUnderline,
-                }}
-              />
+              </Grid>
+              <Grid item xs={8}>
+                <Input
+                  fullWidth
+                  required
+                  onChange={onChangeCreatePlan}
+                  value={followUpPlan.name}
+                  name="name"
+                  classes={{
+                    underline: classes.cssUnderline,
+                  }}
+                />
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
@@ -167,39 +171,40 @@ function CreateFollowUpPlan(props) {
           ))}
         </Stepper>
       </div>
-      <div>
-        <div className={cn(classes.actionsContainer, 'mt-5')}>
-          {
-            followUpPlan.steps.map((step, index) => {
-              let curStep = step
-              if (activeStep == index) {
-                return (
+      <div className={cn(classes.actionsContainer, 'mt-5')}>
+        {
+          followUpPlan.steps.map((step, index) => {
+            let curStep = step
+            if (activeStep == index) {
+              return (
+                <Grid item xs={8}>
                   <StepDetail
                     key={'step' + index}
                     activeStep={activeStep}
                     onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
-                    handleChangeSelect={(values,e) => handleChangeSelect(values, e, index)}
+                    handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
+                    handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
                     createStep={curStep}
                     actions={actions}
                   />
-                )
-              }
-              else return <></>
-            })
+                </Grid>
+              )
+            }
+            else return <></>
+          })
 
-          }
-          <div className="d-flex justify-content-center">
-            <Button
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              className={classes.backButton}
-            >
-              Back
+        }
+        <div className="d-flex justify-content-center">
+          <Button
+            disabled={activeStep === 0}
+            onClick={handleBack}
+            className={classes.backButton}
+          >
+            Back
                 </Button>
-            <Button variant="contained" color="primary" onClick={handleNext}>
-              {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
-            </Button>
-          </div>
+          <Button variant="contained" color="primary" onClick={handleNext}>
+            {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
+          </Button>
         </div>
       </div>
     </div>
