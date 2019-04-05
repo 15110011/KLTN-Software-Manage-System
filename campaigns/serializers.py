@@ -13,6 +13,8 @@ class MarketingPlanSerialier(serializers.ModelSerializer):
 
 
 class FollowUpPlanSerializer(serializers.ModelSerializer):
+    steps = StepWithOutFollowUpSerializer(many=True)
+
     class Meta:
         model = models.FollowUpPlan
         fields = '__all__'
@@ -31,6 +33,24 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
         steps = [Step(**item, follow_up=followup_plan) for item in steps]
         steps = Step.objects.bulk_create(steps)
         return followup_plan
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        steps = validated_data.get('steps')
+        if steps is not None:
+            for item in steps:
+                try:
+                    step_id = item['id']
+                    step = Step.objects.get(id=step_id)
+                    step.actions = item.get('actions', step.actions)
+                    step.duration = item.get('duration', step.duration)
+                    step.conditions = item.get('conditions', step.conditions)
+                    step.save()
+                except:
+                    step = Step(**step)
+                    step.save()
+        return instance
 
 
 class CampaignSerializer(serializers.ModelSerializer):

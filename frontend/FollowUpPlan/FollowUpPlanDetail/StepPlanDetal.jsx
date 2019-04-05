@@ -8,12 +8,13 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import SelectCustom from '../../components/SelectCustom'
-import styles from './CreateFollowUpPlanStyle'
 
 
-function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect } = props
- 
+import styles from './FollowUpPlanStyles'
+
+
+function StepPlanDetail(props) {
+  const { classes, step, onChangeStepDetailInput, actions, handleChangeSelect } = props
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -32,25 +33,25 @@ function StepDetail(props) {
           </Grid>
           <Grid item xs={8}>
             <FormControl fullWidth className={classes.formControl}>
-            {
-              actions.actions &&  <SelectCustom
-                options={actions.actions.map((g, i) => ({
-                  label: `${g}`,
-                  value: `${g}`,
-                }))}
-                handleChange={(values, element) => handleChangeSelect(values, element)}
-                data={
-                  createStep.actions
-                    .reduce((acc, g) => {
-                      acc.push({ label: `${g.label}`, value: g.value})
-                      return acc
-                    }, [])
-                }
-                multi
-                placeholder=""
-                label=""
-              />
-            }
+              {
+                step && actions.actions && <SelectCustom
+                  options={actions.actions.map((g, i) => ({
+                    label: `${g}`,
+                    value: `${g}`,
+                  }))}
+                  handleChange={(values, element) => handleChangeSelect(values, element)}
+                  data={
+                    step.actions
+                      .reduce((acc, g) => {
+                        acc.push({ label: `${g.label}`, value: g.value })
+                        return acc
+                      }, [])
+                  }
+                  multi
+                  placeholder=""
+                  label=""
+                />
+              }
             </FormControl>
           </Grid>
         </Grid>
@@ -70,8 +71,8 @@ function StepDetail(props) {
             <Input
               fullWidth
               required
-              onChange={onChangeCreateSteps}
-              value={createStep.duration}
+              onChange={onChangeStepDetailInput}
+              value={step.duration}
               type="number"
               name="duration"
               classes={{
@@ -143,4 +144,4 @@ function StepDetail(props) {
     </div>
   )
 }
-export default withStyles(styles)(StepDetail)
+export default withStyles(styles)(StepPlanDetail)

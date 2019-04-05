@@ -19,7 +19,9 @@ export const PRODUCTS_URL = `${API_URL}products`
 export const CONTACT_URL = `${API_URL}contacts`
 export const GROUP_URL = `${API_URL}contactgroups`
 export const PACKAGES_URL = `${API_URL}packages`
-export const CAMPAIGN_URL = `${API_URL}campaigns`
-export const FOLLOWUPPLAN_URL = `${API_URL}follow-up-plan`
+export const CAMPAIGNS_URL = `${API_URL}campaigns`
+export const MARKETING_PLANS_URL = `${API_URL}marketing-plans`
+export const FOLLOW_UP_PLANS_URL = `${API_URL}follow-up-plans`
+export const GET_ACTIONS_URL = `${API_URL}actions`
 
 export { serverUrl, API_URL }

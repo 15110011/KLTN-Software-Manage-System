@@ -15,6 +15,8 @@ class StepDetailSerialzier(serializers.ModelSerializer):
 
 
 class StepWithOutFollowUpSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
     class Meta:
         model = Step
         exclude = ['follow_up']
