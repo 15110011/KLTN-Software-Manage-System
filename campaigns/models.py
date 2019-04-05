@@ -12,6 +12,12 @@ class MarketingPlan(BaseModel):
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='marketing_plan')
 
+    def _get_plan_name(self):
+        return f'{self.name}'
+    
+    def _get_manager_plan(self):
+        return self.manager.id
+
 
 class FollowUpPlan(BaseModel):
     name = models.CharField(max_length=255)
