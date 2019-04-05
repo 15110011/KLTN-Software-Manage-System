@@ -43,7 +43,7 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
                 try:
                     step_id = item['id']
                     step = Step.objects.get(id=step_id)
-                    step.action = item.get('name', step.action)
+                    step.actions = item.get('actions', step.actions)
                     step.duration = item.get('duration', step.duration)
                     step.conditions = item.get('conditions', step.conditions)
                     step.save()

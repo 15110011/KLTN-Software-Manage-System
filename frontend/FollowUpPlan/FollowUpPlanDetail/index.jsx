@@ -27,7 +27,7 @@ import CustomSnackbar from '../../components/CustomSnackbar'
 import useFetchData from '../../CustomHook/useFetchData'
 
 // API
-import { FOLLOW_UP_PLANS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { FOLLOW_UP_PLANS_URL, GET_ACTIONS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
 import { apiGet, apiPost, apiPatch, apiPut } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
@@ -54,6 +54,8 @@ function FollowUpPlanDetail(props) {
 
   const [completeNotice, setCompleteNotice] = React.useState(false)
 
+  const [actions, setActions] = useFetchData(GET_ACTIONS_URL, props.history, {})
+
   const [followUpPlanDetail, setFollowUpPlanDetail, setUrl, forceUpdate] =
     useFetchData(FOLLOW_UP_PLANS_URL + '/' + followUpPlanId, props.history, {
       name: '',
@@ -70,7 +72,6 @@ function FollowUpPlanDetail(props) {
     })
 
   // Event handler
-
   const notification = () => {
     setCompleteNotice('Successfully Updated')
     setTimeout(() => {
@@ -85,6 +86,12 @@ function FollowUpPlanDetail(props) {
 
   const handleBack = () => {
     setActiveStep(activeStep - 1)
+  }
+
+  const handleChangeSelect = (values, element, index) => {
+    let stepsClone = [...followUpPlanDetail.steps]
+    stepsClone[index].actions = values
+    setFollowUpPlanDetail({ ...followUpPlanDetail, steps: stepsClone })
   }
 
   const handleSavePlanDetail = () => {
@@ -197,6 +204,8 @@ function FollowUpPlanDetail(props) {
                             <>
                               <StepPlanDetail
                                 onChangeStepDetailInput={e => onChangeStepDetailInput(e, index)}
+                                handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
+                                actions={actions}
                                 step={step}
                               />
                             </>
