@@ -9,7 +9,7 @@ from django.forms.models import model_to_dict
 from rest_framework import status
 from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer, PackageHistorySerializer
 from .models import Product, Package, PackageHistory
-from .documents import ProductDocument
+from .documents import PackageDocument, ProductDocument
 # Create your views here.
 
 
@@ -22,23 +22,11 @@ class ProductViewSet(ModelViewSet):
         if not bool(self.request.query_params):
             return super().get_queryset()
         search = ProductDocument.search()
-        if 'product_suggest' in self.request.query_params.keys():
-            qs = self.request.query_params.get('product_suggest')
-            suggest = search.suggest('auto_complete', qs, completion={
-                                     'field': 'product_name.suggest',
-                                     'contexts': {'manager': self.request.user.id}
-                                     })
-            response = suggest.execute()
-            suggestion = [
-                option._source.product_name for option in response.suggest.auto_complete[0].options]
-            return {"suggestion": suggestion, "elastic_search": True}
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
-            search = search.query('multi_match', query=qs, fields=['name^4']).filter(
-                'term', manager=self.request.user.id)
-            response = search.execute()
-            products = [model_to_dict(product)
-                        for product in search.to_queryset()]
+            search = search.query('multi_match', query=qs, fields=['name^4'])
+            products = [model_to_dict(products)
+                        for products in search.to_queryset()]
             return {"data": products, "elastic_search": True}
 
         if 'status' in self.request.query_params.keys():
@@ -90,6 +78,27 @@ class PackageViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = PackageSerializer
     queryset = Package.objects
+
+    def get_queryset(self):
+        if not bool(self.request.query_params):
+            return super().get_queryset()
+        search = PackageDocument.search()
+        if 'package_suggest' in self.request.query_params.keys():
+            qs = self.request.query_params.get('package_suggest')
+            suggest = search.suggest('auto_complete', qs, completion={
+                                     'field': 'package_name.suggest'
+                                     })
+            response = suggest.execute()
+            suggestion = [
+                option._source.product_name for option in response.suggest.auto_complete[0].options]
+            return {"suggestion": suggestion, "elastic_search": True}
+        if 'name' in self.request.query_params.keys():
+            qs = self.request.query_params.get('name')
+            search = search.query('multi_match', query=qs, fields=['name^4'])
+            response = search.execute()
+            packages = [model_to_dict(packages)
+                        for packages in search.to_queryset()]
+            return {"data": packages, "elastic_search": True}
 
 
 class PackageHistoryViewSet(ModelViewSet):

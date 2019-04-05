@@ -12,8 +12,8 @@ import styles from './CreateFollowUpPlanStyle'
 
 
 function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect } = props
- 
+  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect, handleChangeStepCondition } = props
+
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid item xs={6}>
@@ -32,25 +32,25 @@ function StepDetail(props) {
           </Grid>
           <Grid item xs={8}>
             <FormControl fullWidth className={classes.formControl}>
-            {
-              actions.actions &&  <SelectCustom
-                options={actions.actions.map((g, i) => ({
-                  label: `${g}`,
-                  value: `${g}`,
-                }))}
-                handleChange={(values, element) => handleChangeSelect(values, element)}
-                data={
-                  createStep.actions
-                    .reduce((acc, g) => {
-                      acc.push({ label: `${g.label}`, value: g.value})
-                      return acc
-                    }, [])
-                }
-                multi
-                placeholder=""
-                label=""
-              />
-            }
+              {
+                actions.actions && <SelectCustom
+                  options={actions.actions.map((g, i) => ({
+                    label: `${g}`,
+                    value: `${g}`,
+                  }))}
+                  handleChange={(values, element) => handleChangeSelect(values, element)}
+                  data={
+                    createStep.actions
+                      .reduce((acc, g) => {
+                        acc.push({ label: `${g.label}`, value: g.value })
+                        return acc
+                      }, [])
+                  }
+                  multi
+                  placeholder=""
+                  label=""
+                />
+              }
             </FormControl>
           </Grid>
         </Grid>
@@ -99,9 +99,12 @@ function StepDetail(props) {
             <Input
               fullWidth
               required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              name="desc"
+              onChange={handleChangeStepCondition}
+              value={
+                Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_name']
+              }
+              placeholder='Field Name'
+              name="field_name"
               classes={{
                 underline: classes.cssUnderline,
               }}
@@ -110,10 +113,11 @@ function StepDetail(props) {
           <Grid item xs={2}>
             <FormControl fullWidth className={classes.formControl}>
               <Select
-                // value={createProduct.status}
-                // onChange={onChangeCreateProduct}
-                displayEmpty
-                name="status"
+                value={
+                  Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_type']
+                }
+                onChange={handleChangeStepCondition}
+                name="field_type"
                 className={classes.selectEmpty}
               >
                 <MenuItem value="text">
@@ -130,9 +134,11 @@ function StepDetail(props) {
             <Input
               fullWidth
               required
-              // onChange={onChangeCreateProduct}
-              // value={createProduct.desc}
-              name="desc"
+              onChange={handleChangeStepCondition}
+              value={
+                Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_desc']
+              }
+              name="field_desc"
               classes={{
                 underline: classes.cssUnderline,
               }}
