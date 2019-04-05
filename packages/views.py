@@ -90,12 +90,11 @@ class PackageViewSet(ModelViewSet):
                                      })
             response = suggest.execute()
             suggestion = [
-                option._source.product_name for option in response.suggest.auto_complete[0].options]
+                option._source.package_name for option in response.suggest.auto_complete[0].options]
             return {"suggestion": suggestion, "elastic_search": True}
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4'])
-            response = search.execute()
             packages = [model_to_dict(packages)
                         for packages in search.to_queryset()]
             return {"data": packages, "elastic_search": True}

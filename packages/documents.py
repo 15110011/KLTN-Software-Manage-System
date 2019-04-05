@@ -21,8 +21,8 @@ class PackageDocument(DocType):
     package_name = fields.TextField(attr='_get_package_name',
                                     fields={
                                         'raw': fields.StringField(analyzer='keyword'),
-                                        'suggest': fields.CompletionField(attr='_get_package_name')
-                                        #  contexts=[{"name": "manager", "type": "category", "path": "manager"}]),
+                                        'suggest': fields.CompletionField(attr='_get_package_name',
+                                         contexts=[{"name": "manager", "type": "category", "path": "manager"}]),
                                     }
                                     )
 
