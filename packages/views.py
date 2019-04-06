@@ -24,7 +24,8 @@ class ProductViewSet(ModelViewSet):
         search = ProductDocument.search()
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
-            search = search.query('multi_match', query=qs, fields=['name^4'])
+            search = search.query('multi_match', query=qs, fields=['name^4']).filter(
+                'term', manager=self.request.user.id)
             products = [model_to_dict(products)
                         for products in search.to_queryset()]
             return {"data": products, "elastic_search": True}
@@ -83,21 +84,37 @@ class PackageViewSet(ModelViewSet):
         if not bool(self.request.query_params):
             return super().get_queryset()
         search = PackageDocument.search()
-        if 'package_suggest' in self.request.query_params.keys():
-            qs = self.request.query_params.get('package_suggest')
+        if 'q' in self.request.query_params.keys():
+            qs = self.request.query_params.get('q')
+            search = search.query('multi_match', query=qs, fields=['name^4'])
             suggest = search.suggest('auto_complete', qs, completion={
                                      'field': 'package_name.suggest'
                                      })
             response = suggest.execute()
             suggestion = [
                 option._source.package_name for option in response.suggest.auto_complete[0].options]
-            return {"suggestion": suggestion, "elastic_search": True}
-        if 'name' in self.request.query_params.keys():
-            qs = self.request.query_params.get('name')
-            search = search.query('multi_match', query=qs, fields=['name^4'])
             packages = [model_to_dict(packages)
                         for packages in search.to_queryset()]
-            return {"data": packages, "elastic_search": True}
+            return {"packages": packages, "suggestion": suggestion, "elastic_search": True}
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        if type(qs) is dict and qs.get('elastic_search', None):
+            return Response(qs)
+        limit = self.request.query_params.get('limit', None)
+        page = self.request.query_params.get('page') if int(
+            self.request.query_params.get('page', 0)) > 0 else 0
+        if limit is not None:
+            queryset = Package.objects.filter(manager=request.user)[
+                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+        else:
+            queryset = qs.filter(manager=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        new_serializer = {}
+        new_serializer['data'] = serializer.data
+        new_serializer['total'] = Package.objects.filter(
+            manager=request.user).count()
+        return Response(new_serializer, status=status.HTTP_200_OK)
 
 
 class PackageHistoryViewSet(ModelViewSet):
