@@ -29,22 +29,40 @@ class MarketingPlanView(ModelViewSet):
             return super().get_queryset()
         search = MarketingPlanDocument.search()
 
-        if 'marketing_plan_suggest' in self.request.query_params.keys():
-            qs = self.request.query_params.get('marketing_plan_suggest')
+        if 'q' in self.request.query_params.keys():
+            qs = self.request.query_params.get('q')
+            search = search.query('multi_match', query=qs, fields=['name^4']).filter(
+                'term', manager=self.request.user.id)
             suggest = search.suggest('auto_complete', qs, completion={
-                                     'field': 'marketing_plans_name.suggest'
+                                     'field': 'marketing_plans_name.suggest',
+                                     'contexts': {'manager': self.request.user.id}
                                      })
             response = suggest.execute()
+            print (response)
             suggestion = [
                 option._source.marketing_plans_name for option in response.suggest.auto_complete[0].options]
-            return {"suggestion": suggestion, "elastic_search": True}
-
-        if 'name' in self.request.query_params.keys():
-            qs = self.request.query_params.get('name')
-            search = search.query('multi_match', query=qs, fields=['name^4'])
             marketing_plans = [model_to_dict(marketing_plans)
                                for marketing_plans in search.to_queryset()]
-            return {"data": marketing_plans, "elastic_search": True}
+            return {"data": marketing_plans, "suggestion":suggestion , "elastic_search": True}
+
+    def list(self, request, *args, **kwargs):
+        qs = self.get_queryset()
+        if type(qs) is dict and qs.get('elastic_search', None):
+            return Response(qs)
+        limit = self.request.query_params.get('limit', None)
+        page = self.request.query_params.get('page') if int(
+            self.request.query_params.get('page', 0)) > 0 else 0
+        if limit is not None:
+            queryset = MarketingPlan.objects.filter(manager=request.user)[
+                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+        else:
+            queryset = qs.filter(manager=request.user)
+        serializer = self.get_serializer(queryset, many=True)
+        new_serializer = {}
+        new_serializer['data'] = serializer.data
+        new_serializer['total'] = MarketingPlan.objects.filter(
+            manager=request.user).count()
+        return Response(new_serializer, status=status.HTTP_200_OK)
 
 
 class FollowUpPlanView(ModelViewSet):
