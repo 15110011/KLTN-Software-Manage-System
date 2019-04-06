@@ -28,7 +28,7 @@ import styles from './CreateMarketingPlanStyle'
 import SelectCustom from '../../components/SelectCustom'
 
 // API
-import { MARKETINGPLANS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { MARKETING_PLANS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
 import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
@@ -336,7 +336,8 @@ function CreateMarketingPlan(props) {
       must: [],
       at_least: []
     },
-    actions: {}
+    actions: {},
+    manager: ''
   })
   const { classes } = props;
 
@@ -438,7 +439,7 @@ function CreateMarketingPlan(props) {
   }
 
   const apiPostMarketingPlan = e => {
-    apiPost(MARKETINGPLANS_URL, createMarketingPlan, false, true)
+    apiPost(MARKETING_PLANS_URL, { ...createMarketingPlan, manager: props.user.id }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -468,7 +469,7 @@ function CreateMarketingPlan(props) {
         <Stepper nonLinear activeStep={activeStep} orientation="vertical">
           {stepName.map((label, index) => (
             <Step key={label} >
-              <StepLabel 
+              <StepLabel
                 onClick={() => { setActiveStep(index) }}
                 style={{ cursor: 'pointer' }}
                 error={Object.keys(error[index]).length}>{label}
