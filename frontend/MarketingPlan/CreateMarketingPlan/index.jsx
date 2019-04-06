@@ -409,26 +409,26 @@ function CreateMarketingPlan(props) {
     e.preventDefault()
     const err = [{}, {}, {}]
 
-    if (createMarketingPlan.name == '') {
-      err[0].name = "FILL YOUR PLAN NAME"
-    }
-    for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
-      if (!err[1].must) {
-        err[1].must = {}
-      }
-      if (createMarketingPlan.condition.must[i].operand == '') {
-        err[1].must.operand = 'FILL YOUR OPERAND'
-        break
-      }
-      if (createMarketingPlan.condition.must[i].operator == '') {
-        err[1].must.operator = 'FILL YOUR OPERATOR'
-        break
-      }
-      if (createMarketingPlan.condition.must[i].condition == '') {
-        err[1].must.condition = 'FILL YOUR CONDITION'
-        break
-      }
-    }
+    // if (createMarketingPlan.name == '') {
+    //   err[0].name = "FILL YOUR PLAN NAME"
+    // }
+    // for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
+    //   if (!err[1].must) {
+    //     err[1].must = {}
+    //   }
+    //   if (createMarketingPlan.condition.must[i].operand == '') {
+    //     err[1].must.operand = 'FILL YOUR OPERAND'
+    //     break
+    //   }
+    //   if (createMarketingPlan.condition.must[i].operator == '') {
+    //     err[1].must.operator = 'FILL YOUR OPERATOR'
+    //     break
+    //   }
+    //   if (createMarketingPlan.condition.must[i].condition == '') {
+    //     err[1].must.condition = 'FILL YOUR CONDITION'
+    //     break
+    //   }
+    // }
     if (Object.keys(err[0]).length === 0 && Object.keys(err[1]).length === 0 && Object.keys(err[2]).length === 0) {
       apiPostMarketingPlan()
     }
