@@ -161,7 +161,7 @@ class Content extends React.Component {
                 />
                 <Route
                   path="/campaigns"
-                  component={CampaignContainer}
+                  component={props => <CampaignContainer {...props} user={user} />}
                 />
                 <Route
                   path="/marketing-plans"

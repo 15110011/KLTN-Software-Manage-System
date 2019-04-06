@@ -866,6 +866,8 @@ function CreateCampaign(props) {
 
   const { user } = props;
 
+  console.log(user)
+
   const handleNext = () => {
     setActiveStep(activeStep + 1)
   };

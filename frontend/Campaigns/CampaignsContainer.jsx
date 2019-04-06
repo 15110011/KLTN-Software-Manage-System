@@ -16,6 +16,7 @@ import USERCONTEXT from '../components/UserContext'
 
 function CampaignContainer(props) {
 
+  const { user } = props;
   const [canClickAdd, setCanClickAdd] = React.useState(false)
 
   React.useEffect(() => {
@@ -33,32 +34,34 @@ function CampaignContainer(props) {
       <div>
         <USERCONTEXT.Consumer>
           {({ user }) => (
-            <Paper className="d-flex justify-content-between" style={{
-              padding: '11px 72px',
-              marginBottom: '10px',
-              marginTop: 10,
-              backgroundColor: '#F5F5F5'
-            }}>
-              <Breadcrumbs
-                separator={<b> / </b>}
-                item={NavLink}
-                finalItem={'b'}
-                container={Breadcrumb}
-                finalProps={{
-                  style: { color: 'black' }
-                }}
-              />
+            <>
+              <Paper className="d-flex justify-content-between" style={{
+                padding: '11px 72px',
+                marginBottom: '10px',
+                marginTop: 10,
+                backgroundColor: '#F5F5F5'
+              }}>
+                <Breadcrumbs
+                  separator={<b> / </b>}
+                  item={NavLink}
+                  finalItem={'b'}
+                  container={Breadcrumb}
+                  finalProps={{
+                    style: { color: 'black' }
+                  }}
+                />
 
-              {canClickAdd &&
-                <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/campaigns/add')}><AddIcon />&nbsp;Add Campaigns</Button>
-              }
-            </Paper>
-            <BreadcrumbsItem to='/campaigns'>CAMPAIGNS</BreadcrumbsItem>
-            <Switch>
-              <Route exact path="/campaigns" component={(props) => (<CampaignList {...props} />)} />
-              <Route path="/campaigns/add" component={(props) => (<CreateCampaign {...props} user={user} />)} />
-              <Route path="/campaigns/:id" component={(props) => (<CampaignDetail {...props} />)} />
-            </Switch>
+                {canClickAdd &&
+                  <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/campaigns/add')}><AddIcon />&nbsp;Add Campaigns</Button>
+                }
+              </Paper>
+              <BreadcrumbsItem to='/campaigns'>CAMPAIGNS</BreadcrumbsItem>
+              <Switch>
+                <Route exact path="/campaigns" component={(props) => (<CampaignList {...props} user={user} />)} />
+                <Route path="/campaigns/add" component={(props) => (<CreateCampaign {...props} user={user} />)} />
+                <Route path="/campaigns/:id" component={(props) => (<CampaignDetail {...props} />)} />
+              </Switch>
+            </>
           )}
         </USERCONTEXT.Consumer>
       </div>
