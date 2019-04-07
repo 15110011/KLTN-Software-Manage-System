@@ -178,14 +178,12 @@ const SidebarComponent = props => {
         </div>
         <Divider light />
         <List>
-          <Link to='/contacts'>
-            <ListItem onClick={() => props.history.push('/contacts')} button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
-              <ListItemIcon>
-                <PersonalIcon classes={{ root: classes.listItemIcon }} />
-              </ListItemIcon>
-              <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemText }} />
-            </ListItem>
-          </Link>
+          <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
+            <ListItemIcon>
+              <PersonalIcon classes={{ root: classes.listItemIcon }} />
+            </ListItemIcon>
+            <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemText }} />
+          </ListItem>
           <Divider classes={{ root: classes.divider }} />
           <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
             onClick={() => setToggle(!toggle)}
