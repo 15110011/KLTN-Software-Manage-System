@@ -245,7 +245,6 @@ function getStepContent(
                       handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
                       name="assigned_to"
                       options={user.sale_reps.reduce((acc, u) => {
-                        console.log(u)
                         acc.push(
                           {
                             label: `${u.user.username}`,
@@ -866,8 +865,6 @@ function CreateCampaign(props) {
 
   const { user } = props;
 
-  console.log(user)
-
   const handleNext = () => {
     setActiveStep(activeStep + 1)
   };
@@ -890,7 +887,7 @@ function CreateCampaign(props) {
   }
 
   const fetchMarketingPlanSuggestion = (input) => {
-    return apiGet(MARKETING_PLANS_URL + "?marketing_plan_suggest=" + input, true).then(res => {
+    return apiGet(MARKETING_PLANS_URL + "?q=" + input, true).then(res => {
       return res.data.suggestions.map(s => ({ label: s, value: s }))
     })
   }
@@ -898,7 +895,7 @@ function CreateCampaign(props) {
   const handleChangeMarketingPlanSelect = (value, action) => {
     if (action.action == 'input-change') { }
     else if (action.action == 'select-option') {
-      apiGet(MARKETING_PLANS_URL + "?name=" + action.option.value, true).then(res => {
+      apiGet(MARKETING_PLANS_URL + "?q=" + action.option.value, true).then(res => {
         const realResult = res.data.marketing_plan[0]
         setCreateCampaign({ ...createCampaign, marketing_plan: realResult })
       })
@@ -909,19 +906,23 @@ function CreateCampaign(props) {
   }
 
   const fetchPackageSuggestion = (input) => {
-    return apiGet(PACKAGES_URL + "?package_suggest=" + input, true).then(res => {
+    return apiGet(PACKAGES_URL + "?q=" + input, true).then(res => {
       return res.data.suggestions.map(s => ({ label: s, value: s }))
     })
   }
 
   const handleChangePackageSelect = (value, action) => {
+    console.log(123)
+    console.log(value, action)
     if (action.action == 'input-change') { }
     else if (action.action == 'select-option') {
-      apiGet(PACKAGES_URL + "?package_suggest=" + action.option.value, true).then(res => {
+      apiGet(PACKAGES_URL + "?q=" + action.option.value, true).then(res => {
         const clonePackage = [].concat(createCampaign.packages)
+        console.log(res.data,'data')
         const realResult = res.data.packages.find(p => {
           return p.name == action.option.value
         })
+        console.log(realResult)
         clonePackage.push({
           ...realResult,
           label: realResult.name,

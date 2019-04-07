@@ -34,8 +34,7 @@ import UpdateGroup from '../UpdateGroupDialog'
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
-  const [publicGroups, setPublicGroups, setPublicGroupURL, forceUpdatePublicGroup] =
-    useFetchData(GROUP_URL + '?public=true', props.history, { data: [], total: 0 })
+  
 
   const [selectingGroup, setSelectingGroup] = React.useState(-1)
   const [selectingGroupIndex, setSelectingGroupIndex] = React.useState(0)
@@ -113,7 +112,8 @@ function ContactList(props) {
   }
 
   const onCreateGroupSuccess = (newGroup) => {
-    setGroups({ data: groups.data.concat(newGroup), total: groups.total + 1 })
+    // setGroups({ data: groups.data.concat(newGroup), total: groups.total + 1 })
+    forceUpdateGroup()
     setCompleteNotice('Successfully Created')
     notiTimeout.success = setTimeout(() => {
       setCompleteNotice(false)
