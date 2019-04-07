@@ -84,18 +84,25 @@ class PackageViewSet(ModelViewSet):
         if not bool(self.request.query_params):
             return super().get_queryset()
         search = PackageDocument.search()
-        if 'q' in self.request.query_params.keys():
-            qs = self.request.query_params.get('q')
+        if 'name' in self.request.query_params.keys():
+            qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4'])
+            for packages in search.to_queryset():
+                packages = model_to_dict(packages)
+                features = packages.get('features')
+                features = [model_to_dict(feature) for feature in features]
+                packages['features'] = features
+                return {"packages": packages, "elastic_search": True}
+
+        if 'package_suggest' in self.request.query_params.keys():
+            qs = self.request.query_params.get('package_suggest')
             suggest = search.suggest('auto_complete', qs, completion={
                                      'field': 'package_name.suggest'
                                      })
             response = suggest.execute()
             suggestion = [
                 option._source.package_name for option in response.suggest.auto_complete[0].options]
-            packages = [model_to_dict(packages)
-                        for packages in search.to_queryset()]
-            return {"packages": packages, "suggestion": suggestion, "elastic_search": True}
+            return {"suggestion": suggestion, "elastic_search": True}
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
