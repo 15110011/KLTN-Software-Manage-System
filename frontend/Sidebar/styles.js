@@ -2,9 +2,9 @@ const drawerWidth = 240
 
 const styles = theme => ({
   rightIcon: {
-    color: '#4F5D73',
+    color: '#fff',
     '& span': {
-      color: '#4F5D73'
+      color: '#fff'
     }
   },
   menuBarButton: {
@@ -110,6 +110,9 @@ const styles = theme => ({
   nested: {
     paddingLeft: theme.spacing.unit * 4,
   },
+  toolbar: {
+    backgroundColor: '#333333'
+  }
 })
 
 export default styles
