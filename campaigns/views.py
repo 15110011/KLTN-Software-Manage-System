@@ -29,21 +29,25 @@ class MarketingPlanView(ModelViewSet):
             return super().get_queryset()
         search = MarketingPlanDocument.search()
 
-        if 'q' in self.request.query_params.keys():
-            qs = self.request.query_params.get('q')
+        if 'name' in self.request.query_params.keys():
+            qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4']).filter(
                 'term', manager=self.request.user.id)
-            suggest = search.suggest('auto_complete', qs, completion={
-                                     'field': 'marketing_plans_name.suggest',
-                                     'contexts': {'manager': self.request.user.id}
-                                     })
-            response = suggest.execute()
-            print (response)
-            suggestion = [
-                option._source.marketing_plans_name for option in response.suggest.auto_complete[0].options]
+
             marketing_plans = [model_to_dict(marketing_plans)
                                for marketing_plans in search.to_queryset()]
-            return {"data": marketing_plans, "suggestion":suggestion , "elastic_search": True}
+            return {"marketing_plans": marketing_plans, "elastic_search": True}
+
+        if 'marketing_plan_suggest' in self.request.query_params.keys():
+            qs = self.request.query_params.get('marketing_plan_suggest')
+            suggest = search.suggest('auto_complete', qs, completion={
+                'field': 'marketing_plans_name.suggest',
+                'contexts': {'manager': self.request.user.id}
+            })
+            response = suggest.execute()
+            suggestion = [
+                option._source.marketing_plans_name for option in response.suggest.auto_complete[0].options]
+            return {"suggestion": suggestion, "elastic_search":True}
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
