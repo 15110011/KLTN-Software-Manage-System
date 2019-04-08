@@ -16,10 +16,10 @@ class MarketingPlanSerialier(serializers.ModelSerializer):
 class CreateMarketingPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MarketingPlan
-        fields = '__all__'
+        exclude= ['contacts']
 
     def create(self, validated_data):
-        marketing_plan = super().create(validated_data.pop('contacts'))
+        marketing_plan = super().create(validated_data)
         return marketing_plan
 
 class FollowUpPlanSerializer(serializers.ModelSerializer):
