@@ -139,7 +139,7 @@ function StepPlanDetail(props) {
               value={
                 Object.keys(step.conditions).length === 0 ? '' : step.conditions['field_desc']
               }
-              name="desc"
+              name="field_desc"
               classes={{
                 underline: classes.cssUnderline,
               }}

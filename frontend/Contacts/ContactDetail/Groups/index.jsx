@@ -10,7 +10,6 @@ import { BAD_REQUEST } from '../../common/Code';
 import styles from './GroupsStyle'
 
 function Groups(props) {
-  console.log(props)
   return (
     <div>asdas</div>
   )

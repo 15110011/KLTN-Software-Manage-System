@@ -38,7 +38,7 @@ import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // API
-import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL } from "../../common/urls";
+import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL, MARKETING_PLANS_URL } from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
@@ -88,7 +88,11 @@ function getStepContent(
   createCampaign,
   activeStep,
   handleChangePackageSelect,
-  fetchPackageSuggestion
+  fetchPackageSuggestion,
+  handleChangeAssigneeSelect,
+  user,
+  handleChangeMarketingPlanSelect,
+  fetchMarketingPlanSuggestion
 ) {
   switch (step) {
     case 0:
@@ -238,13 +242,27 @@ function getStepContent(
                   </Grid>
                   <Grid item xs={8}>
                     <SelectCustom
-                      onChange={onChangeCreateCampaign}
-                      value={createCampaign.assigned_to}
+                      handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
                       name="assigned_to"
+                      options={user.sale_reps.reduce((acc, u) => {
+                        acc.push(
+                          {
+                            label: `${u.user.username}`,
+                            value: u.user.id,
+                            ...u
+                          }
+                        )
+                        return acc
+                      }, [])}
+                      data={
+                        createCampaign.assigned_to
+                          .reduce((acc, u) => {
+                            acc.push({ label: `${u.user.username}`, value: u.user.id, ...u })
+                            return acc
+                          }, [])
+                      }
                       fullWidth
                       multi
-                      label=""
-                      placeholder=""
                     />
                   </Grid>
                 </Grid>
@@ -344,14 +362,17 @@ function getStepContent(
                 </Grid>
                 <Grid item xs={7}>
                   <AsyncSelect
-                    // options={"asdsa"}
-                    // handleChange={(values, element) => handleChangeSelect(values, element)}
-                    // data={
-
-                    // }
+                    handleChange={(values, element) => handleChangeMarketingPlanSelect(values, element)}
+                    onChangeSelect={(values, element) => handleChangeMarketingPlanSelect(values, element)}
+                    data={
+                      {
+                        label: `${createCampaign.marketing_plan.name}`, value: createCampaign.marketing_plan.id, ...createCampaign.marketing_plan
+                      }
+                    }
                     multi
                     placeholder=""
                     label=""
+                    loadOptions={fetchMarketingPlanSuggestion}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -835,13 +856,14 @@ function CreateCampaign(props) {
     marketing_plan: {},
     status: '',
     desc: '',
-    mail_template: {} 
+    mail_template: {}
   })
 
   const [error, setError] = React.useState({})
 
   const [activeStep, setActiveStep] = React.useState(0)
 
+  const { user } = props;
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)
@@ -855,9 +877,32 @@ function CreateCampaign(props) {
     setActiveStep(0)
   };
 
+  const handleChangeAssigneeSelect = (value, action) => {
+    setCreateCampaign({ ...createCampaign, assigned_to: value })
+  }
+
   const handleCreateCampaign = e => {
     e.preventDefault()
     apiPostCampaign()
+  }
+
+  const fetchMarketingPlanSuggestion = (input) => {
+    return apiGet(MARKETING_PLANS_URL + "?q=" + input, true).then(res => {
+      return res.data.suggestions.map(s => ({ label: s, value: s }))
+    })
+  }
+
+  const handleChangeMarketingPlanSelect = (value, action) => {
+    if (action.action == 'input-change') { }
+    else if (action.action == 'select-option') {
+      apiGet(MARKETING_PLANS_URL + "?q=" + action.option.value, true).then(res => {
+        const realResult = res.data.marketing_plan[0]
+        setCreateCampaign({ ...createCampaign, marketing_plan: realResult })
+      })
+    }
+    else if (action.action == 'remove-value' || action.action == 'clear') {
+      setCreateCampaign({ ...createCampaign, packages: value })
+    }
   }
 
   const fetchPackageSuggestion = (input) => {
@@ -867,13 +912,17 @@ function CreateCampaign(props) {
   }
 
   const handleChangePackageSelect = (value, action) => {
+    console.log(123)
+    console.log(value, action)
     if (action.action == 'input-change') { }
     else if (action.action == 'select-option') {
       apiGet(PACKAGES_URL + "?q=" + action.option.value, true).then(res => {
         const clonePackage = [].concat(createCampaign.packages)
+        console.log(res.data,'data')
         const realResult = res.data.packages.find(p => {
           return p.name == action.option.value
         })
+        console.log(realResult)
         clonePackage.push({
           ...realResult,
           label: realResult.name,
@@ -943,7 +992,11 @@ function CreateCampaign(props) {
                 createCampaign,
                 activeStep,
                 handleChangePackageSelect,
-                fetchPackageSuggestion
+                fetchPackageSuggestion,
+                handleChangeAssigneeSelect,
+                user,
+                handleChangeMarketingPlanSelect,
+                fetchMarketingPlanSuggestion
               )
             }
             <div style={{ marginTop: '140px' }}>

@@ -170,7 +170,6 @@ function ContactDetail(props) {
                           <Grid item xs={12}>
                             {
                               Object.keys(error).map(k => {
-                                console.log(error[k])
                                 return <p className="text-danger">{error[k]}</p>
                               })
 

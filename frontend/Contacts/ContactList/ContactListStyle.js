@@ -47,11 +47,11 @@ const styles = theme => ({
     padding: 10
   },
   groupPublic: {
-    color: 'red'
+    color: '#3f51b5'
   },
   groupPrivate: {
     color: '#8BC34A'
-  }
+  },
 });
 
 export default styles;

@@ -304,8 +304,6 @@ function ProductDetail(props) {
     setProductDetailData({ ...productDetailData, packages })
   }
 
-  console.log(productDetailData)
-
   return (
     <div className={classes.root}>
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
@@ -643,7 +641,6 @@ function ProductDetail(props) {
                         data={
                           productDetailData.features.map((f, index) => {
                             for (let y = 0; y < productDetailData.packages.length; y++) {
-                              console.log(productDetailData.packages[y].numbers, f)
                               if (productDetailData.packages[y].numbers.findIndex(i => {
                                 return i.number == f.number
                               }) != -1) {

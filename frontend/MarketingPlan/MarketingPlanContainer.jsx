@@ -8,14 +8,14 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 
 import Breadcrumb from '../components/Breadcrumb'
 import MarketingPlanList from './MarketingPlanList';
-import CreateMarketingPlan from './CreateMarketingPlan';
+import CreateMarketingPlan from './CreateMarketingPlan/index';
 import MarketingPlanDetail from './MarketingDetail';
 
 // Component
 import MarketingPlanBreadcrumb from './MarketingPlanBreadcrumb'
 
 function MarketingPlanContainer(props) {
-
+  const { user } = props
   return (
     <div>
       <MarketingPlanBreadcrumb user={props.user} history={props.history} />
@@ -24,7 +24,7 @@ function MarketingPlanContainer(props) {
         <Route exact path="/marketing-plans" component={(props) => (<MarketingPlanList {...props} />)} />
         {
           props.user.profile.is_manager &&
-          <Route path="/marketing-plans/add" component={(props) => (<CreateMarketingPlan {...props} />)} />
+          <Route path="/marketing-plans/add" component={(props) => (<CreateMarketingPlan {...props} user={user} />)} />
         }
         <Route path="/marketing-plans/:id" component={(props) => (<MarketingPlanDetail {...props} />)} />
       </Switch>

@@ -39,6 +39,7 @@ function StepDetail(props) {
                 }))}
                 handleChange={(values, element) => handleChangeSelect(values, element)}
                 data={
+                  createStep.actions &&
                   createStep.actions
                     .reduce((acc, g) => {
                       acc.push({ label: `${g.label}`, value: g.value })
@@ -98,21 +99,25 @@ function StepDetail(props) {
               <Input
                 fullWidth
                 required
-                // onChange={onChangeCreateProduct}
-                // value={createProduct.desc}
-                name="desc"
+                onChange={handleChangeStepCondition}
+                value={
+                  Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_name']
+                }
+                name="field_name"
                 classes={{
                   underline: classes.cssUnderline,
                 }}
               />
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs={4}>
               <FormControl fullWidth className={classes.formControl}>
                 <Select
-                  // value={createProduct.status}
-                  // onChange={onChangeCreateProduct}
+                  value={
+                    Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_type']
+                  }
+                  onChange={handleChangeStepCondition}
                   displayEmpty
-                  name="status"
+                  name="field_type"
                   className={classes.selectEmpty}
                 >
                   <MenuItem value="text">
@@ -125,13 +130,15 @@ function StepDetail(props) {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={5}>
+            <Grid item xs={3}>
               <Input
                 fullWidth
                 required
-                // onChange={onChangeCreateProduct}
-                // value={createProduct.desc}
-                name="desc"
+                onChange={handleChangeStepCondition}
+                value={
+                  Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_desc']
+                }
+                name="field_desc"
                 classes={{
                   underline: classes.cssUnderline,
                 }}
