@@ -54,7 +54,8 @@ INSTALLED_APPS = [
     'campaigns',
     'orders',
     'steps',
-    'reports'
+    'reports',
+    'events'
 ]
 
 MIDDLEWARE = [
