@@ -135,6 +135,7 @@ function CreateFollowUpPlan(props) {
                     root: classes.cssLabel,
                     focused: classes.cssFocused,
                   }}
+                  className={error.name ? classes.danger : null}
                 >
                   Plan name
             </InputLabel>

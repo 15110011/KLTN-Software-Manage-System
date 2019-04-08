@@ -30,7 +30,13 @@ const styles = theme => ({
     position: 'absolute',
     right: theme.spacing.unit * 3,
     top: '20%'
-  }
+  },
+  danger: {
+    color: '#f00',
+    marginTop: '1rem',
+    marginBottom: '1rem',
+
+  },
 })
 
 export default styles
