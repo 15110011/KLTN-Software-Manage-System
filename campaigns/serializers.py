@@ -2,6 +2,7 @@ from rest_framework import serializers
 from account.serializers import MeSerializer
 from steps.serializers import StepSerialzier, StepWithOutFollowUpSerializer
 from steps.models import Step
+from contacts.models import Contact
 
 from . import models
 
@@ -11,6 +12,15 @@ class MarketingPlanSerialier(serializers.ModelSerializer):
         model = models.MarketingPlan
         fields = '__all__'
 
+
+class CreateMarketingPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.MarketingPlan
+        exclude= ['contacts']
+
+    def create(self, validated_data):
+        marketing_plan = super().create(validated_data)
+        return marketing_plan
 
 class FollowUpPlanSerializer(serializers.ModelSerializer):
     steps = StepWithOutFollowUpSerializer(many=True)

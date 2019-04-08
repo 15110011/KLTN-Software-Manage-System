@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MarketingPlan, FollowUpPlan, Campaign
-from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer
+from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
 from rest_framework import status
 from .documents import MarketingPlanDocument
 from django.forms.models import model_to_dict
@@ -47,7 +47,7 @@ class MarketingPlanView(ModelViewSet):
             response = suggest.execute()
             suggestion = [
                 option._source.marketing_plans_name for option in response.suggest.auto_complete[0].options]
-            return {"suggestion": suggestion, "elastic_search":True}
+            return {"suggestion": suggestion, "elastic_search": True}
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
@@ -67,6 +67,13 @@ class MarketingPlanView(ModelViewSet):
         new_serializer['total'] = MarketingPlan.objects.filter(
             manager=request.user).count()
         return Response(new_serializer, status=status.HTTP_200_OK)
+
+    def create(self, request):
+        serializer = CreateMarketingPlanSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class FollowUpPlanView(ModelViewSet):
