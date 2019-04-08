@@ -12,6 +12,7 @@ import CustomSnackbar from '../components/CustomSnackbar'
 function ProductsContainer(props) {
   const { classes } = props
 
+  
   return (
     <div>
       <ProductBreadcrumb user={props.user} history={props.history} />

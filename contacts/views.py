@@ -67,7 +67,7 @@ class ContactGroupView(ModelViewSet):
             filters.add(Q(name=request.query_params['group']), Q.AND)
             if request.query_params['group'] == 'All Contacts':
                 isFindGroupDefault = True
-
+            
         queryset = self.get_queryset().filter(filters)
         if isFindGroupDefault:
             serializer = serializers.GroupSerializer(
@@ -158,6 +158,7 @@ class ContactGroupView(ModelViewSet):
         f_last_name = request.query_params.get('last_name', None)
         f_phone = request.query_params.get('phone', None)
         f_mail = request.query_params.get('mail', None)
+        f_org = request.query_params.get('org', None)
         if f_first_name:
             filters.add(Q(first_name__icontains=f_first_name), Q.AND)
         if f_last_name:
@@ -166,6 +167,8 @@ class ContactGroupView(ModelViewSet):
             filters.add(Q(phone__icontains=f_phone), Q.AND)
         if f_mail:
             filters.add(Q(mail__icontains=f_mail), Q.AND)
+        if f_org:
+            filters.add(Q(org__icontains=f_org), Q.AND)
         if limit:
             queryset = models.Contact.objects.filter(filters).order_by(
                 'first_name')[int(page)*int(limit):int(page)*int(limit)+int(limit)]

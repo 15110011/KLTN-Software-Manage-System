@@ -28,7 +28,7 @@ class GroupSerializer(serializers.ModelSerializer):
     contacts = ContactWithoutGroupSerializer(many=True)
     total_contact = serializers.SerializerMethodField()
     editor = MeSerializer()
-    creator =serializers.SerializerMethodField()
+    creator = serializers.SerializerMethodField()
 
     class Meta:
         model = models.ContactGroup
@@ -40,8 +40,9 @@ class GroupSerializer(serializers.ModelSerializer):
         return instance.contacts.count()
 
     def get_creator(self, instance):
-        
+
         return MeSerializer(instance.user).data
+
 
 class GroupWithoutContactSerializer(serializers.ModelSerializer):
 
@@ -105,6 +106,16 @@ class ContactSerializer(serializers.ModelSerializer):
         instance = super().create(validated_data)
         instance.groups.set(groups)
         return instance
+    
+    def update(self, instance, validated_data):
+        
+        groups = validated_data.pop('groups')
+        if not groups or len(groups) == 0:
+            raise ValidationError(
+                detail={"msg": '"All Contacts" must be included'})
+        instace = super().update(instance, validated_data)
+        instance.groups.set(groups)
+        return instance
 
     def validate_phone(self, value):
         is_valid_phone_num = re.compile('^\d{10}$')
@@ -114,8 +125,9 @@ class ContactSerializer(serializers.ModelSerializer):
         return value
 
     def validate_zipcode(self, value):
+
         is_valid_zipcode = re.compile('^\d{6}$')
-        if not is_valid_zipcode.match(str(value)):
+        if not is_valid_zipcode.match(str(value)) and value != '':
             raise serializers.ValidationError(
                 'Zipcode must be 6 digits in length')
         return value

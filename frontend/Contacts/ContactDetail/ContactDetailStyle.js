@@ -29,7 +29,7 @@ const styles = theme => ({
   },
   cssLabel: {
     position: 'absolute',
-    bottom: 8,
+    top: 20,
     marginBottom: '0'
   },
   inputCustom: {

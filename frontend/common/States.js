@@ -1,4 +1,4 @@
-{
+const cities = {
   "New York": [
     "New York",
     "Buffalo",
@@ -1100,5 +1100,9 @@
   ],
   "Vermont": [
     "Burlington"
-  ]
+  ],
+  '':
+    []
 }
+
+export default cities

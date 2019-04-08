@@ -25,9 +25,13 @@ import SelectCustom from '../../components/SelectCustom'
 
 import styles from './CreateContactStyle'
 
+import stateHashes from '../../common/StateHash'
+import cities from '../../common/States'
+
 
 function CreateContact(props) {
 
+  const { classes, groups, selectingGroup } = props
   const [createObj, setCreateObj] = React.useState({
     first_name: '',
     last_name: '',
@@ -35,8 +39,11 @@ function CreateContact(props) {
     phone: '',
     sex: 'OTHER',
     address: '',
-    country: 'Vietnam',
+    country: 'America',
     zipcode: 0,
+    state: '',
+    city: '',
+    org: '',
     groups: []
   })
 
@@ -48,12 +55,16 @@ function CreateContact(props) {
     if (props.groups.data.length) {
       const allContactsGroup = props.groups.data[0]
       const groups = [].concat([{ ...allContactsGroup, label: allContactsGroup.name, value: allContactsGroup.id }])
+      if (selectingGroup.id != allContactsGroup.id) {
+        groups.push({
+          label: selectingGroup.name, value: selectingGroup.id
+        })
+      }
       setCreateObj({ ...createObj, groups })
     }
   }, [props.groups.data.length])
 
 
-  const { classes, groups } = props
 
   //Event Handler
 
@@ -110,6 +121,20 @@ function CreateContact(props) {
     }
 
     setCreateObj({ ...createObj, groups: values })
+  }
+
+  const handleChangeSelectAddress = (value, element) => {
+    const cloneCreateObj = { ...createObj }
+    if (value) {
+      cloneCreateObj[element.name] = value.value
+    }
+    else {
+      cloneCreateObj[element.name] = ''
+    }
+    if (element.name == 'state') {
+      cloneCreateObj.city = ''
+    }
+    setCreateObj({ ...cloneCreateObj })
   }
 
   return (
@@ -264,6 +289,71 @@ function CreateContact(props) {
                 name="address"
               />
             </Grid>
+
+            <Grid item xs={2} style={{ position: 'relative' }} >
+              <InputLabel
+                classes={{
+                  root: classes.cssLabel
+                }}
+              >
+                State:
+              </InputLabel>
+            </Grid>
+            <Grid item xs={4} >
+              <SelectCustom
+                options={
+                  Object.keys(stateHashes).map(k => {
+                    return {
+                      label: stateHashes[k],
+                      value: k
+                    }
+                  })
+                }
+                handleChange={handleChangeSelectAddress}
+                value={createObj.state}
+                name="state"
+                fullWidth
+                single
+                data={{
+                  label: stateHashes[createObj.state],
+                  value: createObj.state
+                }}
+              />
+            </Grid>
+            <Grid item xs={2} style={{ position: 'relative' }} >
+              <InputLabel
+                classes={{
+                  root: classes.cssLabel
+                }}
+              >
+                City:
+              </InputLabel>
+            </Grid>
+            <Grid item xs={4} className='pr-5'>
+              <SelectCustom
+                options={
+                  createObj.state ?
+                    cities[stateHashes[createObj.state]].reduce((acc, c) => {
+                      acc.push({
+                        label: c,
+                        value: c
+                      })
+                      return acc
+                    }, [])
+                    : []
+                }
+                handleChange={handleChangeSelectAddress}
+                value={createObj.city}
+                name="city"
+                fullWidth
+                single
+                data={{
+                  label: createObj.city,
+                  value: createObj.city
+                }}
+              />
+            </Grid>
+
             <Grid item xs={2} style={{ position: 'relative' }}>
               <InputLabel
                 classes={{
@@ -295,12 +385,28 @@ function CreateContact(props) {
               <Input
                 fullWidth
                 onChange={onChangeInput}
-                value={createObj.Zipcode}
+                value={createObj.zipcode}
                 name="zipcode"
-                type='number'
               />
             </Grid>
 
+            <Grid item xs={2} style={{ position: 'relative' }}>
+              <InputLabel
+                classes={{
+                  root: classes.cssLabel
+                }}
+              >
+                Organization:
+              </InputLabel>
+            </Grid>
+            <Grid item xs={4} >
+              <Input
+                fullWidth
+                onChange={onChangeInput}
+                value={createObj.org}
+                name="org"
+              />
+            </Grid>
             <Grid item xs={12} className='my-1'>
               <Divider></Divider>
             </Grid>

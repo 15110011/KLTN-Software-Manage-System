@@ -34,7 +34,7 @@ import UpdateGroup from '../UpdateGroupDialog'
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
   const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
-  
+
 
   const [selectingGroup, setSelectingGroup] = React.useState(-1)
   const [selectingGroupIndex, setSelectingGroupIndex] = React.useState(0)
@@ -232,7 +232,9 @@ function ContactList(props) {
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice != '' && <CustomSnackbar isErr msg={errNotice} />}
       {createContactDialog &&
-        <CreateContact onCreateSuccess={onCreateContactSuccess} groups={groups} toggleDialog={toggleCreateDialog} />
+        <CreateContact onCreateSuccess={onCreateContactSuccess} groups={groups} toggleDialog={toggleCreateDialog}
+          selectingGroup={groups.data[selectingGroupIndex]}
+        />
       }
 
       {/*
@@ -284,7 +286,7 @@ function ContactList(props) {
       >
         <DialogTitle>
           DELETE GROUP <strong>{contacts.group}</strong>
-        </DialogTitle>
+        </DialogTitle>sele.id
         <DialogContent>
           <DialogContentText>
             This action cannot be undone
@@ -376,6 +378,9 @@ function ContactList(props) {
                       else if (columnId == 4) {
                         search.phone = value
                       }
+                      else if (columnId == 5) {
+                        search.org = value
+                      }
                       activePage = 0
                       props.onFilterChanged(columnId, value);
                       //Columnid la thu tu cot tren bang (ko tinh selection)
@@ -402,6 +407,10 @@ function ContactList(props) {
                     title: 'Phone',
                     field: 'phone',
                   },
+                  {
+                    title: 'Organization',
+                    field: 'org',
+                  },
                 ]}
                 data={(query) =>
                   new Promise((resolve, reject) => {
@@ -409,6 +418,7 @@ function ContactList(props) {
                     searchString += `${search.last_name ? '&last_name=' + search.last_name : ''}`
                     searchString += `${search.mail ? '&mail=' + search.mail : ''}`
                     searchString += `${search.phone ? '&phone=' + search.phone : ''}`
+                    searchString += `${search.org ? '&org=' + search.org : ''}`
                     apiGet(GROUP_URL + '/' + selectingGroup
                       + '/contacts' +
                       `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
@@ -419,6 +429,7 @@ function ContactList(props) {
                           lastName: d.last_name,
                           email: d.mail,
                           phone: d.phone,
+                          org: d.org ,
                           id: d.id
                         })
                         )

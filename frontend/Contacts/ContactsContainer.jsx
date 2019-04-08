@@ -13,50 +13,52 @@ import ContactList from './ContactList';
 
 function ContactContainer(props) {
 
-  const [canClickAdd, setCanClickAdd] = React.useState(false)
+  // const [canClickAdd, setCanClickAdd] = React.useState(false)
 
-  React.useEffect(() => {
-    // Effect
-    if (window.location.pathname == '/contacts') {
-      setCanClickAdd(true)
-    }
-    else {
-      setCanClickAdd(false)
-    }
-  })
+  // React.useEffect(() => {
+  //   // Effect
+  //   if (window.location.pathname == '/contacts') {
+  //     setCanClickAdd(true)
+  //   }
+  //   else {
+  //     setCanClickAdd(false)
+  //   }
+  // })
 
 
   return (
     <div>
       <USERCONTEXT.Consumer>
         {({ user }) => (
-          <Paper className="d-flex justify-content-between" style={{
-            padding: '11px 72px',
-            marginBottom: '10px',
-            marginTop: 10,
-            backgroundColor: '#F5F5F5'
-          }}>
-            <Breadcrumbs
-              separator={<b> / </b>}
-              item={NavLink}
-              finalItem={'b'}
-              container={Breadcrumb}
-              finalProps={{
-                style: { color: 'black' }
-              }}
-            />
+          <>
+            <Paper className="d-flex justify-content-between" style={{
+              padding: '11px 72px',
+              marginBottom: '10px',
+              marginTop: 10,
+              backgroundColor: '#F5F5F5'
+            }}>
+              <Breadcrumbs
+                separator={<b> / </b>}
+                item={NavLink}
+                finalItem={'b'}
+                container={Breadcrumb}
+                finalProps={{
+                  style: { color: 'black' }
+                }}
+              />
 
-            {/* {canClickAdd &&
+              {/* {canClickAdd &&
             <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/contacts/add')}><AddIcon />&nbsp;Add Contact</Button>
           } */}
 
-          </Paper>
-          <BreadcrumbsItem to='/contacts'>Contacts</BreadcrumbsItem>
-          <Switch>
-            <Route exact path="/contacts" component={(props) => (<ContactList {...props} user={user} />)} />
-            <Route path="/contacts/:id" component={(props) => (<ContactDetail {...props} />)} />
-            <Route path="/" component={(props) => (<Redirect to='/contacts' />)} />
-          </Switch>
+            </Paper>
+            <BreadcrumbsItem to='/contacts'>Contacts</BreadcrumbsItem>
+            <Switch>
+              <Route exact path="/contacts" component={(props) => (<ContactList {...props} user={user} />)} />
+              <Route path="/contacts/:id" component={(props) => (<ContactDetail {...props} />)} />
+              <Route path="/" component={(props) => (<Redirect to='/contacts' />)} />
+            </Switch>
+          </>
         )}
       </USERCONTEXT.Consumer>
     </div>

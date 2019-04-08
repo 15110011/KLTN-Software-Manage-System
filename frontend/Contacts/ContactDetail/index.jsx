@@ -29,7 +29,7 @@ import { Divider } from '@material-ui/core';
 import useFetchData from '../../CustomHook/useFetchData'
 
 // API
-import { CONTACT_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { CONTACT_URL, REFRESH_TOKEN_URL, GROUP_URL } from "../../common/urls";
 import { apiGet, apiPost, apiPatch, apiPut } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
@@ -39,6 +39,9 @@ import styles from './ContactDetailStyle'
 import CustomSnackbar from '../../components/CustomSnackbar'
 import Groups from './Groups'
 import USERCONTEXT from '../../components/UserContext'
+import stateHashes from '../../common/StateHash'
+import cities from '../../common/States'
+import SelectCustom from '../../components/SelectCustom'
 
 function TabContainer(props) {
   return (
@@ -66,9 +69,11 @@ function ContactDetail(props) {
       address: '',
       zipcode: '',
       country: '',
+      groups: []
     })
   const { classes } = props
 
+  const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
   const timer = {}
 
   //clear timer
@@ -89,9 +94,11 @@ function ContactDetail(props) {
   const patchData = () => {
 
     let patchError = {}
-    const { groups, ...patchDetail } = contactDetail
 
-    apiPatch(CONTACT_URL + '/' + contactId, patchDetail, false, true)
+    let cloneDetail = { ...contactDetail }
+
+    cloneDetail.groups = cloneDetail.groups.map(g => g.id)
+    apiPatch(CONTACT_URL + '/' + contactId, cloneDetail, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -109,7 +116,8 @@ function ContactDetail(props) {
           patchError = rest
         }
         else {
-          setContactDetail(res.data)
+          // setContactDetail(res.data)
+          forceUpdate() 
           setSuccessNoti('Successfully Updated')
           timer.success = setTimeout(() => {
             setSuccessNoti(false)
@@ -128,10 +136,47 @@ function ContactDetail(props) {
     setContactDetail({ ...contactDetail, [e.target.name]: e.target.value })
   }
 
+
+  const handleChangeSelectAddress = (value, element) => {
+    const cloneContactDetail = { ...contactDetail }
+    if (value) {
+      cloneContactDetail[element.name] = value.value
+    }
+    else {
+      cloneContactDetail[element.name] = ''
+    }
+    if (element.name == 'state') {
+      cloneContactDetail.city = ''
+    }
+    setContactDetail({ ...cloneContactDetail })
+  }
+
+  const handleChangeSelect = (values, element) => {
+    if (element.action == 'remove-value' && element.removedValue.name == 'All Contacts') {
+      return
+    }
+    else if (element.action == 'pop-value') {
+      if (values.length == 0) {
+        return
+      }
+    }
+    else if (element.action == 'clear') {
+      const remainGroups = [].concat([contactDetail.groups[0]])
+      setContactDetail({ ...contactDetail, groups: remainGroups })
+      return
+    }
+
+    setContactDetail({ ...contactDetail, groups: values })
+  }
+
+
+
+
   return (
     <div className={classes.root}>
       {successNoti && <CustomSnackbar isSuccess msg={successNoti}></CustomSnackbar>}
-      <BreadcrumbsItem to={`/contacts/ + ${contactId}`}>{contactDetail.full_name}</BreadcrumbsItem>
+
+      <BreadcrumbsItem to={`/contacts/ + ${contactDetail.id}`}>{contactDetail.full_name}</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={12}>
           <Paper className={classes.paper}>
@@ -155,7 +200,6 @@ function ContactDetail(props) {
               >
 
                 <Tab label={<span><PersonalIcon />&nbsp;Detail</span>} />
-                <Tab label={<span><GroupIcon />&nbsp;Groups</span>} />
                 <Tab label={<span><DetailIcon /> Notes </span>} />
               </Tabs>
             </AppBar>
@@ -175,184 +219,309 @@ function ContactDetail(props) {
 
                             }
                           </Grid>
-                          <Grid item xs={6}>
-                            <Grid container spacing={16}>
 
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                  required
-                                >
-                                  First name
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="first_name"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.first_name}
-                                  required
-                                  fullWidth
-                                />
-                              </Grid>
-
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                  required
-                                >
-                                  Last name
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="last_name"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.last_name}
-                                  required
-                                  fullWidth
-                                />
-                              </Grid>
-
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                  required
-                                >
-                                  Phone
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="phone"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.phone}
-                                  required
-                                  fullWidth
-                                  error={error.phone}
-                                />
-                              </Grid>
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                  required
-                                >
-                                  Email
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="mail"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.mail}
-                                  required
-                                  type='email'
-                                  fullWidth
-                                />
-                              </Grid>
-
-                            </Grid>
+                          <Grid item xs={12}>
+                            <Typography variant='title'>
+                              Required Fields
+                            </Typography>
                           </Grid>
-                          <Grid item xs={6}>
-                            <Grid container spacing={16}>
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                >
-                                  Address
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="address"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.address}
-                                  fullWidth
-                                />
-                              </Grid>
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                >
-                                  Zipcode
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="zipcode"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.zipcode}
-                                  fullWidth
-                                  error={error.zipcode}
-                                />
-                              </Grid>
-
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <InputLabel
-                                  htmlFor="custom-css-standard-input"
-                                  classes={{
-                                    root: classes.cssLabel,
-                                    focused: classes.cssFocused,
-                                  }}
-                                >
-                                  Country
-                              </InputLabel>
-                              </Grid>
-                              <Grid item xs={8}>
-                                <Input
-                                  onChange={onChangeInput}
-                                  name="country"
-                                  classes={{
-                                    underline: classes.cssUnderline,
-                                  }}
-                                  value={contactDetail.country}
-                                  fullWidth
-                                />
-                              </Grid>
-                            </Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }}>
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                              required
+                            >
+                              First Name
+                            </InputLabel>
                           </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.first_name}
+                              name="first_name"
+                              required
+                              error={error.first_name}
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }}>
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                              required
+                            >
+                              Last Name
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.last_name}
+                              name="last_name"
+                              required
+                              error={error.last_name}
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }} >
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                              required
+                            >
+                              Email
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.mail}
+                              name="mail"
+                              required
+                              type='email'
+                              error={error.mail}
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }}>
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                              required
+                            >
+                              Phone
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.phone}
+                              name="phone"
+                              required
+                              error={error.phone}
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }} >
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                              required
+                            >
+                              Sex
+                           </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Select
+                              value={contactDetail.sex}
+                              onChange={onChangeInput}
+                              name='sex'
+                              fullWidth
+                            >
+                              <MenuItem value='OTHER'>Other</MenuItem>
+                              <MenuItem value='MALE'>Male</MenuItem>
+                              <MenuItem value='FEMALE'>Female</MenuItem>
+                            </Select>
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }} >
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              Groups
+                            </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+
+                            <SelectCustom
+                              options={groups.data.map(g => ({
+                                label: `${g.name}`,
+                                value: g.id,
+                                ...g
+                              }))}
+                              handleChange={(values, element) => handleChangeSelect(values, element)}
+                              data={
+                                contactDetail.groups
+                                  .reduce((acc, g) => {
+                                    acc.push({ label: `${g.name}`, value: g.id, ...g })
+                                    return acc
+                                  }, [])
+                              }
+                              multi
+                              placeholder=""
+                              label=""
+                            />
+                          </Grid>
+                          <Grid item xs={12} className='my-1'>
+                            <Divider></Divider>
+                          </Grid>
+
+                          <Grid item xs={12} variant='title'>
+                            <Typography variant='title'>
+                              Optional Fields
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }} >
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              Address:
+                              </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.address}
+                              name="address"
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }} >
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              State:
+              </InputLabel>
+                          </Grid>
+                          <Grid item xs={4} >
+                            <SelectCustom
+                              options={
+                                Object.keys(stateHashes).map(k => {
+                                  return {
+                                    label: stateHashes[k],
+                                    value: k
+                                  }
+                                })
+                              }
+                              handleChange={handleChangeSelectAddress}
+                              value={contactDetail.state}
+                              name="state"
+                              fullWidth
+                              single
+                              data={{
+                                label: stateHashes[contactDetail.state],
+                                value: contactDetail.state
+                              }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }} >
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              City:
+              </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <SelectCustom
+                              options={
+                                contactDetail.state ?
+                                  cities[stateHashes[contactDetail.state]].reduce((acc, c) => {
+                                    acc.push({
+                                      label: c,
+                                      value: c
+                                    })
+                                    return acc
+                                  }, [])
+                                  : []
+                              }
+                              handleChange={handleChangeSelectAddress}
+                              value={contactDetail.city}
+                              name="city"
+                              fullWidth
+                              single
+                              data={{
+                                label: contactDetail.city,
+                                value: contactDetail.city
+                              }}
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }}>
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              Country:
+              </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.country}
+                              name="country"
+                              disabled
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }}>
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              Zipcode:
+              </InputLabel>
+                          </Grid>
+                          <Grid item xs={4}>
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.zipcode}
+                              name="zipcode"
+                              type='number'
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
+                          <Grid item xs={1} style={{ position: 'relative' }}>
+                            <InputLabel
+                              classes={{
+                                root: classes.cssLabel
+                              }}
+                            >
+                              Organization:
+              </InputLabel>
+                          </Grid>
+                          <Grid item xs={4} >
+                            <Input
+                              fullWidth
+                              onChange={onChangeInput}
+                              value={contactDetail.org}
+                              name="org"
+                            />
+                          </Grid>
+
+                          <Grid item xs={1}></Grid>
                           <Grid item xs={12}>
                             <Grid item xs={12} className="d-flex justify-content-center mt-3">
                               <Button onClick={forceUpdate} variant="contained" className={classes.button}>
@@ -370,10 +539,6 @@ function ContactDetail(props) {
                     </TabContainer>
                   }
                   {value === 1 &&
-                    <TabContainer>
-                      <Groups history={props.history} user={user} />
-                    </TabContainer>}
-                  {value === 2 &&
                     <TabContainer>
                       NOTES
                   </TabContainer>}

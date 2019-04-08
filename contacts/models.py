@@ -17,7 +17,7 @@ class Contact(BaseModel):
     country = models.CharField(max_length=255, null=True, blank=True)
     state = models.CharField(max_length=255, null=True, blank=True)
     city = models.CharField(max_length=255, null=True, blank=True)
-    zipcode = models.IntegerField(null=True, blank=True)
+    zipcode = models.CharField(max_length=10, null=True, blank=True)
     org = models.TextField(null=True, blank=True)
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='contacts')
