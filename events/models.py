@@ -13,12 +13,12 @@ class Event(BaseModel):
     assigned_to = models.ForeignKey(
         User, related_name='user_events', on_delete=models.CASCADE)
     order = models.ForeignKey(
-        Order, related_name='events', on_delete=models.CASCADE)
+        Order, related_name='events', on_delete=models.CASCADE, blank=True, null=True)
     marketing_plan = models.ForeignKey(
-        MarketingPlan, related_name='events', on_delete=models.CASCADE)
+        MarketingPlan, related_name='events', on_delete=models.CASCADE, blank=True, null=True)
     content = models.TextField()
-    start_date = models.DateField(auto_now_add=True)
-    end_date = models.DateField(auto_now_add=True)
+    start_date = models.DateField(auto_now=True)
+    end_date = models.DateField(auto_now=True)
     name = models.CharField(max_length=255)
     action = models.TextField()
     contacts = models.ManyToManyField(Contact, related_name='contact_events')
