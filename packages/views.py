@@ -87,12 +87,14 @@ class PackageViewSet(ModelViewSet):
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4'])
+            found_packages = []
             for packages in search.to_queryset():
                 packages = model_to_dict(packages)
                 features = packages.get('features')
                 features = [model_to_dict(feature) for feature in features]
                 packages['features'] = features
-                return {"packages": packages, "elastic_search": True}
+                found_packages.append(packages)
+            return {"packages": found_packages, "elastic_search": True}
 
         if 'package_suggest' in self.request.query_params.keys():
             qs = self.request.query_params.get('package_suggest')
