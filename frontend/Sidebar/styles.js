@@ -105,7 +105,6 @@ const styles = theme => ({
     backgroundColor: 'rgba(196, 185, 185, 0.25)'
   },
   nested: {
-    paddingLeft: theme.spacing.unit * 4,
   },
   toolbar: {
     backgroundColor: '#333333'
