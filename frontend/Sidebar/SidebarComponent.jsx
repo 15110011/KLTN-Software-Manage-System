@@ -178,7 +178,7 @@ const SidebarComponent = props => {
         </div>
         <Divider light />
         <List>
-          <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
+          <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ root: classes.listItemBgr }} selected={selecting == 'contacts'}>
             <ListItemIcon>
               <PersonalIcon classes={{ root: classes.listItemIcon }} />
             </ListItemIcon>

@@ -32,7 +32,9 @@ import FollowUpPlanContainer from './FollowUpPlan/FollowUpPlanContainer'
 const styles = theme => ({
   root: {
     display: 'flex',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    minHeight: '100vh',
+    height: 'auto'
   },
   content: {
     flexGrow: 1,

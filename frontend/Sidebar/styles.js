@@ -8,10 +8,7 @@ const styles = theme => ({
     }
   },
   menuBarButton: {
-    color: '#4F5D73',
-  },
-  bgrmenuBar: {
-    backgroundColor: '#e4e6ef'
+    color: '#FFF',
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
