@@ -73,10 +73,6 @@ function CreateCampaign(props) {
     setActiveStep(activeStep - 1)
   };
 
-  const handleReset = () => {
-    setActiveStep(0)
-  };
-
   const handleChangeAssigneeSelect = (value, action) => {
     setCreateCampaign({ ...createCampaign, assigned_to: value })
   }
