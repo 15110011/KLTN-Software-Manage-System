@@ -57,7 +57,7 @@ function MarketingPlanList(props) {
                 let searchString = `${search.name ? '&name=' + search.name : ''}`
                 if (search.status && search.status.length === 1)
                   searchString += `${search.status ? '&status=' + search.status : ''}`
-                apiGet(MARKETING_PLANS_URL + `?name=${activePage}&limit=${query.pageSize}` + searchString, true)
+                apiGet(MARKETING_PLANS_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true)
                   .then(json => {
                     const data = json.data.data.map((m, i) => ({
                       numeral: activePage * query.pageSize + i + 1,
