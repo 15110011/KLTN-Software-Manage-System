@@ -29,8 +29,9 @@ class MeView(generics.RetrieveAPIView):
         instance = request.user
         serializer = self.get_serializer(instance)
         new_serializer = serializer.data
-        new_serializer['sale_reps'] = [model_to_dict(item) for item in serializer.data['sale_reps']]
-        print (new_serializer)
+        # new_serializer['sale_reps'] = [model_to_dict(item) for item in serializer.data['sale_reps']]
+
+        
         return Response(new_serializer)
 
 

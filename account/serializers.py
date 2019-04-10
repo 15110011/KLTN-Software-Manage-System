@@ -50,6 +50,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return value
 
 
+
 class MeSerializer(serializers.ModelSerializer):
 
     profile = ProfileSerializer(read_only=True)
@@ -61,7 +62,9 @@ class MeSerializer(serializers.ModelSerializer):
                    'groups', 'user_permissions', 'password']
 
     def get_sale_reps(self, obj):
-        return models.Profile.objects.filter(is_manager=False)
+        profiles = models.Profile.objects.filter(is_manager=False)
+
+        return ProfileWithUserSerializer(profiles, many=True).data
 
 
 class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSerializer):

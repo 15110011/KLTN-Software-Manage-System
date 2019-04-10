@@ -84,13 +84,12 @@ class ContactGroupView(ModelViewSet):
             self_g = serializer.data
             default_group = self_g.pop(0)
             self_g.sort(key=lambda x: x['_type'], reverse=True)
-            if request.user.profile.manager:
-                public_groups = models.ContactGroup.objects.filter(
-                    user=request.user.profile.manager).filter(_type='PUBLIC')
-                public_g_serializer = serializers.GroupSerializer(
-                    public_groups.order_by('id'), many=True, context={'request': request})
-                total_groups += len(public_g_serializer.data)
-                public_g = public_g_serializer.data
+            
+            public_groups = models.ContactGroup.objects.filter(_type='PUBLIC')
+            public_g_serializer = serializers.GroupSerializer(
+                public_groups.order_by('id'), many=True, context={'request': request})
+            total_groups += len(public_g_serializer.data)
+            public_g = public_g_serializer.data
             new_serializer = {
                 "data":  [default_group] + public_g + self_g,
                 "total": total_groups
