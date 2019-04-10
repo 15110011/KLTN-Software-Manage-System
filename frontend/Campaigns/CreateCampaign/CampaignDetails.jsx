@@ -29,6 +29,8 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import styles from './CreateCampaignStyle'
+import { Editor } from "react-draft-wysiwyg";
+import "../../common/react-draft-wysiwyg.css";
 
 // Components 
 import SelectCustom from '../../components/SelectCustom'
@@ -44,6 +46,8 @@ function CampaignDetails(props) {
     fetchPackageSuggestion,
     handleChangeAssigneeSelect,
     user,
+    editorState,
+    onEditorStateChange
   } = props
   return (
     <form onSubmit={(e) => {
@@ -237,15 +241,9 @@ function CampaignDetails(props) {
                     value={createCampaign.status}
                     name="status"
                     native
-                    inputProps={{
-                      name: 'age',
-                      id: 'age-native-simple',
-                    }}
                   >
-                    <option value="" />
-                    <option value={10}>Ten</option>
-                    <option value={20}>Twenty</option>
-                    <option value={30}>Thirty</option>
+                    <option value="ACTIVE">ACTIVE</option>
+                    <option value="INACTIVE">INACTIVE</option>
                   </Select>
                 </FormControl>
               </Grid>
@@ -265,16 +263,11 @@ function CampaignDetails(props) {
                         </InputLabel>
               </Grid>
               <Grid item xs={10}>
-                <TextField
-                  onChange={onChangeCreateCampaign}
-                  value={createCampaign.desc}
-                  name="desc"
-                  classes={{ root: classes.fixTextArea }}
-                  fullWidth
-                  multiline={true}
-                  rows={5}
-                  rowsMax={5}
-                  underline={false}
+                <Editor
+                  editorState={editorState}
+                  wrapperClassName="editor-wrapper"
+                  editorClassName="editor"
+                  onEditorStateChange={onEditorStateChange}
                 />
               </Grid>
             </Grid>
@@ -284,4 +277,4 @@ function CampaignDetails(props) {
     </form>
   )
 }
-export default CampaignDetails
+export default withStyles(styles)(CampaignDetails);
