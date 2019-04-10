@@ -27,12 +27,14 @@ class UserSerializer(serializers.ModelSerializer):
         exclude = ['last_login', 'date_joined',
                    'groups', 'user_permissions', 'password']
 
+
 class ProfileWithUserSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
 
     class Meta:
         model = models.Profile
-        fields = '__all__' 
+        fields = '__all__'
+
 
 class ProfileSerializer(serializers.ModelSerializer):
 
@@ -48,16 +50,18 @@ class ProfileSerializer(serializers.ModelSerializer):
         return value
 
 
-
 class MeSerializer(serializers.ModelSerializer):
 
     profile = ProfileSerializer(read_only=True)
-    sale_reps = ProfileWithUserSerializer(many=True, read_only=True)
+    sale_reps = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         exclude = ['last_login', 'date_joined',
                    'groups', 'user_permissions', 'password']
+
+    def get_sale_reps(self, obj):
+        return models.Profile.objects.filter(is_manager=False)
 
 
 class LoginAndUpdateSerializer(serializers.ModelSerializer, TokenObtainPairSerializer):
@@ -140,7 +144,7 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
                 user=self.user, name='All Contacts', _type=''
             )
             self.user.profile = new_profile
-            
+
             return self.user
 
     def validate(self, attrs):

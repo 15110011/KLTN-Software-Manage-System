@@ -86,7 +86,8 @@ function getStepContent(props) {
     handleChangeAssigneeSelect,
     user,
     handleChangeMarketingPlanSelect,
-    fetchMarketingPlanSuggestion
+    fetchMarketingPlanSuggestion,
+    saleRep
   } = props
   switch (activeStep) {
     case 0:
@@ -94,6 +95,7 @@ function getStepContent(props) {
         <CampaignDetails
           classes={classes}
           onChangeCreateCampaign={onChangeCreateCampaign}
+          saleRep={saleRep}
           createCampaign={createCampaign}
           handleChangePackageSelect={handleChangePackageSelect}
           fetchPackageSuggestion={fetchPackageSuggestion}

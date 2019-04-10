@@ -44,6 +44,7 @@ function CampaignDetails(props) {
     fetchPackageSuggestion,
     handleChangeAssigneeSelect,
     user,
+    saleRep
   } = props
   return (
     <form onSubmit={(e) => {
@@ -193,7 +194,8 @@ function CampaignDetails(props) {
                 <SelectCustom
                   handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
                   name="assigned_to"
-                  options={user.sale_reps.reduce((acc, u) => {
+                  options={saleRep.saleRep && saleRep.sale_reps.reduce((acc, u) => {
+                    console.log(u)
                     acc.push(
                       {
                         label: `${u.user.username}`,
