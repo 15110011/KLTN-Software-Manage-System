@@ -95,8 +95,8 @@ function getStepContent(props) {
     case 0:
       return (
         <CampaignDetails
-        editorState={editorState}
-              onEditorStateChange={onEditorStateChange}
+          editorState={editorState}
+          onEditorStateChange={onEditorStateChange}
           classes={classes}
           onChangeCreateCampaign={onChangeCreateCampaign}
           saleRep={saleRep}
