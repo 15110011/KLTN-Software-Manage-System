@@ -74,6 +74,8 @@ class CampaignSerializer(serializers.ModelSerializer):
 
 
 class CreateCampaignSerializer(serializers.ModelSerializer):
+    manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = models.Campaign
         fields = '__all__'

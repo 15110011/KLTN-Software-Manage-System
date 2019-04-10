@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import logout, get_user_model, login
+from django.forms.models import model_to_dict
 
 from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
@@ -9,8 +10,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.backends import TokenBackend
 
-
 from . import serializers
+from . import models
 from KLTN import settings
 import jwt
 
@@ -101,3 +102,14 @@ class RegisterView(generics.CreateAPIView):
         data['username'] = request.data['username']
 
         return Response(data, status=status.HTTP_200_OK, headers=headers)
+
+class SaleRepView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects
+    serializer_class = serializers.MeSerializer
+    http_method_names = ['get']
+
+    def list(self, request):
+        sale_reps = models.Profile.objects.filter(is_manager=False)
+        sale_reps = [model_to_dict(item) for item in sale_reps]
+        return Response(sale_reps, status=status.HTTP_200_OK)

@@ -37,9 +37,10 @@ import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // API
-import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL, MARKETING_PLANS_URL } from "../../common/urls";
+import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL, MARKETING_PLANS_URL, GET_SALE_REPS_URL } from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
+import useFetchData from '../../CustomHook/useFetchData'
 import StepDetail from './StepDetail'
 
 const getSteps = ['Campaign Infomation', 'Marketing Plans', 'Follow-up Plans']
@@ -60,6 +61,7 @@ function CreateCampaign(props) {
   })
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
+  const [saleRep, setSaleRep] = useFetchData(GET_SALE_REPS_URL, props.history, {})
 
   const [error, setError] = React.useState({})
 

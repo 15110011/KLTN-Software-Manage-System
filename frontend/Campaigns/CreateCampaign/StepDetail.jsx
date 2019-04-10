@@ -88,7 +88,8 @@ function getStepContent(props) {
     handleChangeMarketingPlanSelect,
     fetchMarketingPlanSuggestion,
     editorState,
-    onEditorStateChange
+    onEditorStateChange,
+    saleRep
   } = props
   switch (activeStep) {
     case 0:
@@ -98,6 +99,7 @@ function getStepContent(props) {
               onEditorStateChange={onEditorStateChange}
           classes={classes}
           onChangeCreateCampaign={onChangeCreateCampaign}
+          saleRep={saleRep}
           createCampaign={createCampaign}
           handleChangePackageSelect={handleChangePackageSelect}
           fetchPackageSuggestion={fetchPackageSuggestion}
