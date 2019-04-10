@@ -28,6 +28,7 @@ import { ObjectFlags } from 'typescript';
 import CampaignContainer from './Campaigns/CampaignsContainer';
 import MarketingPlanContainer from './MarketingPlan/MarketingPlanContainer';
 import FollowUpPlanContainer from './FollowUpPlan/FollowUpPlanContainer'
+import SiteAdminContainer from './SiteAdmin/SiteAdminContainer';
 
 const styles = theme => ({
   root: {
@@ -172,6 +173,10 @@ class Content extends React.Component {
                 <Route
                   path="/follow-up-plans"
                   component={props => <FollowUpPlanContainer {...props} user={user} />}
+                />
+                <Route
+                  path="/settings"
+                  component={SiteAdminContainer}
                 />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />

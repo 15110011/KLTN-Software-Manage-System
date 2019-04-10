@@ -38,6 +38,7 @@ import NoteIcon from '@material-ui/icons/Note';
 import ToolIcon from '@material-ui/icons/Build'
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import AccountCircle from '@material-ui/icons/PersonPin';
+import SettingsIcon from '@material-ui/icons/Settings';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Badge from '@material-ui/core/Badge';
 import Menu from '@material-ui/core/Menu';
@@ -345,6 +346,12 @@ const SidebarComponent = props => {
                   <CalendarIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Calendar" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/settings')}>
+                <ListItemIcon>
+                  <SettingsIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Settings" classes={{ primary: classes.listItemText }} />
               </ListItem>
             </List>
           </Collapse>
