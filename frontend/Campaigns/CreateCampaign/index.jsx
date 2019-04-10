@@ -188,6 +188,7 @@ function CreateCampaign(props) {
               editorState={editorState}
               onEditorStateChange={onEditorStateChange}
               activeStep={activeStep}
+              saleRep={saleRep}
               classes={classes}
               onChangeCreateCampaign={onChangeCreateCampaign}
               createCampaign={createCampaign}
