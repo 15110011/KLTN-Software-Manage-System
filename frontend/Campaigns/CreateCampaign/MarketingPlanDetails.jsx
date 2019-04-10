@@ -73,6 +73,7 @@ function MarketingPlanDetails(props) {
                 handleChange={(values, element) => handleChangeMarketingPlanSelect(values, element)}
                 onChangeSelect={(values, element) => handleChangeMarketingPlanSelect(values, element)}
                 data={
+                  Object.keys(createCampaign.marketing_plan).length === 0 ? '' : 
                   {
                     label: `${createCampaign.marketing_plan.name}`, value: createCampaign.marketing_plan.id, ...createCampaign.marketing_plan
                   }

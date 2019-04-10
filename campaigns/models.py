@@ -53,6 +53,12 @@ class Campaign(BaseModel):
     mail_template = models.ForeignKey(
         MailTemplate, on_delete=models.SET_NULL, related_name="campaigns", blank=True, null=True)
 
+    def _get_manager_campaign(self):
+        return self.manager.id
+
+    def _get_campaign_name(self):
+        return f'{self.name}'
+
 
 class ContactMarketing(BaseModel):
     marketing_plan = models.ForeignKey(MarketingPlan, on_delete=models.CASCADE)

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MarketingPlan, FollowUpPlan, Campaign
 from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
 from rest_framework import status
-from .documents import MarketingPlanDocument
+from .documents import MarketingPlanDocument, CampaignDocument
 from django.forms.models import model_to_dict
 
 # Create your views here.
@@ -118,7 +118,35 @@ class CampaignView(ModelViewSet):
     queryset = Campaign.objects
     serializer_class = CampaignSerializer
 
+    def get_queryset(self):
+        if not bool(self.request.query_params):
+            return super().get_queryset()
+        search = CampaignDocument.search()
+
+        if 'name' in self.request.query_params.keys():
+            qs = self.request.query_params.get('name')
+            search = search.query('multi_match', query=qs, fields=['name^4']).filter(
+                'term', manager=self.request.user.id)
+
+            campaigns = [model_to_dict(campaigns)
+                         for campaigns in search.to_queryset()]
+            return {"campaigns": campaigns, "elastic_search": True}
+
+        if 'campaign_suggest' in self.request.query_params.keys():
+            qs = self.request.query_params.get('campaign_suggest')
+            suggest = search.suggest('auto_complete', qs, completion={
+                'field': 'campaigns_name.suggest',
+                'contexts': {'manager': self.request.user.id}
+            })
+            response = suggest.execute()
+            suggestion = [
+                option._source.campaigns_name for option in response.suggest.auto_complete[0].options]
+            return {"suggestion": suggestion, "elastic_search": True}
+
     def list(self, request):
+        qs = self.get_queryset()
+        if type(qs) is dict and qs.get('elastic_search', None):
+            return Response(qs)
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
