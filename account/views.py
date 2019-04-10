@@ -28,7 +28,10 @@ class MeView(generics.RetrieveAPIView):
             return Response({"msg": 'You havent login yet'}, status=status.HTTP_403_FORBIDDEN)
         instance = request.user
         serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        new_serializer = serializer.data
+        new_serializer['sale_reps'] = [model_to_dict(item) for item in serializer.data['sale_reps']]
+        print (new_serializer)
+        return Response(new_serializer)
 
 
 class LoginAndUpdateView(generics.CreateAPIView, generics.UpdateAPIView):
