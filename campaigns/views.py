@@ -1,6 +1,7 @@
 from django.shortcuts import render
+from django.db.models import Q, Count
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MarketingPlan, FollowUpPlan, Campaign
@@ -8,14 +9,44 @@ from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, Campaig
 from rest_framework import status
 from .documents import MarketingPlanDocument, CampaignDocument
 from django.forms.models import model_to_dict
+from KLTN.common import MARKETING_PLAN_CONDITIONS
+from orders.models import Order
 
 # Create your views here.
 
 ACTIONS = ['Send Email', 'Call Clients', 'Send Email Manually', 'Chat']
 
+
 @api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
 def GetPlanAction(request):
     return Response({"actions": ACTIONS}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
+def GetMarketingPlanConditions(request):
+    return Response(MARKETING_PLAN_CONDITIONS, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+# @permission_classes((IsAuthenticated, ))
+def ContactMatchConditions(request):
+    contacts = request.data.get('contacts', None)
+    conditions = request.data.get('conditions', None)
+    filters = Q()
+    excludes = Q()
+    filters.add(Q(id__in=contacts), Q.AND)
+    for condition in conditions:
+        if condition['id'] == 1:
+            if condition['operator'] == 'Equal to':
+                filters.add(Q(state=condition['data']), Q.AND)
+            elif condition['operator'] == 'Not equal to':
+                excludes.add(Q(state=condition['data']), Q.AND)
+        if condition['id'] == 2:
+            if condition['operator'] == 'Equal to':
+                Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                    packages__features__product__type=condition['data']).values('contacts').annotate(total=Count('contacts'))
 
 
 class MarketingPlanView(ModelViewSet):

@@ -21,6 +21,7 @@ class Product(BaseModel):
     status = models.TextField(choices=PRODUCT_CHOICES, default='ACTIVE')
     start_sale_date = models.DateField()
     start_support_date = models.DateField()
+    product_type = models.TextField(null=True, blank=True)
 
     def _get_manager_product(self):
         return self.manager.id

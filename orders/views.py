@@ -3,8 +3,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
-from .serializers import OrderSerializer, OrderHistorySerializer, PackageOrderSerialzier, CreateOrderSerialzier
-from .models import Order, OrderHistory, PackageOrder
+from .serializers import OrderSerializer, OrderHistorySerializer, CreateOrderSerialzier
+from .models import Order, OrderHistory
 
 # Create your views here.
 
@@ -35,10 +35,3 @@ class OrderHistoryView(ModelViewSet):
     queryset = OrderHistory.objects
     serializer_class = OrderHistorySerializer
     permission_classes = (IsAuthenticated,)
-
-
-class PackageOrderView(ModelViewSet):
-    queryset = PackageOrder.objects
-    serializer_class = PackageOrderSerialzier
-    permission_classes = (IsAuthenticated,)
-
