@@ -77,3 +77,11 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Campaign
         fields = '__all__'
+
+
+class ContactMarketingSerializer(serializers.ModelSerializer):
+    marketing_plan = MarketingPlanSerialier()
+
+    class Meta:
+        model = models.ContactMarketing
+        fields = '__all__'
