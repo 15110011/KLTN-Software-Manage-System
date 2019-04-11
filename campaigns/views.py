@@ -13,7 +13,6 @@ from django.forms.models import model_to_dict
 
 ACTIONS = ['Send Email', 'Call Clients', 'Send Email Manually', 'Chat']
 
-
 @api_view(['GET'])
 def GetPlanAction(request):
     return Response({"actions": ACTIONS}, status=status.HTTP_200_OK)
