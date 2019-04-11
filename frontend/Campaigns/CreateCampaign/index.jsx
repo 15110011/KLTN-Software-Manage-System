@@ -28,7 +28,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
-
+import { htmlToState, draftToRaw } from "../../common/utils";
 
 import styles from './CreateCampaignStyle'
 
@@ -37,9 +37,10 @@ import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // API
-import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL, MARKETING_PLANS_URL } from "../../common/urls";
+import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL, MARKETING_PLANS_URL, GET_SALE_REPS_URL } from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
+import useFetchData from '../../CustomHook/useFetchData'
 import StepDetail from './StepDetail'
 
 const getSteps = ['Campaign Infomation', 'Marketing Plans', 'Follow-up Plans']
@@ -59,11 +60,18 @@ function CreateCampaign(props) {
     mail_template: {}
   })
 
+  const [editorState, setEditorState] = React.useState(htmlToState(""))
+  const [saleRep, setSaleRep] = useFetchData(GET_SALE_REPS_URL, props.history, {})
+
   const [error, setError] = React.useState({})
 
   const [activeStep, setActiveStep] = React.useState(0)
 
   const { user } = props;
+
+  const onEditorStateChange = editorState => {
+    setEditorState(editorState)
+  };
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)
@@ -129,7 +137,7 @@ function CreateCampaign(props) {
   }
 
   const apiPostCampaign = () => {
-    apiPost(CAMPAIGNS_URL, createCampaign, false, true)
+    apiPost(CAMPAIGNS_URL, { ...createCampaign, desc: draftToRaw(editorState) }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -146,9 +154,9 @@ function CreateCampaign(props) {
         else if (res.data.code == BAD_REQUEST) {
           setError(res.data)
         }
-        // else {
-        //   notification()
-        // }
+        else {
+          notification()
+        }
       })
   }
 
@@ -176,18 +184,21 @@ function CreateCampaign(props) {
       <div>
         <form onSubmit={handleCreateCampaign}>
           <Paper className={classes.paper}>
-              <StepDetail
-                activeStep={activeStep}
-                classes={classes}
-                onChangeCreateCampaign={onChangeCreateCampaign}
-                createCampaign={createCampaign}
-                handleChangePackageSelect={handleChangePackageSelect}
-                fetchPackageSuggestion={fetchPackageSuggestion}
-                handleChangeAssigneeSelect={handleChangeAssigneeSelect}
-                user={user}
-                handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
-                fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
-              />
+            <StepDetail
+              editorState={editorState}
+              onEditorStateChange={onEditorStateChange}
+              activeStep={activeStep}
+              saleRep={saleRep}
+              classes={classes}
+              onChangeCreateCampaign={onChangeCreateCampaign}
+              createCampaign={createCampaign}
+              handleChangePackageSelect={handleChangePackageSelect}
+              fetchPackageSuggestion={fetchPackageSuggestion}
+              handleChangeAssigneeSelect={handleChangeAssigneeSelect}
+              user={user}
+              handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
+              fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
+            />
             <div style={{ marginTop: '140px' }}>
               <Button
                 disabled={activeStep === 0}

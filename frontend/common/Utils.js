@@ -1,4 +1,8 @@
-export function flatObject(root, target) {
+import * as draftToHtml from 'draftjs-to-html';
+import htmlToDraft from 'html-to-draftjs';
+import { EditorState, convertToRaw, ContentState } from 'draft-js'
+
+const flatObject = (root, target) => {
   Object.keys(root).forEach(key => {
     if (Array.isArray(root[key])) {
       target = { ...target, [key]: root[key][0] }
@@ -12,3 +16,18 @@ export function flatObject(root, target) {
   })
   return target
 }
+
+const htmlToState = (html) => {
+  const contentBlock = htmlToDraft(html);
+  if (contentBlock) {
+    const contentState = ContentState.createFromBlockArray(contentBlock.contentBlocks);
+    const editorState = EditorState.createWithContent(contentState);
+    return editorState
+  }
+}
+
+const draftToRaw = (draft) => {
+  return draftToHtml(convertToRaw(draft.getCurrentContent()))
+}
+
+export  { htmlToState, draftToRaw, flatObject }

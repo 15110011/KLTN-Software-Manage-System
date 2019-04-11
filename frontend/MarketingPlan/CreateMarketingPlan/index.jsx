@@ -19,6 +19,7 @@ import cn from 'classnames'
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
+import RemoveIcon from '@material-ui/icons/Remove'
 import StepButton from '@material-ui/core/StepButton';
 
 import styles from './CreateMarketingPlanStyle'
@@ -124,33 +125,56 @@ function getStepContent(
                   <Grid key={i} container spacing={24}>
                     <Grid item xs={4}>
                       <FormControl fullWidth className={classes.formControl}>
-                        <InputLabel htmlFor="age-simple">First name</InputLabel>
+                        <InputLabel htmlFor="age-simple">Condition Type</InputLabel>
                         <Select
                           value={m.operand}
                           onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
                           displayEmpty
-                          name="operand"
+                          name="condition"
                           className={classes.selectEmpty}
                         >
                           <MenuItem value="ACTIVE">
-                            as
-                </MenuItem>
+                            State
+                          </MenuItem>
+                          <MenuItem value="ACTIVE">
+                            So lan mua san pham cung loai
+                          </MenuItem>
+                          <MenuItem value="ACTIVE">
+                            So lan mua san pham cung category
+                          </MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
                     <Grid item xs={3}>
                       <FormControl fullWidth className={classes.formControl}>
-                        <InputLabel htmlFor="age-simple">Equal to</InputLabel>
+                        <InputLabel htmlFor="age-simple">Operators</InputLabel>
                         <Select
                           value={m.operator}
                           onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
                           displayEmpty
-                          name="operator"
+                          name="operators"
                           className={classes.selectEmpty}
                         >
-                          <MenuItem value="ACTIVE">
-                            asd
-                </MenuItem>
+                          <MenuItem value="==">
+                            Equal to
+                          </MenuItem>
+                          <MenuItem value="!=">
+                            Not equal to
+                          </MenuItem>
+                          <MenuItem value=">">
+                            Greater than
+                          </MenuItem>
+                          <MenuItem value="<">
+                            Less than
+                          </MenuItem>
+                          <MenuItem value=">=">
+                            Greater than or
+                            equal to
+                          </MenuItem>
+                          <MenuItem value="<=">
+                            Less than or
+                            equal to
+                          </MenuItem>
                         </Select>
                       </FormControl>
                     </Grid>
@@ -158,17 +182,18 @@ function getStepContent(
                       <FormControl fullWidth className={classes.formControl}>
                         <TextField
                           id="standard-name"
-                          label="Condition"
+                          label="Operands"
                           className={classes.textField}
                           value={m.condition}
                           onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                          name="condition"
+                          name="operands"
+                          type="number"
                         />
                       </FormControl>
                     </Grid>
                     <Grid item xs={1}>
-                      <IconButton onClick={(e) => handleRemoveMustConditions(e, i)} aria-label="Delete" classes={{ root: classes.fixButton }}>
-                        <DeleteIcon fontSize="small" />
+                      <IconButton onClick={(e) => handleRemoveMustConditions(e, i)} aria-label="Remove" classes={{ root: classes.fixButton }}>
+                        <RemoveIcon fontSize="small" />
                       </IconButton>
                     </Grid>
                   </Grid>
@@ -249,8 +274,8 @@ function getStepContent(
                       </FormControl>
                     </Grid>
                     <Grid item xs={1}>
-                      <IconButton onClick={(e) => handleRemoveAtLeastConditions(e, i)} aria-label="Delete" classes={{ root: classes.fixButton }}>
-                        <DeleteIcon fontSize="small" />
+                      <IconButton onClick={(e) => handleRemoveAtLeastConditions(e, i)} aria-label="Remove" classes={{ root: classes.fixButton }}>
+                        <RemoveIcon fontSize="small" />
                       </IconButton>
                     </Grid>
                   </Grid>
@@ -370,22 +395,14 @@ function CreateMarketingPlan(props) {
 
   const handleRemoveMustConditions = (e, index) => {
     let must = createMarketingPlan.condition.must.concat([])
-    if (must.length == 1) {
-      return;
-    } else {
-      must = must.slice(0, index).concat(must.slice(index + 1))
-      setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, must } })
-    }
+    must = must.slice(0, index).concat(must.slice(index + 1))
+    setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, must } })
   }
 
   const handleRemoveAtLeastConditions = (e, index) => {
     let at_least = createMarketingPlan.condition.at_least.concat([])
-    if (at_least.length == 1) {
-      return;
-    } else {
-      at_least = at_least.slice(0, index).concat(at_least.slice(index + 1))
-      setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, at_least } })
-    }
+    at_least = at_least.slice(0, index).concat(at_least.slice(index + 1))
+    setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, at_least } })
   }
 
 

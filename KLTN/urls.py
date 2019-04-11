@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView
 from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction
@@ -37,6 +37,8 @@ router.register('step-detail', StepDetailView, base_name='step-detail')
 router.register('events', EventView, base_name='events')
 #reports app
 router.register('reports', ReportView, base_name='reports')
+#account app
+router.register('sale-reps', SaleRepView, base_name='sale-reps')
 #------------------------------------------------------------------------------------#
 
 urlpatterns = []

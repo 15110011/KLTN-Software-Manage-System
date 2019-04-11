@@ -29,6 +29,7 @@ import ProductIcon from '@material-ui/icons/Archive';
 import InvoiceIcon from '@material-ui/icons/Receipt';
 import SaleOrderIcon from '@material-ui/icons/Description';
 import DealIcon from '@material-ui/icons/AttachMoney';
+import CategoryIcon from '@material-ui/icons/Category';
 import ProductivityIcon from '@material-ui/icons/Timeline';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import ReportIcon from '@material-ui/icons/Report';
@@ -38,6 +39,7 @@ import NoteIcon from '@material-ui/icons/Note';
 import ToolIcon from '@material-ui/icons/Build'
 import CalendarIcon from '@material-ui/icons/CalendarToday';
 import AccountCircle from '@material-ui/icons/PersonPin';
+import SettingsIcon from '@material-ui/icons/Settings';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import Badge from '@material-ui/core/Badge';
 import Menu from '@material-ui/core/Menu';
@@ -200,12 +202,6 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/campaigns')}>
-                <ListItemIcon>
-                  <CampaignIcon classes={{ root: classes.listItemIcon }} />
-                </ListItemIcon>
-                <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
-              </ListItem>
               <ListItem button className={classes.nested} onClick={() => props.history.push('/marketing-plans')}>
                 <ListItemIcon>
                   <MarketingListIcon classes={{ root: classes.listItemIcon }} />
@@ -224,6 +220,12 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Follow-up plan" classes={{ primary: classes.listItemText }} />
               </ListItem>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/campaigns')}>
+                <ListItemIcon>
+                  <CampaignIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
+              </ListItem>
             </List>
           </Collapse>
           <Divider classes={{ root: classes.divider }} />
@@ -241,6 +243,12 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle1} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/categories')}>
+                <ListItemIcon>
+                  <CategoryIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Category" classes={{ primary: classes.listItemText }} />
+              </ListItem>
               <ListItem button className={classes.nested} onClick={() => props.history.push('/products')}>
                 <ListItemIcon>
                   <ProductIcon classes={{ root: classes.listItemIcon }} />
@@ -345,6 +353,12 @@ const SidebarComponent = props => {
                   <CalendarIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Calendar" classes={{ primary: classes.listItemText }} />
+              </ListItem>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/settings')}>
+                <ListItemIcon>
+                  <SettingsIcon classes={{ root: classes.listItemIcon }} />
+                </ListItemIcon>
+                <ListItemText inset primary="Settings" classes={{ primary: classes.listItemText }} />
               </ListItem>
             </List>
           </Collapse>
