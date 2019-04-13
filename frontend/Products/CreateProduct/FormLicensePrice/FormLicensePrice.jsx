@@ -58,7 +58,6 @@ function FormLicensePrice(props) {
           </FormControl>
         </Grid>
         <Grid item xs={6}>
-
           <TextField
             margin="dense"
             label="Price"

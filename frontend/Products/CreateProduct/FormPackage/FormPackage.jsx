@@ -1,6 +1,8 @@
 import * as React from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import MaterialTable from 'material-table'
+import Typography from '@material-ui/core/Typography';
+import Divider from '@material-ui/core/Divider';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
@@ -9,12 +11,18 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
-import AddIcon from '@material-ui/icons/Add';
-import IconButton from '@material-ui/core/IconButton'
 import Menu from '@material-ui/core/Menu';
-import AccountCircle from '@material-ui/icons/PersonPin';
 import MenuItem from '@material-ui/core/MenuItem';
-import * as numeral from 'numeral'
+import TextField from '@material-ui/core/TextField';
+import FormLabel from '@material-ui/core/FormLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Checkbox from '@material-ui/core/Checkbox';
+import MenuItem from '@material-ui/core/MenuItem';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
 // Components
 import FormLicensePrice from '../FormLicensePrice/FormLicensePrice'
 import SelectCustom from '../../../components/SelectCustom'
@@ -34,6 +42,7 @@ function FormPackage(props) {
   const {
     createProduct,
     classes,
+    onChangeCreatePackage,
     anchorEl,
     handleProfileMenuOpen,
     onRemoveLicenseType,
@@ -42,10 +51,58 @@ function FormPackage(props) {
     onLicenseTypeClick,
     onChangeLicenseInput,
     handleRemovePackageForm,
-    handleChangeSelect
+    handleChangeSelect,
+    setPackageDialog,
+    packageDialog,
+    handleClosePackageDialog,
+    handleOpenPackageDialog,
+    createPackage,
+    handleCreatePackage
   } = props;
+  console.log(createProduct)
   return (
-    <Grid item xs={12}>
+    <div className={classes.root}>
+      <Dialog
+        open={packageDialog}
+        onClose={handleClosePackageDialog}
+        classes={{ paper: classes.paperRoot }}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogContent style={{ padding: '50px' }}>
+          <Grid container spacing={24}>
+            <Grid item xs={6}>
+              <Typography variant="h6">
+                Package Info
+              </Typography>
+              <Divider className="mt-2" />
+              <br />
+              <Input
+                placeholder="Type package's name..."
+                fullWidth
+                className={classes.input}
+                inputProps={{
+                  'aria-label': 'Package Name',
+                }}
+                name='name'
+                value={createPackage.name}
+                onChange={onChangeCreatePackage}
+              />
+            </Grid>
+            <Grid item xs={6}></Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions style={{ padding: '0 10px' }}>
+          <Button onClick={handleClosePackageDialog} color="default">
+            cancel
+            </Button>
+          <Button onClick={handleCreatePackage} color="primary">
+            Create
+            </Button>
+        </DialogActions>
+      </Dialog>
+    </div >
+    {/* <Grid item xs={12}>
       <MaterialTable
         columns={[
           { title: '', field: 'actions' },
@@ -179,7 +236,7 @@ function FormPackage(props) {
           paging: false,
         }}
       />
-    </Grid>
+    </Grid> */}
   )
 }
 
