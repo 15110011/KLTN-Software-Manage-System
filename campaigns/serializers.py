@@ -83,6 +83,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
 
 class ContactMarketingSerializer(serializers.ModelSerializer):
     marketing_plan = MarketingPlanSerialier()
+    campaign = CampaignSerializer()
 
     class Meta:
         model = models.ContactMarketing
