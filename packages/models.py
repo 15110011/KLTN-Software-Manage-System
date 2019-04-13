@@ -12,6 +12,11 @@ PRODUCT_CHOICES = (
 )
 # Create your models here.
 
+class ProductType(BaseModel):
+    name = models.CharField(max_length=255, null=True, blank=True)
+
+class ProductCategory(BaseModel):
+    name = models.CharField(max_length=255, null=True, blank=True)
 
 class Product(BaseModel):
     name = models.CharField(max_length=255)
@@ -21,7 +26,9 @@ class Product(BaseModel):
     status = models.TextField(choices=PRODUCT_CHOICES, default='ACTIVE')
     start_sale_date = models.DateField()
     start_support_date = models.DateField()
-    product_type = models.TextField(null=True, blank=True)
+    product_type = models.ForeignKey(ProductType, on_delete=models.CASCADE, related_name='products')
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE, related_name='products')
+    
 
     def _get_manager_product(self):
         return self.manager.id
