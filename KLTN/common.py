@@ -18,6 +18,6 @@ MARKETING_PLAN_CONDITIONS = {
         'id': '3',
         'name': 'Number of buying the same category',
         'operators': OPERATORS,
-        'operand_type': ''
+        'operand_category': ''
     }
 }

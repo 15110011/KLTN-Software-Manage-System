@@ -33,7 +33,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'theaqvteam@gmail.com'
 EMAIL_HOST_PASSWORD = 'aqvteam123'
 EMAIL_PORT = 587
-JET_DEFAULT_THEME = 'default'
+JET_DEFAULT_THEME = 'light-gray'
 JET_SIDE_MENU_COMPACT = True
 # Application definition
 

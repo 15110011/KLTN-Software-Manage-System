@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MarketingPlan, FollowUpPlan, Campaign
-from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
 from rest_framework import status
 from .documents import MarketingPlanDocument, CampaignDocument
 from django.forms.models import model_to_dict
@@ -45,14 +45,15 @@ def ContactMatchConditions(request):
                 excludes.add(Q(state=condition['data']), Q.AND)
         if condition['id'] == 2:
             if condition['operator'] == 'Equal to':
-                Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                result = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
                     packages__features__product__type=condition['data']).values('contacts').annotate(total=Count('contacts'))
+                
 
 
 class MarketingPlanView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = MarketingPlan.objects
-    serializer_class = MarketingPlanSerialier
+    serializer_class = MarketingPlanSerializer
 
     def get_queryset(self):
         if not bool(self.request.query_params):
