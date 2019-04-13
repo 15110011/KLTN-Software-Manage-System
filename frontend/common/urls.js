@@ -23,6 +23,7 @@ export const CAMPAIGNS_URL = `${API_URL}campaigns`
 export const MARKETING_PLANS_URL = `${API_URL}marketing-plans`
 export const FOLLOW_UP_PLANS_URL = `${API_URL}follow-up-plans`
 export const GET_ACTIONS_URL = `${API_URL}actions`
+export const EVENTS_URL = `${API_URL}events`
 export const GET_SALE_REPS_URL = `${API_URL}sale-reps`
 
 export { serverUrl, API_URL }

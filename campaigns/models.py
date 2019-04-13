@@ -1,9 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 from KLTN.models import BaseModel
+from KLTN.common import PRIORITY_CHOICES
 from contacts.models import Contact
+
 # Create your models here.
+
 
 
 class MailTemplate(BaseModel):
@@ -16,7 +19,8 @@ class MailTemplate(BaseModel):
 class MarketingPlan(BaseModel):
     name = models.CharField(max_length=255)
     condition = JSONField()
-    actions = JSONField()
+    actions = ArrayField(models.CharField(max_length=10, blank=True),
+                         size=8, default=list)
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='marketing_plan')
     contacts = models.ManyToManyField(
@@ -47,8 +51,8 @@ class Campaign(BaseModel):
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='campaigns')
     name = models.CharField(max_length=255)
-    start_date = models.DateField(auto_now_add=True)
-    end_date = models.DateField(auto_now_add=True)
+    start_date = models.DateField()
+    end_date = models.DateField()
     desc = models.TextField()
     mail_template = models.ForeignKey(
         MailTemplate, on_delete=models.SET_NULL, related_name="campaigns", blank=True, null=True)
@@ -60,10 +64,17 @@ class Campaign(BaseModel):
         return f'{self.name}'
 
 
+CONTACT_MARKETING_CHOICE = (
+    ('FAILED', 'Failed'),
+    ('RUNNING', 'Running'),
+    ('COMPLETED', 'Completed')
+)
+
 class ContactMarketing(BaseModel):
     marketing_plan = models.ForeignKey(MarketingPlan, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     campaign = models.ForeignKey(
         Campaign, related_name='contact_marketing_plan', on_delete=models.CASCADE)
-    is_completed = models.BooleanField(default=False)
-    priority = models.TextField()
+    status = models.TextField(choices=CONTACT_MARKETING_CHOICE, default="RUNNING")
+    priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+

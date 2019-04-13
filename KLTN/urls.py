@@ -9,8 +9,8 @@ from rest_framework_simplejwt.views import (
 from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView
 from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
-from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction
-from orders.views import OrderHistoryView, OrderView, PackageOrderView
+from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions
+from orders.views import OrderHistoryView, OrderView
 from steps.views import StepView, StepDetailView
 from events.views import EventView
 from reports.views import ReportView
@@ -26,7 +26,6 @@ router.register('campaigns', CampaignView, base_name='campaigns')
 #order app
 router.register('orders', OrderView, base_name='orders')
 router.register('order-histories', OrderHistoryView, base_name='order-histories')
-router.register('package-orders', PackageOrderView, base_name='package-orders')
 #contact app
 router.register('contacts', ContactView, base_name='contacts')
 router.register('contactgroups', ContactGroupView, base_name='contactgroups')
@@ -45,6 +44,7 @@ urlpatterns = []
 urlpatterns += router.urls
 
 urlpatterns = [
+    path('jet/', include('jet.urls', 'jet')),
     path('admin/', admin.site.urls),
     path('api/v1/', include(router.urls)),
     path('api/v1/token', TokenObtainPairView.as_view(),
@@ -59,5 +59,8 @@ urlpatterns = [
     path('api/v1/logout', LogoutView),
     path('api/v1/register', RegisterView.as_view()),
     path('api/v1/activate', ActivateView),
-    path('api/v1/actions', GetPlanAction)
+    path('api/v1/actions', GetPlanAction),
+    path('api/v1/marketing-plans-conditions', GetMarketingPlanConditions),
+    path('api/v1/contacts-match-conditions', ContactMatchConditions)
+
 ]

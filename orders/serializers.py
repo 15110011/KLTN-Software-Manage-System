@@ -35,12 +35,6 @@ class CreateOrderSerialzier(serializers.ModelSerializer):
         return order
 
 
-class PackageOrderSerialzier(serializers.ModelSerializer):
-    class Meta:
-        model = models.PackageOrder
-        fields = '__all__'
-
-
 class OrderHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderHistory
