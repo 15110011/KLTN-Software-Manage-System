@@ -40,6 +40,12 @@ const styles = theme => ({
   },
   addFeatureButton: {
     padding: 10
+  },
+  'sum-row: parent': {
+    color: 'red !important'
+  },
+  textFieldCustom: {
+    width: 70
   }
 });
 

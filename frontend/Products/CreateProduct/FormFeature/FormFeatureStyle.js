@@ -10,9 +10,6 @@ const styles = theme => ({
   inputCustom: {
     position: 'relative'
   },
-  fixFormControl: {
-    width: '100%'
-  },
 })
 
 export default styles;

@@ -18,7 +18,6 @@ function UserList(props) {
     data: [],
     total: 0
   })
-  console.log(userData)
   const { classes } = props;
   const search = {}
 
@@ -32,9 +31,7 @@ function UserList(props) {
 
   return (
     <div className={classes.root}>
-      {createUserDialog &&
-        <CreateUser createUserDialog={createUserDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
-      }
+      <CreateUser createUserDialog={createUserDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
       <Grid classes={{ container: classes.fixTable }} container spacing={24}>
         <Grid item xs={12}>
           <MaterialTable

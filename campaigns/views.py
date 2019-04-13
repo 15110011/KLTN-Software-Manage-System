@@ -1,13 +1,18 @@
 from django.shortcuts import render
+from django.db.models import Q, Count
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from .models import MarketingPlan, FollowUpPlan, Campaign
-from .serializers import MarketingPlanSerialier, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
 from rest_framework import status
 from .documents import MarketingPlanDocument, CampaignDocument
 from django.forms.models import model_to_dict
+from KLTN.common import MARKETING_PLAN_CONDITIONS
+from orders.models import Order
+from contacts.models import Contact
+from contacts.serializers import ContactWithoutGroupSerializer
 
 # Create your views here.
 
@@ -15,14 +20,127 @@ ACTIONS = ['Send Email', 'Call Clients', 'Send Email Manually', 'Chat']
 
 
 @api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
 def GetPlanAction(request):
     return Response({"actions": ACTIONS}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated, ))
+def GetMarketingPlanConditions(request):
+    return Response(MARKETING_PLAN_CONDITIONS, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def ContactMatchConditions(request):
+    contacts = request.data.get('contacts', None)
+    conditions = request.data.get('conditions', None)
+    filters = Q()
+    excludes = Q()
+    for condition in conditions:
+        if condition['id'] == 1:
+            if condition['operator'] == 'Equal to':
+                filters.add(Q(state=condition['data']), Q.AND)
+                queryset = Contact.objects.filter(filters)
+                queryset = ContactWithoutGroupSerializer(queryset, many=True).data
+                return Response(queryset, status=status.HTTP_200_OK)
+
+            if condition['operator'] == 'Not equal to':
+                excludes.add(Q(state=condition['data']), Q.AND)
+                queryset = Contact.objects.exclude(excludes)
+                queryset = ContactWithoutGroupSerializer(queryset, many=True).data
+                return Response(queryset, status=status.HTTP_200_OK)
+
+        if condition['id'] == 2:
+            try:
+                if condition['operator'] == 'Equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
+                            total=Count('contacts')).filter(total=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Not equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
+                            total=Count('contacts'))
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Greater than':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
+                            total=Count('contacts')).filter(total__gt=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Less than':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
+                            total=Count('contacts')).filter(total__lt=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Greater than or equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
+                            total=Count('contacts')).filter(total__gte=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Less than or equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
+                            total=Count('contacts')).filter(total__lte=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "OPERATOR_NOT_VALID"}, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response({"error": 'OPERATOR_CANNOT_BE_BLANK'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if condition['id'] == 3:
+            try:
+                if condition['operator'] == 'Equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
+                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                                total=Count('contacts')).filter(total=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Not equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
+                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                                total=Count('contacts')).filter(total=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Greater than':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
+                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                                total=Count('contacts')).filter(total__gt=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Less than':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
+                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                                total=Count('contacts')).filter(total__lt=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Greater than or equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
+                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                                total=Count('contacts')).filter(total__gte=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+
+                if condition['operator'] == 'Less than or equal to':
+                    queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
+                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                                total=Count('contacts')).filter(total__lte=condition['data'])
+                    return Response(queryset, status=status.HTTP_200_OK)
+                else:
+                    return Response({"error": "OPERATOR_NOT_VALID"}, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                return Response({"error": 'OPERATOR_CANNOT_BE_BLANK'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MarketingPlanView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = MarketingPlan.objects
-    serializer_class = MarketingPlanSerialier
+    serializer_class = MarketingPlanSerializer
 
     def get_queryset(self):
         if not bool(self.request.query_params):

@@ -7,7 +7,7 @@ from contacts.models import Contact
 from . import models
 
 
-class MarketingPlanSerialier(serializers.ModelSerializer):
+class MarketingPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MarketingPlan
         fields = '__all__'
@@ -65,7 +65,7 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
 
 class CampaignSerializer(serializers.ModelSerializer):
     follow_up_plan = FollowUpPlanSerializer()
-    marketing_plan = MarketingPlanSerialier()
+    marketing_plan = MarketingPlanSerializer()
     manager = MeSerializer()
 
     class Meta:

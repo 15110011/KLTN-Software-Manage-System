@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Order, OrderHistory, PackageOrder
+from .models import Order, OrderHistory
 
 
 @admin.register(Order)
@@ -10,6 +10,3 @@ class OrderAdmin(admin.ModelAdmin):
 class OrderHistoryAdmin(admin.ModelAdmin):
     pass    
 
-@admin.register(PackageOrder)
-class PackageOrderAdmin(admin.ModelAdmin):
-    pass
