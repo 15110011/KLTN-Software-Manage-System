@@ -13,6 +13,7 @@ import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
 
+import MoreDialog from './MoreDialog'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
 function MarketingTable(props) {
@@ -20,6 +21,12 @@ function MarketingTable(props) {
   const { classes, tableMarketingRef, forceActivities, forceMarketing } = props
 
   const [deletingRow, setDeletingRow] = React.useState({})
+  const [movingRow, setMovingRow] = React.useState({})
+  const [moreRow, setMoreRow] = React.useState({})
+
+  const [laterDialog, setLaterDialog] = React.useState(false)
+  const [moreDialog, setMoreDialog] = React.useState(false)
+
 
 
 
@@ -37,8 +44,41 @@ function MarketingTable(props) {
     })
   }
 
+  const onMoveToFollowUp = () => {
+    console.log(movingRow)
+    apiPatch(EVENTS_URL + '/' + movingRow.id,
+      { marketing: { status: 'COMPLETED' }, contacts: [movingRow.contact] },
+      false, true).then(res => {
+        forceMarketing()
+        forceActivities()
+        setMovingRow({})
+      })
+  }
+
   return (
     <>
+      {moreDialog && <MoreDialog setDialog={stt => { setMoreDialog(stt) }}
+        histories={moreRow.histories}
+        campaign={moreRow.campaign} contact={moreRow.contact} />}
+      <Dialog open={Object.keys(movingRow).length != 0}
+        onClose={() => { setMovingRow({}) }
+        }
+      >
+        <DialogTitle>
+          MOVE CONTACT {movingRow.full_name} TO FOLLOW-UP
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <div>
+              This action cannot be undone
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setMovingRow({}) }}>Cancel</Button>
+          <Button color='primary' onClick={() => { onMoveToFollowUp() }}>Move</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog open={Object.keys(deletingRow).length != 0}
         onClose={() => { setDeletingRow({}) }
         }
@@ -85,7 +125,7 @@ function MarketingTable(props) {
           { title: 'Phone', field: 'phone' },
           { title: 'Email', field: 'mail' },
           {
-            title: 'Campaign', field: 'campaign'
+            title: 'Campaign', field: 'campaignName'
           },
         ]}
         data={(query) =>
@@ -101,8 +141,11 @@ function MarketingTable(props) {
                     full_name: c.first_name + ' ' + c.last_name,
                     mail: c.mail,
                     phone: c.phone,
-                    campaign: d.marketing.marketing_plan.name,
-                    id: d.id
+                    campaignName: d.marketing.campaign.name,
+                    id: d.id,
+                    contact: c,
+                    campaign: d.marketing.campaign,
+                    histories: d.marketing.histories
                   })
                 })
               })
@@ -127,15 +170,17 @@ function MarketingTable(props) {
           {
             icon: 'swap_horiz',
             tooltip: 'Move to Follow-up',
-            onClick: (event, rows) => {
-              console.log('asflkajsf');
+            onClick: (event, row) => {
+              setMovingRow(row)
             },
           },
           {
             icon: 'more_vert',
             tooltip: 'More actions',
-            onClick: (event, rows) => {
-              console.log('asflkajsf');
+            onClick: (event, row) => {
+              setMoreRow(row)
+              setMoreDialog(true)
+
             },
           },
         ]}
@@ -144,7 +189,8 @@ function MarketingTable(props) {
           filtering: false,
           paging: true,
           actionsColumnIndex: -1,
-          debounceInterval: 300
+          debounceInterval: 300,
+          sorting: false
         }}
       />
     </>

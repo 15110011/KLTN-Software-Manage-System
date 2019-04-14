@@ -3,6 +3,7 @@ from account.serializers import MeSerializer
 from steps.serializers import StepSerialzier, StepWithOutFollowUpSerializer
 from steps.models import Step
 from contacts.models import Contact
+from packages.serializers import PackageSerializer
 
 from . import models
 
@@ -16,11 +17,12 @@ class MarketingPlanSerializer(serializers.ModelSerializer):
 class CreateMarketingPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MarketingPlan
-        exclude= ['contacts']
+        exclude = ['contacts']
 
     def create(self, validated_data):
         marketing_plan = super().create(validated_data)
         return marketing_plan
+
 
 class FollowUpPlanSerializer(serializers.ModelSerializer):
     steps = StepWithOutFollowUpSerializer(many=True)
@@ -67,6 +69,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     follow_up_plan = FollowUpPlanSerializer()
     marketing_plan = MarketingPlanSerializer()
     manager = MeSerializer()
+    packages = PackageSerializer(many=True)
 
     class Meta:
         model = models.Campaign
@@ -81,9 +84,18 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class ContactMarketingHistorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ContactMarketingHistory
+        fields = '__all__'
+        
+
+
 class ContactMarketingSerializer(serializers.ModelSerializer):
-    marketing_plan = MarketingPlanSerialier()
+    marketing_plan = MarketingPlanSerializer()
     campaign = CampaignSerializer()
+    histories = ContactMarketingHistorySerializer(many=True)
 
     class Meta:
         model = models.ContactMarketing

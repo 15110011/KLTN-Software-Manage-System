@@ -21,3 +21,4 @@ MARKETING_PLAN_CONDITIONS = {
         'operand_category': ''
     }
 }
+

@@ -11,6 +11,8 @@ import re
 
 class ContactWithoutGroupSerializer(serializers.ModelSerializer):
 
+    id = serializers.IntegerField(required=False)
+
     class Meta:
         model = models.Contact
         # exclude = ['groups']

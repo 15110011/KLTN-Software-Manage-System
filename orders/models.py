@@ -10,7 +10,8 @@ from steps.models import StepDetail
 ORDER_CHOICES = (
     ('FAILED', 'Failed'),
     ('RUNNING', 'Running'),
-    ('COMPLETED', 'COMPLETED')
+    ('COMPLETED', 'COMPLETED'),
+    ('OVERDUE', 'Overdue')
 )
 
 

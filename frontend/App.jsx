@@ -8,6 +8,9 @@ import Content from './Content'
 import './assets/index.css'
 
 const ProvidedContent = () => (
+
+  
+
   <BrowserRouter>
     <ThroughProvider>
       <Content />

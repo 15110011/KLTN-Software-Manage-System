@@ -4,9 +4,9 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from KLTN.models import BaseModel
 from KLTN.common import PRIORITY_CHOICES
 from contacts.models import Contact
+from packages.models import Package
 
 # Create your models here.
-
 
 
 class MailTemplate(BaseModel):
@@ -56,6 +56,8 @@ class Campaign(BaseModel):
     desc = models.TextField()
     mail_template = models.ForeignKey(
         MailTemplate, on_delete=models.SET_NULL, related_name="campaigns", blank=True, null=True)
+    packages = models.ManyToManyField(
+        Package, related_name='campaigns', blank=True)
 
     def _get_manager_campaign(self):
         return self.manager.id
@@ -67,14 +69,29 @@ class Campaign(BaseModel):
 CONTACT_MARKETING_CHOICE = (
     ('FAILED', 'Failed'),
     ('RUNNING', 'Running'),
-    ('COMPLETED', 'Completed')
+    ('COMPLETED', 'Completed'),
+    ('OVERDUE', 'Overdue')
 )
+
 
 class ContactMarketing(BaseModel):
     marketing_plan = models.ForeignKey(MarketingPlan, on_delete=models.CASCADE)
     contact = models.ForeignKey(Contact, on_delete=models.CASCADE)
     campaign = models.ForeignKey(
         Campaign, related_name='contact_marketing_plan', on_delete=models.CASCADE)
-    status = models.TextField(choices=CONTACT_MARKETING_CHOICE, default="RUNNING")
+    status = models.TextField(
+        choices=CONTACT_MARKETING_CHOICE, default="RUNNING")
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
+    class Meta:
+        unique_together = (('marketing_plan', 'contact'),)
+
+
+class ContactMarketingHistory(BaseModel):
+
+    contact_marketing = models.ForeignKey(
+        ContactMarketing, on_delete=models.CASCADE, related_name="histories")
+    action = models.CharField(max_length=20)
+
+    class Meta:
+        ordering= ('-created',)

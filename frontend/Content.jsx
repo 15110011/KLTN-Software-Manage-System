@@ -19,6 +19,7 @@ import Login from './auth/Login';
 import { NOT_AUTHORIZED, BAD_REQUEST } from './common/Code'
 import { MeAPI, REFRESH_TOKEN_URL } from './common/urls'
 import { apiGet, apiPost } from './common/Request'
+import { CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES } from './common/Utils'
 import USER_CONTEXT from './components/UserContext'
 import Register from './auth/Register';
 import Dashboard from './Dashboard/DashboardContainer';
@@ -53,14 +54,49 @@ class Content extends React.Component {
       }
     },
     login: Boolean(localStorage.getItem('token')),
-    initUrl: window.location.pathname == '/register' || window.location.pathname == '/login' ? '/dashboard' : window.location.pathname
+    initUrl: window.location.pathname == '/register' || window.location.pathname == '/login' ? '/dashboard' : window.location.pathname,
+    readyGmail: false,
+
   };
 
   componentWillMount() {
     this.getMe()
+    // if(gapi)
+    // gapi.client.init({
+    //   apiKey: API_KEY,
+    //   clientId: CLIENT_ID,
+    //   discoveryDocs: DISCOVERY_DOCS,
+    //   scope: SCOPES
+    // })
     // if (window.location.pathname != '/login') {
     //   this.setState({ initUrl:  })
     // }
+  }
+
+  componentDidMount() {
+    function initGoogle(func) {
+
+      window.gapi.load('client:auth2', function () {
+        window.gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(func)
+      });
+    }
+    const googleLoadTimer = setInterval(() => {
+      window.loadingStatus = 'INIT'
+      if (window.gapi) {
+        window.loadingStatus = 'LOADING'
+        clearInterval(googleLoadTimer);
+        initGoogle(() => {
+          window.loadingStatu = 'LOADED'
+          this.setState({ readyGmail: true })
+        });
+      }
+    }, 90);
+
   }
 
   refreshToken = () => {
@@ -108,7 +144,7 @@ class Content extends React.Component {
 
   render() {
     const { classes } = this.props;
-    const { user, initUrl, login } = this.state;
+    const { user, initUrl, login, readyGmail } = this.state;
 
     return (
       <USER_CONTEXT.Provider value={{ user }}>
@@ -148,7 +184,7 @@ class Content extends React.Component {
               )}
             </Switch>
 
-            {login && user.username &&
+            {login && user.username && readyGmail &&
               <Switch>
                 <Route
                   path="/dashboard"

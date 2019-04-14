@@ -16,7 +16,7 @@ from contacts.serializers import ContactWithoutGroupSerializer
 
 # Create your views here.
 
-ACTIONS = ['Send Email', 'Call Clients', 'Send Email Manually', 'Chat']
+ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually', 'Chat']
 
 
 @api_view(['GET'])
@@ -43,13 +43,15 @@ def ContactMatchConditions(request):
             if condition['operator'] == 'Equal to':
                 filters.add(Q(state=condition['data']), Q.AND)
                 queryset = Contact.objects.filter(filters)
-                queryset = ContactWithoutGroupSerializer(queryset, many=True).data
+                queryset = ContactWithoutGroupSerializer(
+                    queryset, many=True).data
                 return Response(queryset, status=status.HTTP_200_OK)
 
             if condition['operator'] == 'Not equal to':
                 excludes.add(Q(state=condition['data']), Q.AND)
                 queryset = Contact.objects.exclude(excludes)
-                queryset = ContactWithoutGroupSerializer(queryset, many=True).data
+                queryset = ContactWithoutGroupSerializer(
+                    queryset, many=True).data
                 return Response(queryset, status=status.HTTP_200_OK)
 
         if condition['id'] == 2:
@@ -98,38 +100,38 @@ def ContactMatchConditions(request):
             try:
                 if condition['operator'] == 'Equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
-                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
-                                total=Count('contacts')).filter(total=condition['data'])
+                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        total=Count('contacts')).filter(total=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Not equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
-                                total=Count('contacts')).filter(total=condition['data'])
+                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        total=Count('contacts')).filter(total=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Greater than':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
-                                total=Count('contacts')).filter(total__gt=condition['data'])
+                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        total=Count('contacts')).filter(total__gt=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Less than':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
-                                total=Count('contacts')).filter(total__lt=condition['data'])
+                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        total=Count('contacts')).filter(total__lt=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Greater than or equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
-                                total=Count('contacts')).filter(total__gte=condition['data'])
+                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        total=Count('contacts')).filter(total__gte=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Less than or equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                            packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
-                                total=Count('contacts')).filter(total__lte=condition['data'])
+                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        total=Count('contacts')).filter(total__lte=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
                 else:
                     return Response({"error": "OPERATOR_NOT_VALID"}, status=status.HTTP_400_BAD_REQUEST)
@@ -281,7 +283,8 @@ class CampaignView(ModelViewSet):
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = CreateCampaignSerializer(data=request.data)
+        serializer = CreateCampaignSerializer(
+            data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -290,7 +293,7 @@ class CampaignView(ModelViewSet):
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = CreateCampaignSerializer(
-            instance, data=request.data, partial=True)
+            instance, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)

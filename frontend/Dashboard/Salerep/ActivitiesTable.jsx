@@ -20,6 +20,7 @@ function ActivitiesTable(props) {
 
   //Activity
   const activitySearch = {}
+  const activityOrder = []
   let activePageActivity = 0
 
   return (
@@ -28,6 +29,18 @@ function ActivitiesTable(props) {
       tableRef={tableActivtyRef}
       components={
         {
+          Header: props => <MTableHeader {...props}
+            onOrderChange={(orderBy, dir) => {
+              activityOrder.forEach((order, index) => {
+                if (orderBy != index) {
+                  activityOrder[index] = null
+                }
+              })
+              activityOrder[orderBy] = dir
+
+              props.onOrderChange(orderBy, dir)
+            }}
+          />,
           Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
             if (columnId == 1) {
               activitySearch.priority = value
@@ -38,7 +51,8 @@ function ActivitiesTable(props) {
             console.log(columnId, value)
             activePageActivity = 0
             props.onFilterChanged(columnId, value);
-          }} />,
+          }}
+          />,
           Toolbar: props =>
             <Card plain>
               <CardHeader color="success">
@@ -64,14 +78,14 @@ function ActivitiesTable(props) {
           ,
           render: rowData => {
             if (rowData.priority == 'Low') {
-              return <p className="text-success">Low</p>
+              return <div className="text-success">Low</div>
             }
 
             else if (rowData.priority == 'Medium') {
-              return <p className="text-warning">Medium</p>
+              return <div className="text-warning">Medium</div>
             }
 
-            return <p className="text-danger">High</p>
+            return <div className="text-danger">High</div>
           },
           lookup: {
             0: 'Low',
@@ -87,6 +101,8 @@ function ActivitiesTable(props) {
         new Promise((resolve, reject) => {
           let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
           searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
+          searchString += `${activityOrder[2] ? '&remainingOrder=' + activityOrder[2] : ''}`
+          searchString += `${activityOrder[1] ? '&priorityOrder=' + activityOrder[1] : ''}`
           apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString, true).then(res => {
             const data = res.data.data.map((d, index) => {
               const priority = ['Low', 'Medium', 'High']

@@ -35,6 +35,47 @@ const styles = (theme) => ({
       fontWeight: "400",
       lineHeight: "1"
     }
+  },
+  btnGreen: {
+    color: '#FFF',
+    backgroundColor: '#4CAF50',
+    "&:hover": {
+      backgroundColor: '#347f37'
+    }
+  },
+  btnPink: {
+    color: '#FFF',
+    backgroundColor: '#E10050',
+    "&:hover": {
+      backgroundColor: '#b20442'
+    }
+  },
+  btnBlue: {
+    color: '#FFF',
+    backgroundColor: '#17A2B8',
+    "&:hover": {
+      backgroundColor: '#106c7b'
+    }
+  },
+  btnYellow: {
+    color: '#FFF',
+    backgroundColor: '#FFC107',
+    "&:hover": {
+      backgroundColor: '#b28808'
+    }
+  },
+  rootTransparent: {
+    backgroundColor: 'transparent',
+    boxShadow: 'unset'
+  },
+  linkStyle: {
+    color: '#007bff',
+    textDecoration: 'none',
+    backgroundColor: 'transparent',
+    '&:hover': {
+      color: '#0056b3',
+      textDecoration: 'underline'
+    }
   }
 })
 

@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { withStyles } from '@material-ui/core/styles';
-import MaterialTable from 'material-table'
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
