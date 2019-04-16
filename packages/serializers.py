@@ -53,14 +53,6 @@ class PackageHistorySerializer(serializers.ModelSerializer):
         fields = '__al__'
 
 
-class CreateProductSerializer(serializers.ModelSerializer):
-    packages = PackageSerializer(many=True)
-
-    class Meta:
-        model = Feature
-        fields = '__all__'
-
-
 class ProductSerializier(serializers.ModelSerializer):
     manager = MeSerializer()
     features = FeatureSerializer(many=True)
@@ -82,6 +74,8 @@ class CreateProductSerializer(serializers.ModelSerializer):
     manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
     features = FeatureSerializer(many=True)
     packages = serializers.SerializerMethodField()
+    id = serializers.IntegerField(required=False)
+
 
     class Meta:
         model = Product
@@ -94,26 +88,32 @@ class CreateProductSerializer(serializers.ModelSerializer):
         return package_serialized.data
 
     def create(self, validated_data):
-        # packages = [Package(**p) for p in validated_data.pop('packages')]
-        packages = validated_data.pop('packages')
-        features = validated_data.pop('features')
-        product = super().create(validated_data)
-        features = [Feature(**f, product=product)
-                    for f in features]
-        features = Feature.objects.bulk_create(features)
-        new_packages = []
-        for p in packages:
-            cur_features = []
-            for num in p['numbers']:
-                for f in features:
-                    if f.number == num:
-                        cur_features.append(f)
-
-            cur_package = Package(
-                name=p['name'], prices=p['prices'], discount=p['discount'])
-
-            cur_package.save()
-            cur_package.features.set(cur_features)
+        packages = validated_data.pop('packages', None)
+        features = validated_data.pop('features', None)
+        product_id = validated_data.get('id', None)
+        if product_id is None:
+            product = super().create(validated_data)
+        
+        product = self.update(Product.objects.get(id=product_id), **validated_data)
+        if features is not None:
+            for feature in features:
+                feature = Feature(**feature, product=product)
+                feature.save()
+                # if feature.get('id', None) is None:
+                #     feature = Feature(**feature, product=product)
+                #     feature.save()
+                # else:
+                #     feature = self.update(Product.objects.get(id=feature['id']), {**validated_data, 'features': feaut})
+        if packages is not None:
+            for p in packages:
+                cur_features = []
+                for num in p['numbers']:
+                    for f in features:
+                        if f.number == num:
+                            cur_features.append(f)
+                cur_package = Package(**p)
+                cur_package.save()
+                cur_package.features.set(cur_features)
         return product
 
     def update(self, instance, validated_data):
