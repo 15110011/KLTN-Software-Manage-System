@@ -100,37 +100,37 @@ def ContactMatchConditions(request):
             try:
                 if condition['operator'] == 'Equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Not equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Greater than':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__gt=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Less than':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__lt=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Greater than or equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__gte=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Less than or equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__lte=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
                 else:
