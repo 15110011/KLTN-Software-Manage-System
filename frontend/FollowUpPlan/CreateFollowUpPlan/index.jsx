@@ -19,10 +19,16 @@ import StepDetail from './StepDetail'
 import { FOLLOW_UP_PLANS_URL, GET_ACTIONS_URL, REFRESH_TOKEN_URL } from '../../common/urls';
 import useFetchData from '../../CustomHook/useFetchData'
 import { BAD_REQUEST } from "../../common/Code";
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import CloseIcon from '@material-ui/icons/Close';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import IconButton from '@material-ui/core/IconButton';
 
 
 function CreateFollowUpPlan(props) {
-  const { classes } = props
   const [activeStep, setActiveStep] = React.useState(0)
   const [completeNotice, setCompleteNotice] = React.useState(false)
   const [error, setError] = React.useState(false)
@@ -116,98 +122,116 @@ function CreateFollowUpPlan(props) {
       })
   }
 
+  const { classes, createFollowUpPlanDialog, handleCloseCreateFollowUpPlan } = props
+
   return (
-    <div className={classes.root}>
-      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
-      {error && (
-        Object.keys(error).forEach((key) => <CustomSnackbar isErr msg={error[key]} />)
-      )}
-      <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
-      <div style={{ textAlign: 'left', padding: '40px' }}>
-        <Grid container spacing={24}>
-          <Grid item xs={8}>
+    <div>
+      <Dialog
+        open={createFollowUpPlanDialog}
+        onClose={handleCloseCreateFollowUpPlan}
+        classes={{ paper: classes.paperRoot }}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle style={{position: 'relative'}} id="customized-dialog-title" onClose={handleCloseCreateFollowUpPlan}>
+            Create Follow-up Plan
+          <div style={{position: 'absolute', top: '12px', right: '12px'}}>
+            <IconButton aria-label="Close" onClick={handleCloseCreateFollowUpPlan}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+          {error && (
+            Object.keys(error).forEach((key) => <CustomSnackbar isErr msg={error[key]} />)
+          )}
+          <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
+          <div style={{ textAlign: 'left', padding: '40px' }}>
             <Grid container spacing={24}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabel,
-                    focused: classes.cssFocused,
-                  }}
-                  className={error.name ? classes.danger : null}
-                >
-                  Plan name
-            </InputLabel>
-              </Grid>
               <Grid item xs={8}>
-                <Input
-                  fullWidth
-                  required
-                  onChange={onChangeCreatePlan}
-                  value={followUpPlan.name}
-                  name="name"
-                  classes={{
-                    underline: classes.cssUnderline,
-                  }}
-                />
+                <Grid container spacing={24}>
+                  <Grid className={classes.inputCustom} item xs={4}>
+                    <InputLabel
+                      required
+                      htmlFor="custom-css-standard-input"
+                      classes={{
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused,
+                      }}
+                      className={error.name ? classes.danger : null}
+                    >
+                      Plan name
+            </InputLabel>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Input
+                      fullWidth
+                      required
+                      onChange={onChangeCreatePlan}
+                      value={followUpPlan.name}
+                      name="name"
+                      classes={{
+                        underline: classes.cssUnderline,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-        </Grid>
-      </div>
-      <Tooltip title="Add more steps">
-        <Fab onClick={addMoreSteps} size={'small'} color="primary" className={classes.fab}>
-          <AddIcon />
-        </Fab>
-      </Tooltip>
-      <div className={cn(classes.stepper)}>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {followUpPlan.steps.map((label, index) => (
-            <Step key={'steplabel' + index}>
-              <StepLabel onClick={() => setActiveStep(index)}
-                style={{ cursor: 'pointer' }}
-              >Step {index + 1}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-      </div>
-      <div className={cn(classes.actionsContainer, 'mt-5')}>
-        {
-          followUpPlan.steps.map((step, index) => {
-            let curStep = step
-            if (activeStep == index) {
-              return (
-                <Grid item xs={8}>
-                  <StepDetail
-                    key={'step' + index}
-                    activeStep={activeStep}
-                    onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
-                    handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
-                    handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
-                    createStep={curStep}
-                    actions={actions}
-                  />
-                </Grid>
-              )
-            }
-            else return <></>
-          })
+          </div>
+          <div className={cn(classes.stepper)}>
+            <Stepper activeStep={activeStep} alternativeLabel>
+              {followUpPlan.steps.map((label, index) => (
+                <Step key={'steplabel' + index}>
+                  <StepLabel onClick={() => setActiveStep(index)}
+                    style={{ cursor: 'pointer' }}
+                  >Step {index + 1}</StepLabel>
+                </Step>
+              ))}
+              <Step classes={{root: classes.addStep}} onClick={addMoreSteps}>
+                <StepLabel StepIconProps={{ icon: <AddIcon /> }}>Add Step</StepLabel>
+              </Step>
+            </Stepper>
+          </div>
+          <div className={cn(classes.actionsContainer, 'mt-5')}>
+            {
+              followUpPlan.steps.map((step, index) => {
+                let curStep = step
+                if (activeStep == index) {
+                  return (
+                    <Grid item xs={8}>
+                      <StepDetail
+                        key={'step' + index}
+                        activeStep={activeStep}
+                        onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
+                        handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
+                        handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
+                        createStep={curStep}
+                        actions={actions}
+                      />
+                    </Grid>
+                  )
+                }
+                else return <></>
+              })
 
-        }
-        <div className="d-flex justify-content-center">
-          <Button
-            disabled={activeStep === 0}
-            onClick={handleBack}
-            className={classes.backButton}
-          >
-            Back
+            }
+            <div className="d-flex justify-content-center">
+              <Button
+                disabled={activeStep === 0}
+                onClick={handleBack}
+                className={classes.backButton}
+              >
+                Back
                 </Button>
-          <Button variant="contained" color="primary" onClick={handleNext}>
-            {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
-          </Button>
-        </div>
-      </div>
+              <Button variant="contained" color="primary" onClick={handleNext}>
+                {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
