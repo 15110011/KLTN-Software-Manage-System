@@ -1,3 +1,7 @@
+import { relative } from "path";
+
+import { relative } from "path";
+
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -36,7 +40,7 @@ const styles = theme => ({
     padding: '12px',
   },
   addIcon: {
-    marginLeft: theme.spacing.unit 
+    marginLeft: theme.spacing.unit
   },
   addFeatureButton: {
     padding: 10
@@ -46,7 +50,7 @@ const styles = theme => ({
   },
   textFieldCustom: {
     width: 70
-  }
+  },
 });
 
 export default styles;

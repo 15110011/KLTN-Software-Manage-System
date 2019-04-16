@@ -50,10 +50,10 @@ function CampaignContainer(props) {
                     style: { color: 'black' }
                   }}
                 />
-
+{/* 
                 {canClickAdd &&
                   <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/campaigns/add')}><AddIcon />&nbsp;Add Campaigns</Button>
-                }
+                } */}
               </Paper>
               <BreadcrumbsItem to='/campaigns'>CAMPAIGNS</BreadcrumbsItem>
               <Switch>

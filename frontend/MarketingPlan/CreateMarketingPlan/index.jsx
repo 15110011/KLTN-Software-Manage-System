@@ -21,7 +21,12 @@ import IconButton from '@material-ui/core/IconButton';
 import DeleteIcon from '@material-ui/icons/Delete';
 import RemoveIcon from '@material-ui/icons/Remove'
 import StepButton from '@material-ui/core/StepButton';
-
+import CloseIcon from '@material-ui/icons/Close';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import styles from './CreateMarketingPlanStyle'
 
 // Components 
@@ -364,7 +369,6 @@ function CreateMarketingPlan(props) {
     actions: {},
     manager: ''
   })
-  const { classes } = props;
 
   const handleReset = () => {
     setActiveStep(0)
@@ -479,49 +483,68 @@ function CreateMarketingPlan(props) {
       })
   }
 
+  const { classes, createMarketingPlanDialog, handleCloseCreateMarketingPlanDialog } = props;
 
   return (
-    <div className={classes.root}>
-      <form onSubmit={handleCreateMarketingPlan}>
-        <Stepper nonLinear activeStep={activeStep} orientation="vertical">
-          {stepName.map((label, index) => (
-            <Step key={label} >
-              <StepLabel
-                onClick={() => { setActiveStep(index) }}
-                style={{ cursor: 'pointer' }}
-                error={Object.keys(error[index]).length}>{label}
-              </StepLabel>
-              <StepContent>
-                <Grid container spacing={24}>
-                  <Grid item xs={12}>
-                    {getStepContent(
-                      index,
-                      props,
-                      error,
-                      handleAddMustConditions,
-                      handleAddAtLeastConditions,
-                      onChangeCreateMarketingPlan,
-                      createMarketingPlan,
-                      setCreateMarketingPlan,
-                      handleRemoveMustConditions,
-                      handleRemoveAtLeastConditions
-                    )}
-                  </Grid>
-                </Grid>
-              </StepContent>
-            </Step>
-          ))}
-        </Stepper>
-        <Paper square elevation={0} className={classes.resetContainer}>
-          <Typography variant="title2">All steps completed - you now can create plan or reset</Typography>
-          <Button variant="outlined" color="default" onClick={handleReset} className={classes.button}>
-            Reset
+    <div>
+      <Dialog
+        open={createMarketingPlanDialog}
+        onClose={handleCloseCreateMarketingPlanDialog}
+        classes={{ paper: classes.paperRoot }}
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle id="customized-dialog-title" onClose={handleCloseCreateMarketingPlanDialog}>
+          <div className="d-flex justify-content-between">
+            Create Product
+            <IconButton aria-label="Close" onClick={handleCloseCreateMarketingPlanDialog}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          <form onSubmit={handleCreateMarketingPlan}>
+            <Stepper nonLinear activeStep={activeStep} orientation="vertical">
+              {stepName.map((label, index) => (
+                <Step key={label} >
+                  <StepLabel
+                    onClick={() => { setActiveStep(index) }}
+                    style={{ cursor: 'pointer' }}
+                    error={Object.keys(error[index]).length}>{label}
+                  </StepLabel>
+                  <StepContent>
+                    <Grid container spacing={24}>
+                      <Grid item xs={12}>
+                        {getStepContent(
+                          index,
+                          props,
+                          error,
+                          handleAddMustConditions,
+                          handleAddAtLeastConditions,
+                          onChangeCreateMarketingPlan,
+                          createMarketingPlan,
+                          setCreateMarketingPlan,
+                          handleRemoveMustConditions,
+                          handleRemoveAtLeastConditions
+                        )}
+                      </Grid>
+                    </Grid>
+                  </StepContent>
+                </Step>
+              ))}
+            </Stepper>
+            <Paper square elevation={0} className={classes.resetContainer}>
+              <Typography variant="title2">All steps completed - you now can create plan or reset</Typography>
+              <Button variant="outlined" color="default" onClick={handleReset} className={classes.button}>
+                Reset
             </Button>
-          <Button type="submit" variant="contained" color="primary" className={classes.button}>
-            Create
+              <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                Create
             </Button>
-        </Paper>
-      </form>
+            </Paper>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

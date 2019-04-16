@@ -8,7 +8,7 @@ import useFetchData from '../../CustomHook/useFetchData'
 import { TablePagination } from '@material-ui/core';
 import { apiGet, apiDelete } from '../../common/Request';
 import { FOLLOW_UP_PLANS_URL } from "../../common/urls";
-
+import CreateFollowUpPlan from '../CreateFollowUpPlan'
 
 
 const styles = theme => ({
@@ -29,11 +29,21 @@ const styles = theme => ({
 
 function FollowUpPlanList(props) {
   const { classes } = props;
+  const [createFollowUpPlanDialog, setCreateFollowUpPlanDialog] = React.useState(false)
+
+  const handleCloseCreateFollowUpPlan = e => {
+    setCreateFollowUpPlanDialog(false)
+  }
+
   const tableRef = React.useRef(null);
   const search = {}
   let activePage = 0
   return (
     <div className={classes.root}>
+      <CreateFollowUpPlan
+        createFollowUpPlanDialog={createFollowUpPlanDialog}
+        handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
+      />
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
@@ -93,6 +103,15 @@ function FollowUpPlanList(props) {
                   alert('You selected ' + rows.length + ' rows')
                 },
               },
+              {
+                icon: 'add',
+                tooltip: 'Create Follow-up Plan',
+                onClick: (event, rows) => {
+                  setCreateFollowUpPlanDialog(true)
+                  // setCreateProduct()
+                },
+                isFreeAction: true
+              }
             ]}
             options={{
               search: false,

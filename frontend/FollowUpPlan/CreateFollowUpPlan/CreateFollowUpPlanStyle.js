@@ -21,7 +21,7 @@ const styles = theme => ({
   },
   resetContainer: {
     padding: theme.spacing.unit * 3,
-},
+  },
   stepper: {
     border: '3px solid white',
     boxShadow: '0 1px 20px 0 rgba(0,0,0,0.16)'
@@ -35,8 +35,17 @@ const styles = theme => ({
     color: '#f00',
     marginTop: '1rem',
     marginBottom: '1rem',
-
   },
+  addStep: {
+    '& div + span': {
+      '&> span:nth-child(1)': {
+        cursor: 'pointer',
+        backgroundColor: 'rgba(0, 0, 0, 0.38)',
+        color: '#fff',
+        borderRadius: '50%',
+      }
+    }
+  }
 })
 
 export default styles
