@@ -494,11 +494,12 @@ function CreateMarketingPlan(props) {
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle id="customized-dialog-title" onClose={handleCloseCreateMarketingPlanDialog}>
+        <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateMarketingPlanDialog}>
+          Create Product
           <div className="d-flex justify-content-between">
-            Create Product
-            <IconButton aria-label="Close" onClick={handleCloseCreateMarketingPlanDialog}>
-              <CloseIcon />
+            <IconButton style={{ position: 'absolute', top: '12px', right: '12px' }}
+             aria-label="Close" onClick={handleCloseCreateMarketingPlanDialog}>
+              <CloseIcon fontSize="small"/>
             </IconButton>
           </div>
         </DialogTitle>

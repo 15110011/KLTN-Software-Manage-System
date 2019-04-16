@@ -183,11 +183,11 @@ function CreateCampaign(props) {
         fullWidth
         maxWidth="lg"
       >
-        <DialogTitle id="customized-dialog-title" onClose={handleCloseCreateCampaignDialog}>
-          <div className="d-flex justify-content-between">
-            Create Campaign
+        <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateCampaignDialog}>
+          Create Campaign
+          <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
             <IconButton aria-label="Close" onClick={handleCloseCreateCampaignDialog}>
-              <CloseIcon />
+              <CloseIcon fontSize="small" />
             </IconButton>
           </div>
         </DialogTitle>

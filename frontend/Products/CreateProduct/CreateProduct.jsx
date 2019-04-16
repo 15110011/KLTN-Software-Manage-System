@@ -424,11 +424,11 @@ function CreateProduct(props) {
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle id="customized-dialog-title" onClose={handleCloseCreateProductDialog}>
-          <div className="d-flex justify-content-between">
+        <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateProductDialog}>
+          <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
             Create Product
             <IconButton aria-label="Close" onClick={handleCloseCreateProductDialog}>
-              <CloseIcon />
+              <CloseIcon fontSize="small" />
             </IconButton>
           </div>
         </DialogTitle>

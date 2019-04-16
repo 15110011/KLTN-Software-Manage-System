@@ -133,9 +133,9 @@ function CreateFollowUpPlan(props) {
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle id="customized-dialog-title" onClose={handleCloseCreateFollowUpPlan}>
-          <div className="d-flex justify-content-between">
+        <DialogTitle style={{position: 'relative'}} id="customized-dialog-title" onClose={handleCloseCreateFollowUpPlan}>
             Create Follow-up Plan
+          <div style={{position: 'absolute', top: '12px', right: '12px'}}>
             <IconButton aria-label="Close" onClick={handleCloseCreateFollowUpPlan}>
               <CloseIcon />
             </IconButton>
