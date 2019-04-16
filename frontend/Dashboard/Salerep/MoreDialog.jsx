@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 
 import { withStyles } from '@material-ui/core'
 import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
@@ -18,46 +18,85 @@ import Button from '@material-ui/core/Button'
 
 import styles from './SalerepStyles.js'
 import ContactDetail from './ContactDetail'
+import NoteDialog from './NoteDialog'
+import { apiPost } from '../../common/Request'
+import CustomSnackbar from '../../components/CustomSnackbar'
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL } from '../../common/urls';
 
 
 function MoreDialog(props) {
 
-  const { classes, setDialog, campaign, contact, histories } = props
-
+  const { classes, setDialog, campaign, contact, histories, eventId, updateTable } = props
 
   const [contactHistories, setContactHistories] = React.useState({
-    'Send Email': 0,
+    'Send Email ': 0,
+    'Send Email Manually': 0,
     'Call Client': 0
   })
 
+  const [noteDialog, setNoteDialog] = React.useState(false)
+
   const [contactDetail, setContactDetail] = React.useState(false)
+  const [successNoti, setSuccessNoti] = React.useState(false)
+  const [error, setError] = React.useState(false)
 
 
   React.useEffect(() => {
     // Effect
-    const clonetHistoriesInfo = {
+    const cloneHistoriesInfo = {
       'Send Email': 0,
-      'Call Client': 0
+      'Call Client': 0,
+      'Send Email Manually': 0
     }
     histories.forEach(h => {
-      clonetHistoriesInfo[h.action] += 1
+      cloneHistoriesInfo[h.action] += 1
     })
 
     setContactHistories(
-      clonetHistoriesInfo
+      cloneHistoriesInfo
     )
 
   }, [histories.length])
 
+  const onCall = () => {
+    apiPost(EVENTS_URL + '/' + eventId + '/marketing', { action: 'Call Client' }, false, true).then(res => {
+      updateTable()
+      setContactHistories({ ...contactHistories, 'Call Client': contactHistories['Call Client'] + 1 })
+      setSuccessNoti('Successfully Called')
+      setTimeout(() => {
+        setSuccessNoti(false)
+      }, 2000);
+    })
+  }
+
+  const onSendEmail = () => {
+    apiPost(EVENTS_URL + '/' + eventId + '/marketing', { action: 'Send Email Manually' }, false, true).then(res => {
+      updateTable()
+      setContactHistories({ ...contactHistories, 'Send Email Manually': contactHistories['Send Email Manually'] + 1 })
+      setSuccessNoti('Successfully Sent Email')
+      setTimeout(() => {
+        setSuccessNoti(false)
+      }, 2000);
+    })
+  }
+
   return (
     <>
+      {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
+      {error.all && <CustomSnackbar isErr msg={error.all} />}
       {contactDetail && <ContactDetail toggleDialog={() => {
         setContactDetail(false)
       }}
         contact={contact}
         contactHistories={histories}
       ></ContactDetail>}
+
+      {noteDialog && <NoteDialog toggleDialog={() => {
+        setNoteDialog(false)
+      }}
+        campaign={campaign}
+        contact={contact}
+      ></NoteDialog>}
       <Dialog open={true} onClose={() => { setDialog(false) }}
         maxWidth="md"
         fullWidth
@@ -104,17 +143,17 @@ function MoreDialog(props) {
                 {
                   Object.keys(contactHistories).reduce((acc, k) => {
                     if (contactHistories[k] != 0) {
-                      acc += `${contactHistories[k]} (${k}),`
+                      acc += `${contactHistories[k]} (${k}), `
                     }
                     return acc
-                  }, '').slice(0, -1)
+                  }, '').slice(0, -2)
                 }
               </DialogContentText>
                 :
-                 <DialogContentText>
-                   0
+                <DialogContentText>
+                  0
                  </DialogContentText>
-                }
+              }
             </Grid>
 
             {histories.length > 0 ?
@@ -124,13 +163,12 @@ function MoreDialog(props) {
                 </Grid>
                 <Grid item xs={4}>
                   <DialogContentText>
-                    {dateFns.format(histories[histories.length - 1].created, 'DD-MM-YYYY')}
+                    {dateFns.format(histories[0].created, 'DD-MM-YYYY')}
                   </DialogContentText>
                 </Grid>
               </>
               : <Grid item xs={6}></Grid>
             }
-
             <Grid className={classes.inputCustom} item xs={2}>
               Packages:
           </Grid>
@@ -161,9 +199,11 @@ function MoreDialog(props) {
             classes={{
               contained: classes.btnGreen
             }}
+            onClick={() => {
+              onCall()
+            }}
           >
-            Call
-
+            Call{' '}
             <PhoneIcon></PhoneIcon>
           </Button>
 
@@ -172,9 +212,12 @@ function MoreDialog(props) {
             classes={{
               contained: classes.btnPink
             }}
+            onClick={()=>{
+              onSendEmail()
+            }}
           >
-            Mail
-          <EmailIcon></EmailIcon>
+            Mail{' '}
+            <EmailIcon></EmailIcon>
           </Button>
 
           <Button
@@ -182,9 +225,10 @@ function MoreDialog(props) {
             classes={{
               contained: classes.btnBlue
             }}
+            onClick={() => { setNoteDialog(true) }}
           >
-            Note
-          <NoteIcon></NoteIcon>
+            Note{' '}
+            <NoteIcon></NoteIcon>
           </Button>
 
           <Button
@@ -193,8 +237,8 @@ function MoreDialog(props) {
               contained: classes.btnYellow
             }}
           >
-            Later
-          {/* <TimerIcon></TimerIcon> */}
+            Later{' '}
+            {/* <TimerIcon></TimerIcon> */}
           </Button>
         </DialogActions>
       </Dialog>
@@ -202,4 +246,4 @@ function MoreDialog(props) {
   )
 
 }
-export default withStyles(styles)(MoreDialog)
+export default withStyles(styles)(withRouter(MoreDialog))

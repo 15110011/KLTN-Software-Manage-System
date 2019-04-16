@@ -804,7 +804,6 @@
   right: 0;
 }
 .rdw-editor-main {
-  height: 100%;
   overflow: auto;
   box-sizing: border-box;
   border: 1px solid #F1F1F1;
@@ -824,7 +823,7 @@
   user-select: none;
 }
 .public-DraftStyleDefault-block {
-  margin: 1em 0;
+  /* margin: 1em 0; */
 }
 .rdw-editor-wrapper:focus {
   outline: none;

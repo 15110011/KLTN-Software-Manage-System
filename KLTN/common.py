@@ -22,3 +22,4 @@ MARKETING_PLAN_CONDITIONS = {
     }
 }
 
+NOTE_CHOICES = (('DEFAULT', 'Default'), ('MARKETING', 'Marketing'), ('FOLLOWUP', 'Follow up'))

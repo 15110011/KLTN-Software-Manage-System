@@ -16,6 +16,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     marketing = ContactMarketingSerializer()
     # order = ContactMarketingSerializer()
     remaining = serializers.SerializerMethodField()
+    is_overdue = serializers.SerializerMethodField()
 
     class Meta:
         model = Event
@@ -42,6 +43,9 @@ class EventReadSerializer(serializers.ModelSerializer):
     def get_remaining(self, instance):
 
         return (instance.end_date - datetime.now().date()).days
+
+    def get_is_overdue(self, instance):
+        return (instance.end_date - datetime.now().date()).days < 0
 
 
 class EventSerializer(serializers.ModelSerializer):

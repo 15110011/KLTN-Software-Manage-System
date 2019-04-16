@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django.db.models import Q, Count
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import MarketingPlan, FollowUpPlan, Campaign
-from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer
+from .models import MarketingPlan, FollowUpPlan, Campaign, Note
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer
 from rest_framework import status
 from .documents import MarketingPlanDocument, CampaignDocument
 from django.forms.models import model_to_dict
@@ -297,3 +297,33 @@ class CampaignView(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CampaignExtraView(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = Campaign.objects
+    serializer_class = CampaignSerializer
+
+    @action(detail=True, methods=['GET'])
+    def note(self, request, pk=None):
+        instance = self.get_object()
+        _type = request.query_params.get('type', None)
+        contact = request.query_params.get('contact', None)
+        if _type or contact:
+
+            notes = Note.objects.filter(
+                campaign=instance.id).filter(_type=_type).filter(contact=int(contact)).filter(user=request.user)
+            if len(notes) > 0:
+                serializer = NoteSerializer(notes[0])
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response({}, status=status.HTTP_200_OK)
+        else:
+            return Response({'msg': 'Please provide more query params'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class NoteView(ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = Note.objects
+    serializer_class = NoteSerializer

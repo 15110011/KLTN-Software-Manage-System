@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from account.serializers import MeSerializer
-from contacts.serializers import ContactSerializer, NoteSerializer
+from contacts.serializers import ContactSerializer
 from packages.serializers import PackageSerializer
 from steps.serializers import StepDetailWithoutOrderSerializer
 from steps.models import StepDetail
@@ -11,7 +11,6 @@ from . import models
 class OrderSerializer(serializers.ModelSerializer):
     contacts = ContactSerializer()
     sale_rep = MeSerializer()
-    note = NoteSerializer()
     packages = PackageSerializer(many=True)
 
     class Meta:

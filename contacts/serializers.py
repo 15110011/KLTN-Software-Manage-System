@@ -6,6 +6,7 @@ from rest_framework.validators import ValidationError, UniqueTogetherValidator
 
 from . import models
 from account.serializers import MeSerializer
+from campaigns.serializers import NoteSerializer
 import re
 
 
@@ -50,6 +51,7 @@ class GroupWithoutContactSerializer(serializers.ModelSerializer):
 
     total_contact = serializers.SerializerMethodField()
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    notes = NoteSerializer(many=True, read_only=True)
     # editor = MeSerializer()
     # contacts = serializers.PrimaryKeyRelatedField(
     #     many=True, read_only=True)
@@ -69,6 +71,7 @@ class GroupWithoutContactSerializer(serializers.ModelSerializer):
 class ContactReadSerializer(serializers.ModelSerializer):
     groups = GroupWithoutContactSerializer(many=True)
     full_name = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = models.Contact
@@ -135,7 +138,3 @@ class ContactSerializer(serializers.ModelSerializer):
         return value
 
 
-class NoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Note
-        fields = '__all__'

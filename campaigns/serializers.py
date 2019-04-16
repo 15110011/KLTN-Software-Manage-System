@@ -8,6 +8,14 @@ from packages.serializers import PackageSerializer
 from . import models
 
 
+class NoteSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = models.Note
+        fields = '__all__'
+
+
 class MarketingPlanSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.MarketingPlan
@@ -70,6 +78,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     marketing_plan = MarketingPlanSerializer()
     manager = MeSerializer()
     packages = PackageSerializer(many=True)
+    notes = NoteSerializer(many=True)
 
     class Meta:
         model = models.Campaign
@@ -89,7 +98,6 @@ class ContactMarketingHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ContactMarketingHistory
         fields = '__all__'
-        
 
 
 class ContactMarketingSerializer(serializers.ModelSerializer):

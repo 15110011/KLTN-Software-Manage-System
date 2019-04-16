@@ -59,7 +59,10 @@ function MarketingTable(props) {
     <>
       {moreDialog && <MoreDialog setDialog={stt => { setMoreDialog(stt) }}
         histories={moreRow.histories}
-        campaign={moreRow.campaign} contact={moreRow.contact} />}
+        campaign={moreRow.campaign} contact={moreRow.contact}
+        eventId={moreRow.id}
+        updateTable={tableMarketingRef.current.onQueryChange}
+      />}
       <Dialog open={Object.keys(movingRow).length != 0}
         onClose={() => { setMovingRow({}) }
         }
