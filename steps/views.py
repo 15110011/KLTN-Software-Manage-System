@@ -5,17 +5,17 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 from rest_framework import status
 from .models import Step, StepDetail
-from .serializers import StepSerialzier, StepDetailSerialzier
+from .serializers import StepSerializer, StepDetailSerializer
 # Create your views here.
 
 
 class StepView(ModelViewSet):
     queryset = Step.objects
-    serializer_class = StepSerialzier
+    serializer_class = StepSerializer
     permission_classes = (IsAuthenticated,)
 
 
 class StepDetailView(ModelViewSet):
     queryset = StepDetail.objects
-    serializer_class = StepDetailSerialzier
+    serializer_class = StepDetailSerializer
     permission_classes = (IsAuthenticated,)

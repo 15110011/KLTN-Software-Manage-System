@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from account.serializers import MeSerializer
-from steps.serializers import StepSerialzier, StepWithOutFollowUpSerializer
+from steps.serializers import StepSerializer, StepWithOutFollowUpSerializer
 from steps.models import Step
 from contacts.models import Contact
+from rest_framework.fields import set_value
+from events.models import Event
 from packages.serializers import PackageSerializer
 
 from . import models
@@ -76,6 +78,12 @@ class CampaignSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CreateContactMarketingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.ContactMarketing
+        fields = '__all__'
+
+
 class CreateCampaignSerializer(serializers.ModelSerializer):
     manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
@@ -83,13 +91,42 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         model = models.Campaign
         fields = '__all__'
 
+    def create(self, validated_data):
+        sale_reps = validated_data.pop('assigned_to')
+        packages = validated_data.pop('packages')
+        contacts = validated_data.pop('contacts', None)
+        campaign = super().create(validated_data)
+        campaign.assigned_to.set(sale_reps)
+        campaign.packages.set(packages)
+        if contacts is not None:
+            for index, contact in enumerate(contacts):
+                cur_contact = Contact.objects.get(id=contact)
+                print (cur_contact)
+                contact_marketing = models.ContactMarketing(
+                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign)
+                contact_marketing.save()
+                event = Event(
+                    user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
+                        cur_contact.first_name, cur_contact.last_name),
+                    start_date=campaign.start_date, end_date=campaign.end_date, name=f'Event {index}', marketing= contact_marketing
+                )
+                event.save()
+                event.contacts.set([cur_contact])
+
+        return campaign
+    
+    def to_internal_value(self, data):
+        contacts = data.pop('contacts')
+        ret = super().to_internal_value(data)
+        set_value(ret, ['contacts'], contacts)
+        return ret
+
 
 class ContactMarketingHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ContactMarketingHistory
         fields = '__all__'
-        
 
 
 class ContactMarketingSerializer(serializers.ModelSerializer):
