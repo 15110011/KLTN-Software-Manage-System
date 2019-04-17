@@ -36,6 +36,7 @@ class FollowUpPlanSerializer(serializers.ModelSerializer):
 
 class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
     steps = StepWithOutFollowUpSerializer(many=True)
+    manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.FollowUpPlan
@@ -101,7 +102,6 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         if contacts is not None:
             for index, contact in enumerate(contacts):
                 cur_contact = Contact.objects.get(id=contact)
-                print (cur_contact)
                 contact_marketing = models.ContactMarketing(
                     marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign)
                 contact_marketing.save()

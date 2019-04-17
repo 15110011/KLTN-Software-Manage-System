@@ -43,9 +43,7 @@ function CreateFollowUpPlan(props) {
         conditions: {},
       }
     ],
-    manager: ''
   })
-
 
   const handleNext = () => {
     if (activeStep === followUpPlan.steps.length - 1) return apiCreateFollowUpPlan()
@@ -98,7 +96,7 @@ function CreateFollowUpPlan(props) {
   }
 
   const apiCreateFollowUpPlan = () => {
-    apiPost(FOLLOW_UP_PLANS_URL, { ...followUpPlan, manager: props.user.id }, false, true)
+    apiPost(FOLLOW_UP_PLANS_URL, { ...followUpPlan }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -208,6 +206,7 @@ function CreateFollowUpPlan(props) {
                         handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
                         handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
                         createStep={curStep}
+                        error={error}
                         actions={actions}
                       />
                     </Grid>
