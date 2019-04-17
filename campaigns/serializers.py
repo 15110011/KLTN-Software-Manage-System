@@ -115,8 +115,13 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
 
         return campaign
     
+    def update(self, instance, validated_data):
+        contacts = validated_data.pop('contacts', None)
+        campaign = super().update(instance, validated_data)
+        return campaign
+
     def to_internal_value(self, data):
-        contacts = data.pop('contacts')
+        contacts = data.pop('contacts', None)
         ret = super().to_internal_value(data)
         set_value(ret, ['contacts'], contacts)
         return ret
