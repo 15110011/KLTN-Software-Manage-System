@@ -28,8 +28,8 @@ const styles = theme => ({
   },
   fab: {
     position: 'absolute',
-    right: theme.spacing.unit * 3,
-    top: '20%'
+    top: '74%',
+    left: '54%'
   },
   danger: {
     color: '#f00',

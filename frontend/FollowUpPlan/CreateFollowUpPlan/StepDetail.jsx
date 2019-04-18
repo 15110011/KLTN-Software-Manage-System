@@ -4,16 +4,28 @@ import Grid from '@material-ui/core/Grid';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import AddIcon from '@material-ui/icons/Add';
+import Fab from '@material-ui/core/Fab';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import SelectCustom from '../../components/SelectCustom'
 import styles from './CreateFollowUpPlanStyle'
+import Tooltip from '@material-ui/core/Tooltip';
 
 
 function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect, handleChangeStepCondition } = props
+  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect, handleChangeStepCondition, error } = props
+  const [createFieldDialog, setCreateFieldDialog] = React.useState(false)
 
+  const handleOpenDialog = e => {
+    setCreateFieldDialog(!createFieldDialog)
+  }
   return (
     <div style={{ textAlign: 'left', padding: '40px' }}>
       <Grid container spacing={40}>
@@ -25,6 +37,7 @@ function StepDetail(props) {
               root: classes.cssLabel,
               focused: classes.cssFocused,
             }}
+            className={error.steps ? classes.danger : null}
           >
             Action
             </InputLabel>
@@ -130,20 +143,32 @@ function StepDetail(props) {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={3}>
-              <Input
-                fullWidth
-                required
-                onChange={handleChangeStepCondition}
-                value={
-                  Object.keys(createStep.conditions).length === 0 ? '' : createStep.conditions['field_desc']
-                }
-                name="field_desc"
-                classes={{
-                  underline: classes.cssUnderline,
-                }}
-              />
-            </Grid>
+            {
+              createStep.conditions['field_type'] === 'check_box' &&
+              <Tooltip title="Add more fields">
+                <Fab className={classes.fab} size="small" onClick={handleOpenDialog}>
+                  <AddIcon color="action" />
+                </Fab>
+              </Tooltip>
+            }
+            {
+              createFieldDialog && (
+                <Dialog
+                  open={createFieldDialog}
+                  onClose={handleOpenDialog}
+                  classes={{ paper: classes.paperRoot }}
+                  fullWidth
+                  maxWidth="md"
+                >
+                  <DialogTitle>
+                    Add more fields you want to check
+                  </DialogTitle>
+                  <DialogContent>
+                    <div>abcd</div>
+                  </DialogContent>
+                </Dialog>
+              )
+            }
           </Grid>
         </Grid>
       </Grid>

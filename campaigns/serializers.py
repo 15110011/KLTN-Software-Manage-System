@@ -47,6 +47,7 @@ class FollowUpPlanSerializer(serializers.ModelSerializer):
 
 class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
     steps = StepWithOutFollowUpSerializer(many=True)
+    manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
     class Meta:
         model = models.FollowUpPlan
@@ -125,9 +126,14 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 event.contacts.set([cur_contact])
 
         return campaign
+    
+    def update(self, instance, validated_data):
+        contacts = validated_data.pop('contacts', None)
+        campaign = super().update(instance, validated_data)
+        return campaign
 
     def to_internal_value(self, data):
-        contacts = data.pop('contacts')
+        contacts = data.pop('contacts', None)
         ret = super().to_internal_value(data)
         set_value(ret, ['contacts'], contacts)
         return ret
