@@ -7,6 +7,7 @@ import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
+import Button from '@material-ui/core/Button';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
@@ -142,6 +143,16 @@ function StepDetail(props) {
                 </MenuItem>
                 </Select>
               </FormControl>
+              <Grid>
+                <Button
+                  // onClick={() => { handleAddMustConditions() }}
+                  variant="outlined"
+                  color="default"
+                  // className={(classes.addFeatureButton)}>
+              >
+                  Add Conditions
+              </Button>
+              </Grid>
             </Grid>
             {
               createStep.conditions['field_type'] === 'check_box' &&
@@ -164,8 +175,25 @@ function StepDetail(props) {
                     Add more fields you want to check
                   </DialogTitle>
                   <DialogContent>
-                    <div>abcd</div>
+                    <InputLabel
+                      required
+                      htmlFor="custom-css-standard-input"
+                      classes={{
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused,
+                      }}
+                    >
+                      Required Fields
+                    </InputLabel>
                   </DialogContent>
+                  <DialogActions>
+                    <Button color="primary">
+                      Cancel
+                    </Button>
+                    <Button color="primary">
+                      Subscribe
+                    </Button>
+                  </DialogActions>
                 </Dialog>
               )
             }
