@@ -28,6 +28,13 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import CloseIcon from '@material-ui/icons/Close';
+
 import { htmlToState, draftToRaw } from "../../common/utils";
 
 import styles from './CreateCampaignStyle'
@@ -164,64 +171,90 @@ function CreateCampaign(props) {
     setCreateCampaign({ ...createCampaign, [e.target.name]: e.target.value })
   }
 
-  const { classes } = props;
+  const { classes, createCampaignDialog, handleCloseCreateCampaignDialog } = props;
 
   return (
-    <div className={classes.root}>
+    <div>
       <BreadcrumbsItem to='/campaigns/add'>ABC</BreadcrumbsItem>
-      <Stepper activeStep={activeStep} alternativeLabel>
-        {getSteps.map((label, index) => (
-          <Step key={label}>
-            <StepLabel
-              onClick={() => { setActiveStep(index) }}
-              style={{ cursor: 'pointer' }}
-            >
-              {label}
-            </StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      <div>
-        <form onSubmit={handleCreateCampaign}>
-          <Paper className={classes.paper}>
-            <StepDetail
-              editorState={editorState}
-              onEditorStateChange={onEditorStateChange}
-              activeStep={activeStep}
-              saleRep={saleRep}
-              classes={classes}
-              onChangeCreateCampaign={onChangeCreateCampaign}
-              createCampaign={createCampaign}
-              handleChangePackageSelect={handleChangePackageSelect}
-              fetchPackageSuggestion={fetchPackageSuggestion}
-              handleChangeAssigneeSelect={handleChangeAssigneeSelect}
-              user={user}
-              handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
-              fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
-            />
-            <div style={{ marginTop: '140px' }}>
-              <Button
-                disabled={activeStep === 0}
-                onClick={handleBack}
-                className={classes.backButton}
-                variant="outlined"
-              >
-                Back
+      <Dialog
+        open={createCampaignDialog}
+        onClose={handleCloseCreateCampaignDialog}
+        classes={{ paper: classes.paperRoot }}
+        fullWidth
+        maxWidth="lg"
+      >
+        <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateCampaignDialog}>
+          Create Campaign
+          <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+            <IconButton aria-label="Close" onClick={handleCloseCreateCampaignDialog}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </div>
+        </DialogTitle>
+        <DialogContent>
+          <Stepper activeStep={activeStep} alternativeLabel>
+            {getSteps.map((label, index) => (
+              <Step key={label}>
+                <StepLabel
+                  onClick={() => { setActiveStep(index) }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {label}
+                </StepLabel>
+              </Step>
+            ))}
+          </Stepper>
+          <div>
+            <form onSubmit={handleCreateCampaign}>
+              <Paper className={classes.paper}>
+                <StepDetail
+                  editorState={editorState}
+                  onEditorStateChange={onEditorStateChange}
+                  activeStep={activeStep}
+                  saleRep={saleRep}
+                  classes={classes}
+                  onChangeCreateCampaign={onChangeCreateCampaign}
+                  createCampaign={createCampaign}
+                  handleChangePackageSelect={handleChangePackageSelect}
+                  fetchPackageSuggestion={fetchPackageSuggestion}
+                  handleChangeAssigneeSelect={handleChangeAssigneeSelect}
+                  user={user}
+                  handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
+                  fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
+                />
+                <div style={{ marginTop: '140px' }}>
+                  <Button
+                    disabled={activeStep === 0}
+                    onClick={handleBack}
+                    className={classes.backButton}
+                    variant="outlined"
+                  >
+                    Back
                 </Button>
-              {' '}
-              <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
-                Next
+                  {' '}
+                  <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
+                    Next
             </Button>
-              {
-                activeStep === getSteps.length - 1 &&
-                (
-                  <Button variant="contained" color="primary" type="submit">Create</Button>
-                )
-              }
-            </div>
-          </Paper>
-        </form>
-      </div>
+                  {
+                    activeStep === getSteps.length - 1 &&
+                    (
+                      <Button variant="contained" color="primary" type="submit">Create</Button>
+                    )
+                  }
+                </div>
+              </Paper>
+            </form>
+          </div>
+        </DialogContent>
+        <DialogActions>
+          {/* <Button onClick={this.handleClose} color="primary">
+            Disagree
+            </Button>
+          <Button onClick={this.handleClose} color="primary" autoFocus>
+            Agree
+            </Button> */}
+        </DialogActions>
+      </Dialog>
     </div>
   )
 }

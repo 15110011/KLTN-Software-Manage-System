@@ -23,6 +23,9 @@ elasticsearch-dsl = "==6.1.0"
 django-rq = "*"
 rq-scheduler = "*"
 django-jet = "*"
+google-api-python-client = "*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
 
 [dev-packages]
 "autopep8" = "*"

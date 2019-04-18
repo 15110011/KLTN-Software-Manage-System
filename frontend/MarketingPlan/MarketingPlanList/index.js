@@ -12,8 +12,15 @@ import { apiGet, apiDelete } from '../../common/Request';
 
 
 import styles from './MarketingPlanListStyle'
+import CreateMarketingPlan from '../CreateMarketingPlan'
 
 function MarketingPlanList(props) {
+
+  const [createMarketingPlanDialog, setCreateMarketingPlanDialog] = React.useState(false)
+
+  const handleCloseCreateMarketingPlanDialog = e => {
+    setCreateMarketingPlanDialog(false)
+  }
 
   const { classes } = props;
   const tableRef = React.useRef(null);
@@ -22,13 +29,17 @@ function MarketingPlanList(props) {
 
   return (
     <div className={classes.root}>
+      <CreateMarketingPlan
+        createMarketingPlanDialog={createMarketingPlanDialog}
+        handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
+      />
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-            { title: 'Quantity In Used', field: 'used' },
+              { title: 'Quantity In Used', field: 'used' },
               {
                 title: 'Status',
                 field: 'status',
@@ -81,6 +92,15 @@ function MarketingPlanList(props) {
                   alert('You selected ' + rows.length + ' rows')
                 },
               },
+              {
+                icon: 'add',
+                tooltip: 'Create Marketing Plan',
+                onClick: (event, rows) => {
+                  setCreateMarketingPlanDialog(true)
+                  // setCreateProduct()
+                },
+                isFreeAction: true
+              }
             ]}
             options={{
               selection: true,

@@ -7,13 +7,15 @@ from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.backends import TokenBackend
 
 from . import serializers
 from . import models
 from KLTN import settings
 import jwt
+import requests
+import json
 
 # Create your views here.
 
@@ -31,7 +33,6 @@ class MeView(generics.RetrieveAPIView):
         new_serializer = serializer.data
         # new_serializer['sale_reps'] = [model_to_dict(item) for item in serializer.data['sale_reps']]
 
-        
         return Response(new_serializer)
 
 
@@ -76,7 +77,8 @@ def LogoutView(request):
 @api_view(['GET'])
 def ActivateView(request):
     activate_token = request.query_params.get('activate_token')
-    info = jwt.decode(activate_token[2:], settings.SECRET_KEY, algorithms=['HS256'])
+    info = jwt.decode(activate_token[2:],
+                      settings.SECRET_KEY, algorithms=['HS256'])
     User = get_user_model()
     try:
         user = User.objects.get(id=info['id'])
@@ -107,6 +109,7 @@ class RegisterView(generics.CreateAPIView):
 
         return Response(data, status=status.HTTP_200_OK, headers=headers)
 
+
 class SaleRepView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects
@@ -117,3 +120,30 @@ class SaleRepView(viewsets.ModelViewSet):
         sale_reps = models.Profile.objects.filter(is_manager=False)
         sale_reps = [model_to_dict(item) for item in sale_reps]
         return Response(sale_reps, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
+def GmailView(request):
+    with open('client_secret.json', 'rb') as secret:
+        cred = json.load(secret)
+
+        print(request.data)
+        res = requests.post('https://www.googleapis.com/oauth2/v4/token',
+                            {
+                                "code": request.data['access_token'],
+                                "client_id": cred['web']['client_id'],
+                                "client_secret": cred['web']['client_secret'],
+                                "grant_type": "authorization_code",
+                                "redirect_uri": cred['web']['javascript_origins'][0]
+                            })
+        from pprint import pprint
+        pprint(vars(res))
+        pprint({
+            "code": request.data['access_token'],
+            "client_id": cred['web']['client_id'],
+            "client_secret": cred['web']['client_secret'],
+            "grant_type": "authorization_code",
+            "redirect_uri": cred['web']['javascript_origins'][0]
+        })
+    return Response({"data": request.data}, status=status.HTTP_200_OK)

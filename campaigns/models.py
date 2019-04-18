@@ -53,6 +53,7 @@ class Campaign(BaseModel):
     name = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
+    assigned_to = models.ManyToManyField(User, related_name='sale_reps_campaign')
     desc = models.TextField()
     mail_template = models.ForeignKey(
         MailTemplate, on_delete=models.SET_NULL, related_name="campaigns", blank=True, null=True)

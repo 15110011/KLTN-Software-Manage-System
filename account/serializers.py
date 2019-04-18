@@ -141,7 +141,7 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
             queue = django_rq.get_queue('default', is_async=True)
             queue.enqueue(send_email_register, self.user)
             new_profile = models.Profile(
-                user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'], manager=profile['manager'])
+                user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'])
             new_profile.save()
             default_group = ContactGroup.objects.create(
                 user=self.user, name='All Contacts', _type=''

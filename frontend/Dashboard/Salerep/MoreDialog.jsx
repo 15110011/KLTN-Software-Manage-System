@@ -21,12 +21,13 @@ import ContactDetail from './ContactDetail'
 import NoteDialog from './NoteDialog'
 import { apiPost } from '../../common/Request'
 import CustomSnackbar from '../../components/CustomSnackbar'
-import { EVENTS_URL, CONTACT_URL, PACKAGES_URL } from '../../common/urls';
+import CreateEventDialog from '../../Events/CreateEventDialog'
+import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
 
 function MoreDialog(props) {
 
-  const { classes, setDialog, campaign, contact, histories, eventId, updateTable } = props
+  const { classes, setDialog, campaign, contact, histories, id, updateTable, marketing } = props
 
   const [contactHistories, setContactHistories] = React.useState({
     'Send Email ': 0,
@@ -35,6 +36,8 @@ function MoreDialog(props) {
   })
 
   const [noteDialog, setNoteDialog] = React.useState(false)
+  const [laterDialog, setLaterDialog] = React.useState(false)
+
 
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
@@ -59,7 +62,7 @@ function MoreDialog(props) {
   }, [histories.length])
 
   const onCall = () => {
-    apiPost(EVENTS_URL + '/' + eventId + '/marketing', { action: 'Call Client' }, false, true).then(res => {
+    apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
       updateTable()
       setContactHistories({ ...contactHistories, 'Call Client': contactHistories['Call Client'] + 1 })
       setSuccessNoti('Successfully Called')
@@ -70,7 +73,7 @@ function MoreDialog(props) {
   }
 
   const onSendEmail = () => {
-    apiPost(EVENTS_URL + '/' + eventId + '/marketing', { action: 'Send Email Manually' }, false, true).then(res => {
+    apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Send Email Manually' }, false, true).then(res => {
       updateTable()
       setContactHistories({ ...contactHistories, 'Send Email Manually': contactHistories['Send Email Manually'] + 1 })
       setSuccessNoti('Successfully Sent Email')
@@ -91,6 +94,9 @@ function MoreDialog(props) {
         contactHistories={histories}
       ></ContactDetail>}
 
+      {laterDialog && <CreateEventDialog toggleDialog={() => { setLaterDialog(!laterDialog) }}
+        targets={[contact]} marketing={marketing}
+      />}
       {noteDialog && <NoteDialog toggleDialog={() => {
         setNoteDialog(false)
       }}
@@ -212,7 +218,7 @@ function MoreDialog(props) {
             classes={{
               contained: classes.btnPink
             }}
-            onClick={()=>{
+            onClick={() => {
               onSendEmail()
             }}
           >
@@ -235,6 +241,9 @@ function MoreDialog(props) {
             variant='contained'
             classes={{
               contained: classes.btnYellow
+            }}
+            onClick={() => {
+              setLaterDialog(!laterDialog)
             }}
           >
             Later{' '}

@@ -6,10 +6,11 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView
 from packages.views import ProductViewSet, PackageViewSet
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView
+from campaigns.views import ContactMarketingView
 from orders.views import OrderHistoryView, OrderView
 from steps.views import StepView, StepDetailView
 from events.views import EventView
@@ -26,6 +27,7 @@ router.register('follow-up-plans', FollowUpPlanView,
                 base_name='follow-up-plans')
 router.register('campaigns', CampaignView, base_name='campaigns')
 router.register('notes', NoteView, base_name='notes')
+router.register('contact-marketings', ContactMarketingView, base_name='contact-marketing')
 # order app
 router.register('orders', OrderView, base_name='orders')
 router.register('order-histories', OrderHistoryView,
@@ -68,6 +70,8 @@ urlpatterns = [
     path('api/v1/contacts-match-conditions', ContactMatchConditions),
 
     path('api/v1/campaigns/<int:pk>/note',
-         CampaignExtraView.as_view({'get': 'note'}))
+         CampaignExtraView.as_view({'get': 'note'})),
+
+    path('api/v1/gmail/auth', GmailView)
 
 ]

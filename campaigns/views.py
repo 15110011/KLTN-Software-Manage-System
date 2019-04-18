@@ -4,8 +4,8 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import MarketingPlan, FollowUpPlan, Campaign, Note
-from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer
+from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer
 from rest_framework import status
 from .documents import MarketingPlanDocument, CampaignDocument
 from django.forms.models import model_to_dict
@@ -14,7 +14,12 @@ from orders.models import Order
 from contacts.models import Contact
 from contacts.serializers import ContactWithoutGroupSerializer
 
+
+from datetime import datetime
+
 # Create your views here.
+
+now = datetime.now()
 
 ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually', 'Chat']
 
@@ -100,37 +105,37 @@ def ContactMatchConditions(request):
             try:
                 if condition['operator'] == 'Equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Not equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Greater than':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__gt=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Less than':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__lt=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Greater than or equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__gte=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
 
                 if condition['operator'] == 'Less than or equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
-                        packages__features__product__category__name=condition['operand_type']).values('contacts').annotate(
+                        packages__features__product__category__name=condition['operand_category']).values('contacts').annotate(
                         total=Count('contacts')).filter(total__lte=condition['data'])
                     return Response(queryset, status=status.HTTP_200_OK)
                 else:
@@ -327,3 +332,53 @@ class NoteView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = Note.objects
     serializer_class = NoteSerializer
+
+
+class ContactMarketingView(ModelViewSet):
+
+    permission_classes = (IsAuthenticated,)
+    queryset = ContactMarketing.objects
+    serializer_class = ContactMarketingSerializer
+
+    def list(self, request, *args, **kwargs):
+        filters = Q()
+        excludes = Q()
+
+        queryset = self.get_queryset()
+        if not request.user.profile.is_manager:
+            filters.add(Q(campaign__assigned_to__id=request.user.id), Q.AND)
+        # pagin
+        page = request.query_params.get(
+            'page') if int(request.query_params.get('page', 0)) > 0 else 0
+
+        limit = None
+        if 'limit' in self.request.query_params:
+            limit = self.request.query_params.get('limit')
+
+        if limit:
+            filters.add(Q(status='RUNNING'), Q.AND)
+            queryset = queryset.exclude(excludes).filter(filters).order_by('modified')[
+                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+
+            serializer = self.get_serializer(queryset, many=True)
+
+        else:
+            serializer = self.get_serializer(queryset.filter(
+                filters), many=True)
+
+        new_data = {
+            "data": serializer.data,
+            "total": ContactMarketing.objects.filter(filters).count()
+        }
+
+        return Response(new_data, status=status.HTTP_200_OK)
+
+    @action(methods=['POST'], detail=True)
+    def history(self, request, pk=None):
+        instance = self.get_object()
+        # instance.modified = datetime.datetime.now
+        instance.save()
+        history = ContactMarketingHistory.objects.create(
+            action=request.data['action'], contact_marketing=instance)
+        serializer = ContactMarketingHistorySerializer(history)
+        return Response(serializer.data, status=status.HTTP_200_OK)

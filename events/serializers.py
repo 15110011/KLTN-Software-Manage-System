@@ -14,6 +14,8 @@ class EventReadSerializer(serializers.ModelSerializer):
 
     contacts = ContactWithoutGroupSerializer(many=True)
     marketing = ContactMarketingSerializer()
+    assigned_to = serializers.HiddenField(
+        default=serializers.CurrentUserDefault())
     # order = ContactMarketingSerializer()
     remaining = serializers.SerializerMethodField()
     is_overdue = serializers.SerializerMethodField()

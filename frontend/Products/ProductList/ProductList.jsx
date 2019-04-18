@@ -9,7 +9,7 @@ import { PRODUCTS_URL } from "../../common/urls";
 import { TablePagination } from '@material-ui/core';
 import { apiGet, apiDelete } from '../../common/Request';
 import { arrayOf } from 'prop-types';
-
+import CreateProduct from '../CreateProduct/CreateProduct'
 
 const styles = theme => ({
   root: {
@@ -30,10 +30,38 @@ const styles = theme => ({
 function ProductList(props) {
   const { classes } = props;
   const tableRef = React.useRef(null);
+  const [createProductDialog, setCreateProductDialog] = React.useState(false)
+  const [createProduct, setCreateProduct] = React.useState({
+    name: '',
+    desc: '',
+    status: 'ACTIVE',
+    start_sale_date: '',
+    start_support_date: '',
+    packages: [
+      // {
+      //   name: '',
+      //   prices:
+      //     { '1': '' },
+      //   discount: 0,
+      //   features: [],
+      //   numbers: []
+      // }
+    ],
+    features: []
+  })
+
+  const handleCloseCreateProductDialog = e => {
+    setCreateProductDialog(false)
+  }
+
   const search = {}
   let activePage = 0
   return (
     <div className={classes.root}>
+      <CreateProduct
+        handleCloseCreateProductDialog={handleCloseCreateProductDialog}
+        createProductDialog={createProductDialog}
+      />
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
@@ -97,6 +125,15 @@ function ProductList(props) {
                   alert('You selected ' + rows.length + ' rows')
                 },
               },
+              {
+                icon: 'add',
+                tooltip: 'Create Product',
+                onClick: (event, rows) => {
+                  setCreateProductDialog(true)
+                  // setCreateProduct()
+                },
+                isFreeAction: true
+              }
             ]}
             options={{
               search: false,

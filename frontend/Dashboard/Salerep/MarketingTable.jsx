@@ -8,7 +8,7 @@ import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } 
 
 
 import styles from './SalerepStyles.js'
-import { EVENTS_URL } from '../../common/urls';
+import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
@@ -37,7 +37,7 @@ function MarketingTable(props) {
 
 
   const onRemoveContact = () => {
-    apiPatch(EVENTS_URL + '/' + deletingRow.id, { marketing: { status: 'FAILED' } }, false, true).then(res => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
       forceMarketing()
       forceActivities()
       setDeletingRow({})
@@ -45,10 +45,8 @@ function MarketingTable(props) {
   }
 
   const onMoveToFollowUp = () => {
-    console.log(movingRow)
-    apiPatch(EVENTS_URL + '/' + movingRow.id,
-      { marketing: { status: 'COMPLETED' }, contacts: [movingRow.contact] },
-      false, true).then(res => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + movingRow.id,
+      { status: 'COMPLETED' }, false, true).then(res => {
         forceMarketing()
         forceActivities()
         setMovingRow({})
@@ -60,8 +58,10 @@ function MarketingTable(props) {
       {moreDialog && <MoreDialog setDialog={stt => { setMoreDialog(stt) }}
         histories={moreRow.histories}
         campaign={moreRow.campaign} contact={moreRow.contact}
-        eventId={moreRow.id}
+        id={moreRow.id}
+        contact={moreRow.contact}
         updateTable={tableMarketingRef.current.onQueryChange}
+        marketing={moreRow.marketing}
       />}
       <Dialog open={Object.keys(movingRow).length != 0}
         onClose={() => { setMovingRow({}) }
@@ -87,7 +87,7 @@ function MarketingTable(props) {
         }
       >
         <DialogTitle>
-          REMOVE CONTACT {deletingRow.full_name} OUT OF CAMPAIGN {deletingRow.campaign}
+          REMOVE CONTACT {deletingRow.full_name} OUT OF CAMPAIGN {deletingRow.campaignName}
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
@@ -135,21 +135,20 @@ function MarketingTable(props) {
           new Promise((resolve, reject) => {
             // let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
             // searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
-            apiGet(EVENTS_URL + `?list_type=marketing&page=${activePageMarketing}&limit=${query.pageSize}`, true).then(res => {
+            apiGet(CONTACT_MARKETING_URL + `?page=${activePageMarketing}&limit=${query.pageSize}`, true).then(res => {
               const data = []
-              res.data.data.forEach((d, index) => {
-                d.contacts.forEach(c => {
-                  data.push({
-                    '#': (activePageMarketing * query.pageSize + index + 1),
-                    full_name: c.first_name + ' ' + c.last_name,
-                    mail: c.mail,
-                    phone: c.phone,
-                    campaignName: d.marketing.campaign.name,
-                    id: d.id,
-                    contact: c,
-                    campaign: d.marketing.campaign,
-                    histories: d.marketing.histories
-                  })
+              res.data.data.forEach((c, index) => {
+                data.push({
+                  '#': (activePageMarketing * query.pageSize + index + 1),
+                  full_name: c.contact.full_name,
+                  mail: c.contact.mail,
+                  phone: c.contact.phone,
+                  campaignName: c.campaign.name,
+                  id: c.id,
+                  contact: c.contact,
+                  campaign: c.campaign,
+                  histories: c.histories,
+                  marketing: c
                 })
               })
               resolve({

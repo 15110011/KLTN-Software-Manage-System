@@ -10,7 +10,7 @@ import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
 import { InputLabel } from '@material-ui/core';
 import useFetchData from '../../CustomHook/useFetchData'
-
+import CreateCampaign from '../CreateCampaign/index'
 import styles from './CampaignListStyle'
 
 // API
@@ -19,14 +19,21 @@ import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 function CampaignList(props) {
-
+  const [createCampaignDialog, setCreateCampaignDialog] = React.useState(false)
   const { classes } = props;
   const search = {}
   let activePage = 0
   // const [campaignData, setCampaignData, setCampaignURL, forceUpdateCampaign] = useFetchData(CAMPAIGNS_URL, props.history, { data: [], total: 0 })
+  const handleCloseCreateCampaignDialog = e => {
+    setCreateCampaignDialog(false)
+  }
 
   return (
     <div className={classes.root}>
+      <CreateCampaign
+        handleCloseCreateCampaignDialog={handleCloseCreateCampaignDialog}
+        createCampaignDialog={createCampaignDialog}
+      />
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
@@ -69,6 +76,15 @@ function CampaignList(props) {
                   alert('You selected ' + rows.length + ' rows')
                 },
               },
+              {
+                icon: 'add',
+                tooltip: 'Create Campaign',
+                onClick: (event, rows) => {
+                  setCreateCampaignDialog(true)
+                  // setCreateProduct()
+                },
+                isFreeAction: true
+              }
             ]}
             options={{
               selection: true,
