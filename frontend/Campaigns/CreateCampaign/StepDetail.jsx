@@ -89,7 +89,12 @@ function getStepContent(props) {
     fetchMarketingPlanSuggestion,
     editorState,
     onEditorStateChange,
-    saleRep
+    saleRep,
+    fetchProductSuggestion,
+    handleChangeProductSelect,
+    handleChangePackageSelectCustom,
+    fetchLoadContactSuggestion,
+    handleChangeLoadContactSelect
   } = props
   switch (activeStep) {
     case 0:
@@ -104,7 +109,10 @@ function getStepContent(props) {
           handleChangePackageSelect={handleChangePackageSelect}
           fetchPackageSuggestion={fetchPackageSuggestion}
           handleChangeAssigneeSelect={handleChangeAssigneeSelect}
+          fetchProductSuggestion={fetchProductSuggestion}
+          handleChangeProductSelect={handleChangeProductSelect}
           user={user}
+          handleChangePackageSelectCustom={handleChangePackageSelectCustom}
         />
       )
     case 1:
@@ -115,6 +123,8 @@ function getStepContent(props) {
           createCampaign={createCampaign}
           handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
           fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
+          handleChangeLoadContactSelect={handleChangeLoadContactSelect},
+          fetchLoadContactSuggestion={fetchLoadContactSuggestion}
         />
       )
     case 2:

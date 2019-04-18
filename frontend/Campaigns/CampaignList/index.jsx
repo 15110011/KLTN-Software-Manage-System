@@ -20,7 +20,7 @@ import { BAD_REQUEST } from "../../common/Code";
 
 function CampaignList(props) {
   const [createCampaignDialog, setCreateCampaignDialog] = React.useState(false)
-  const { classes } = props;
+  const { classes, user } = props;
   const search = {}
   let activePage = 0
   // const [campaignData, setCampaignData, setCampaignURL, forceUpdateCampaign] = useFetchData(CAMPAIGNS_URL, props.history, { data: [], total: 0 })
@@ -33,6 +33,7 @@ function CampaignList(props) {
       <CreateCampaign
         handleCloseCreateCampaignDialog={handleCloseCreateCampaignDialog}
         createCampaignDialog={createCampaignDialog}
+        user={user}
       />
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>

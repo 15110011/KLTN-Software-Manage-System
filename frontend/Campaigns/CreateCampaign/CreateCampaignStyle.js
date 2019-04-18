@@ -3,7 +3,6 @@ const styles = theme => ({
     flexGrow: 1,
   },
   paper: {
-    padding: theme.spacing.unit * 4,
     textAlign: 'center',
     color: theme.palette.text.secondary,
     width: '100%'

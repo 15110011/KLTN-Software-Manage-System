@@ -44,7 +44,16 @@ import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // API
-import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL, MARKETING_PLANS_URL, GET_SALE_REPS_URL } from "../../common/urls";
+import {
+  CAMPAIGNS_URL,
+  REFRESH_TOKEN_URL,
+  PACKAGES_URL,
+  MARKETING_PLANS_URL,
+  GET_SALE_REPS_URL,
+  PRODUCTS_URL,
+  CONTACT_URL,
+  GROUP_URL
+} from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 import useFetchData from '../../CustomHook/useFetchData'
@@ -57,6 +66,8 @@ function CreateCampaign(props) {
   const [createCampaign, setCreateCampaign] = React.useState({
     name: '',
     packages: [],
+    packagesOptions: [],
+    product: {},
     start_date: '',
     end_date: '',
     assigned_to: [],
@@ -64,7 +75,9 @@ function CreateCampaign(props) {
     marketing_plan: {},
     status: '',
     desc: '',
-    mail_template: {}
+    mail_template: {},
+    contacts: [],
+    groups: []
   })
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
@@ -75,7 +88,6 @@ function CreateCampaign(props) {
   const [activeStep, setActiveStep] = React.useState(0)
 
   const { user } = props;
-
   const onEditorStateChange = editorState => {
     setEditorState(editorState)
   };
@@ -97,6 +109,30 @@ function CreateCampaign(props) {
     apiPostCampaign()
   }
 
+  const fetchProductSuggestion = (input) => {
+    if (input != '') {
+      return apiGet(PRODUCTS_URL + "?product_suggest=" + input, true).then(res => {
+        return res.data.suggestion.map(s => ({ label: s, value: s }))
+      })
+    }
+  }
+
+  const handleChangeProductSelect = (value, action) => {
+    if (action.action == 'input-change') { }
+    else if (action.action == 'select-option') {
+      apiGet(PRODUCTS_URL + "?name=" + value.value, true).then(res => {
+        const realResult = res.data.data[0]
+        apiGet(PACKAGES_URL + "?searchProduct=" + realResult.id, true).then(res => {
+          setCreateCampaign({ ...createCampaign, packagesOptions: res.data.data, product: realResult })
+        }
+        )
+      })
+    }
+    else if (action.action == 'remove-value' || action.action == 'clear') {
+      setCreateCampaign({ ...createCampaign, product: {} })
+    }
+  }
+
   const fetchMarketingPlanSuggestion = (input) => {
     return apiGet(MARKETING_PLANS_URL + "?marketing_plan_suggest=" + input, true).then(res => {
       return res.data.suggestion.map(s => ({ label: s, value: s }))
@@ -106,20 +142,26 @@ function CreateCampaign(props) {
   const handleChangeMarketingPlanSelect = (value, action) => {
     if (action.action == 'input-change') { }
     else if (action.action == 'select-option') {
-      apiGet(MARKETING_PLANS_URL + "?name=" + action.option.value, true).then(res => {
+      apiGet(MARKETING_PLANS_URL + "?name=" + value.value, true).then(res => {
         const realResult = res.data.marketing_plans[0]
         setCreateCampaign({ ...createCampaign, marketing_plan: realResult })
       })
     }
     else if (action.action == 'remove-value' || action.action == 'clear') {
-      setCreateCampaign({ ...createCampaign, packages: value })
+      setCreateCampaign({ ...createCampaign, marketing_plan: {} })
     }
   }
 
   const fetchPackageSuggestion = (input) => {
-    return apiGet(PACKAGES_URL + "?package_suggest=" + input, true).then(res => {
-      return res.data.suggestion.map(s => ({ label: s, value: s }))
-    })
+    if (input != '') {
+      return apiGet(PACKAGES_URL + "?package_suggest=" + input, true).then(res => {
+        return res.data.suggestion.map(s => ({ label: s, value: s }))
+      })
+    }
+  }
+
+  const handleChangePackageSelectCustom = (value, action) => {
+    setCreateCampaign({ ...createCampaign, packages: value })
   }
 
   const handleChangePackageSelect = (value, action) => {
@@ -130,16 +172,33 @@ function CreateCampaign(props) {
         const realResult = res.data.packages.find(p => {
           return p.name == action.option.value
         })
+        console.log(realResult)
         clonePackage.push({
           ...realResult,
           label: realResult.name,
           value: realResult.id
         })
-        setCreateCampaign({ ...createCampaign, packages: clonePackage })
-      })
-    }
+        apiGet(PRODUCTS_URL + "?name=" + realResult.product.name, true).then(res => {
+          const realResultProduct = res.data.data[0]
+          apiGet(PACKAGES_URL + "?searchProduct=" + realResultProduct.id, true).then(res => {
+            setCreateCampaign({ ...createCampaign, packagesOptions: res.data.data, product: realResultProduct, packages: clonePackage })
+          }
+        })
+      }
     else if (action.action == 'remove-value' || action.action == 'clear') {
       setCreateCampaign({ ...createCampaign, packages: value })
+    }
+  }
+
+  const fetchLoadContactSuggestion = (input) => {
+    return apiGet(GROUP_URL + "?group=" + input, true).then(res => {
+      return res.data.data.map(s => ({ label: s.name, value: s.id, ...s }))
+    })
+  }
+
+  const handleChangeLoadContactSelect = (value, action) => {
+    if (action.action != 'input-blur' && action.action != 'menu-close') {
+      setCreateCampaign({ ...createCampaign, groups: value })
     }
   }
 
@@ -204,45 +263,48 @@ function CreateCampaign(props) {
               </Step>
             ))}
           </Stepper>
-          <div>
+          <div className={classes.paper}>
             <form onSubmit={handleCreateCampaign}>
-              <Paper className={classes.paper}>
-                <StepDetail
-                  editorState={editorState}
-                  onEditorStateChange={onEditorStateChange}
-                  activeStep={activeStep}
-                  saleRep={saleRep}
-                  classes={classes}
-                  onChangeCreateCampaign={onChangeCreateCampaign}
-                  createCampaign={createCampaign}
-                  handleChangePackageSelect={handleChangePackageSelect}
-                  fetchPackageSuggestion={fetchPackageSuggestion}
-                  handleChangeAssigneeSelect={handleChangeAssigneeSelect}
-                  user={user}
-                  handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
-                  fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
-                />
-                <div style={{ marginTop: '140px' }}>
-                  <Button
-                    disabled={activeStep === 0}
-                    onClick={handleBack}
-                    className={classes.backButton}
-                    variant="outlined"
-                  >
-                    Back
+              <StepDetail
+                editorState={editorState}
+                onEditorStateChange={onEditorStateChange}
+                activeStep={activeStep}
+                saleRep={saleRep}
+                classes={classes}
+                onChangeCreateCampaign={onChangeCreateCampaign}
+                createCampaign={createCampaign}
+                handleChangePackageSelect={handleChangePackageSelect}
+                fetchPackageSuggestion={fetchPackageSuggestion}
+                handleChangeAssigneeSelect={handleChangeAssigneeSelect}
+                user={user}
+                handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
+                fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
+                handleChangeProductSelect={handleChangeProductSelect}
+                fetchProductSuggestion={fetchProductSuggestion}
+                handleChangePackageSelectCustom={handleChangePackageSelectCustom}
+                handleChangeLoadContactSelect={handleChangeLoadContactSelect}
+                fetchLoadContactSuggestion={fetchLoadContactSuggestion}
+              />
+              <div style={{ marginTop: '140px' }}>
+                <Button
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  className={classes.backButton}
+                  variant="outlined"
+                >
+                  Back
                 </Button>
-                  {' '}
-                  <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
-                    Next
+                {' '}
+                <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
+                  Next
             </Button>
-                  {
-                    activeStep === getSteps.length - 1 &&
-                    (
-                      <Button variant="contained" color="primary" type="submit">Create</Button>
-                    )
-                  }
-                </div>
-              </Paper>
+                {
+                  activeStep === getSteps.length - 1 &&
+                  (
+                    <Button variant="contained" color="primary" type="submit">Create</Button>
+                  )
+                }
+              </div>
             </form>
           </div>
         </DialogContent>

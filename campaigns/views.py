@@ -16,7 +16,7 @@ from contacts.serializers import ContactWithoutGroupSerializer
 
 # Create your views here.
 
-ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually', 'Chat']
+ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually']
 
 
 @api_view(['GET'])
