@@ -2,9 +2,10 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField
 from KLTN.models import BaseModel
-from contacts.models import Contact, Note
+from contacts.models import Contact
 from packages.models import Package
 from steps.models import StepDetail
+from campaigns.models import Campaign
 # Create your models here.
 
 ORDER_CHOICES = (
@@ -20,8 +21,8 @@ class Order(BaseModel):
         Contact, on_delete=models.CASCADE, related_name='orders')
     sale_rep = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='orders')
-    note = models.ForeignKey(
-        Note, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
+    campaign = models.ForeignKey(
+        Campaign, on_delete=models.CASCADE, related_name='orders', null=True, blank=True)
     name = models.CharField(max_length=255)
     status = models.CharField(
         max_length=100, choices=ORDER_CHOICES, default='RUNNING')

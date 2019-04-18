@@ -1,37 +1,50 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: "Helvatica",sans-serif !important;
+  font-family: "Helvatica", sans-serif !important;
 }
-.light-word{
-  font-family: "Helvatica Light",sans-serif;
+
+.light-word {
+  font-family: "Helvatica Light", sans-serif;
 }
+
 .bolditalic-word {
-  font-family: "Helvatica BoldItalic",sans-serif;
+  font-family: "Helvatica BoldItalic", sans-serif;
 }
-.bold-word{
-  font-family: "Helvatica Bold",sans-serif;
+
+.bold-word {
+  font-family: "Helvatica Bold", sans-serif;
 }
-.italic-word{
-  font-family: "Helvatica Italic",sans-serif;
+
+.italic-word {
+  font-family: "Helvatica Italic", sans-serif;
 }
+
 @font-face {
   font-family: "Helvatica Bold";
   src: url("../styles/fonts/HelveticaNeue-Bold.otf");
-  }
-  @font-face {
-    font-family: "Helvatica";
-    src: url("../styles/fonts/HelveticaNeue.otf");
-    }
-    @font-face {
-      font-family: "Helvatica Italic";
-      src: url("../styles/fonts/HelveticaNeue-Italic.otf");
-      }
-      @font-face {
-        font-family: "Helvatica BoldItalic";
-        src: url("../styles/fonts/HelveticaNeue-BoldItalic.otf");
-        }
-        @font-face {
-          font-family: "Helvatica Light";
-          src: url("../styles/fonts/HelveticaNeue-Light.otf");
-        }
+}
+
+@font-face {
+  font-family: "Helvatica";
+  src: url("../styles/fonts/HelveticaNeue.otf");
+}
+
+@font-face {
+  font-family: "Helvatica Italic";
+  src: url("../styles/fonts/HelveticaNeue-Italic.otf");
+}
+
+@font-face {
+  font-family: "Helvatica BoldItalic";
+  src: url("../styles/fonts/HelveticaNeue-BoldItalic.otf");
+}
+
+@font-face {
+  font-family: "Helvatica Light";
+  src: url("../styles/fonts/HelveticaNeue-Light.otf");
+}
+
+#material-force-height>div>div:nth-child(2) {
+  max-height: 600px
+}

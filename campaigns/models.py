@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import JSONField, ArrayField
 from KLTN.models import BaseModel
-from KLTN.common import PRIORITY_CHOICES
+from KLTN.common import PRIORITY_CHOICES, NOTE_CHOICES
 from contacts.models import Contact
 from packages.models import Package
 
@@ -85,7 +85,7 @@ class ContactMarketing(BaseModel):
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
 
     class Meta:
-        unique_together = (('marketing_plan', 'contact'),)
+        unique_together = (('campaign', 'contact'),)
 
 
 class ContactMarketingHistory(BaseModel):
@@ -95,4 +95,19 @@ class ContactMarketingHistory(BaseModel):
     action = models.CharField(max_length=20)
 
     class Meta:
-        ordering= ('-created',)
+        ordering = ('-created',)
+
+
+class Note(BaseModel):
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='notes')
+    contact = models.ForeignKey(
+        Contact, on_delete=models.CASCADE, related_name='notes')
+    campaign = models.ForeignKey(
+        Campaign, on_delete=models.CASCADE, related_name='notes', blank=True, null=True)
+    name = models.TextField()
+    content = models.TextField(blank=True, null=True)
+    _type = models.CharField(max_length=20, choices=NOTE_CHOICES, default="Default")
+
+    class Meta:
+        unique_together = (("campaign", "_type", "contact"),)

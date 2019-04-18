@@ -2,12 +2,15 @@ from django.shortcuts import render
 from django.db.models import Q
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import action
 from rest_framework import status
 
 import datetime
 
 from . import models
 from . import serializers
+from campaigns.models import ContactMarketingHistory
+from campaigns.serializers import ContactMarketingHistorySerializer
 
 
 now = datetime.datetime.now()
@@ -65,9 +68,14 @@ class EventView(ModelViewSet):
         if limit:
             filters.add(Q(marketing__status='RUNNING') |
                         Q(order__status='RUNNING'), Q.AND)
-            if remaining_order == None and priority_order == None:
+            # queryset = queryset.exclude(excludes).filter(filters)
+            if list_type == 'marketing' or list_type == 'followup':
+                queryset = queryset.exclude(excludes).filter(filters).order_by('modified', 'end_date', '-priority')[
+                    int(page)*int(limit):int(page)*int(limit)+int(limit)]
+            elif remaining_order == None and priority_order == None:
                 queryset = queryset.exclude(excludes).filter(filters).order_by('end_date', '-priority')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]
+
             elif remaining_order != None:
                 queryset = queryset.exclude(excludes).filter(filters).order_by(remaining_order, '-priority')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]
@@ -96,3 +104,13 @@ class EventView(ModelViewSet):
         self.perform_update(serializer)
 
         return Response(serializer.data)
+
+    @action(methods=['POST'], detail=True)
+    def marketing(self, request, pk=None):
+        instance = self.get_object()
+        # instance.modified = datetime.datetime.now
+        instance.save()
+        history = ContactMarketingHistory.objects.create(
+            action=request.data['action'], contact_marketing=instance.marketing)
+        serializer = ContactMarketingHistorySerializer(history)
+        return Response(serializer.data, status=status.HTTP_200_OK)

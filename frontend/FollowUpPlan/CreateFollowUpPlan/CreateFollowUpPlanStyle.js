@@ -28,8 +28,8 @@ const styles = theme => ({
   },
   fab: {
     position: 'absolute',
-    right: theme.spacing.unit * 3,
-    top: '20%'
+    top: '74%',
+    left: '54%'
   },
   danger: {
     color: '#f00',
@@ -44,6 +44,16 @@ const styles = theme => ({
         color: '#fff',
         borderRadius: '50%',
       }
+    }
+  },
+  fixButton: {
+    '& span:nth-child(1)': {
+      color: '#fff',
+      height: 25,
+      cursor: 'pointer',
+      padding: 1,
+      borderRadius: '50%',
+      backgroundColor: '#a6a6a6'
     }
   }
 })

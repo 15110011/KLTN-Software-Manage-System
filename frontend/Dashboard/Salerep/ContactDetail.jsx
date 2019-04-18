@@ -17,7 +17,7 @@ function ContactDetail(props) {
 
   return (
     <Dialog open={true} onClose={toggleDialog} classes={{ paper: classes.rootTransparent }}>
-      <DialogContent>
+      <DialogContent style={{ overflowY: 'hidden' }} id='material-force-height'>
         <MaterialTable
           columns={[
             { title: 'Action', field: 'action' },
@@ -41,8 +41,8 @@ function ContactDetail(props) {
               toggleDialog()
             },
             isFreeAction: true
-          }]
-          }
+          }]}
+          maxBodyHeight='600px'
           options={{
             filtering: false,
             sorting: false,

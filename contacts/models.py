@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from KLTN.models import BaseModel
-# Create your models here.
 
 SEX_CHOICES = (('MALE', 'Male'), ('FEMALE', 'Female'), ('OTHER', 'Other'))
 
@@ -51,10 +50,3 @@ class ContactGroup(BaseModel):
         unique_together = (("user", "name"),)
 
 
-class Note(BaseModel):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='notes')
-    contact = models.ForeignKey(
-        Contact, on_delete=models.CASCADE, related_name='notes')
-    name = models.CharField(max_length=255)
-    content = models.TextField()

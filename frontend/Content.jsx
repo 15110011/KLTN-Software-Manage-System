@@ -17,7 +17,7 @@ import SidebarContainer from './Sidebar/SidebarContainer'
 import Logout from './auth/Logout';
 import Login from './auth/Login';
 import { NOT_AUTHORIZED, BAD_REQUEST } from './common/Code'
-import { MeAPI, REFRESH_TOKEN_URL } from './common/urls'
+import { MeAPI, REFRESH_TOKEN_URL, GMAIL_AUTH_URL } from './common/urls'
 import { apiGet, apiPost } from './common/Request'
 import { CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES } from './common/Utils'
 import USER_CONTEXT from './components/UserContext'
@@ -91,13 +91,37 @@ class Content extends React.Component {
         window.loadingStatus = 'LOADING'
         clearInterval(googleLoadTimer);
         initGoogle(() => {
-          window.loadingStatu = 'LOADED'
+          window.loadingStatus = 'LOADED'
           this.setState({ readyGmail: true })
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          const status = gapi.auth2.getAuthInstance()
+          if (status) { updateSigninStatus(status.isSignedIn.get()) }
+          else {
+            updateSigninStatus(false)
+          }
+
         });
       }
     }, 90);
+    function updateSigninStatus(status) {
+      if (status) {
+        if (!localStorage.getItem('gmail_token')) {
+          localStorage.setItem('gmail_token', gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse(true).access_token)
+        }
+        apiPost(GMAIL_AUTH_URL, { access_token: localStorage.getItem('gmail_token') }, false, true).then(res => {
+          console.log(res)
+        })
+      }
+      else {
+        //Delete this later
+        gapi.auth2.getAuthInstance().signIn();
+      }
+    }
 
   }
+
+
 
   refreshToken = () => {
     apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {

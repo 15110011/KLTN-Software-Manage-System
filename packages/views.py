@@ -44,6 +44,7 @@ class ProductViewSet(ModelViewSet):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
+        
 
         product_suggest = self.request.query_params.get('product_suggest', None)
         filters = Q()
@@ -57,7 +58,7 @@ class ProductViewSet(ModelViewSet):
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
         if limit is not None:
-            queryset = Product.objects.filter(manager=request.user)[
+            queryset = Product.objects.filter()[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
         else:
             queryset = qs.filter(manager=request.user)

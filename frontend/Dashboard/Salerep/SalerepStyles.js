@@ -76,6 +76,17 @@ const styles = (theme) => ({
       color: '#0056b3',
       textDecoration: 'underline'
     }
+  },
+  smallIconBtn: {
+    fontSize: '16px'
+  },
+  noteContentRoot: {
+    cursor: 'pointer',
+    padding: '24px 24px 24px',
+    maxHeight: '600px',
+    '&:hover': {
+      backgroundColor: '#c3c0c094'
+    }
   }
 })
 
