@@ -194,7 +194,7 @@ class MarketingPlanView(ModelViewSet):
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = CreateMarketingPlanSerializer(data=request.data)
+        serializer = CreateMarketingPlanSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)

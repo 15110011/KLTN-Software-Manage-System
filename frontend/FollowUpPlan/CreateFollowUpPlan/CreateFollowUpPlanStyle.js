@@ -45,6 +45,16 @@ const styles = theme => ({
         borderRadius: '50%',
       }
     }
+  },
+  fixButton: {
+    '& span:nth-child(1)': {
+      color: '#fff',
+      height: 25,
+      cursor: 'pointer',
+      padding: 1,
+      borderRadius: '50%',
+      backgroundColor: '#a6a6a6'
+    }
   }
 })
 

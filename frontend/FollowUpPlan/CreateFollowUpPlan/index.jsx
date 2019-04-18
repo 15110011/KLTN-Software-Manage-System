@@ -40,7 +40,12 @@ function CreateFollowUpPlan(props) {
         nth: '',
         actions: [],
         duration: 0,
-        conditions: {},
+        conditions: [
+          {
+            'field_name': '',
+            'field_type': ''
+          }
+        ],
       }
     ],
   })
@@ -67,7 +72,12 @@ function CreateFollowUpPlan(props) {
       nth: '',
       action: '',
       duration: 0,
-      conditions: {},
+      conditions: [
+        {
+          'field_name': '',
+          'field_type': ''
+        }
+      ],
     })
     setCreatePlan({ ...followUpPlan, steps })
   }
@@ -86,6 +96,15 @@ function CreateFollowUpPlan(props) {
     const steps = [...followUpPlan.steps]
     steps[index].conditions[e.target.name] = e.target.value
     setCreatePlan({ ...followUpPlan, steps })
+  }
+
+  const handleAddConditions = (e, index) => {
+    const steps = [...followUpPlan.steps]
+    steps[index].conditions.push({
+      'field_name': '',
+      'field_type': ''
+    })
+    setCreatePlan({ ...followUpPlan }, steps)
   }
 
   const onChangeCreateSteps = (e, index) => {
@@ -131,9 +150,9 @@ function CreateFollowUpPlan(props) {
         fullWidth
         maxWidth="md"
       >
-        <DialogTitle style={{position: 'relative'}} id="customized-dialog-title" onClose={handleCloseCreateFollowUpPlan}>
-            Create Follow-up Plan
-          <div style={{position: 'absolute', top: '12px', right: '12px'}}>
+        <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateFollowUpPlan}>
+          Create Follow-up Plan
+          <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
             <IconButton aria-label="Close" onClick={handleCloseCreateFollowUpPlan}>
               <CloseIcon />
             </IconButton>
@@ -187,7 +206,7 @@ function CreateFollowUpPlan(props) {
                   >Step {index + 1}</StepLabel>
                 </Step>
               ))}
-              <Step classes={{root: classes.addStep}} onClick={addMoreSteps}>
+              <Step classes={{ root: classes.addStep }} onClick={addMoreSteps}>
                 <StepLabel StepIconProps={{ icon: <AddIcon /> }}>Add Step</StepLabel>
               </Step>
             </Stepper>
@@ -205,6 +224,7 @@ function CreateFollowUpPlan(props) {
                         onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
                         handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
                         handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
+                        handleAddConditions={e => handleAddConditions(e, index)}
                         createStep={curStep}
                         error={error}
                         actions={actions}

@@ -21,7 +21,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 
 function StepDetail(props) {
-  const { classes, createStep, onChangeCreateSteps, actions, handleChangeSelect, handleChangeStepCondition, error } = props
+  const {
+    classes,
+    createStep,
+    onChangeCreateSteps,
+    actions, handleChangeSelect,
+    handleChangeStepCondition,
+    error,
+    handleAddConditions
+  } = props
   const [createFieldDialog, setCreateFieldDialog] = React.useState(false)
 
   const handleOpenDialog = e => {
@@ -104,7 +112,7 @@ function StepDetail(props) {
               focused: classes.cssFocused,
             }}
           >
-            Required Fields
+            Fields
             </InputLabel>
         </Grid>
         <Grid item xs={8}>
@@ -143,16 +151,16 @@ function StepDetail(props) {
                 </MenuItem>
                 </Select>
               </FormControl>
-              <Grid>
-                <Button
-                  // onClick={() => { handleAddMustConditions() }}
-                  variant="outlined"
-                  color="default"
-                  // className={(classes.addFeatureButton)}>
+            </Grid>
+            <Grid item xs={8}>
+              <Button
+                onClick={handleAddConditions}
+                variant="outlined"
+                color="default"
+              // className={(classes.addFeatureButton)}>
               >
-                  Add Conditions
+                Add Conditions
               </Button>
-              </Grid>
             </Grid>
             {
               createStep.conditions['field_type'] === 'check_box' &&

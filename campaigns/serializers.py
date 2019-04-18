@@ -28,6 +28,8 @@ class MarketingPlanSerializer(serializers.ModelSerializer):
 
 
 class CreateMarketingPlanSerializer(serializers.ModelSerializer):
+    manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     class Meta:
         model = models.MarketingPlan
         exclude = ['contacts']
