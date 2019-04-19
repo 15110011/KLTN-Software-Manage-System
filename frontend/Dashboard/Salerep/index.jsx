@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import styles from './SalerepStyles.js'
 import MarketingTable from './MarketingTable'
 import ActivitiesTable from './ActivitiesTable'
+import { apiGet, apiPost } from '../../common/Request.js';
 
 
 
@@ -23,6 +24,7 @@ function SalerepDashboard(props) {
   const forceActivities = () => {
     tableActivtyRef.current.onQueryChange()
   }
+
 
   return (
     <div className={classes.root}>

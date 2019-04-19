@@ -24,10 +24,11 @@ import CustomSnackbar from '../../components/CustomSnackbar'
 import CreateEventDialog from '../../Events/CreateEventDialog'
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
+import SendMailDialog from '../../Mailbox/SendMailDialog'
 
 function MoreDialog(props) {
 
-  const { classes, setDialog, campaign, contact, histories, id, updateTable, marketing } = props
+  const { classes, setDialog, campaign, contact, histories, id, updateTable, marketing, user } = props
 
   const [contactHistories, setContactHistories] = React.useState({
     'Send Email ': 0,
@@ -37,6 +38,8 @@ function MoreDialog(props) {
 
   const [noteDialog, setNoteDialog] = React.useState(false)
   const [laterDialog, setLaterDialog] = React.useState(false)
+  const [mailDialog, setMailDialog] = React.useState(false)
+
 
 
   const [contactDetail, setContactDetail] = React.useState(false)
@@ -73,6 +76,11 @@ function MoreDialog(props) {
   }
 
   const onSendEmail = () => {
+    setMailDialog(true)
+
+  }
+
+  const updateMailMetric = () => {
     apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Send Email Manually' }, false, true).then(res => {
       updateTable()
       setContactHistories({ ...contactHistories, 'Send Email Manually': contactHistories['Send Email Manually'] + 1 })
@@ -83,8 +91,15 @@ function MoreDialog(props) {
     })
   }
 
+
+
   return (
     <>
+      {mailDialog &&
+        <SendMailDialog user={user} contact={contact} toggleDialog={() => { setMailDialog(!mailDialog) }}
+          updateMailMetric={updateMailMetric} 
+        />
+      }
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
       {error.all && <CustomSnackbar isErr msg={error.all} />}
       {contactDetail && <ContactDetail toggleDialog={() => {
@@ -200,7 +215,7 @@ function MoreDialog(props) {
         </DialogContent>
         <DialogActions>
 
-          <Button
+          {marketing.marketing_plan.actions.findIndex(a => a == 'Call Client') != -1 && < Button
             variant='contained'
             classes={{
               contained: classes.btnGreen
@@ -212,8 +227,9 @@ function MoreDialog(props) {
             Call{' '}
             <PhoneIcon></PhoneIcon>
           </Button>
+          }
 
-          <Button
+          {marketing.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 && <Button
             variant='contained'
             classes={{
               contained: classes.btnPink
@@ -225,6 +241,7 @@ function MoreDialog(props) {
             Mail{' '}
             <EmailIcon></EmailIcon>
           </Button>
+          }
 
           <Button
             variant='contained'

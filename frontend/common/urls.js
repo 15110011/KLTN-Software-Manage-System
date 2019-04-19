@@ -31,5 +31,6 @@ export const EVENTS_URL = `${API_URL}events`
 export const GET_SALE_REPS_URL = `${API_URL}sale-reps`
 
 export const GMAIL_AUTH_URL = `${API_URL}gmail\\auth`
+export const GMAIL_SEND_URL = `${API_URL}gmail\\send`
 
 export { serverUrl, API_URL }
