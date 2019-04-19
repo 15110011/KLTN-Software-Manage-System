@@ -58,7 +58,6 @@ class ProductViewSet(ModelViewSet):
         new_serializer['total'] = Product.objects.filter(
             manager=request.user).count()
         
-        print(new_serializer)
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
