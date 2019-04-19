@@ -48,7 +48,10 @@ function CampaignDetails(props) {
     user,
     editorState,
     onEditorStateChange,
-    saleRep
+    saleRep,
+    handleChangeProductSelect,
+    fetchProductSuggestion,
+    handleChangePackageSelectCustom
   } = props
   return (
     <form onSubmit={(e) => {
@@ -62,9 +65,9 @@ function CampaignDetails(props) {
               Campaign Info
                   </Typography>
           </Grid>
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
+              <Grid className={classes.inputCustom} item xs={2}>
                 <InputLabel
                   required
                   htmlFor="custom-css-standard-input"
@@ -76,7 +79,7 @@ function CampaignDetails(props) {
                   Campaign Name
                         </InputLabel>
               </Grid>
-              <Grid item xs={8}>
+              <Grid item xs={10}>
                 <Input
                   fullWidth
                   required
@@ -130,39 +133,6 @@ function CampaignDetails(props) {
                     focused: classes.cssFocused,
                   }}
                 >
-                  Packages
-                        </InputLabel>
-              </Grid>
-              <Grid item xs={8}>
-                <AsyncSelect
-                  handleChange={(values, element) => handleChangePackageSelect(values, element)}
-                  onChangeSelect={(values, element) => handleChangePackageSelect(values, element)}
-                  data={
-                    createCampaign.packages
-                      .reduce((acc, p) => {
-                        acc.push({ label: `${p.label}`, value: p.id, ...p })
-                        return acc
-                      }, [])
-                  }
-                  multi
-                  placeholder=""
-                  label=""
-                  loadOptions={fetchPackageSuggestion}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabel,
-                    focused: classes.cssFocused,
-                  }}
-                >
                   Close Date
                         </InputLabel>
               </Grid>
@@ -185,6 +155,95 @@ function CampaignDetails(props) {
             <Grid container spacing={40}>
               <Grid className={classes.inputCustom} item xs={4}>
                 <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Product
+                        </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                <AsyncSelect
+                  handleChange={(values, element) => handleChangeProductSelect(values, element)}
+                  onChangeSelect={(values, element) => handleChangeProductSelect(values, element)}
+                  data={
+                    createCampaign.product.name && { label: `${createCampaign.product.name}`, value: createCampaign.product.id, ...createCampaign.product }
+                  }
+                  single
+                  placeholder=""
+                  label=""
+                  loadOptions={fetchProductSuggestion}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={6}>
+            <Grid container spacing={40}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  required
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Packages
+                        </InputLabel>
+              </Grid>
+              <Grid item xs={8}>
+                {
+                  !createCampaign.product.id ?
+                    <AsyncSelect
+                      handleChange={(values, element) => handleChangePackageSelect(values, element)}
+                      onChangeSelect={(values, element) => handleChangePackageSelect(values, element)}
+                      data={
+                        createCampaign.packages
+                          .reduce((acc, p) => {
+                            acc.push({ label: `${p.label}`, value: p.id, ...p })
+                            return acc
+                          }, [])
+                      }
+                      multi
+                      placeholder=""
+                      label=""
+                      loadOptions={fetchPackageSuggestion}
+                    /> :
+                    <SelectCustom
+                      handleChange={(values, element) => handleChangePackageSelectCustom(values, element)}
+                      name="packages"
+                      options={createCampaign.packagesOptions.reduce((acc, p) => {
+                        acc.push(
+                          {
+                            label: `${p.name}`,
+                            value: p.id
+                            ...p
+                          }
+                        )
+                        return acc
+                      }, [])}
+                      data={
+                        createCampaign.packages
+                          .reduce((acc, p) => {
+                            acc.push({ label: `${p.name}`, value: p.id, ...p })
+                            return acc
+                          }, [])
+                      }
+                      fullWidth
+                      multi
+                    />
+                }
+
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={6}>
+            <Grid container spacing={40}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
                     root: classes.cssLabel,
@@ -198,8 +257,7 @@ function CampaignDetails(props) {
                 <SelectCustom
                   handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
                   name="assigned_to"
-                  options={saleRep.saleRep && saleRep.sale_reps.reduce((acc, u) => {
-                    console.log(u)
+                  options={user.sale_reps && user.sale_reps.reduce((acc, u) => {
                     acc.push(
                       {
                         label: `${u.user.username}`,

@@ -425,8 +425,8 @@ function CreateProduct(props) {
         maxWidth="md"
       >
         <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateProductDialog}>
+          Create Product
           <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-            Create Product
             <IconButton aria-label="Close" onClick={handleCloseCreateProductDialog}>
               <CloseIcon fontSize="small" />
             </IconButton>

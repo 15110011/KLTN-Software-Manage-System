@@ -9,7 +9,7 @@ class Step(BaseModel):
     follow_up = models.ForeignKey(
         FollowUpPlan, on_delete=models.CASCADE, related_name='steps')
     nth = models.IntegerField()
-    actions = JSONField(default=list([]))
+    actions2 = JSONField(default=list([]))
     duration = models.IntegerField()
     conditions = JSONField()
 

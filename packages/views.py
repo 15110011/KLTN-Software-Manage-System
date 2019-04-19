@@ -36,7 +36,9 @@ class ProductViewSet(ModelViewSet):
                 'term', manager=self.request.user.id)
             products = [model_to_dict(product)
                         for product in search.to_queryset()]
+
             return {"data": products, "elastic_search": True}
+        
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
@@ -44,6 +46,14 @@ class ProductViewSet(ModelViewSet):
             return Response(qs)
         
 
+        product_suggest = self.request.query_params.get('product_suggest', None)
+        filters = Q()
+        if product_suggest:
+            filters.add(Q(name__icontains=product_suggest), Q.AND)
+            queryset =  Product.objects.filter(manager=self.request.user).filter(filters)
+            serializer = self.get_serializer(queryset, many=True)
+            return Response({"suggestion": [s['name'] for s in serializer.data], "elastic_search": True})
+        
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
@@ -55,9 +65,7 @@ class ProductViewSet(ModelViewSet):
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
-        new_serializer['total'] = Product.objects.filter(
-            manager=request.user).count()
-        
+        new_serializer['total'] = Product.objects.filter().count()
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -93,7 +101,14 @@ class PackageViewSet(ModelViewSet):
             for packages in search.to_queryset():
                 packages = model_to_dict(packages)
                 features = packages.get('features')
+                if len(features) > 0:
+                    packages['product']= model_to_dict(features[0].product)
+                else:
+                    packages['product']= {}
+
                 features = [model_to_dict(feature) for feature in features]
+                
+
                 packages['features'] = features
                 found_packages.append(packages)
             return {"packages": found_packages, "elastic_search": True}
@@ -110,21 +125,24 @@ class PackageViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
+        filters=Q()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
+        search_product = self.request.query_params.get('searchProduct', None)
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
-        if limit is not None:
-            queryset = Package.objects.filter(manager=request.user)[
+        if search_product:
+            filters.add(Q(features__product__id=search_product), Q.AND)
+        if limit is not None and search_product is not None:
+            queryset = Package.objects.filter(filters)[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
         else:
-            queryset = qs.filter(manager=request.user)
+            queryset = Package.objects.filter(filters)
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
-        new_serializer['total'] = Package.objects.filter(
-            manager=request.user).count()
+        new_serializer['total'] = Package.objects.filter(filters).count()
         return Response(new_serializer, status=status.HTTP_200_OK)
 
 

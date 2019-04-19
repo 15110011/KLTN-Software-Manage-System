@@ -24,6 +24,7 @@ export const CONTACT_MARKETING_URL = `${API_URL}contact-marketings`
 
 export const NOTES_URL = `${API_URL}notes`
 export const MARKETING_PLANS_URL = `${API_URL}marketing-plans`
+export const MARKETING_PLANS_CONDITIONS_URL = `${API_URL}marketing-plans-conditions`
 export const FOLLOW_UP_PLANS_URL = `${API_URL}follow-up-plans`
 export const GET_ACTIONS_URL = `${API_URL}actions`
 export const EVENTS_URL = `${API_URL}events`
