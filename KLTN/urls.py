@@ -6,8 +6,8 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView
-from packages.views import ProductViewSet, PackageViewSet
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView
+from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView
 from campaigns.views import ContactMarketingView
@@ -20,6 +20,8 @@ router = DefaultRouter(trailing_slash=False)
 # package app
 router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
+router.register('product-categories', ProductCategoryView, base_name='product-categories')
+router.register('product-types', ProductTypeView, base_name='product-types')
 # campaign app
 router.register('marketing-plans', MarketingPlanView,
                 base_name='marketing_plans')
@@ -27,7 +29,8 @@ router.register('follow-up-plans', FollowUpPlanView,
                 base_name='follow-up-plans')
 router.register('campaigns', CampaignView, base_name='campaigns')
 router.register('notes', NoteView, base_name='notes')
-router.register('contact-marketings', ContactMarketingView, base_name='contact-marketing')
+router.register('contact-marketings', ContactMarketingView,
+                base_name='contact-marketing')
 # order app
 router.register('orders', OrderView, base_name='orders')
 router.register('order-histories', OrderHistoryView,
@@ -72,6 +75,8 @@ urlpatterns = [
     path('api/v1/campaigns/<int:pk>/note',
          CampaignExtraView.as_view({'get': 'note'})),
 
-    path('api/v1/gmail/auth', GmailView)
+    path('api/v1/gmail/auth', GmailView),
+    path('api/v1/gmail/exchange', GmailExchangeCodeView),
+    path('api/v1/gmail/send', SendMessageView.as_view()),
 
 ]

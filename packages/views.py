@@ -7,10 +7,22 @@ from django.forms.models import model_to_dict
 
 
 from rest_framework import status
-from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer, PackageHistorySerializer
-from .models import Product, Package, PackageHistory
+from .serializers import ProductSerializier, PackageSerializer, CreateProductSerializer, PackageHistorySerializer, ProductCategorySerializer, ProductTypeSerializer
+from .models import Product, Package, PackageHistory, ProductCategory, ProductType
 from .documents import PackageDocument, ProductDocument
 # Create your views here.
+
+
+class ProductCategoryView(ModelViewSet):
+    serializer_class = ProductCategorySerializer
+    queryset = ProductCategory.objects
+    permission_classes = (IsAuthenticated, IsAdminUser,)
+
+
+class ProductTypeView(ModelViewSet):
+    serializer_class = ProductTypeSerializer
+    queryset = ProductType.objects
+    permission_classes = (IsAuthenticated, IsAdminUser,)
 
 
 class ProductViewSet(ModelViewSet):
@@ -38,22 +50,22 @@ class ProductViewSet(ModelViewSet):
                         for product in search.to_queryset()]
 
             return {"data": products, "elastic_search": True}
-        
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
-        
 
-        product_suggest = self.request.query_params.get('product_suggest', None)
+        product_suggest = self.request.query_params.get(
+            'product_suggest', None)
         filters = Q()
         if product_suggest:
             filters.add(Q(name__icontains=product_suggest), Q.AND)
-            queryset =  Product.objects.filter(manager=self.request.user).filter(filters)
+            queryset = Product.objects.filter(
+                manager=self.request.user).filter(filters)
             serializer = self.get_serializer(queryset, many=True)
             return Response({"suggestion": [s['name'] for s in serializer.data], "elastic_search": True})
-        
+
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
@@ -102,12 +114,11 @@ class PackageViewSet(ModelViewSet):
                 packages = model_to_dict(packages)
                 features = packages.get('features')
                 if len(features) > 0:
-                    packages['product']= model_to_dict(features[0].product)
+                    packages['product'] = model_to_dict(features[0].product)
                 else:
-                    packages['product']= {}
+                    packages['product'] = {}
 
                 features = [model_to_dict(feature) for feature in features]
-                
 
                 packages['features'] = features
                 found_packages.append(packages)
@@ -125,7 +136,7 @@ class PackageViewSet(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
-        filters=Q()
+        filters = Q()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
         search_product = self.request.query_params.get('searchProduct', None)
