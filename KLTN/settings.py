@@ -265,5 +265,9 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'WARN',
         },
+        'account': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+        },
     },
 }

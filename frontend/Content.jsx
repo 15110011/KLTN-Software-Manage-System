@@ -81,7 +81,8 @@ class Content extends React.Component {
           apiKey: API_KEY,
           clientId: CLIENT_ID,
           discoveryDocs: DISCOVERY_DOCS,
-          scope: SCOPES
+          scope: SCOPES,
+
         }).then(func)
       });
     }
@@ -104,18 +105,25 @@ class Content extends React.Component {
         });
       }
     }, 90);
+
+
     function updateSigninStatus(status) {
       if (status) {
-        if (!localStorage.getItem('gmail_token')) {
-          localStorage.setItem('gmail_token', gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse(true).access_token)
-        }
-        apiPost(GMAIL_AUTH_URL, { access_token: localStorage.getItem('gmail_token') }, false, true).then(res => {
-          console.log(res)
-        })
+        // apiPost(GMAIL_AUTH_URL, { access_token: gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse().access_token }, false, true).then(res => {
+        //   console.log(res)
+        // })
       }
       else {
         //Delete this later
-        gapi.auth2.getAuthInstance().signIn();
+        // gapi.auth2.getAuthInstance().signIn().then(res => {
+        // })
+        window.gapi.auth2.getAuthInstance().grantOfflineAccess()
+          .then((res) => {
+            console.log(res)
+            apiPost(GMAIL_AUTH_URL, { code: res.code }, false, true).then(res => {
+              console.log(res)
+            })
+          });
       }
     }
 

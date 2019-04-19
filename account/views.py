@@ -10,12 +10,23 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework_simplejwt.backends import TokenBackend
 
+import logging
+from oauth2client.client import flow_from_clientsecrets
+from oauth2client.client import FlowExchangeError
+from apiclient.discovery import build
+import google_auth_oauthlib.flow
+#
+
 from . import serializers
 from . import models
 from KLTN import settings
+from KLTN.gmail_utils import send_mail, exchange_code
 import jwt
 import requests
 import json
+from pprint import pprint
+
+log = logging.getLogger('account')
 
 # Create your views here.
 
@@ -26,6 +37,7 @@ class MeView(generics.RetrieveAPIView):
     serializer_class = serializers.MeSerializer
 
     def retrieve(self, request, *args, **kwargs):
+        print(request.session.keys())
         if not request.user.is_authenticated:
             return Response({"msg": 'You havent login yet'}, status=status.HTTP_403_FORBIDDEN)
         instance = request.user
@@ -122,28 +134,42 @@ class SaleRepView(viewsets.ModelViewSet):
         return Response(sale_reps, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def get_user_info(request):
+
+    access_token = request.session.get('access_token')
+    res = requests.get(
+        'https://www.googleapis.com/gmail/v1/users/me/profile', headers={'Authorization': f'Bearer {access_token}'}).json()
+
+    return res
+
+
+@api_view(['GET', 'POST'])
+def GmailExchangeCodeView(request):
+    return Response({"data": request.data}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated, ))
 def GmailView(request):
+
+    res = 'NOTHING'
     with open('client_secret.json', 'rb') as secret:
         cred = json.load(secret)
+        res = exchange_code(
+            request,
+            request.data['code'], cred['web']['client_id'], cred['web']['client_secret'])
+        request.session['access_token'] = res['access_token']
 
-        print(request.data)
-        res = requests.post('https://www.googleapis.com/oauth2/v4/token',
-                            {
-                                "code": request.data['access_token'],
-                                "client_id": cred['web']['client_id'],
-                                "client_secret": cred['web']['client_secret'],
-                                "grant_type": "authorization_code",
-                                "redirect_uri": cred['web']['javascript_origins'][0]
-                            })
-        from pprint import pprint
-        pprint(vars(res))
-        pprint({
-            "code": request.data['access_token'],
-            "client_id": cred['web']['client_id'],
-            "client_secret": cred['web']['client_secret'],
-            "grant_type": "authorization_code",
-            "redirect_uri": cred['web']['javascript_origins'][0]
-        })
-    return Response({"data": request.data}, status=status.HTTP_200_OK)
+        request.session['refresh_token'] = res['refresh_token']
+        pprint(vars(request.session))
+    return Response({"data": res}, status=status.HTTP_200_OK)
+
+
+class SendMessageView(generics.CreateAPIView):
+    permission_classes = (IsAuthenticated, )
+
+    def post(self, request, *args, **kwargs):
+        res = send_mail(request)
+
+        return Response({"data": res}, status=status.HTTP_200_OK)
