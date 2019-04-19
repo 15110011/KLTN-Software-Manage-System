@@ -1,4 +1,5 @@
 
+from django.forms.models import model_to_dict
 from django.contrib.auth import get_user_model
 
 from rest_framework.fields import set_value
@@ -46,17 +47,17 @@ class PackageSerializer(serializers.ModelSerializer):
             instance.features.all(), many=True)
         return features_serialized.data
 
-
+   
 class PackageHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageHistory
-        fields = '__al__'
+        fields = '__all__'
 
 
 class ProductSerializier(serializers.ModelSerializer):
     manager = MeSerializer()
     features = FeatureSerializer(many=True)
-    packages = serializers.SerializerMethodField()
+    # packages = serializers.SerializerMethodField()
 
     class Meta:
         model = Product

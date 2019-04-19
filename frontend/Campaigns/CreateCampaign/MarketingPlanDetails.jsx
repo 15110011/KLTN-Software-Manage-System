@@ -41,19 +41,22 @@ function MarketingPlanDetails(props) {
     createCampaign,
     handleChangeMarketingPlanSelect,
     fetchMarketingPlanSuggestion,
-    onChangeCreateCampaign
+    onChangeCreateCampaign,
+    fetchLoadContactSuggestion,
+    handleChangeLoadContactSelect
   } = props
+  console.log(createCampaign.contacts)
   return (
     <Grid container spacing={24}>
-      <Grid item xs={12}>
-        {/* {
+      {/* <Grid item xs={12}>
+        {
               error[1].must && Object.keys(error[1].must).map(k => (
                 <p className='text-danger'>
                   {error[1].must[k]}
                 </p>
               ))
-            } */}
-      </Grid>
+            }
+      </Grid> */}
       <Grid container spacing={24}>
         <Grid item xs={10}>
           <Grid container spacing={24}>
@@ -73,12 +76,12 @@ function MarketingPlanDetails(props) {
                 handleChange={(values, element) => handleChangeMarketingPlanSelect(values, element)}
                 onChangeSelect={(values, element) => handleChangeMarketingPlanSelect(values, element)}
                 data={
-                  Object.keys(createCampaign.marketing_plan).length === 0 ? '' : 
-                  {
-                    label: `${createCampaign.marketing_plan.name}`, value: createCampaign.marketing_plan.id, ...createCampaign.marketing_plan
-                  }
+                  Object.keys(createCampaign.marketing_plan).length === 0 ? '' :
+                    {
+                      label: `${createCampaign.marketing_plan.name}`, value: createCampaign.marketing_plan.id, ...createCampaign.marketing_plan
+                    }
                 }
-                multi
+                single
                 placeholder=""
                 label=""
                 loadOptions={fetchMarketingPlanSuggestion}
@@ -101,22 +104,25 @@ function MarketingPlanDetails(props) {
                   focused: classes.cssFocused,
                 }}
               >
-                Load contacts from
+                Contacts from groups
                     </InputLabel>
             </Grid>
             <Grid item xs={7}>
               <FormControl fullWidth className={classes.formControl}>
-                <Select
-                  // value={createMarketingPlan.status}
-                  // onChange={onChangeCreateProduct}
-                  displayEmpty
-                  // name="status"
-                  className={classes.selectEmpty}
-                >
-                  <MenuItem value="ACTIVE">
-                    Contacts Address
-                </MenuItem>
-                </Select>
+                <AsyncSelect
+                  handleChange={(values, element) => handleChangeLoadContactSelect(values, element)}
+                  onChangeSelect={(values, element) => handleChangeLoadContactSelect(values, element)}
+                  data={
+                    createCampaign.groups.reduce((acc, g) => {
+                      acc.push({ label: g.name, value: g.id, ...g })
+                      return acc
+                    }, [])
+                  }
+                  multi
+                  placeholder=""
+                  label=""
+                  loadOptions={fetchLoadContactSuggestion}
+                />
               </FormControl>
             </Grid>
             <Grid item xs={1}>
@@ -143,15 +149,15 @@ function MarketingPlanDetails(props) {
                   <FormControl fullWidth className={classes.formControl}>
                     <InputLabel htmlFor="age-simple">First name</InputLabel>
                     <Select
-                      // value={m.operand}
-                      // onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
+                      value={m.operand}
+                      onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
                       displayEmpty
                       name="operand"
                       className={classes.selectEmpty}
                     >
                       <MenuItem value="ACTIVE">
                         as
-                </MenuItem>
+                      </MenuItem>
                     </Select>
                   </FormControl>
                 </Grid>

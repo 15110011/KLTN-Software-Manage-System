@@ -64,7 +64,7 @@ class ContactGroupView(ModelViewSet):
 
         isFindGroupDefault = False
         if 'group' in request.query_params:
-            filters.add(Q(name=request.query_params['group']), Q.AND)
+            filters.add(Q(name__icontains=request.query_params['group']), Q.AND)
             if request.query_params['group'] == 'All Contacts':
                 isFindGroupDefault = True
             
@@ -74,6 +74,13 @@ class ContactGroupView(ModelViewSet):
                 queryset, context={'request': request}, many=True)
 
             new_serializer = serializer.data[0]
+        elif request.query_params.get('group', None):
+            serializer = serializers.GroupSerializer(
+                queryset, context={'request': request}, many=True)
+            new_serializer={
+                "data": serializer.data,
+                "total" : len(serializer.data)
+            }
         else:
             self_g = []
             public_g = []

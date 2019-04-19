@@ -32,38 +32,35 @@ function CampaignContainer(props) {
   return (
     <div>
       <div>
-        <USERCONTEXT.Consumer>
-          {({ user }) => (
-            <>
-              <Paper className="d-flex justify-content-between" style={{
-                padding: '11px 72px',
-                marginBottom: '10px',
-                marginTop: 10,
-                backgroundColor: '#F5F5F5'
-              }}>
-                <Breadcrumbs
-                  separator={<b> / </b>}
-                  item={NavLink}
-                  finalItem={'b'}
-                  container={Breadcrumb}
-                  finalProps={{
-                    style: { color: 'black' }
-                  }}
-                />
-{/* 
+
+        <>
+          <Paper className="d-flex justify-content-between" style={{
+            padding: '11px 72px',
+            marginBottom: '10px',
+            marginTop: 10,
+            backgroundColor: '#F5F5F5'
+          }}>
+            <Breadcrumbs
+              separator={<b> / </b>}
+              item={NavLink}
+              finalItem={'b'}
+              container={Breadcrumb}
+              finalProps={{
+                style: { color: 'black' }
+              }}
+            />
+            {/* 
                 {canClickAdd &&
                   <Button color="primary" aria-label="Add" variant="contained" onClick={() => props.history.push('/campaigns/add')}><AddIcon />&nbsp;Add Campaigns</Button>
                 } */}
-              </Paper>
-              <BreadcrumbsItem to='/campaigns'>CAMPAIGNS</BreadcrumbsItem>
-              <Switch>
-                <Route exact path="/campaigns" component={(props) => (<CampaignList {...props} user={user} />)} />
-                <Route path="/campaigns/add" component={(props) => (<CreateCampaign {...props} user={user} />)} />
-                <Route path="/campaigns/:id" component={(props) => (<CampaignDetail {...props} />)} />
-              </Switch>
-            </>
-          )}
-        </USERCONTEXT.Consumer>
+          </Paper>
+          <BreadcrumbsItem to='/campaigns'>CAMPAIGNS</BreadcrumbsItem>
+          <Switch>
+            <Route exact path="/campaigns" component={(props) => (<CampaignList {...props} user={user} />)} />
+            <Route path="/campaigns/add" component={(props) => (<CreateCampaign {...props} user={user} />)} />
+            <Route path="/campaigns/:id" component={(props) => (<CampaignDetail {...props} />)} />
+          </Switch>
+        </>
       </div>
     </div>
   )

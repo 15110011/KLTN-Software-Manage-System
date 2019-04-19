@@ -27,6 +27,7 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import useFetchData from '../../CustomHook/useFetchData'
 import styles from './CreateMarketingPlanStyle'
 
 // Components 
@@ -34,7 +35,11 @@ import styles from './CreateMarketingPlanStyle'
 import SelectCustom from '../../components/SelectCustom'
 
 // API
-import { MARKETING_PLANS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import {
+  MARKETING_PLANS_URL,
+  REFRESH_TOKEN_URL,
+  MARKETING_PLANS_CONDITIONS_URL
+} from "../../common/urls";
 import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
@@ -50,7 +55,11 @@ function getStepContent(
   createMarketingPlan,
   setCreateMarketingPlan,
   handleRemoveMustConditions,
-  handleRemoveAtLeastConditions
+  handleRemoveAtLeastConditions,
+  handleOpenConditionTable,
+  marketingPlanConditions,
+  handleChangeActionTypeSelect
+  // applyConditionTable
 ) {
 
   const { classes } = props;
@@ -130,23 +139,23 @@ function getStepContent(
                   <Grid key={i} container spacing={24}>
                     <Grid item xs={4}>
                       <FormControl fullWidth className={classes.formControl}>
-                        <InputLabel htmlFor="age-simple">Condition Type</InputLabel>
+                        <InputLabel htmlFor="age-simple">Operands</InputLabel>
                         <Select
                           value={m.operand}
                           onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
                           displayEmpty
-                          name="condition"
+                          name="operand"
                           className={classes.selectEmpty}
                         >
-                          <MenuItem value="ACTIVE">
-                            State
-                          </MenuItem>
-                          <MenuItem value="ACTIVE">
-                            So lan mua san pham cung loai
-                          </MenuItem>
-                          <MenuItem value="ACTIVE">
-                            So lan mua san pham cung category
-                          </MenuItem>
+                          {
+                            Object.values(marketingPlanConditions).map(c => {
+                              return (
+                                <MenuItem value={c.id}>
+                                  {c.name}
+                                </MenuItem>
+                              )
+                            })
+                          }
                         </Select>
                       </FormControl>
                     </Grid>
@@ -157,28 +166,26 @@ function getStepContent(
                           value={m.operator}
                           onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
                           displayEmpty
-                          name="operators"
+                          name="operator"
                           className={classes.selectEmpty}
                         >
-                          <MenuItem value="==">
+                          <MenuItem value="Equal to">
                             Equal to
                           </MenuItem>
-                          <MenuItem value="!=">
+                          <MenuItem value="Not equal to">
                             Not equal to
                           </MenuItem>
-                          <MenuItem value=">">
+                          <MenuItem value="Greater than">
                             Greater than
                           </MenuItem>
-                          <MenuItem value="<">
+                          <MenuItem value="Less than">
                             Less than
                           </MenuItem>
-                          <MenuItem value=">=">
-                            Greater than or
-                            equal to
+                          <MenuItem value="Greater than or equal to">
+                            Greater than or equal to
                           </MenuItem>
-                          <MenuItem value="<=">
-                            Less than or
-                            equal to
+                          <MenuItem value="Less than or equal to">
+                            Less than or equal to
                           </MenuItem>
                         </Select>
                       </FormControl>
@@ -187,11 +194,11 @@ function getStepContent(
                       <FormControl fullWidth className={classes.formControl}>
                         <TextField
                           id="standard-name"
-                          label="Operands"
+                          label="Data"
                           className={classes.textField}
-                          value={m.condition}
+                          value={m.data}
                           onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                          name="operands"
+                          name="data"
                           type="number"
                         />
                       </FormControl>
@@ -215,100 +222,6 @@ function getStepContent(
               className={(classes.addFeatureButton)}>
               Add Conditions
               </Button>
-          </Grid>
-
-
-          <Grid className={cn(classes.inputCustom)} item xs={4}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Any Conditions(At least one condition must be met)
-                    </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            {
-              createMarketingPlan.condition.at_least.map((l, i) => {
-                return (
-                  <Grid key={i} container spacing={24}>
-                    <Grid item xs={4}>
-                      <FormControl fullWidth className={classes.formControl}>
-                        <InputLabel htmlFor="age-simple">First name</InputLabel>
-                        <Select
-                          value={l.operand}
-                          onChange={(e) => onChangeCreateMarketingPlan(e, i, 'at_least')}
-                          displayEmpty
-                          name="operand"
-                          className={classes.selectEmpty}
-                        >
-                          <MenuItem value="ACTIVE">
-                            as
-                </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={3}>
-                      <FormControl fullWidth className={classes.formControl}>
-                        <InputLabel htmlFor="age-simple">Equal to</InputLabel>
-                        <Select
-                          value={l.operator}
-                          onChange={(e) => onChangeCreateMarketingPlan(e, i, 'at_least')}
-                          displayEmpty
-                          name="operator"
-                          className={classes.selectEmpty}
-                        >
-                          <MenuItem value="ACTIVE">
-                            asd
-                </MenuItem>
-                        </Select>
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <FormControl fullWidth className={classes.formControl}>
-                        <TextField
-                          id="standard-name"
-                          label="Condition"
-                          className={classes.textField}
-                          value={l.condition}
-                          onChange={(e) => onChangeCreateMarketingPlan(e, i, 'at_least')}
-                          name="condition"
-                        />
-                      </FormControl>
-                    </Grid>
-                    <Grid item xs={1}>
-                      <IconButton onClick={(e) => handleRemoveAtLeastConditions(e, i)} aria-label="Remove" classes={{ root: classes.fixButton }}>
-                        <RemoveIcon fontSize="small" />
-                      </IconButton>
-                    </Grid>
-                  </Grid>
-                )
-              })
-            }
-          </Grid>
-          <Grid item xs={4}></Grid>
-          <Grid item xs={8}>
-            <Button
-              onClick={() => { handleAddAtLeastConditions() }}
-              variant="outlined"
-              color="default"
-              className={(classes.addFeatureButton)}>
-              Add Conditions
-              </Button>
-          </Grid>
-          <Grid container style={{ marginTop: '20px' }}>
-            <Grid item xs={4}></Grid>
-            <Grid item xs={8}>
-              <Divider />
-            </Grid>
-          </Grid>
-          <Grid container spacing={24}>
-            <Grid item xs={4}></Grid>
-            <Grid item xs={8} style={{ marginTop: '20px' }}>
-              <Button variant="contained" color="primary">Apply</Button>
-            </Grid>
           </Grid>
         </Grid>
       )
@@ -339,12 +252,26 @@ function getStepContent(
               </Grid>
               <Grid item xs={8}>
                 <SelectCustom
+                  handleChange={(values, element) => handleChangeActionTypeSelect(values, element)}
+                  name="actions"
+                  options={['Send Email', 'Call Client', 'Send Email Manually'].reduce((acc, a) => {
+                    acc.push(
+                      {
+                        label: a,
+                        value: a
+                      }
+                    )
+                    return acc
+                  }, [])}
                   data={
-
+                    createMarketingPlan.actions
+                      .reduce((acc, a) => {
+                        acc.push({ label: a, value: a })
+                        return acc
+                      }, [])
                   }
+                  fullWidth
                   multi
-                  placeholder=""
-                  label=""
                 />
               </Grid>
             </Grid>
@@ -364,16 +291,27 @@ function CreateMarketingPlan(props) {
     name: '',
     condition: {
       must: [],
-      at_least: []
     },
-    actions: {},
+    actions: [],
     manager: ''
   })
+
+  const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
+  const [applyConditionTable, setApplyConditionTable] = React.useState(false)
+
+  const handleOpenConditionTable = e => {
+    e.preventDefault()
+    setApplyConditionTable(true)
+  }
 
   const handleReset = () => {
     setActiveStep(0)
   };
 
+  const handleChangeActionTypeSelect = (value, action) => {
+    console.log(value, action)
+    setCreateMarketingPlan({ ...createMarketingPlan, actions: value.map(v => v.value) })
+  }
 
   const handleAddMustConditions = e => {
     const condition =
@@ -381,7 +319,7 @@ function CreateMarketingPlan(props) {
     condition.must.push({
       operand: '',
       operator: '',
-      condition: ''
+      data: ''
     })
     setCreateMarketingPlan({ ...createMarketingPlan, condition })
   }
@@ -392,7 +330,7 @@ function CreateMarketingPlan(props) {
     condition.at_least.push({
       operand: '',
       operator: '',
-      condition: ''
+      data: ''
     })
     setCreateMarketingPlan({ ...createMarketingPlan, condition })
   }
@@ -434,23 +372,23 @@ function CreateMarketingPlan(props) {
     if (createMarketingPlan.name == '') {
       err[0].name = "FILL YOUR PLAN NAME"
     }
-    for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
-      if (!err[1].must) {
-        err[1].must = {}
-      }
-      if (createMarketingPlan.condition.must[i].operand == '') {
-        err[1].must.operand = 'FILL YOUR OPERAND'
-        break
-      }
-      if (createMarketingPlan.condition.must[i].operator == '') {
-        err[1].must.operator = 'FILL YOUR OPERATOR'
-        break
-      }
-      if (createMarketingPlan.condition.must[i].condition == '') {
-        err[1].must.condition = 'FILL YOUR CONDITION'
-        break
-      }
-    }
+    // for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
+    //   if (!err[1].must) {
+    //     err[1].must = {}
+    //   }
+    //   if (createMarketingPlan.condition.must[i].operand == '') {
+    //     err[1].must.operand = 'FILL YOUR OPERAND'
+    //     break
+    //   }
+    //   if (createMarketingPlan.condition.must[i].operator == '') {
+    //     err[1].must.operator = 'FILL YOUR OPERATOR'
+    //     break
+    //   }
+    //   if (createMarketingPlan.condition.must[i].condition == '') {
+    //     err[1].must.condition = 'FILL YOUR CONDITION'
+    //     break
+    //   }
+    // }
     if (Object.keys(err[0]).length === 0 && Object.keys(err[1]).length === 0 && Object.keys(err[2]).length === 0) {
       apiPostMarketingPlan()
     }
@@ -460,11 +398,11 @@ function CreateMarketingPlan(props) {
   }
 
   const apiPostMarketingPlan = e => {
-    apiPost(MARKETING_PLANS_URL, { ...createMarketingPlan, manager: props.user.id }, false, true)
+    apiPost(MARKETING_PLANS_URL, { ...createMarketingPlan }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
-            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
               this.props.history.push('/logout')
             }
             else {
@@ -495,11 +433,11 @@ function CreateMarketingPlan(props) {
         maxWidth="md"
       >
         <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateMarketingPlanDialog}>
-          Create Product
+          Create Marketing Plan
           <div className="d-flex justify-content-between">
             <IconButton style={{ position: 'absolute', top: '12px', right: '12px' }}
-             aria-label="Close" onClick={handleCloseCreateMarketingPlanDialog}>
-              <CloseIcon fontSize="small"/>
+              aria-label="Close" onClick={handleCloseCreateMarketingPlanDialog}>
+              <CloseIcon fontSize="small" />
             </IconButton>
           </div>
         </DialogTitle>
@@ -526,7 +464,11 @@ function CreateMarketingPlan(props) {
                           createMarketingPlan,
                           setCreateMarketingPlan,
                           handleRemoveMustConditions,
-                          handleRemoveAtLeastConditions
+                          handleRemoveAtLeastConditions,
+                          handleOpenConditionTable,
+                          marketingPlanConditions,
+                          handleChangeActionTypeSelect
+                          {/* applyConditionTable */ }
                         )}
                       </Grid>
                     </Grid>

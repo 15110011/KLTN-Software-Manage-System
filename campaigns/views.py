@@ -19,9 +19,7 @@ from datetime import datetime
 
 # Create your views here.
 
-now = datetime.now()
-
-ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually', 'Chat']
+ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually']
 
 
 @api_view(['GET'])
