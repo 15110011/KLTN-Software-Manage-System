@@ -7,7 +7,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView
-from packages.views import ProductViewSet, PackageViewSet
+from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView
 from campaigns.views import ContactMarketingView
@@ -20,6 +20,8 @@ router = DefaultRouter(trailing_slash=False)
 # package app
 router.register('products', ProductViewSet, base_name='products')
 router.register('packages', PackageViewSet, base_name='packages')
+router.register('product-categories', ProductCategoryView, base_name='product-categories')
+router.register('product-types', ProductTypeView, base_name='product-types')
 # campaign app
 router.register('marketing-plans', MarketingPlanView,
                 base_name='marketing_plans')

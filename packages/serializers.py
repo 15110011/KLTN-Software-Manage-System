@@ -6,7 +6,7 @@ from rest_framework.fields import set_value
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import Product, Package, Feature, PackageHistory
+from .models import Product, Package, Feature, PackageHistory, ProductCategory, ProductType
 from account.serializers import MeSerializer
 
 
@@ -47,10 +47,22 @@ class PackageSerializer(serializers.ModelSerializer):
             instance.features.all(), many=True)
         return features_serialized.data
 
-   
+
 class PackageHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = PackageHistory
+        fields = '__all__'
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = '__all__'
+
+
+class ProductTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductType
         fields = '__all__'
 
 
@@ -77,7 +89,6 @@ class CreateProductSerializer(serializers.ModelSerializer):
     packages = serializers.SerializerMethodField()
     id = serializers.IntegerField(required=False)
 
-
     class Meta:
         model = Product
         fields = '__all__'
@@ -94,8 +105,9 @@ class CreateProductSerializer(serializers.ModelSerializer):
         product_id = validated_data.get('id', None)
         if product_id is None:
             product = super().create(validated_data)
-        
-        product = self.update(Product.objects.get(id=product_id), **validated_data)
+
+        product = self.update(Product.objects.get(
+            id=product_id), **validated_data)
         if features is not None:
             for feature in features:
                 feature = Feature(**feature, product=product)
@@ -143,11 +155,13 @@ class CreateProductSerializer(serializers.ModelSerializer):
                 except:
                     feature = Feature(**item, product=instance)
                     feature.save()
-                finally: 
+                finally:
                     cur_features.append(feature)
-        
-        serialized_features = FeatureSerializer(instance.features.all(), many = True)
-        have_to_remove = [d['id'] for d in serialized_features.data if d['id'] not in [f.id for f in cur_features]]
+
+        serialized_features = FeatureSerializer(
+            instance.features.all(), many=True)
+        have_to_remove = [d['id'] for d in serialized_features.data if d['id'] not in [
+            f.id for f in cur_features]]
         Feature.objects.filter(id__in=have_to_remove).delete()
 
         if packages is not None:
@@ -166,8 +180,9 @@ class CreateProductSerializer(serializers.ModelSerializer):
                 except:
                     package = Package(**item)
                     package.save()
-                finally: 
-                    found_features = [f for f in cur_features if f.number in numbers]
+                finally:
+                    found_features = [
+                        f for f in cur_features if f.number in numbers]
                     package.features.set(found_features)
         return instance
 
