@@ -29,6 +29,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import useFetchData from '../../CustomHook/useFetchData'
 import styles from './CreateMarketingPlanStyle'
+import stateHashes from '../../common/StateHash'
 
 // Components 
 
@@ -58,7 +59,8 @@ function getStepContent(
   handleRemoveAtLeastConditions,
   handleOpenConditionTable,
   marketingPlanConditions,
-  handleChangeActionTypeSelect
+  handleChangeActionTypeSelect,
+  handleChangeSelectAddress
   // applyConditionTable
 ) {
 
@@ -190,18 +192,45 @@ function getStepContent(
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={4}>
-                      <FormControl fullWidth className={classes.formControl}>
-                        <TextField
-                          id="standard-name"
-                          label="Data"
-                          className={classes.textField}
-                          value={m.data}
-                          onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                          name="data"
-                          type="number"
-                        />
-                      </FormControl>
+                    <Grid item xs={4} style={{ position: 'relative' }}>
+                      {
+                        m.operand != '1' ?
+                          <FormControl fullWidth className={classes.formControl}>
+                            <TextField
+                              id="standard-name"
+                              label="Data"
+                              className={classes.textField}
+                              value={m.data}
+                              onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
+                              name="data"
+                              type="number"
+                            />
+                          </FormControl>
+                          :
+                          <FormControl fullWidth style={{ position: 'absolute', bottom: '13px' }} className={classes.formControl}>
+                            <SelectCustom
+                              className={classes.stateCustomInput}
+                              options={
+                                Object.keys(stateHashes).map(k => {
+                                  return {
+                                    label: stateHashes[k],
+                                    value: k
+                                  }
+                                })
+                              }
+                              handleChange={(v, a) => handleChangeSelectAddress(v, a, i)}
+                              value={m.data}
+                              name="data"
+                              fullWidth
+                              label="Data"
+                              single
+                              data={{
+                                label: stateHashes[m.data],
+                                value: m.data
+                              }}
+                            />
+                          </FormControl>
+                      }
                     </Grid>
                     <Grid item xs={1}>
                       <IconButton onClick={(e) => handleRemoveMustConditions(e, i)} aria-label="Remove" classes={{ root: classes.fixButton }}>
@@ -308,8 +337,18 @@ function CreateMarketingPlan(props) {
     setActiveStep(0)
   };
 
+  const handleChangeSelectAddress = (value, element, index) => {
+    const cloneCreateMarketingPlan = { ...createMarketingPlan }
+    if (value) {
+      cloneCreateMarketingPlan.condition.must[index][element.name] = value.value
+    }
+    else {
+      cloneCreateMarketingPlan.condition.must[index][element.name] = ''
+    }
+    setCreateMarketingPlan({ ...cloneCreateMarketingPlan })
+  }
+
   const handleChangeActionTypeSelect = (value, action) => {
-    console.log(value, action)
     setCreateMarketingPlan({ ...createMarketingPlan, actions: value.map(v => v.value) })
   }
 
@@ -467,7 +506,8 @@ function CreateMarketingPlan(props) {
                           handleRemoveAtLeastConditions,
                           handleOpenConditionTable,
                           marketingPlanConditions,
-                          handleChangeActionTypeSelect
+                          handleChangeActionTypeSelect,
+                          handleChangeSelectAddress
                           {/* applyConditionTable */ }
                         )}
                       </Grid>

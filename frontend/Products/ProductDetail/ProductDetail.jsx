@@ -83,7 +83,7 @@ function ProductDetail(props) {
     desc: '',
     number: ''
   })
-  
+
   const toggleUpdateFeature = e => {
     setUpdateFeatureBtn(!updateFeatureBtn)
     setCreateFeature({
@@ -151,7 +151,6 @@ function ProductDetail(props) {
 
   const getProductDetail = () => {
     const id = props.match.params.id
-
     apiGet(PRODUCTS_URL + "/" + id, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
@@ -310,7 +309,7 @@ function ProductDetail(props) {
       <BreadcrumbsItem to={`/products/ + ${productDetailData.id}`}>{productDetailData.name}</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
+          <div className={classes.paper}>
             <Grid container spacing={8} style={{ margin: 'unset' }}>
               <div className={classes.wrapAvatar}>
                 <div className={classes.productAvatar}>
@@ -331,7 +330,8 @@ function ProductDetail(props) {
               >
 
                 <Tab label={<span><DetailIcon />&nbsp;Product Detail</span>} />
-                <Tab label={<span><ProductIcon /> Packages & Features</span>} />
+                <Tab label={<span><ProductIcon /> Packages</span>} />
+                <Tab label={<span><ProductIcon /> Features</span>} />
               </Tabs>
             </AppBar>
             <div style={{ textAlign: 'left' }}>
@@ -708,7 +708,7 @@ function ProductDetail(props) {
                   </Grid>
                 </TabContainer>}
             </div>
-          </Paper>
+          </div>
         </Grid>
       </Grid>
     </div >

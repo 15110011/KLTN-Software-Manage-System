@@ -94,7 +94,10 @@ function getStepContent(props) {
     handleChangeProductSelect,
     handleChangePackageSelectCustom,
     fetchLoadContactSuggestion,
-    handleChangeLoadContactSelect
+    handleChangeLoadContactSelect,
+    marketingPlanConditions,
+    applyConditionTable,
+    handleApplyConditionTable
   } = props
   switch (activeStep) {
     case 0:
@@ -119,6 +122,9 @@ function getStepContent(props) {
       return (
         <MarketingPlanDetails
           classes={classes}
+          handleApplyConditionTable={handleApplyConditionTable}
+          applyConditionTable={applyConditionTable}
+          marketingPlanConditions={marketingPlanConditions}
           onChangeCreateCampaign={onChangeCreateCampaign}
           createCampaign={createCampaign}
           handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}

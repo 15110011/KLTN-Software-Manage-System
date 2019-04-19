@@ -52,7 +52,8 @@ import {
   GET_SALE_REPS_URL,
   PRODUCTS_URL,
   CONTACT_URL,
-  GROUP_URL
+  GROUP_URL,
+  MARKETING_PLANS_CONDITIONS_URL
 } from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
@@ -80,7 +81,11 @@ function CreateCampaign(props) {
     groups: []
   })
 
+  const [applyConditionTable, setApplyConditionTable] = React.useState(false)
+
+  const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
   const [editorState, setEditorState] = React.useState(htmlToState(""))
+
   const [saleRep, setSaleRep] = useFetchData(GET_SALE_REPS_URL, props.history, {})
 
   const [error, setError] = React.useState({})
@@ -88,6 +93,12 @@ function CreateCampaign(props) {
   const [activeStep, setActiveStep] = React.useState(0)
 
   const { user } = props;
+
+  const handleApplyConditionTable = e => {
+    e.preventDefault()
+    setApplyConditionTable(true)
+  }
+
   const onEditorStateChange = editorState => {
     setEditorState(editorState)
   };
@@ -172,7 +183,6 @@ function CreateCampaign(props) {
         const realResult = res.data.packages.find(p => {
           return p.name == action.option.value
         })
-        console.log(realResult)
         clonePackage.push({
           ...realResult,
           label: realResult.name,
@@ -207,7 +217,7 @@ function CreateCampaign(props) {
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
-            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST && window.location.pathname != '/register') {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
               props.history.push('/logout')
             }
             else {
@@ -266,6 +276,9 @@ function CreateCampaign(props) {
           <div className={classes.paper}>
             <form onSubmit={handleCreateCampaign}>
               <StepDetail
+                handleApplyConditionTable={handleApplyConditionTable}
+                applyConditionTable={applyConditionTable}
+                marketingPlanConditions={marketingPlanConditions}
                 editorState={editorState}
                 onEditorStateChange={onEditorStateChange}
                 activeStep={activeStep}
@@ -285,7 +298,7 @@ function CreateCampaign(props) {
                 handleChangeLoadContactSelect={handleChangeLoadContactSelect}
                 fetchLoadContactSuggestion={fetchLoadContactSuggestion}
               />
-              <div style={{ marginTop: '140px' }}>
+              <div style={{float: 'right', marginTop: '50px'}}>
                 <Button
                   disabled={activeStep === 0}
                   onClick={handleBack}

@@ -30,6 +30,7 @@ import CampaignContainer from './Campaigns/CampaignsContainer';
 import MarketingPlanContainer from './MarketingPlan/MarketingPlanContainer';
 import FollowUpPlanContainer from './FollowUpPlan/FollowUpPlanContainer'
 import SiteAdminContainer from './SiteAdmin/SiteAdminContainer';
+import CategoryContainer from './Category/CategoryContainer';
 
 const styles = theme => ({
   root: {
@@ -110,7 +111,6 @@ class Content extends React.Component {
           localStorage.setItem('gmail_token', gapi.auth2.getAuthInstance().currentUser.get().getAuthResponse(true).access_token)
         }
         apiPost(GMAIL_AUTH_URL, { access_token: localStorage.getItem('gmail_token') }, false, true).then(res => {
-          console.log(res)
         })
       }
       else {
@@ -221,6 +221,10 @@ class Content extends React.Component {
                 <Route
                   path="/contacts"
                   component={ContactContainer}
+                />
+                <Route
+                  path="/stocks"
+                  component={props => <CategoryContainer {...props} user={user} />}
                 />
                 <Route
                   path="/campaigns"

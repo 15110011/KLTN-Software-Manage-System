@@ -107,6 +107,7 @@ function MarketingPlanList(props) {
               filtering: true,
               paging: true
             }}
+            onRowClick={(e, rowData) => { props.history.push('/marketing-plans/' + rowData.id) }}
           />
         </Grid>
       </Grid>

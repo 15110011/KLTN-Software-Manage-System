@@ -28,6 +28,7 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import Tooltip from '@material-ui/core/Tooltip';
 import styles from './CreateCampaignStyle'
 
 // Components 
@@ -42,10 +43,13 @@ function MarketingPlanDetails(props) {
     handleChangeMarketingPlanSelect,
     fetchMarketingPlanSuggestion,
     onChangeCreateCampaign,
+    marketingPlanConditions,
     fetchLoadContactSuggestion,
-    handleChangeLoadContactSelect
+    handleChangeLoadContactSelect,
+    handleApplyConditionTable,
+    applyConditionTable
   } = props
-  console.log(createCampaign.contacts)
+
   return (
     <Grid container spacing={24}>
       {/* <Grid item xs={12}>
@@ -130,165 +134,98 @@ function MarketingPlanDetails(props) {
             </Grid>
           </Grid>
         </Grid>
-        <Grid item xs={10}>
-          <Grid container spacing={24}>
-            <Grid className={classes.inputCustom} item xs={4}>
-              <InputLabel
-                htmlFor="custom-css-standard-input"
-                classes={{
-                  root: classes.cssLabel,
-                  focused: classes.cssFocused,
-                }}
-              >
-                All Conditions(All conditions must be met)
-                    </InputLabel>
-            </Grid>
-            <Grid item xs={7}>
-              <Grid container spacing={24}>
-                <Grid item xs={5}>
-                  <FormControl fullWidth className={classes.formControl}>
-                    <InputLabel htmlFor="age-simple">First name</InputLabel>
-                    <Select
-                      value={m.operand}
-                      onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                      displayEmpty
-                      name="operand"
-                      className={classes.selectEmpty}
-                    >
-                      <MenuItem value="ACTIVE">
-                        as
-                      </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={2}>
-                  <FormControl fullWidth className={classes.formControl}>
-                    <InputLabel htmlFor="age-simple">Equal to</InputLabel>
-                    <Select
-                      // value={m.operator}
-                      // onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                      displayEmpty
-                      name="operator"
-                      className={classes.selectEmpty}
-                    >
-                      <MenuItem value="ACTIVE">
-                        asd
-                </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={5}>
-                  <FormControl fullWidth className={classes.formControl}>
-                    <TextField
-                      id="standard-name"
-                      label="Condition"
-                      className={classes.textField}
-                      // value={m.condition}
-                      // onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                      name="condition"
-                    />
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={1}>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={10}>
-          <Grid container spacing={24}>
-            <Grid className={cn(classes.inputCustom)} item xs={4}>
-              <InputLabel
-                htmlFor="custom-css-standard-input"
-                classes={{
-                  root: classes.cssLabel,
-                  focused: classes.cssFocused,
-                }}
-              >
-                Any Conditions(At least one condition must be met)
-                    </InputLabel>
-            </Grid>
-            <Grid item xs={7}>
-              <Grid container spacing={24}>
-                <Grid item xs={5}>
-                  <FormControl fullWidth className={classes.formControl}>
-                    <InputLabel htmlFor="age-simple">First name</InputLabel>
-                    <Select
-                      // value={l.operand}
-                      // onChange={(e) => onChangeCreateMarketingPlan(e, i, 'at_least')}
-                      displayEmpty
-                      name="operand"
-                      className={classes.selectEmpty}
-                    >
-                      <MenuItem value="ACTIVE">
-                        as
-                </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={2}>
-                  <FormControl fullWidth className={classes.formControl}>
-                    <InputLabel htmlFor="age-simple">Equal to</InputLabel>
-                    <Select
-                      // value={l.operator}
-                      // onChange={(e) => onChangeCreateMarketingPlan(e, i, 'at_least')}
-                      displayEmpty
-                      name="operator"
-                      className={classes.selectEmpty}
-                    >
-                      <MenuItem value="ACTIVE">
-                        asd
-                </MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={5}>
-                  <FormControl fullWidth className={classes.formControl}>
-                    <TextField
-                      id="standard-name"
-                      label="Condition"
-                      className={classes.textField}
-                      // value={l.condition}
-                      // onChange={(e) => onChangeCreateMarketingPlan(e, i, 'at_least')}
-                      name="condition"
-                    />
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={1}>
 
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={10}>
-          <Grid container spacing={24}>
-            <Grid className={classes.inputCustom} item xs={4}>
-              <InputLabel
-                htmlFor="custom-css-standard-input"
-                classes={{
-                  root: classes.cssLabel,
-                  focused: classes.cssFocused,
-                }}
-              >
-                Actions
-                    </InputLabel>
-            </Grid>
-            <Grid item xs={7}>
-              <SelectCustom
-                // options={"asdsa"}
-                // handleChange={(values, element) => handleChangeSelect(values, element)}
-                // data={
 
-                // }
-                multi
-                placeholder=""
-                label=""
-              />
-            </Grid>
-          </Grid>
-        </Grid>
         <Grid item xs={10}>
+          {
+            createCampaign.marketing_plan.condition &&
+            createCampaign.marketing_plan.condition.must.map((m, i) => {
+              return (
+                <>
+                  <Grid container spacing={24}>
+                    <Grid className={classes.inputCustom} item xs={4}>
+                      <InputLabel
+                        htmlFor="custom-css-standard-input"
+                        classes={{
+                          root: classes.cssLabel,
+                          focused: classes.cssFocused,
+                        }}
+                      >
+                        All Conditions(All conditions must be met)
+                    </InputLabel>
+                    </Grid>
+                    <Grid item xs={7}>
+                      <Grid container spacing={24}>
+                        <Grid item xs={5}>
+                          <Tooltip title={marketingPlanConditions[m.operand].name} aria-label="Add">
+                            <FormControl fullWidth className={classes.formControl}>
+                              <InputLabel htmlFor="age-simple">Operands</InputLabel>
+                              <Select
+                                value={m.operand}
+                                displayEmpty
+                                name="operand"
+                                disabled
+                                className={classes.selectEmpty}
+                                disabled
+                              >
+                                {
+                                  Object.values(marketingPlanConditions).map(c => {
+                                    return (
+                                      <MenuItem title={c.name} value={m.operand}>
+                                        {c.name}
+                                      </MenuItem>
+                                    )
+                                  })
+                                }
+                              </Select>
+                            </FormControl>
+                          </Tooltip>
+                        </Grid>
+                        <Grid item xs={5}>
+                          <Tooltip title={m.operator} aria-label="Add">
+                            <FormControl fullWidth className={classes.formControl}>
+                              <InputLabel htmlFor="age-simple">Operators</InputLabel>
+                              <Select
+                                value={m.operator}
+                                displayEmpty
+                                disabled
+                                name="operator"
+                                className={classes.selectEmpty}
+                              >
+                                <MenuItem value={m.operator}>
+                                  {m.operator}
+                                </MenuItem>
+                              </Select>
+                            </FormControl>
+                          </Tooltip>
+                        </Grid>
+                        <Grid item xs={2}>
+                          <FormControl fullWidth className={classes.formControl}>
+                            <InputLabel htmlFor="age-simple">Data</InputLabel>
+                            <Select
+                              value={m.data}
+                              displayEmpty
+                              name="operator"
+                              disabled
+                              className={classes.selectEmpty}
+                            >
+                              <MenuItem value={m.data}>
+                                {m.data}
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={1}>
+                    </Grid>
+                  </Grid>
+                </>
+              )
+            })
+          }
+        </Grid>
+        {/* <Grid item xs={10}>
           <Grid container spacing={24}>
             <Grid className={classes.inputCustom} item xs={4}>
               <InputLabel
@@ -327,54 +264,57 @@ function MarketingPlanDetails(props) {
               </IconButton>
             </Grid>
           </Grid>
-        </Grid>
-        <Grid className="mt-5" item xs={12}>
-          <Divider />
+        </Grid> */}
+        {/* <Grid className="mt-5" item xs={12}>
           <Grid container spacing={24}>
             <Grid item xs={12} style={{ marginTop: '20px' }}>
-              <Button variant="contained" color="primary">Apply</Button>
+              <Button onClick={(e) => handleApplyConditionTable(e)} variant="contained" color="primary">Apply</Button>
             </Grid>
           </Grid>
-        </Grid>
-      </Grid>
-      <Grid classes={{ container: classes.fixTable }} container spacing={24} className="mt-4">
-        <Grid item xs={12}>
-          <MaterialTable
-            columns={[
-              { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
-              { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description' },
-              {
-                title: 'Status',
-                field: 'status',
-                lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
-              },
-            ]}
-            // data={products.data.map(
-            //   (product, index) => ({
-            //     numeral: index + 1,
-            //     name: product.name,
-            //     description: product.desc,
-            //     status: product.status
-            //   })
-            // )}
-            title="Campaign List"
-            actions={[
-              {
-                icon: 'done_all',
-                tooltip: 'Do',
-                onClick: (event, rows) => {
-                  alert('You selected ' + rows.length + ' rows')
-                },
-              },
-            ]}
-            options={{
-              selection: true,
-              filtering: true,
-              paging: true
-            }}
-          />
-        </Grid>
+        </Grid> */}
+        {
+          applyConditionTable == true &&
+          <Grid classes={{ container: classes.fixTable }} container spacing={24} className="mt-4">
+            <Divider />
+            <Grid item xs={12}>
+              <MaterialTable
+                columns={[
+                  { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
+                  { title: 'Name', field: 'name' },
+                  { title: 'Description', field: 'description' },
+                  {
+                    title: 'Status',
+                    field: 'status',
+                    lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
+                  },
+                ]}
+                // data={products.data.map(
+                //   (product, index) => ({
+                //     numeral: index + 1,
+                //     name: product.name,
+                //     description: product.desc,
+                //     status: product.status
+                //   })
+                // )}
+                title="Campaign List"
+                actions={[
+                  {
+                    icon: 'done_all',
+                    tooltip: 'Do',
+                    onClick: (event, rows) => {
+                      alert('You selected ' + rows.length + ' rows')
+                    },
+                  },
+                ]}
+                options={{
+                  selection: true,
+                  filtering: true,
+                  paging: true
+                }}
+              />
+            </Grid>
+          </Grid>
+        }
       </Grid>
     </Grid>
   )

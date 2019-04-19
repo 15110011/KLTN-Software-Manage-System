@@ -17,9 +17,6 @@ function CardBody({ ...props }) {
     [classes.cardBodyProfile]: profile,
     [className]: className !== undefined
   });
-
-
-  console.log(123123)
   return (
     <div className={cardBodyClasses} {...rest}>
       {children}

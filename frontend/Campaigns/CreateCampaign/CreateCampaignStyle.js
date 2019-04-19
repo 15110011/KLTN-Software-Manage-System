@@ -16,8 +16,8 @@ const styles = theme => ({
     marginBottom: '0',
     textAlign: 'left'
   },
-  fixTextArea: {
-    
+  selectEmpty: {
+    textAlign: 'left'
   }
 })
 

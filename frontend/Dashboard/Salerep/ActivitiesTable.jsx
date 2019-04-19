@@ -48,7 +48,6 @@ function ActivitiesTable(props) {
             else if (columnId == 2) {
               activitySearch.remaining = value
             }
-            console.log(columnId, value)
             activePageActivity = 0
             props.onFilterChanged(columnId, value);
           }}

@@ -35,6 +35,10 @@ const styles = theme => ({
       borderRadius: '50%',
       backgroundColor: '#a6a6a6'
     }
+  },
+  stateCustomInput: {
+    position: 'absolute',
+    bottom: 0
   }
 })
 
