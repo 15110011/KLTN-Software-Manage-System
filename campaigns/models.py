@@ -19,7 +19,7 @@ class MailTemplate(BaseModel):
 class MarketingPlan(BaseModel):
     name = models.CharField(max_length=255)
     condition = JSONField()
-    actions = ArrayField(models.CharField(max_length=10, blank=True),
+    actions = ArrayField(models.CharField(max_length=50, blank=True),
                          size=8, default=list)
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='marketing_plan')
