@@ -82,7 +82,7 @@ function CreateEventDialog(props) {
               fullWidth
             />
           </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{paddingLeft: '24px'}}>
+          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
             <InputLabel
               htmlFor="custom-css-standard-input"
               classes={{
@@ -107,8 +107,82 @@ function CreateEventDialog(props) {
               fullWidth
             />
           </Grid>
+          <Grid className={classes.inputCustom} item xs={2}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+              required
+            >
+              Start date
+                    </InputLabel>
+          </Grid>
+          <Grid item xs={4} className='pr-5'>
+            <Input
+              onChange={onChangeInput}
+              name="name"
+              type="date"
+              classes={{
+                underline: classes.cssUnderline,
+              }}
+              value={createEvent.name}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+              required
+            >
+              End date
+                    </InputLabel>
+          </Grid>
+          <Grid item xs={4}>
+            <Input
+              onChange={onChangeInput}
+              name="name"
+              type="date"
+              classes={{
+                underline: classes.cssUnderline,
+              }}
+              value={createEvent.name}
+              required
+              fullWidth
+            />
+          </Grid>
+          <Grid className={classes.inputCustom} item xs={2}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+              required
+            >
+              Activity type
+            </InputLabel>
+          </Grid>
+          <Grid item xs={4} className='pr-5'>
+            <Input
+              onChange={onChangeInput}
+              name="name"
+              type="text"
+              classes={{
+                underline: classes.cssUnderline,
+              }}
+              value={createEvent.name}
+              required
+              fullWidth
+            />
+          </Grid>
         </Grid>
-
       </DialogContent>
 
     </DialogContent>

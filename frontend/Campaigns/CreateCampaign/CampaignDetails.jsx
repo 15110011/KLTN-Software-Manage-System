@@ -164,7 +164,7 @@ function CampaignDetails(props) {
                   }}
                 >
                   Close Date
-                        </InputLabel>
+                </InputLabel>
               </Grid>
               <Grid item xs={8}>
                 <Input
