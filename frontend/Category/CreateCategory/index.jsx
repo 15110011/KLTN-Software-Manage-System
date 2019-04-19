@@ -16,15 +16,20 @@ import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 
+// API
+import { PRODUCTS_URL, REFRESH_TOKEN_URL, PRODUCT_CATEGORIES_URL } from "../../common/urls";
+import { apiPost, apiGet } from '../../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
+
 import styles from './CreateCategoryStyle'
 
 function CreateCategory(props) {
 
-  const { classes, handleCloseCreateCategoryDialog, createCategoryDialog } = props;
+  const { classes, handleCloseCreateCategoryDialog, createCategoryDialog, setCreateCategoryDialog, forceUpdateCategory } = props;
 
   const [createCategory, setCreateCategory] = React.useState({
     name: '',
-    desc: '',
+    description: '',
     status: ''
   })
 
@@ -33,7 +38,28 @@ function CreateCategory(props) {
   }
 
   const handleCreateCategory = e => {
-    console.log(123)
+    e.preventDefault()
+    apiPost(PRODUCT_CATEGORIES_URL, createCategory, false, true).then(res => {
+      if (res.data.code == "token_not_valid") {
+        apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+          if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+            props.history.push('/logout')
+          }
+          else {
+            localStorage.setItem("token", res.data.access)
+            // notification()
+          }
+        })
+      }
+      else if (res.data.code == BAD_REQUEST) {
+        setError(res.data)
+      }
+      else {
+        forceUpdateCategory()
+        // notification()
+      }
+    })
+    setCreateCategoryDialog(false)
   }
 
   return (
@@ -54,8 +80,8 @@ function CreateCategory(props) {
             </IconButton>
           </div>
         </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleCreateCategory}>
+        <form onSubmit={handleCreateCategory}>
+          <DialogContent>
             <Grid container spacing={24}>
               <Grid item xs={6}>
                 <Grid container spacing={24}>
@@ -105,8 +131,8 @@ function CreateCategory(props) {
                       fullWidth
                       required
                       onChange={onChangeCreateCategory}
-                      value={createCategory.desc}
-                      name="desc"
+                      value={createCategory.description}
+                      name="description"
                       // error={error[0].name}
                       classes={{
                         underline: classes.cssUnderline,
@@ -148,13 +174,13 @@ function CreateCategory(props) {
                 </Grid>
               </Grid>
             </Grid>
-          </form>
-        </DialogContent>
-        <DialogActions style={{ padding: '12px 12px' }}>
-          <Button type="submit" variant="contained" color="primary" autoFocus>
-            Create
+          </DialogContent>
+          <DialogActions style={{ padding: '12px 12px' }}>
+            <Button type="submit" variant="contained" color="primary" autoFocus>
+              Create
             </Button>
-        </DialogActions>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   )

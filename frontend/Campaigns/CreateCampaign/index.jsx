@@ -53,7 +53,8 @@ import {
   PRODUCTS_URL,
   CONTACT_URL,
   GROUP_URL,
-  MARKETING_PLANS_CONDITIONS_URL
+  MARKETING_PLANS_CONDITIONS_URL,
+  CONTACTS_MATCH_CONDITIONS_URL
 } from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
@@ -97,7 +98,39 @@ function CreateCampaign(props) {
   const handleApplyConditionTable = e => {
     e.preventDefault()
     setApplyConditionTable(true)
+    let groups = [].concat(createCampaign.groups)
+    let setId = new Set()
+    groups.forEach(g => {
+      g.contacts.forEach(c => {
+        setId.add(c.id)
+      })
+    })
+    let contactId = Array.from(setId).map(c => ({
+      id: c
+    }))
+    apiPost(CONTACTS_MATCH_CONDITIONS_URL, { contacts: contactId, conditions: createCampaign.marketing_plan.condition.must }, false, true)
+      .then(res => {
+        if (res.data.code == "token_not_valid") {
+          apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+              props.history.push('/logout')
+            }
+            else {
+              localStorage.setItem("token", res.data.access)
+              // notification()
+            }
+          })
+        }
+        else if (res.data.code == BAD_REQUEST) {
+          setError(res.data)
+        }
+        else {
+          // notification()
+          setCreateCampaign({ ...createCampaign, contacts: res.data })
+        }
+      })
   }
+
 
   const onEditorStateChange = editorState => {
     setEditorState(editorState)
@@ -207,7 +240,7 @@ function CreateCampaign(props) {
   }
 
   const handleChangeLoadContactSelect = (value, action) => {
-    if (action.action != 'input-blur' && action.action != 'menu-close') {
+    if (action.action != 'input-blur' && action.action != 'menu-close' && action.action != 'input-change') {
       setCreateCampaign({ ...createCampaign, groups: value })
     }
   }
@@ -238,6 +271,10 @@ function CreateCampaign(props) {
 
   const onChangeCreateCampaign = e => {
     setCreateCampaign({ ...createCampaign, [e.target.name]: e.target.value })
+  }
+
+  const deleteExceptionContacts = (removedContact) => {
+    setCreateCampaign({...createCampaign, contacts: removedContact})
   }
 
   const { classes, createCampaignDialog, handleCloseCreateCampaignDialog } = props;
@@ -276,6 +313,7 @@ function CreateCampaign(props) {
           <div className={classes.paper}>
             <form onSubmit={handleCreateCampaign}>
               <StepDetail
+                deleteExceptionContacts={deleteExceptionContacts}
                 handleApplyConditionTable={handleApplyConditionTable}
                 applyConditionTable={applyConditionTable}
                 marketingPlanConditions={marketingPlanConditions}
@@ -298,7 +336,7 @@ function CreateCampaign(props) {
                 handleChangeLoadContactSelect={handleChangeLoadContactSelect}
                 fetchLoadContactSuggestion={fetchLoadContactSuggestion}
               />
-              <div style={{float: 'right', marginTop: '50px'}}>
+              <div style={{ float: 'right', marginTop: '50px' }}>
                 <Button
                   disabled={activeStep === 0}
                   onClick={handleBack}

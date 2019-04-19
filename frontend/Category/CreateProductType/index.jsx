@@ -16,15 +16,20 @@ import Select from '@material-ui/core/Select';
 import TextField from '@material-ui/core/TextField';
 import MenuItem from '@material-ui/core/MenuItem';
 
+// API
+import { PRODUCTS_URL, REFRESH_TOKEN_URL, PRODUCT_TYPES_URL } from "../../common/urls";
+import { apiPost, apiGet } from '../../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
+
 import styles from './CreateProductTypeStyle'
 
 function CreateProductType(props) {
 
-  const { classes, handleCloseCreateProductTypeDialog, createProductTypeDialog } = props;
+  const { classes, handleCloseCreateProductTypeDialog, createProductTypeDialog, setCreateProductTypeDialog, forceUpdateProductType } = props;
 
   const [createProductType, setCreateProductType] = React.useState({
     name: '',
-    desc: '',
+    description: '',
     status: ''
   })
 
@@ -33,7 +38,28 @@ function CreateProductType(props) {
   }
 
   const handleCreateProductType = e => {
-    console.log(123)
+    e.preventDefault()
+    apiPost(PRODUCT_TYPES_URL, createProductType, false, true).then(res => {
+      if (res.data.code == "token_not_valid") {
+        apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+          if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+            props.history.push('/logout')
+          }
+          else {
+            localStorage.setItem("token", res.data.access)
+            // notification()
+          }
+        })
+      }
+      else if (res.data.code == BAD_REQUEST) {
+        setError(res.data)
+      }
+      else {
+        forceUpdateProductType()
+        // notification()
+      }
+    })
+    setCreateProductTypeDialog(false)
   }
 
   return (
@@ -54,8 +80,8 @@ function CreateProductType(props) {
             </IconButton>
           </div>
         </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleCreateProductType}>
+        <form onSubmit={handleCreateProductType}>
+          <DialogContent>
             <Grid container spacing={24}>
               <Grid item xs={6}>
                 <Grid container spacing={24}>
@@ -105,8 +131,8 @@ function CreateProductType(props) {
                       fullWidth
                       required
                       onChange={onChangeCreateProductType}
-                      value={createProductType.desc}
-                      name="desc"
+                      value={createProductType.description}
+                      name="description"
                       // error={error[0].name}
                       classes={{
                         underline: classes.cssUnderline,
@@ -148,13 +174,13 @@ function CreateProductType(props) {
                 </Grid>
               </Grid>
             </Grid>
-          </form>
-        </DialogContent>
-        <DialogActions style={{ padding: '12px 12px' }}>
-          <Button type="submit" variant="contained" color="primary" autoFocus>
-            Create
+          </DialogContent>
+          <DialogActions style={{ padding: '12px 12px' }}>
+            <Button type="submit" variant="contained" color="primary" autoFocus>
+              Create
             </Button>
-        </DialogActions>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   )

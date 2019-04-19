@@ -47,7 +47,8 @@ function MarketingPlanDetails(props) {
     fetchLoadContactSuggestion,
     handleChangeLoadContactSelect,
     handleApplyConditionTable,
-    applyConditionTable
+    applyConditionTable,
+    deleteExceptionContacts
   } = props
 
   return (
@@ -134,8 +135,6 @@ function MarketingPlanDetails(props) {
             </Grid>
           </Grid>
         </Grid>
-
-
         <Grid item xs={10}>
           {
             createCampaign.marketing_plan.condition &&
@@ -162,16 +161,14 @@ function MarketingPlanDetails(props) {
                               <InputLabel htmlFor="age-simple">Operands</InputLabel>
                               <Select
                                 value={m.operand}
-                                displayEmpty
                                 name="operand"
-                                disabled
                                 className={classes.selectEmpty}
                                 disabled
                               >
                                 {
                                   Object.values(marketingPlanConditions).map(c => {
                                     return (
-                                      <MenuItem title={c.name} value={m.operand}>
+                                      <MenuItem key={c.name} value={c.id}>
                                         {c.name}
                                       </MenuItem>
                                     )
@@ -187,7 +184,6 @@ function MarketingPlanDetails(props) {
                               <InputLabel htmlFor="age-simple">Operators</InputLabel>
                               <Select
                                 value={m.operator}
-                                displayEmpty
                                 disabled
                                 name="operator"
                                 className={classes.selectEmpty}
@@ -265,13 +261,13 @@ function MarketingPlanDetails(props) {
             </Grid>
           </Grid>
         </Grid> */}
-        {/* <Grid className="mt-5" item xs={12}>
+        <Grid item xs={12}>
           <Grid container spacing={24}>
             <Grid item xs={12} style={{ marginTop: '20px' }}>
               <Button onClick={(e) => handleApplyConditionTable(e)} variant="contained" color="primary">Apply</Button>
             </Grid>
           </Grid>
-        </Grid> */}
+        </Grid>
         {
           applyConditionTable == true &&
           <Grid classes={{ container: classes.fixTable }} container spacing={24} className="mt-4">
@@ -280,29 +276,37 @@ function MarketingPlanDetails(props) {
               <MaterialTable
                 columns={[
                   { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
-                  { title: 'Name', field: 'name' },
-                  { title: 'Description', field: 'description' },
-                  {
-                    title: 'Status',
-                    field: 'status',
-                    lookup: { 'ACTIVE': 'ACTIVE', 'INACTIVE': 'INACTIVE' }
-                  },
+                  { title: 'First Name', field: 'fname' },
+                  { title: 'Last Name', field: 'lname' },
+                  { title: 'Email', field: 'email' },
+                  { title: 'Phone', field: 'phone' },
+                  { title: 'Orgnization', field: 'org' },
                 ]}
-                // data={products.data.map(
-                //   (product, index) => ({
-                //     numeral: index + 1,
-                //     name: product.name,
-                //     description: product.desc,
-                //     status: product.status
-                //   })
-                // )}
-                title="Campaign List"
+                data={createCampaign.contacts.map(
+                  (c, index) => ({
+                    numeral: index + 1,
+                    fname: c.first_name,
+                    lname: c.last_name,
+                    email: c.mail,
+                    phone: c.phone,
+                    org: c.org,
+                    id: c.id
+                  })
+                )}
+                title="Contacts List"
                 actions={[
                   {
-                    icon: 'done_all',
+                    icon: 'delete',
                     tooltip: 'Do',
                     onClick: (event, rows) => {
-                      alert('You selected ' + rows.length + ' rows')
+                      rows.forEach(r => {
+                        let index = createCampaign.contacts.findIndex(c => c.id == r.id)
+                        let cloneContact = createCampaign.contacts.concat([])
+                        if (index != -1) {
+                          cloneContact = cloneContact.slice(0, index).concat(cloneContact.slice(index + 1))
+                        }
+                        deleteExceptionContacts(cloneContact)
+                      })
                     },
                   },
                 ]}

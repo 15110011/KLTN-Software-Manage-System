@@ -71,7 +71,7 @@ function CreateProduct(props) {
   const [createProduct, setCreateProduct] = React.useState({
     name: '',
     desc: '',
-    status: 'ACTIVE',
+    status: '',
     start_sale_date: '',
     start_support_date: '',
     packages: [
@@ -84,7 +84,9 @@ function CreateProduct(props) {
       //   numbers: []
       // }
     ],
-    features: []
+    features: [],
+    type: '',
+    category: ''
   })
 
   const [createPackage, setCreatePackage] = React.useState({
@@ -591,7 +593,7 @@ function CreateProduct(props) {
                             //       return acc
                             //     }, [])
                             // }
-                            multi
+                            single
                             placeholder=""
                             label=""
                           />

@@ -97,7 +97,8 @@ function getStepContent(props) {
     handleChangeLoadContactSelect,
     marketingPlanConditions,
     applyConditionTable,
-    handleApplyConditionTable
+    handleApplyConditionTable,
+    deleteExceptionContacts
   } = props
   switch (activeStep) {
     case 0:
@@ -121,6 +122,7 @@ function getStepContent(props) {
     case 1:
       return (
         <MarketingPlanDetails
+          deleteExceptionContacts={deleteExceptionContacts}
           classes={classes}
           handleApplyConditionTable={handleApplyConditionTable}
           applyConditionTable={applyConditionTable}

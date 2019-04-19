@@ -42,9 +42,10 @@ def ContactMatchConditions(request):
     filters = Q()
     excludes = Q()
     for condition in conditions:
-        if condition['id'] == 1:
+        if condition['operand'] == '1':
             if condition['operator'] == 'Equal to':
                 filters.add(Q(state=condition['data']), Q.AND)
+                filters.add(Q(id__in=[c['id'] for c in contacts]), Q.AND)
                 queryset = Contact.objects.filter(filters)
                 queryset = ContactWithoutGroupSerializer(
                     queryset, many=True).data
@@ -52,12 +53,13 @@ def ContactMatchConditions(request):
 
             if condition['operator'] == 'Not equal to':
                 excludes.add(Q(state=condition['data']), Q.AND)
+                filters.add(Q(id__in=[c['id'] for c in contacts]), Q.AND)
                 queryset = Contact.objects.exclude(excludes)
                 queryset = ContactWithoutGroupSerializer(
                     queryset, many=True).data
                 return Response(queryset, status=status.HTTP_200_OK)
 
-        if condition['id'] == 2:
+        if condition['operand'] == '2':
             try:
                 if condition['operator'] == 'Equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
@@ -99,7 +101,7 @@ def ContactMatchConditions(request):
             except:
                 return Response({"error": 'OPERATOR_CANNOT_BE_BLANK'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if condition['id'] == 3:
+        if condition['operand'] == '3':
             try:
                 if condition['operator'] == 'Equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(

@@ -19,11 +19,11 @@ function CategoryContainer(props) {
   return (
     <div>
       <CategoryBreadcrumb user={props.user} history={props.history} />
-      <BreadcrumbsItem to='/stocks'>Category</BreadcrumbsItem>
+      <BreadcrumbsItem to='/product-categories'>Category</BreadcrumbsItem>
       <Switch>
-        <Route exact path="/stocks" component={(props) => (<CategoryList {...props} />)} />
-        <Route path="/stocks/category/:id" component={(props) => (<CategoryDetail {...props} />)} />
-        <Route path="/stocks/product-type/:id" component={(props) => (<ProductTypeDetail {...props} />)} />
+        <Route exact path="/product-categories" component={(props) => (<CategoryList {...props} />)} />
+        <Route path="/product-categories/category/:id" component={(props) => (<CategoryDetail {...props} />)} />
+        <Route path="/product-categories/product-type/:id" component={(props) => (<ProductTypeDetail {...props} />)} />
       </Switch>
     </div>
   )

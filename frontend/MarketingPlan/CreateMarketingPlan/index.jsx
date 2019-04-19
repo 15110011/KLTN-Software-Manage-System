@@ -137,6 +137,7 @@ function getStepContent(
           <Grid item xs={8}>
             {
               createMarketingPlan.condition.must.map((m, i) => {
+                console.log(m)
                 return (
                   <Grid key={i} container spacing={24}>
                     <Grid item xs={4}>
@@ -171,24 +172,15 @@ function getStepContent(
                           name="operator"
                           className={classes.selectEmpty}
                         >
-                          <MenuItem value="Equal to">
-                            Equal to
-                          </MenuItem>
-                          <MenuItem value="Not equal to">
-                            Not equal to
-                          </MenuItem>
-                          <MenuItem value="Greater than">
-                            Greater than
-                          </MenuItem>
-                          <MenuItem value="Less than">
-                            Less than
-                          </MenuItem>
-                          <MenuItem value="Greater than or equal to">
-                            Greater than or equal to
-                          </MenuItem>
-                          <MenuItem value="Less than or equal to">
-                            Less than or equal to
-                          </MenuItem>
+                          {
+                            marketingPlanConditions[m.operand] && marketingPlanConditions[m.operand].operators.map(o => {
+                              return (
+                                <MenuItem value={o}>
+                                  {o}
+                                </MenuItem>
+                              )
+                            })
+                          }
                         </Select>
                       </FormControl>
                     </Grid>

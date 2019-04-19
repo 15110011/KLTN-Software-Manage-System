@@ -8,8 +8,14 @@ import { TablePagination } from '@material-ui/core';
 
 import CreateCategory from '../CreateCategory'
 import CreateProductType from '../CreateProductType'
-import styles from './CategoryListStyle'
 
+import useFetchData from '../../CustomHook/useFetchData'
+
+import styles from './CategoryListStyle'
+// API
+import { PRODUCTS_URL, REFRESH_TOKEN_URL, PRODUCT_TYPES_URL, PRODUCT_CATEGORIES_URL } from "../../common/urls";
+import { apiPost, apiGet } from '../../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
 
 function CategoryList(props) {
 
@@ -17,6 +23,8 @@ function CategoryList(props) {
 
   const [createCategoryDialog, setCreateCategoryDialog] = React.useState(false)
   const [createProductTypeDialog, setCreateProductTypeDialog] = React.useState(false)
+  const tableRef = React.useRef(null);
+
 
   const handleCloseCreateCategoryDialog = e => {
     setCreateCategoryDialog(false)
@@ -25,13 +33,23 @@ function CategoryList(props) {
   const handleCloseCreateProductTypeDialog = e => {
     setCreateProductTypeDialog(false)
   }
+
+  const [categoryData, setCategoryData, setURLCategory, forceUpdateCategory] = useFetchData(PRODUCT_CATEGORIES_URL, props.history, {})
+  const [productTypeData, setProductTypeData, setURLProductType, forceUpdateProductType] = useFetchData(PRODUCT_TYPES_URL, props.history, {})
+
   return (
     <div className={classes.root}>
       <CreateCategory
+        forceUpdateCategory={forceUpdateCategory}
+        tableRef={tableRef}
+        setCreateCategoryDialog={setCreateCategoryDialog}
         createCategoryDialog={createCategoryDialog}
         handleCloseCreateCategoryDialog={handleCloseCreateCategoryDialog}
       />
       <CreateProductType
+        forceUpdateProductType={forceUpdateProductType}
+        tableRef={tableRef}
+        setCreateProductTypeDialog={setCreateProductTypeDialog}
         createProductTypeDialog={createProductTypeDialog}
         handleCloseCreateProductTypeDialog={handleCloseCreateProductTypeDialog}
       />
@@ -44,9 +62,17 @@ function CategoryList(props) {
               { title: 'Description', field: 'desc' },
               { title: 'Status', field: 'status' },
             ]}
-            data={[
-
-            ]}
+            data={
+              Object.values(categoryData).map((c, i) => (
+                {
+                  numeral: i + 1,
+                  name: c.name,
+                  desc: c.description,
+                  status: c.status
+                }
+              )
+              )
+            }
             title="Category"
             actions={
               [
@@ -63,7 +89,7 @@ function CategoryList(props) {
             }
             options={{
               toolbar: true,
-              paging: false,
+              paging: true,
             }}
           />
         </Grid>
@@ -75,9 +101,17 @@ function CategoryList(props) {
               { title: 'Description', field: 'desc' },
               { title: 'Status', field: 'status' },
             ]}
-            data={[
-
-            ]}
+            data={
+              Object.values(productTypeData).map((p, i) => (
+                {
+                  numeral: i + 1,
+                  name: p.name,
+                  desc: p.description,
+                  status: p.status
+                }
+              )
+              )
+            }
             title="Product Type"
             actions={
               [
@@ -94,7 +128,7 @@ function CategoryList(props) {
             }
             options={{
               toolbar: true,
-              paging: false,
+              paging: true,
             }}
           />
         </Grid>
