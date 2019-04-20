@@ -67,7 +67,7 @@ function CreateFollowUpPlan(props) {
   const addMoreSteps = () => {
     const steps = [...followUpPlan.steps]
     steps.push({
-      nth: steps.length - 1,
+      nth: steps[steps.length - 1] ? steps[steps.length - 1].nth + 1 : 0,
       action: '',
       duration: 0,
       conditions: [
@@ -193,15 +193,23 @@ function CreateFollowUpPlan(props) {
 
   const onDeleteCurrentStep = () => {
     let cloneStep = [].concat(followUpPlan.steps)
+    console.log('BEFORE:', cloneStep)
     cloneStep = cloneStep.slice(0, activeStep).concat(cloneStep.slice(activeStep + 1))
 
-    setCreatePlan({ ...followUpPlan, steps: cloneStep })
+    console.log(activeStep, cloneStep)
+    for (let i = activeStep; i < cloneStep.length ; i += 1) {
+      cloneStep[i].nth -= 1
+    }
+
     if (activeStep > 0) {
       setActiveStep(activeStep - 1)
     } else {
       setActiveStep(0)
     }
 
+    console.log(cloneStep)
+
+    setCreatePlan({ ...followUpPlan, steps: cloneStep })
   }
 
   return (
