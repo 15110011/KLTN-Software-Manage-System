@@ -126,7 +126,10 @@ function StepPlanDetail(props) {
                 </MenuItem>
                 <MenuItem value="number">Number</MenuItem>
                 <MenuItem value="check_box">
-                  Check Box
+                  Check Box (single choice)
+                </MenuItem>
+                <MenuItem value="radio">
+                  Check Box (Multiple choices)
                 </MenuItem>
               </Select>
             </FormControl>

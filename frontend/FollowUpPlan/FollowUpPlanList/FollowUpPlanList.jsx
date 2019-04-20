@@ -35,15 +35,17 @@ function FollowUpPlanList(props) {
     setCreateFollowUpPlanDialog(false)
   }
 
+
   const tableRef = React.useRef(null);
   const search = {}
   let activePage = 0
   return (
     <div className={classes.root}>
-      <CreateFollowUpPlan
+      {createFollowUpPlanDialog && <CreateFollowUpPlan
         createFollowUpPlanDialog={createFollowUpPlanDialog}
         handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
-      />
+        onCreateSuccess={() => { tableRef.current.onQueryChange() }}
+      />}
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
