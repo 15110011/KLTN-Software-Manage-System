@@ -55,7 +55,32 @@ const styles = theme => ({
       borderRadius: '50%',
       backgroundColor: '#a6a6a6'
     }
-  }
+  },
+  cssLabel: {
+    position: 'absolute',
+    top: 24,
+    marginBottom: '0'
+  },
+  cssLabel40px: {
+    position: 'absolute',
+    top: 40,
+    marginBottom: '0'
+  },
+  inputCustom: {
+    position: 'relative'
+  },
+  linkStyleCustom: {
+    color: '#007bff',
+    textDecoration: 'none',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+    position: 'absolute',
+    bottom: 20,
+    '&:hover': {
+      color: '#0056b3',
+      textDecoration: 'underline'
+    }
+  },
 })
 
 export default styles
