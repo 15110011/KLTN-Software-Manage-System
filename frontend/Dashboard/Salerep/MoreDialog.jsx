@@ -28,7 +28,9 @@ import SendMailDialog from '../../Mailbox/SendMailDialog'
 
 function MoreDialog(props) {
 
-  const { classes, setDialog, campaign, contact, histories, id, updateTable, marketing, user } = props
+  const { classes, setDialog, campaign, contact, histories, id, updateTable, marketing, user,
+    updateActivities
+  } = props
 
   const [contactHistories, setContactHistories] = React.useState({
     'Send Email ': 0,
@@ -97,7 +99,7 @@ function MoreDialog(props) {
     <>
       {mailDialog &&
         <SendMailDialog user={user} contact={contact} toggleDialog={() => { setMailDialog(!mailDialog) }}
-          updateMailMetric={updateMailMetric} 
+          updateMailMetric={updateMailMetric}
         />
       }
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
@@ -109,8 +111,9 @@ function MoreDialog(props) {
         contactHistories={histories}
       ></ContactDetail>}
 
-      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) } }
+      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
         targets={[contact]} marketing={marketing}
+        updateActivities={updateActivities}
       />}
       {noteDialog && <NoteDialog toggleDialog={() => {
         setNoteDialog(false)

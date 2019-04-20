@@ -43,6 +43,7 @@ class EventView(ModelViewSet):
                 priority_order = '-priority' if priority_order == 'desc' else 'priority'
 
             filters.add(Q(end_date__gte=now), Q.AND)
+            filters.add(Q(start_date__lte=now), Q.AND)
             if remaining:
                 filters.add(Q(end_date=datetime.timedelta(
                     days=int(remaining))+now), Q.AND)

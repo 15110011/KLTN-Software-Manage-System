@@ -6,7 +6,7 @@ import { Input, InputLabel } from '@material-ui/core'
 import { IconButton, Tooltip } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close'
 import Button from '@material-ui/core/Button'
-import { Input, InputLabel } from '@material-ui/core'
+import { Input, InputLabel, Select, MenuItem } from '@material-ui/core'
 import { Editor } from "react-draft-wysiwyg";
 import "../common/react-draft-wysiwyg.css";
 import SelectCustom from '../../components/SelectCustom'
@@ -23,7 +23,9 @@ import styles from './EventStyles'
 
 function CreateEventDialog(props) {
 
-  const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal, user } = props
+  const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal, user,
+    updateActivities
+  } = props
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
 
@@ -34,8 +36,8 @@ function CreateEventDialog(props) {
   const [createEvent, setCreateEvent] = React.useState({
     name: '',
     assigned_to: assigned_to ? assigned_to : '',
-    start_date: dateFns.format(Date.now()),
-    end_date: dateFns.format(Date.now()),
+    start_date: dateFns.format(Date.now(), 'YYYY-MM-DD'),
+    end_date: dateFns.format(Date.now(), 'YYYY-MM-DD'),
     order: order ? order : '',
     marketing: marketing ? marketing.marketing_plan.id : '',
     content: '',
@@ -59,7 +61,7 @@ function CreateEventDialog(props) {
     setTimeout(() => {
       setCompleteNotice(false)
     }, 2000);
-
+    updateActivities()
   }
 
   const handleChangeAssigneeSelect = (value, action) => {
@@ -260,6 +262,36 @@ function CreateEventDialog(props) {
               fullWidth
               multi
             />
+          </Grid>
+          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+            <InputLabel
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+              required
+            >
+              Priority
+          </InputLabel>
+          </Grid>
+          <Grid item xs={4}>
+            <FormControl fullWidth className={classes.formControl} margin='dense'>
+              <Select
+                value={createEvent.priority}
+                onChange={onChangeInput}
+                name="priority"
+              >
+                <MenuItem value={0}>
+                  Low
+                </MenuItem>
+                <MenuItem value={1}>
+                  Medium
+                </MenuItem>
+                <MenuItem value={2}>
+                  High
+                </MenuItem>
+              </Select>
+            </FormControl>
           </Grid>
           <Grid item xs={12}>
             <Grid container spacing={40}>
