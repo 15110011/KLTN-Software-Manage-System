@@ -26,6 +26,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CloseIcon from '@material-ui/icons/Close';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import IconButton from '@material-ui/core/IconButton';
+import { Divider } from '@material-ui/core';
 
 
 function CreateFollowUpPlan(props) {
@@ -36,19 +37,15 @@ function CreateFollowUpPlan(props) {
   const [followUpPlan, setCreatePlan] = React.useState({
     name: '',
     steps: [
-      {
-        nth: '',
-        actions: [],
-        duration: 0,
-        conditions: [
-          {
-            'field_name': '',
-            'field_type': ''
-          }
-        ],
-      }
     ],
   })
+  const [createFieldDialog, setCreateFieldDialog] = React.useState(false)
+  const [newFields, setNewFields] = React.useState([])
+
+  const [disableApply, setDisableApply] = React.useState(false)
+
+
+
 
   const handleNext = () => {
     if (activeStep === followUpPlan.steps.length - 1) return apiCreateFollowUpPlan()
@@ -64,19 +61,16 @@ function CreateFollowUpPlan(props) {
     setTimeout(() => {
       setCompleteNotice(false)
     }, 2000);
+
   }
 
   const addMoreSteps = () => {
     const steps = [...followUpPlan.steps]
     steps.push({
-      nth: '',
+      nth: steps.length - 1,
       action: '',
       duration: 0,
       conditions: [
-        {
-          'field_name': '',
-          'field_type': ''
-        }
       ],
     })
     setCreatePlan({ ...followUpPlan, steps })
@@ -92,19 +86,22 @@ function CreateFollowUpPlan(props) {
     setCreatePlan({ ...followUpPlan, steps: stepsClone })
   }
 
-  const handleChangeStepCondition = (e, index) => {
+  const handleChangeStepCondition = (e, stepIndex, conditionIndex) => {
     const steps = [...followUpPlan.steps]
-    steps[index].conditions[e.target.name] = e.target.value
+    steps[stepIndex].conditions[conditionIndex][e.target.name] = e.target.value
     setCreatePlan({ ...followUpPlan, steps })
   }
 
   const handleAddConditions = (e, index) => {
     const steps = [...followUpPlan.steps]
-    steps[index].conditions.push({
-      'field_name': '',
-      'field_type': ''
-    })
-    setCreatePlan({ ...followUpPlan }, steps)
+    steps[index].conditions.push(
+      {
+        name: '',
+        type: '',
+        choices: []
+      }
+    )
+    setCreatePlan({ ...followUpPlan, steps })
   }
 
   const onChangeCreateSteps = (e, index) => {
@@ -135,16 +132,82 @@ function CreateFollowUpPlan(props) {
         }
         else {
           notification()
+          onCreateSuccess()
         }
       })
   }
 
-  const { classes, createFollowUpPlanDialog, handleCloseCreateFollowUpPlan } = props
+  const { classes, onCreateSuccess, createFollowUpPlanDialog, handleCloseCreateFollowUpPlan } = props
+
+  const handleOpenDialog = (stepIndex, conditionIndex) => {
+    setCreateFieldDialog(!createFieldDialog)
+    if (stepIndex !== undefined) {
+      setNewFields(followUpPlan.steps[stepIndex].conditions[conditionIndex].choices)
+    }
+    setDisableApply(true)
+  }
+
+  const onChangeField = (e, choiceIndex) => {
+    const cloneFields = newFields.concat([])
+    cloneFields[choiceIndex] = e.target.value
+    setNewFields(cloneFields)
+  }
+
+  const onAddOrRemoveField = (choiceIndex) => {
+
+
+    let cloneFields = newFields.concat([])
+    //Delete
+    if (choiceIndex !== undefined) {
+      cloneFields = cloneFields.slice(0, choiceIndex).concat(cloneFields.slice(choiceIndex + 1))
+    }
+    else {
+      cloneFields.push([''])
+    }
+
+    setDisableApply(false)
+
+    setNewFields(cloneFields)
+  }
+
+  const onSubmitNewFields = (e, stepIndex, conditionIndex) => {
+    e.preventDefault()
+    const steps = followUpPlan.steps.concat([])
+    steps[stepIndex].conditions[conditionIndex].choices = newFields
+    setCreatePlan({ ...followUpPlan, steps })
+    setDisableApply(true)
+  }
+
+  const onCloseField = () => {
+
+    handleOpenDialog()
+    setNewFields([])
+  }
+
+  const onRemoveCondition = (stepIndex, conditionIndex) => {
+    const steps = followUpPlan.steps.concat([])
+
+    steps[stepIndex].conditions = steps[stepIndex].conditions.slice(0, conditionIndex).concat(steps[stepIndex].conditions.slice(conditionIndex + 1))
+    setCreatePlan({ ...followUpPlan, steps })
+  }
+
+  const onDeleteCurrentStep = () => {
+    let cloneStep = [].concat(followUpPlan.steps)
+    cloneStep = cloneStep.slice(0, activeStep).concat(cloneStep.slice(activeStep + 1))
+
+    setCreatePlan({ ...followUpPlan, steps: cloneStep })
+    if (activeStep > 0) {
+      setActiveStep(activeStep - 1)
+    } else {
+      setActiveStep(0)
+    }
+
+  }
 
   return (
     <div>
       <Dialog
-        open={createFollowUpPlanDialog}
+        open={true}
         onClose={handleCloseCreateFollowUpPlan}
         classes={{ paper: classes.paperRoot }}
         fullWidth
@@ -164,40 +227,36 @@ function CreateFollowUpPlan(props) {
             Object.keys(error).forEach((key) => <CustomSnackbar isErr msg={error[key]} />)
           )}
           <BreadcrumbsItem to='/follow-up-plans/add'>Follow Up Plan Informations</BreadcrumbsItem>
-          <div style={{ textAlign: 'left', padding: '40px' }}>
-            <Grid container spacing={24}>
-              <Grid item xs={8}>
-                <Grid container spacing={24}>
-                  <Grid className={classes.inputCustom} item xs={4}>
-                    <InputLabel
-                      required
-                      htmlFor="custom-css-standard-input"
-                      classes={{
-                        root: classes.cssLabel,
-                        focused: classes.cssFocused,
-                      }}
-                      className={error.name ? classes.danger : null}
-                    >
-                      Plan name
-            </InputLabel>
-                  </Grid>
-                  <Grid item xs={8}>
-                    <Input
-                      fullWidth
-                      required
-                      onChange={onChangeCreatePlan}
-                      value={followUpPlan.name}
-                      name="name"
-                      classes={{
-                        underline: classes.cssUnderline,
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-              </Grid>
+
+          <Grid container spacing={24} className='my-3'>
+            <Grid className={classes.inputCustom} item xs={2}>
+              <InputLabel
+                required
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                className={error.name ? classes.danger : null}
+              >
+                Plan name
+                  </InputLabel>
             </Grid>
-          </div>
-          <div className={cn(classes.stepper)}>
+            <Grid item xs={8}>
+              <Input
+                fullWidth
+                required
+                onChange={onChangeCreatePlan}
+                value={followUpPlan.name}
+                name="name"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+              />
+            </Grid>
+          </Grid>
+          <Divider />
+          <div >
             <Stepper activeStep={activeStep} alternativeLabel>
               {followUpPlan.steps.map((label, index) => (
                 <Step key={'steplabel' + index}>
@@ -217,37 +276,49 @@ function CreateFollowUpPlan(props) {
                 let curStep = step
                 if (activeStep == index) {
                   return (
-                    <Grid item xs={8}>
-                      <StepDetail
-                        key={'step' + index}
-                        activeStep={activeStep}
-                        onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
-                        handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
-                        handleChangeStepCondition={e => handleChangeStepCondition(e, index)}
-                        handleAddConditions={e => handleAddConditions(e, index)}
-                        createStep={curStep}
-                        error={error}
-                        actions={actions}
-                      />
-                    </Grid>
+                    <StepDetail
+                      key={'step' + index}
+                      activeStep={activeStep}
+                      onChangeCreateSteps={e => onChangeCreateSteps(e, index)}
+                      handleChangeSelect={(values, e) => handleChangeSelect(values, e, index)}
+                      handleChangeStepCondition={(e, conditionIndex) => handleChangeStepCondition(e, index, conditionIndex)}
+                      handleAddConditions={e => handleAddConditions(e, index)}
+                      createStep={curStep}
+                      error={error}
+                      actions={actions}
+                      handleOpenDialog={conditionIndex => handleOpenDialog(index, conditionIndex)}
+                      onChangeField={onChangeField}
+                      onAddOrRemoveField={onAddOrRemoveField}
+                      onSubmitNewFields={(e, conditionIndex) => onSubmitNewFields(e, index, conditionIndex)}
+                      newFields={newFields}
+                      createFieldDialog={createFieldDialog}
+                      onCloseField={onCloseField}
+                      onRemoveCondition={conditionIndex => onRemoveCondition(index, conditionIndex)}
+                      disableApply={disableApply}
+                    />
                   )
                 }
                 else return <></>
               })
 
             }
-            <div className="d-flex justify-content-center">
-              <Button
-                disabled={activeStep === 0}
-                onClick={handleBack}
-                className={classes.backButton}
-              >
-                Back
+            <DialogActions>
+              <div className="d-flex justify-content-center">
+                {followUpPlan.steps.length > 0 && <Button color="primary" onClick={() => onDeleteCurrentStep()}>
+                  Delete current step
+                </Button>}
+                <Button
+                  disabled={activeStep === 0}
+                  onClick={handleBack}
+                  className={classes.backButton}
+                >
+                  Back
+                  </Button>
+                <Button variant="contained" color="primary" onClick={handleNext}>
+                  {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
                 </Button>
-              <Button variant="contained" color="primary" onClick={handleNext}>
-                {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
-              </Button>
-            </div>
+              </div>
+            </DialogActions>
           </div>
         </DialogContent>
       </Dialog>

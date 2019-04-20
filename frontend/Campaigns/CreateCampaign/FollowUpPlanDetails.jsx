@@ -203,6 +203,9 @@ function FollowUpPlanDetails(props) {
                     <MenuItem value="check_box">
                       Check Box
                 </MenuItem>
+                    <MenuItem value="radio">
+                      Check Box (Multiple choices)
+                </MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
