@@ -65,6 +65,7 @@ function MarketingTable(props) {
             id={moreRow.id}
             contact={moreRow.contact}
             updateTable={tableMarketingRef.current.onQueryChange}
+            updateActivities={forceActivities}
             marketing={moreRow.marketing}
             user={user}
           />}
