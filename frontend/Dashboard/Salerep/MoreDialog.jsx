@@ -109,7 +109,7 @@ function MoreDialog(props) {
         contactHistories={histories}
       ></ContactDetail>}
 
-      {laterDialog && <CreateEventDialog toggleDialog={() => { setLaterDialog(!laterDialog) }}
+      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) } }
         targets={[contact]} marketing={marketing}
       />}
       {noteDialog && <NoteDialog toggleDialog={() => {
