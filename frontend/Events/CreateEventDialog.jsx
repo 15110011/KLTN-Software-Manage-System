@@ -1,6 +1,4 @@
 import * as React from 'react'
-
-import { Link, withRouter } from 'react-router-dom'
 import { withStyles } from '@material-ui/core'
 import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
@@ -9,19 +7,27 @@ import { IconButton, Tooltip } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close'
 import Button from '@material-ui/core/Button'
 import { Input, InputLabel } from '@material-ui/core'
-
-
+import { Editor } from "react-draft-wysiwyg";
+import "../common/react-draft-wysiwyg.css";
+import SelectCustom from '../../components/SelectCustom'
+import { htmlToState, draftToRaw } from "../common/utils";
+import { EVENTS_URL, REFRESH_TOKEN_URL, GET_SALE_REPS_URL } from '../../common/urls';
+import useFetchData from '../../CustomHook/useFetchData'
+import FormControl from '@material-ui/core/FormControl';
 import * as dateFns from 'date-fns'
-
 import { apiPost } from '../common/Request'
 import CustomSnackbar from '../components/CustomSnackbar'
 import styles from './EventStyles'
 
 
-
 function CreateEventDialog(props) {
 
-  const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal } = props
+  const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal, user } = props
+
+  const [editorState, setEditorState] = React.useState(htmlToState(""))
+
+  const [saleRep, setSaleRep] = useFetchData(GET_SALE_REPS_URL, props.history, {})
+  console.log(user)
 
   const [createEvent, setCreateEvent] = React.useState({
     name: '',
@@ -42,13 +48,53 @@ function CreateEventDialog(props) {
     setCreateEvent({ ...createEvent, [e.target.name]: e.target.value })
   }
 
+  const onEditorStateChange = editorState => {
+    setEditorState(editorState)
+  };
+
+  const handleChangeSelect = (values, element, index) => {
+
+  }
+
+  const handleChangeAssigneeSelect = (value, action) => {
+    setCreateEvent({ ...createEvent, assigned_to: value })
+  }
+
+  const handleCreateEvents = e => {
+    apiCreateEvent()
+  }
+
+  const apiCreateEvent = () => {
+    apiPost(EVENTS_URL, { ...createEvent, content: draftToRaw(editorState) }, false, true)
+      .then(res => {
+        if (res.data.code == "token_not_valid") {
+          apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+              props.history.push('/logout')
+            }
+            else {
+              localStorage.setItem("token", res.data.access)
+              // notification()
+            }
+          })
+        }
+        else if (res.data.code == BAD_REQUEST) {
+          // setError(res.data)
+        }
+        else {
+          // notification()
+          // setCreateCampaign({ ...createCampaign, contacts: res.data })
+        }
+      })
+  }
+
   return (
     <Dialog
       open={true}
       onClose={toggleDialog}
       fullWidth maxWidth='md'
     >
-      <DialogTitle style={{ position: 'relative' }}>Quick Create Event
+      <DialogTitle style={{ position: 'relative' }}>Create Event
         <Tooltip title="Close Dialog">
           <IconButton style={{ position: 'absolute', top: '12px', right: '12px' }} onClick={toggleDialog}>
             <CloseIcon></CloseIcon>
@@ -95,16 +141,28 @@ function CreateEventDialog(props) {
                     </InputLabel>
           </Grid>
           <Grid item xs={4}>
-            <Input
-              onChange={onChangeInput}
-              name="name"
-              type="text"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={createEvent.name}
-              required
+            <SelectCustom
+              handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
+              name="assigned_to"
+              options={user.sale_reps && user.sale_reps.reduce((acc, u) => {
+                acc.push(
+                  {
+                    label: `${u.user.username}`,
+                    value: u.user.id,
+                    ...u
+                  }
+                )
+                return acc
+              }, [])}
+              // data={
+              //   createEvent.assigned_to
+              //     .reduce((acc, u) => {
+              //       acc.push({ label: `${u.user.username}`, value: u.user.id, ...u })
+              //       return acc
+              //     }, [])
+              // }
               fullWidth
+              multi
             />
           </Grid>
           <Grid className={classes.inputCustom} item xs={2}>
@@ -122,12 +180,12 @@ function CreateEventDialog(props) {
           <Grid item xs={4} className='pr-5'>
             <Input
               onChange={onChangeInput}
-              name="name"
+              name="start_date"
               type="date"
               classes={{
                 underline: classes.cssUnderline,
               }}
-              value={createEvent.name}
+              value={createEvent.start_date}
               required
               fullWidth
             />
@@ -147,12 +205,12 @@ function CreateEventDialog(props) {
           <Grid item xs={4}>
             <Input
               onChange={onChangeInput}
-              name="name"
+              name="end_date"
               type="date"
               classes={{
                 underline: classes.cssUnderline,
               }}
-              value={createEvent.name}
+              value={createEvent.end_date}
               required
               fullWidth
             />
@@ -166,26 +224,74 @@ function CreateEventDialog(props) {
               }}
               required
             >
-              Activity type
-            </InputLabel>
+              Target
+          </InputLabel>
           </Grid>
           <Grid item xs={4} className='pr-5'>
-            <Input
-              onChange={onChangeInput}
-              name="name"
-              type="text"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={createEvent.name}
-              required
+            <SelectCustom
+              // handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
+              name="contacts"
+              options={targets && targets.reduce((acc, u) => {
+                acc.push(
+                  {
+                    label: `${u.full_name}`,
+                    value: u.id,
+                    ...u
+                  }
+                )
+                return acc
+              }, [])}
+              data={
+                createEvent.contacts
+                  .reduce((acc, u) => {
+                    acc.push({ label: `${u.full_name}`, value: u.id, ...u })
+                    return acc
+                  }, [])
+              }
               fullWidth
+              multi
             />
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container spacing={40}>
+              <Grid className={classes.inputCustom} style={{ 'marginTop': '2%' }} item xs={2}>
+                <InputLabel
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Description
+                </InputLabel>
+              </Grid>
+              <Grid item xs={10} spacing={40}>
+                <Editor
+                  editorState={editorState}
+                  wrapperClassName="editor-wrapper"
+                  editorClassName="editor"
+                  onEditorStateChange={onEditorStateChange}
+                />
+              </Grid>
+            </Grid>
           </Grid>
         </Grid>
       </DialogContent>
-
-    </DialogContent>
+      <DialogActions>
+        <Button color="primary">
+          Cancel
+        </Button>
+        <Button color="primary"
+          variant='contained'
+          classes={{
+            contained: classes.btnBlue
+          }}
+          onClick={handleCreateEvents}
+        >
+          Create
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
