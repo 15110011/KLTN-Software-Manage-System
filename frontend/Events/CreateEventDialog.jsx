@@ -16,6 +16,7 @@ import useFetchData from '../../CustomHook/useFetchData'
 import FormControl from '@material-ui/core/FormControl';
 import * as dateFns from 'date-fns'
 import { apiPost } from '../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
 import CustomSnackbar from '../components/CustomSnackbar'
 import styles from './EventStyles'
 
@@ -26,8 +27,9 @@ function CreateEventDialog(props) {
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
 
+  const [completeNotice, setCompleteNotice] = React.useState(false)
+
   const [saleRep, setSaleRep] = useFetchData(GET_SALE_REPS_URL, props.history, {})
-  console.log(user)
 
   const [createEvent, setCreateEvent] = React.useState({
     name: '',
@@ -35,11 +37,11 @@ function CreateEventDialog(props) {
     start_date: dateFns.format(Date.now()),
     end_date: dateFns.format(Date.now()),
     order: order ? order : '',
-    marketing: marketing ? marketing : '',
+    marketing: marketing ? marketing.marketing_plan.id : '',
     content: '',
     contacts: targets.map(t => ({
       label: t.first_name + ' ' + t.last_name, value: t.id, ...t
-    })),
+    })),,
     priority: 0
   })
 
@@ -52,12 +54,16 @@ function CreateEventDialog(props) {
     setEditorState(editorState)
   };
 
-  const handleChangeSelect = (values, element, index) => {
+  const notification = () => {
+    setCompleteNotice('Successfully Added')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
 
   }
 
   const handleChangeAssigneeSelect = (value, action) => {
-    setCreateEvent({ ...createEvent, assigned_to: value })
+    setCreateEvent({ ...createEvent, assigned_to: value[0].value })
   }
 
   const handleCreateEvents = e => {
@@ -65,7 +71,10 @@ function CreateEventDialog(props) {
   }
 
   const apiCreateEvent = () => {
-    apiPost(EVENTS_URL, { ...createEvent, content: draftToRaw(editorState) }, false, true)
+    apiPost(EVENTS_URL, {
+      ...createEvent, content: draftToRaw(editorState),
+      user: user.id, contacts: targets.map(t => t.id)
+    }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -74,7 +83,6 @@ function CreateEventDialog(props) {
             }
             else {
               localStorage.setItem("token", res.data.access)
-              // notification()
             }
           })
         }
@@ -82,7 +90,7 @@ function CreateEventDialog(props) {
           // setError(res.data)
         }
         else {
-          // notification()
+          notification()
           // setCreateCampaign({ ...createCampaign, contacts: res.data })
         }
       })
@@ -102,6 +110,7 @@ function CreateEventDialog(props) {
         </Tooltip>
       </DialogTitle>
       <DialogContent>
+        {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
         <Grid container spacing={8}>
           <Grid className={classes.inputCustom} item xs={2}>
             <InputLabel
