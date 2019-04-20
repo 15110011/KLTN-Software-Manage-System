@@ -70,11 +70,13 @@ function MarketingPlanList(props) {
                   searchString += `${search.status ? '&status=' + search.status : ''}`
                 apiGet(MARKETING_PLANS_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true)
                   .then(json => {
+                    console.log(json)
                     const data = json.data.data.map((m, i) => ({
                       numeral: activePage * query.pageSize + i + 1,
                       name: m.name,
                       used: m.used,
                       status: m.status,
+                      id: m.id
                     }))
                     resolve({
                       data,
@@ -107,7 +109,9 @@ function MarketingPlanList(props) {
               filtering: true,
               paging: true
             }}
-            onRowClick={(e, rowData) => { props.history.push('/marketing-plans/' + rowData.id) }}
+            onRowClick={(e, rowData) => {
+              props.history.push('/marketing-plans/' + rowData.id)
+            }}
           />
         </Grid>
       </Grid>
