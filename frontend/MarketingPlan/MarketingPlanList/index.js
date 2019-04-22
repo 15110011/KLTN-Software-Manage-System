@@ -17,9 +17,46 @@ import CreateMarketingPlan from '../CreateMarketingPlan'
 function MarketingPlanList(props) {
 
   const [createMarketingPlanDialog, setCreateMarketingPlanDialog] = React.useState(false)
+  const [errNotice, setErrNotice] = React.useState(false)
+  const [completeNotice, setCompleteNotice] = React.useState(false)
 
   const handleCloseCreateMarketingPlanDialog = e => {
     setCreateMarketingPlanDialog(false)
+  }
+
+  const handleDeleteFeature = (e, unitIndex) => {
+    e.stopPropagation()
+    let features = createProduct.features.concat([])
+    features = features.slice(0, unitIndex)
+      .concat(features.slice(unitIndex + 1))
+    setCreateProduct({ ...createProduct, features })
+    setCreateFeature({
+      name: '',
+      price: '',
+      desc: '',
+      number: ''
+    })
+  }
+  let notiTimeout = {}
+
+  const setDeleteMarketingPlan = e => {
+    apiDelete(MARKETING_PLANS_URL + '/' + 'batchdelete', true).then(res => {
+      if (res.data.code == BAD_REQUEST) {
+        setErrNotice('Delete failed')
+        notiTimeout.err = setTimeout(() => {
+          setErrNotice(false)
+        }, 2000);
+      } else {
+        setCompleteNotice('Successfully Deleted')
+        notiTimeout.success = setTimeout(() => {
+          setCompleteNotice(false)
+        }, 2000);
+        apiGet(MARKETING_PLANS_URL, false, true).then(res => {
+          tableRef.current.onQueryChange()
+        })
+        setDeleteContactConfirm(false)
+      }
+    })
   }
 
   const { classes } = props;
@@ -45,6 +82,7 @@ function MarketingPlanList(props) {
                 field: 'status',
               },
             ]}
+            tableRef={tableRef}
             components={
               {
                 Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
@@ -70,7 +108,6 @@ function MarketingPlanList(props) {
                   searchString += `${search.status ? '&status=' + search.status : ''}`
                 apiGet(MARKETING_PLANS_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true)
                   .then(json => {
-                    console.log(json)
                     const data = json.data.data.map((m, i) => ({
                       numeral: activePage * query.pageSize + i + 1,
                       name: m.name,
@@ -88,10 +125,10 @@ function MarketingPlanList(props) {
             title="Marketing Plan"
             actions={[
               {
-                icon: 'done_all',
-                tooltip: 'Do',
+                icon: 'delete',
+                tooltip: 'Remove',
                 onClick: (event, rows) => {
-                  alert('You selected ' + rows.length + ' rows')
+                  setDeleteMarketingPlan(rows.map(r => r.id))
                 },
               },
               {

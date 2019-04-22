@@ -20,12 +20,21 @@ import FormControl from '@material-ui/core/FormControl';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialTable from 'material-table'
+import TextField from '@material-ui/core/TextField';
+import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import IconButton from '@material-ui/core/IconButton';
 import CategoryIcon from '@material-ui/icons/Category';
 import CustomSnackbar from '../../components/CustomSnackbar'
 
+import stateHashes from '../../common/StateHash'
+import SelectCustom from '../../components/SelectCustom'
 import styles from './MarketingDetailStyle'
+// Hooks
+import useFetchData from '../../CustomHook/useFetchData'
+import { MARKETING_PLANS_URL, MARKETING_PLANS_CONDITIONS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { apiPost, apiPatch } from '../../common/Request'
+import { BAD_REQUEST } from "../../common/Code";
 
 function TabContainer(props) {
   return (
@@ -36,15 +45,19 @@ function TabContainer(props) {
 }
 
 function MarketingPlanDetail(props) {
-
-  const [createMarketingPlan, setCreateMarketingPlan] = React.useState({
-    name: '',
-    condition: {
-      must: [],
-    },
-    actions: [],
-    manager: ''
-  })
+  const [completeNotice, setCompleteNotice] = React.useState(false)
+  const marketingPlanId = props.match.params.id
+  const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
+  const [marketingPlanDetail, setMarketingPlanDetail, setUrl, forceUpdate] =
+    useFetchData(MARKETING_PLANS_URL + '/' + marketingPlanId, props.history, {
+      name: '',
+      condition: {
+        must: [],
+      },
+      actions: [],
+      manager: ''
+    })
+  console.log(marketingPlanDetail)
   const [value, setValue] = React.useState(0)
 
   const { classes } = props;
@@ -53,25 +66,55 @@ function MarketingPlanDetail(props) {
     setValue(value)
   };
 
-  const onChangeCreateMarketingPlan = (e, index, conditionType) => {
+  const handleChangeSelectAddress = (value, element, index) => {
+    const cloneUpdateMarketingPlan = { ...marketingPlanDetail }
+    if (value) {
+      cloneUpdateMarketingPlan.condition.must[index][element.name] = value.value
+    }
+    else {
+      cloneUpdateMarketingPlan.condition.must[index][element.name] = ''
+    }
+    setMarketingPlanDetail({ ...cloneUpdateMarketingPlan })
+  }
+
+  const onChangeUpdateMarketingPlan = (e, index, conditionType) => {
     if (e.target.name == 'name') {
-      setCreateMarketingPlan({ ...createMarketingPlan, [e.target.name]: e.target.value })
+      setMarketingPlanDetail({ ...marketingPlanDetail, [e.target.name]: e.target.value })
     } else {
       if (conditionType == 'must') {
-        const must = createMarketingPlan.condition.must.concat([])
+        const must = marketingPlanDetail.condition.must.concat([])
         must[index][e.target.name] = e.target.value
-        setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, must } })
+        setMarketingPlanDetail({ ...marketingPlanDetail, condition: { ...marketingPlanDetail.condition, must } })
       } else {
-        const at_least = createMarketingPlan.condition.at_least.concat([])
+        const at_least = marketingPlanDetail.condition.at_least.concat([])
         at_least[index][e.target.name] = e.target.value
-        setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, at_least } })
+        setMarketingPlanDetail({ ...marketingPlanDetail, condition: { ...marketingPlanDetail.condition, at_least } })
       }
     }
   }
 
+  const handleChangeActionTypeSelect = (value, action) => {
+    setMarketingPlanDetail({ ...marketingPlanDetail, actions: value.map(v => v.value) })
+  }
+
+  const notification = () => {
+    setCompleteNotice('Successfully Updated')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+  }
+
+  const handleSavePlanDetail = () => {
+    apiPatch(MARKETING_PLANS_URL + '/' + marketingPlanId, { ...marketingPlanDetail }, false, true)
+      .then(json => {
+        console.log(123)
+        if (json.data) return notification()
+      })
+  }
 
   return (
     <div lassName={classes.root}>
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       <div className={classes.paper}>
         <Grid container spacing={8} style={{ margin: 'unset' }}>
           <div className={classes.wrapAvatar}>
@@ -112,8 +155,8 @@ function MarketingPlanDetail(props) {
                       <Input
                         fullWidth
                         required
-                        onChange={onChangeCreateMarketingPlan}
-                        value={createMarketingPlan.name}
+                        onChange={onChangeUpdateMarketingPlan}
+                        value={marketingPlanDetail.name}
                         name="name"
                         classes={{
                           underline: classes.cssUnderline,
@@ -122,7 +165,6 @@ function MarketingPlanDetail(props) {
                     </Grid>
                   </Grid>
                 </Grid>
-
                 <Grid item xs={6}>
                   <Grid container spacing={24}>
                     <Grid className={classes.inputCustom} item xs={4}>
@@ -133,24 +175,32 @@ function MarketingPlanDetail(props) {
                           focused: classes.cssFocused,
                         }}
                       >
-                        Status
-                          </InputLabel>
+                        Types
+                    </InputLabel>
                     </Grid>
                     <Grid item xs={8}>
-                      <FormControl fullWidth className={classes.formControl}>
-                        <Select
-                          // value={createCategory.status}
-                          // onChange={onChangeCreateCategory}
-                          // name="status"
-                          displayEmpty
-                          className={classes.selectEmpty}
-                        >
-                          <MenuItem value="ACTIVE">
-                            ACTIVE
-                            </MenuItem>
-                          <MenuItem value="INACTIVE">IN-ACTIVE</MenuItem>
-                        </Select>
-                      </FormControl>
+                      <SelectCustom
+                        handleChange={(values, element) => handleChangeActionTypeSelect(values, element)}
+                        name="actions"
+                        options={['Send Email', 'Call Client', 'Send Email Manually'].reduce((acc, a) => {
+                          acc.push(
+                            {
+                              label: a,
+                              value: a
+                            }
+                          )
+                          return acc
+                        }, [])}
+                        data={
+                          marketingPlanDetail.actions
+                            .reduce((acc, a) => {
+                              acc.push({ label: a, value: a })
+                              return acc
+                            }, [])
+                        }
+                        fullWidth
+                        multi
+                      />
                     </Grid>
                   </Grid>
                 </Grid>
@@ -170,62 +220,109 @@ function MarketingPlanDetail(props) {
                       </Grid>
                     </Grid>
                     <Grid item xs={10}>
-                      <Grid container spacing={24}>
-                        <Grid item xs={5}>
-                          <Tooltip aria-label="Add">
-                            <FormControl fullWidth className={classes.formControl}>
-                              <InputLabel htmlFor="age-simple">Operands</InputLabel>
-                              <Select
-                                // value={m.operand}
-                                name="operand"
-                                className={classes.selectEmpty}
-                                disabled
-                              >
-                                {/* {
-                              Object.values(marketingPlanConditions).map(c => {
-                                return (
-                                  <MenuItem key={c.name} value={c.id}>
-                                    {c.name}
-                                  </MenuItem>
-                                )
-                              })
-                            } */}
-                              </Select>
-                            </FormControl>
-                          </Tooltip>
-                        </Grid>
-                        <Grid item xs={5}>
-                          <Tooltip aria-label="Add">
-                            <FormControl fullWidth className={classes.formControl}>
-                              <InputLabel htmlFor="age-simple">Operators</InputLabel>
-                              <Select
-                                // value={m.operator}
-                                disabled
-                                name="operator"
-                                className={classes.selectEmpty}
-                              >
-                                {/* <MenuItem value={m.operator}>
-                              {m.operator}
-                            </MenuItem> */}
-                              </Select>
-                            </FormControl>
-                          </Tooltip>
-                        </Grid>
-                        <Grid item xs={2}>
-                          <FormControl fullWidth className={classes.formControl}>
-                            <InputLabel htmlFor="age-simple">Data</InputLabel>
-                            <Select
-                              // value={m.data}
-                              displayEmpty
-                              name="operator"
-                              disabled
-                              className={classes.selectEmpty}
-                            >
-                              {/* <MenuItem value={m.data}>
-                            {m.data}
-                          </MenuItem> */}
-                            </Select>
-                          </FormControl>
+                      <Grid item xs={8}>
+                        {
+                          marketingPlanDetail.condition.must.map((m, i) => {
+                            console.log(m)
+                            return (
+                              <Grid key={i} container spacing={24}>
+                                <Grid item xs={4}>
+                                  <FormControl fullWidth className={classes.formControl}>
+                                    <InputLabel htmlFor="age-simple">Operands</InputLabel>
+                                    <Select
+                                      value={m.operand}
+                                      onChange={(e) => onChangeUpdateMarketingPlan(e, i, 'must')}
+                                      displayEmpty
+                                      name="operand"
+                                      className={classes.selectEmpty}
+                                    >
+                                      {
+                                        Object.values(marketingPlanConditions).map(c => {
+                                          return (
+                                            <MenuItem value={c.id}>
+                                              {c.name}
+                                            </MenuItem>
+                                          )
+                                        })
+                                      }
+                                    </Select>
+                                  </FormControl>
+                                </Grid>
+                                <Grid item xs={3}>
+                                  <FormControl fullWidth className={classes.formControl}>
+                                    <InputLabel htmlFor="age-simple">Operators</InputLabel>
+                                    <Select
+                                      value={m.operator}
+                                      onChange={(e) => onChangeUpdateMarketingPlan(e, i, 'must')}
+                                      displayEmpty
+                                      name="operator"
+                                      className={classes.selectEmpty}
+                                    >
+                                      {
+                                        marketingPlanConditions[m.operand] && marketingPlanConditions[m.operand].operators.map(o => {
+                                          return (
+                                            <MenuItem value={o}>
+                                              {o}
+                                            </MenuItem>
+                                          )
+                                        })
+                                      }
+                                    </Select>
+                                  </FormControl>
+                                </Grid>
+                                <Grid item xs={4} style={{ position: 'relative' }}>
+                                  {
+                                    m.operand != '1' ?
+                                      <FormControl fullWidth className={classes.formControl}>
+                                        <TextField
+                                          id="standard-name"
+                                          label="Data"
+                                          className={classes.textField}
+                                          value={m.data}
+                                          onChange={(e) => onChangeUpdateMarketingPlan(e, i, 'must')}
+                                          name="data"
+                                          type="number"
+                                        />
+                                      </FormControl>
+                                      :
+                                      <FormControl fullWidth style={{ position: 'absolute', bottom: '13px' }} className={classes.formControl}>
+                                        <SelectCustom
+                                          className={classes.stateCustomInput}
+                                          options={
+                                            Object.keys(stateHashes).map(k => {
+                                              return {
+                                                label: stateHashes[k],
+                                                value: k
+                                              }
+                                            })
+                                          }
+                                          handleChange={(v, a) => handleChangeSelectAddress(v, a, i)}
+                                          value={m.data}
+                                          name="data"
+                                          fullWidth
+                                          label="Data"
+                                          single
+                                          data={{
+                                            label: stateHashes[m.data],
+                                            value: m.data
+                                          }}
+                                        />
+                                      </FormControl>
+                                  }
+                                </Grid>
+                              </Grid>
+                            )
+                          })
+                        }
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Grid item xs={12} className="d-flex justify-content-center mt-3">
+                          <Button onClick={forceUpdate} variant="contained" className={classes.button}>
+                            RESET
+                        </Button>&nbsp;&nbsp;
+                        <Button onClick={handleSavePlanDetail} variant="contained" color="primary" className={classes.button}>
+                            SAVE
+                        </Button>
                         </Grid>
                       </Grid>
                     </Grid>
