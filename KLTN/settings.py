@@ -37,6 +37,8 @@ JET_DEFAULT_THEME = 'light-gray'
 JET_SIDE_MENU_COMPACT = True
 # Application definition
 
+ASGI_APPLICATION = 'KLTN.routing.application'
+
 INSTALLED_APPS = [
     'jet',
     'django.contrib.admin',
@@ -49,6 +51,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'prettyjson',
     'rest_framework',
+    'channels',
     "django_rq",
     'account',
     'packages',
@@ -75,6 +78,15 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     )
+}
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
 }
 
 SIMPLE_JWT = {
