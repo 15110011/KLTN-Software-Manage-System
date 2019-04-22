@@ -14,10 +14,6 @@ class NotificationConsumer(JsonWebsocketConsumer):
 
     def disconnect(self, close_code):
         pass
-    
-    # def receive(self, text_data):
-    #     # data = self.receive_json(text_data)
-    #     pass
 
     def receive_json(self, content, **kwargs):
         notification = self.create_notifications(content['data'])
@@ -35,5 +31,12 @@ class NotificationConsumer(JsonWebsocketConsumer):
         new_notification.save()
         return new_notification.data
 
-    def update_notification(self, data):
-        pass
+    def update_notifications(self, data):
+        notifications = data.get('data')
+        for notification_id in notifications:
+            instance = Notification.objects.get(id=int(notification_id))
+            if not instance.is_seen:
+                instance.is_seen = True
+                instance.save()
+            return instance
+            
