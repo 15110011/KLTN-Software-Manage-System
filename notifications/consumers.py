@@ -1,22 +1,27 @@
 from django.contrib.auth import get_user_model
 from channels.consumer import AsyncConsumer
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import JsonWebsocketConsumer
+from django.contrib.auth.models import User
 from .models import Notification
-import json
 from . import serializers
 
-class NotificationConsumer(WebsocketConsumer):
+class NotificationConsumer(JsonWebsocketConsumer):
     def connect(self):
         self.accept()
         self.user_id = self.scope['url_route']['kwargs']['user_id']
         user_notifications = self.get_notifications(self.user_id)
-        self.send(json.dumps({'notifications': user_notifications}))
+        self.send_json({'notifications': user_notifications})
 
     def disconnect(self, close_code):
         pass
+    
+    # def receive(self, text_data):
+    #     # data = self.receive_json(text_data)
+    #     pass
 
-    def receive(self, text_data):
-        print(text_data)
+    def receive_json(self, content, **kwargs):
+        notification = self.create_notifications(content['data'])
+        self.send_json({'new_notification': notification})
 
     def get_notifications(self, user_id):
         queryset = Notification.objects.filter(user=user_id)
@@ -24,4 +29,11 @@ class NotificationConsumer(WebsocketConsumer):
         return data
 
     def create_notifications(self, data):
-        pass    
+        data['user'] = int(data['user'])
+        new_notification = serializers.NotificationSerializer(data=data)
+        new_notification.is_valid()
+        new_notification.save()
+        return new_notification.data
+
+    def update_notification(self, data):
+        pass

@@ -74,7 +74,14 @@ const SidebarComponent = props => {
       }
       socket.onopen = e => {
         console.log('open', e)
-        socket.send('From Client')
+        // socket.send(JSON.stringify(
+        //   {'data': {
+        //     'content': 'ABCD accepted',
+        //     'link': 'http://localhost:8000',
+        //     'avatar': 'http://localhost:8000',
+        //     'user': user.id
+        //   }
+        // }))
       }
 
     }
