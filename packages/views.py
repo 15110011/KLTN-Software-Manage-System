@@ -36,16 +36,14 @@ class ProductViewSet(ModelViewSet):
         search = ProductDocument.search()
         if 'name' in self.request.query_params.keys():
             qs = self.request.query_params.get('name')
-            search = search.query('multi_match', query=qs, fields=['name^4']).filter(
-                'term', manager=self.request.user.id)
+            search = search.query('multi_match', query=qs, fields=['name^4'])
             products = [model_to_dict(products)
                         for products in search.to_queryset()]
             return {"data": products, "elastic_search": True}
 
         if 'status' in self.request.query_params.keys():
             qs = self.request.query_params.get('status')
-            search = search.filter('term', status=qs.lower()).filter(
-                'term', manager=self.request.user.id)
+            search = search.filter('term', status=qs.lower())
             products = [model_to_dict(product)
                         for product in search.to_queryset()]
 
@@ -61,8 +59,8 @@ class ProductViewSet(ModelViewSet):
         filters = Q()
         if product_suggest:
             filters.add(Q(name__icontains=product_suggest), Q.AND)
-            queryset = Product.objects.filter(
-                manager=self.request.user).filter(filters)
+            filters.add(Q(status='ACTIVE'), Q.AND)
+            queryset = Product.objects.filter(filters)
             serializer = self.get_serializer(queryset, many=True)
             return Response({"suggestion": [s['name'] for s in serializer.data], "elastic_search": True})
 

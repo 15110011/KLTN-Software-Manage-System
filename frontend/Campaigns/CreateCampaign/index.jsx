@@ -222,12 +222,14 @@ function CreateCampaign(props) {
           value: realResult.id
         })
         apiGet(PRODUCTS_URL + "?name=" + realResult.product.name, true).then(res => {
+          console.log(res)
           const realResultProduct = res.data.data[0]
           apiGet(PACKAGES_URL + "?searchProduct=" + realResultProduct.id, true).then(res => {
             setCreateCampaign({ ...createCampaign, packagesOptions: res.data.data, product: realResultProduct, packages: clonePackage })
-          }
+          })
         })
-      }
+      })
+    }
     else if (action.action == 'remove-value' || action.action == 'clear') {
       setCreateCampaign({ ...createCampaign, packages: value })
     }
@@ -274,7 +276,7 @@ function CreateCampaign(props) {
   }
 
   const deleteExceptionContacts = (removedContact) => {
-    setCreateCampaign({...createCampaign, contacts: removedContact})
+    setCreateCampaign({ ...createCampaign, contacts: removedContact })
   }
 
   const { classes, createCampaignDialog, handleCloseCreateCampaignDialog } = props;
