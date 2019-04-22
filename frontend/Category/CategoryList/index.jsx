@@ -130,6 +130,7 @@ function CategoryList(props) {
               toolbar: true,
               paging: true,
             }}
+            // onRowClick={(e, rowData) => { props.history.push('/product-types/' + rowData.id) }}
           />
         </Grid>
       </Grid>

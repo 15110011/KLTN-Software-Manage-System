@@ -260,7 +260,7 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle1} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/product-categories')}>
+              <ListItem button className={classes.nested} onClick={() => props.history.push('/stocks')}>
                 <ListItemIcon>
                   <CategoryIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>

@@ -429,7 +429,7 @@ function ContactList(props) {
                           lastName: d.last_name,
                           email: d.mail,
                           phone: d.phone,
-                          org: d.org ,
+                          org: d.org,
                           id: d.id
                         })
                         )

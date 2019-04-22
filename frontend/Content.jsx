@@ -232,7 +232,7 @@ class Content extends React.Component {
                   component={ContactContainer}
                 />
                 <Route
-                  path="/product-categories"
+                  path="/stocks"
                   component={props => <CategoryContainer {...props} user={user} />}
                 />
                 <Route
