@@ -6,7 +6,7 @@ application = ProtocolTypeRouter({
     # Empty for now (http->django views is added by default)
     'websocket': URLRouter(
         [
-            path('ws/notifications/<int:pk>', consumers.NotificationConsumer)
+            path('ws/notifications/<int:user_id>', consumers.NotificationConsumer)
         ]
     )
 })

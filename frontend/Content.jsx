@@ -184,7 +184,7 @@ class Content extends React.Component {
         <div className={classes.root}>
           <CssBaseline />
 
-          {login && <SidebarContainer />}
+          {login && <SidebarContainer user={user} />}
           <div className={classes.content}>
             {/* {login && <div className={classes.appBarSpacer} />} */}
             <Switch>
