@@ -9,3 +9,4 @@ class Notification(BaseModel):
     link = models.URLField(max_length=255)
     avatar = models.URLField(max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    is_seen = models.BooleanField(default=False)

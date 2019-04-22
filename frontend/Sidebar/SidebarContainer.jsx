@@ -35,6 +35,7 @@ export default function SidebarContainer(props) {
     <SidebarComponent
       openSidebar={openSidebar}
       onToggleDrawer={onToggleDrawer}
+      user={props.user}
       selecting={selecting}
       onClickSidebar={onClickSidebar}
     />

@@ -49,11 +49,12 @@ import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
+import { WS_NOFICATION_URL } from '../common/urls'
 
 import styles from './styles.js'
 
 const SidebarComponent = props => {
-  const { openSidebar, classes, selecting } = props
+  const { openSidebar, classes, selecting, user } = props
   const [toggle, setToggle] = React.useState(true)
   const [toggle1, setToggle1] = React.useState(true)
   const [toggle2, setToggle2] = React.useState(true)
@@ -63,6 +64,22 @@ const SidebarComponent = props => {
   const [noti, setNoti] = React.useState(false)
 
   let anchorel1 = null;
+
+  React.useEffect(() => {
+    // Effect
+    if (user && user.id) {
+      const socket = new WebSocket(WS_NOFICATION_URL + '/' + user.id)
+      socket.onmessage = e => {
+        console.log('message', e)
+      }
+      socket.onopen = e => {
+        console.log('open', e)
+        socket.send('From Client')
+      }
+
+    }
+    // Cleanup
+  })
 
   const handleProfileMenuOpen = e => {
     setAnchorEl(e.currentTarget);
