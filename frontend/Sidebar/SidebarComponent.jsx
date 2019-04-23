@@ -63,7 +63,7 @@ const SidebarComponent = props => {
   const [toggle4, setToggle4] = React.useState(true)
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [noti, setNoti] = React.useState(false)
-  const [notificationData, setNotificationData] = React.useState(false)
+  const [notificationData, setNotificationData] = React.useState([])
 
   let anchorel1 = null;
 
@@ -74,18 +74,10 @@ const SidebarComponent = props => {
     if (user && user.id) {
       socket = initWebsocket(user.id)
       socket.onmessage = event => {
-        if (!notificationData) setNotificationData(JSON.parse(event.data))
-        console.log(notificationData)
+        if (notificationData.length === 0) {
+          setNotificationData(JSON.parse(event.data))
+        }
       }
-      // socket.send(JSON.stringify(
-      //   {'data': {
-      //     'content': 'ABCD accepted',
-      //     'link': 'http://localhost:8000',
-      //     'avatar': 'http://localhost:8000',
-      //     'user': user.id
-      //   }
-      // }))
-
     }
     // Cleanup
   })
@@ -99,6 +91,11 @@ const SidebarComponent = props => {
       return;
     }
     setNoti(false)
+  }
+
+  const handleClickNotification = () => {
+    setNoti(!noti)
+    if (noti) console.log('ditme')
   }
 
   return (
@@ -136,9 +133,12 @@ const SidebarComponent = props => {
               }}
               aria-owns={noti ? 'menu-list-grow' : undefined}
               aria-haspopup="true"
-              onClick={() => setNoti(!noti)}
+              onClick={handleClickNotification}
             >
-              <Badge badgeContent={17} color="secondary">
+              <Badge badgeContent={
+                notificationData.notifications && 
+                notificationData.notifications.filter(value => value.is_seen === false).length
+                } color="secondary">
                 <NotificationsIcon
                   className={classes.rightIcon}
                 />
@@ -153,11 +153,7 @@ const SidebarComponent = props => {
                 >
                   <Paper>
                     <ClickAwayListener onClickAway={handleCloseNoti}>
-                      {/* <MenuList>
-                        <MenuItem onClick={handleCloseNoti}>Profile</MenuItem>
-                        <MenuItem onClick={handleCloseNoti}>My account</MenuItem>
-                      </MenuList> */}
-                      <Notification />
+                      <Notification notifications={notificationData} />
                     </ClickAwayListener>
                   </Paper>
                 </Grow>

@@ -9,26 +9,33 @@ import Typography from '@material-ui/core/Typography';
 import styles from './NotificationStyles'
 
 function Notification(props) {
-  const { socket, classes } = props
+  const { socket, classes, notifications } = props
   return (
-    <List className={classes.root}>
-      <ListItem alignItems="flex-start">
-        <ListItemAvatar>
-          <Avatar alt="Remy Sharp" src="/static/images/avatar/1.jpg" />
-        </ListItemAvatar>
-        <ListItemText
-          primary="Brunch this weekend?"
-          secondary={
-            <React.Fragment>
-              <Typography component="span" className={classes.inline} color="textPrimary">
-                Ali Connors
-              </Typography>
-              {" — I'll be in your neighborhood doing errands this…"}
-            </React.Fragment>
-          }
-        />
-      </ListItem>
-    </List>
+    <>
+      {
+        notifications && notifications.notifications.map(notification => {
+          return (
+            <List className={classes.root}>
+              <ListItem alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar alt="Remy Sharp" src={`${notification.avatar}`} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary="Duc Anh fix CSS"
+                  secondary={
+                    <React.Fragment>
+                      <Typography component="span" className={classes.inline} color="textPrimary">
+                        {notification.content}
+                      </Typography>
+                    </React.Fragment>
+                  }
+                />
+              </ListItem>
+            </List>
+          )
+        })
+      }
+    </>
   )
 }
 export default withStyles(styles)(Notification)
