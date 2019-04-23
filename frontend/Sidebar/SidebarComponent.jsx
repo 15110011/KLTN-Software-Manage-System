@@ -64,23 +64,33 @@ const SidebarComponent = props => {
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [noti, setNoti] = React.useState(false)
   const [notificationData, setNotificationData] = React.useState([])
+  const [socket, setSocket] = React.useState(null)
 
   let anchorel1 = null;
 
-  let socket = null
-
+  // let socket = null
   React.useEffect(() => {
-    // Effect
-    if (user && user.id) {
-      socket = initWebsocket(user.id)
-      socket.onmessage = event => {
-        if (notificationData.length === 0) {
-          setNotificationData(JSON.parse(event.data))
+    if (user.id) {
+      const ws = initWebsocket(user.id)
+      setSocket(ws)
+      ws.onmessage = event => {
+        const notifications = JSON.parse(event.data)
+        if (notifications.type) {
+          if (notifications.type === 'create') {
+            let curNotification = [...notificationData.notifications]
+            curNotification.push(notifications.notifications)
+            setNotificationData([...curNotification])
+            return
+          }
         }
+        if (notifications.type === 'update') {
+          setNotificationData([...notifications])
+          return
+        }
+        setNotificationData(JSON.parse(event.data))
       }
     }
-    // Cleanup
-  })
+  }, [user.id])
 
   const handleProfileMenuOpen = e => {
     setAnchorEl(e.currentTarget);
@@ -141,9 +151,9 @@ const SidebarComponent = props => {
               onClick={handleClickNotification}
             >
               <Badge badgeContent={
-                notificationData.notifications && 
+                notificationData.notifications &&
                 notificationData.notifications.filter(value => value.is_seen === false).length
-                } color="secondary">
+              } color="secondary">
                 <NotificationsIcon
                   className={classes.rightIcon}
                 />

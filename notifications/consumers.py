@@ -11,7 +11,7 @@ class NotificationConsumer(JsonWebsocketConsumer):
         self.accept()
         self.user_id = self.scope['url_route']['kwargs']['user_id']
         user_notifications = self.get_notifications(self.user_id)
-        self.send_json({'notifications': user_notifications})
+        return self.send_json({'notifications': user_notifications})
 
     def disconnect(self, close_code):
         pass
@@ -19,9 +19,16 @@ class NotificationConsumer(JsonWebsocketConsumer):
     def receive_json(self, content, **kwargs):
         if content['type'] == 'update':
             notification = self.update_notifications(content['data'])
+            return self.send_json({
+                'notifications': notification,
+                'type': 'update'
+            })
         if content['type'] == 'create':
             notification = self.create_notifications(content['data'])
-        self.send_json({'notifications': notification})
+            return self.send_json({
+                'notifications': notification,
+                'type': 'create'
+            })
 
     def get_notifications(self, user_id):
         queryset = Notification.objects.filter(user=user_id)

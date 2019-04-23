@@ -10,6 +10,7 @@ import styles from './NotificationStyles'
 
 function Notification(props) {
   const { socket, classes, notifications } = props
+  console.log(notifications)
   return (
     <>
       {
