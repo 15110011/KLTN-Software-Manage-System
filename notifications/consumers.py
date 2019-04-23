@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from channels.consumer import AsyncConsumer
 from channels.generic.websocket import JsonWebsocketConsumer
 from django.contrib.auth.models import User
+from django.forms.models import model_to_dict
 from .models import Notification
 from . import serializers
 
@@ -16,8 +17,11 @@ class NotificationConsumer(JsonWebsocketConsumer):
         pass
 
     def receive_json(self, content, **kwargs):
-        notification = self.create_notifications(content['data'])
-        self.send_json({'new_notification': notification})
+        if content['type'] == 'update':
+            notification = self.update_notifications(content['data'])
+        if content['type'] == 'create':
+            notification = self.create_notifications(content['data'])
+        self.send_json({'notifications': notification})
 
     def get_notifications(self, user_id):
         queryset = Notification.objects.filter(user=user_id)
@@ -32,11 +36,12 @@ class NotificationConsumer(JsonWebsocketConsumer):
         return new_notification.data
 
     def update_notifications(self, data):
-        notifications = data.get('data')
-        for notification_id in notifications:
-            instance = Notification.objects.get(id=int(notification_id))
+        new_notification = []
+        for notification in data:
+            instance = Notification.objects.get(id=int(notification['id']))
             if not instance.is_seen:
                 instance.is_seen = True
                 instance.save()
-            return instance
+            new_notification.append(model_to_dict(instance))
+        return new_notification
             

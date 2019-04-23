@@ -95,7 +95,12 @@ const SidebarComponent = props => {
 
   const handleClickNotification = () => {
     setNoti(!noti)
-    if (noti) console.log('ditme')
+    if (noti) {
+      socket.send(JSON.stringify({
+        'type': 'update',
+        'data': notificationData.notifications
+      }))
+    }
   }
 
   return (
