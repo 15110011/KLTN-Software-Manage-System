@@ -49,9 +49,10 @@ import Grow from '@material-ui/core/Grow';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
-import { WS_NOFICATION_URL } from '../common/urls'
+import { initWebsocket } from '../common/Utils'
 
 import styles from './styles.js'
+import Notification from '../Notifications/index'
 
 const SidebarComponent = props => {
   const { openSidebar, classes, selecting, user } = props
@@ -62,20 +63,28 @@ const SidebarComponent = props => {
   const [toggle4, setToggle4] = React.useState(true)
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [noti, setNoti] = React.useState(false)
+  const [notificationData, setNotificationData] = React.useState(false)
 
   let anchorel1 = null;
+
+  let socket = null
 
   React.useEffect(() => {
     // Effect
     if (user && user.id) {
-      const socket = new WebSocket(WS_NOFICATION_URL + '/' + user.id)
-      socket.onmessage = e => {
-        console.log('message', e)
+      socket = initWebsocket(user.id)
+      socket.onmessage = event => {
+        if (!notificationData) setNotificationData(JSON.parse(event.data))
+        console.log(notificationData)
       }
-      socket.onopen = e => {
-        console.log('open', e)
-        socket.send('From Client')
-      }
+      // socket.send(JSON.stringify(
+      //   {'data': {
+      //     'content': 'ABCD accepted',
+      //     'link': 'http://localhost:8000',
+      //     'avatar': 'http://localhost:8000',
+      //     'user': user.id
+      //   }
+      // }))
 
     }
     // Cleanup
@@ -144,10 +153,11 @@ const SidebarComponent = props => {
                 >
                   <Paper>
                     <ClickAwayListener onClickAway={handleCloseNoti}>
-                      <MenuList>
+                      {/* <MenuList>
                         <MenuItem onClick={handleCloseNoti}>Profile</MenuItem>
                         <MenuItem onClick={handleCloseNoti}>My account</MenuItem>
-                      </MenuList>
+                      </MenuList> */}
+                      <Notification />
                     </ClickAwayListener>
                   </Paper>
                 </Grow>

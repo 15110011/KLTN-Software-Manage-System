@@ -73,7 +73,7 @@ function MarketingPlanDetails(props) {
                   focused: classes.cssFocused,
                 }}
               >
-                Plan name
+                Marketing plan name
                     </InputLabel>
             </Grid>
             <Grid item xs={7}>
@@ -264,7 +264,7 @@ function MarketingPlanDetails(props) {
         <Grid item xs={12}>
           <Grid container spacing={24}>
             <Grid item xs={12} style={{ marginTop: '20px' }}>
-              <Button onClick={(e) => handleApplyConditionTable(e)} variant="contained" color="primary">Apply</Button>
+              <Button onClick={(e) => handleApplyConditionTable(e)} variant="contained" color="primary">Filter</Button>
             </Grid>
           </Grid>
         </Grid>

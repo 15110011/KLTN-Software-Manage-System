@@ -61,7 +61,7 @@ import { BAD_REQUEST } from "../../common/Code";
 import useFetchData from '../../CustomHook/useFetchData'
 import StepDetail from './StepDetail'
 
-const getSteps = ['Campaign Infomation', 'Marketing Plans', 'Follow-up Plans']
+const getSteps = ['Campaign Information', 'Selecting Contacts', 'Deals']
 
 function CreateCampaign(props) {
 
@@ -292,7 +292,7 @@ function CreateCampaign(props) {
         maxWidth="lg"
       >
         <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateCampaignDialog}>
-          Create Campaign
+          CREATE CAMPAIGN
           <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
             <IconButton aria-label="Close" onClick={handleCloseCreateCampaignDialog}>
               <CloseIcon fontSize="small" />
