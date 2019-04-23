@@ -12,6 +12,7 @@ import { InputLabel } from '@material-ui/core';
 import useFetchData from '../../CustomHook/useFetchData'
 import CreateCampaign from '../CreateCampaign/index'
 import styles from './CampaignListStyle'
+import CustomFilterRow from '../../components/CustomFilterRow'
 
 // API
 import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL } from "../../common/urls";
@@ -23,6 +24,7 @@ function CampaignList(props) {
   const { classes, user } = props;
   const search = {}
   let activePage = 0
+  const tableRef = React.useRef(null)
   // const [campaignData, setCampaignData, setCampaignURL, forceUpdateCampaign] = useFetchData(CAMPAIGNS_URL, props.history, { data: [], total: 0 })
   const handleCloseCreateCampaignDialog = e => {
     setCreateCampaignDialog(false)
@@ -38,10 +40,22 @@ function CampaignList(props) {
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
+            tableRef={tableRef}
+            // components={{
+            //   FilterRow: props => {
+            //     return (
+            //       <CustomFilterRow {{
+            //         ...props, onFilterDateRange: (position, date, colId) => {
+            //           search[position] = date
+            //           tableRef.current.onQueryChange()
+            //         }
+            //       }} />)
+            //   }
+            // }}
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description' },
+              { title: 'Description', field: 'description', filtering: false },
               {
                 title: 'Status',
                 field: 'status',
@@ -53,6 +67,8 @@ function CampaignList(props) {
                 let searchString = `${search.name ? '&name=' + search.name : ''}`
                 if (search.status && search.status.length === 1)
                   searchString += `${search.status ? '&status=' + search.status : ''}`
+                if (search.from)
+                  searchString += `${search.from ? '&from=' + search.from : ''}`
                 apiGet(CAMPAIGNS_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true)
                   .then(json => {
                     const data = json.data.data.map((campaign, index) => ({
