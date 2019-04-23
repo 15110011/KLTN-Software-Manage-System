@@ -16,10 +16,11 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import RemoveIcon from '@material-ui/icons/RemoveCircle'
+import Tooltip from '@material-ui/core/Tooltip';
+import CloseIcon from '@material-ui/icons/Close';
+import { TextField, Typography, IconButton, Icon } from '@material-ui/core';
 import SelectCustom from '../../components/SelectCustom'
 import styles from './CreateFollowUpPlanStyle'
-import Tooltip from '@material-ui/core/Tooltip';
-import { TextField, Typography, IconButton, Icon } from '@material-ui/core';
 
 
 function StepDetail(props) {
@@ -32,7 +33,8 @@ function StepDetail(props) {
     handleChangeStepCondition,
     error,
     handleAddConditions,
-    createFieldDialog, handleOpenDialog,
+    createFieldDialog,
+    handleOpenDialog,
     onChangeField,
     onAddOrRemoveField,
     onSubmitNewFields,
@@ -118,13 +120,26 @@ function StepDetail(props) {
           required
           htmlFor="custom-css-standard-input"
           classes={{
-            root: classes.cssLabel40px,
+            root: classes.cssLabel,
             focused: classes.cssFocused,
           }}
         >
           Fields
             </InputLabel>
       </Grid>
+      <Grid item xs={8}>
+
+        <Button
+          onClick={handleAddConditions}
+          style={{ float: 'right' }}
+        >
+          <AddIcon />
+          Add Field
+          </Button>
+
+      </Grid>
+      <Grid item xs={2}></Grid>
+      <Grid item xs={2}></Grid>
       <Grid item xs={8}>
         {createStep.conditions.map((c, index) => {
           return (
@@ -195,18 +210,40 @@ function StepDetail(props) {
                     onClose={onCloseField}
                     classes={{ paper: classes.paperRoot }}
                     fullWidth
-                    maxWidth="xs"
+                    maxWidth="sm"
                   >
                     <form onSubmit={e => onSubmitNewFields(e, index)}>
-                      <DialogTitle>
+                      <DialogTitle style={{ position: 'relative' }}>
                         SELECTIONS
+                        <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+
+                          <Tooltip title='Close Dialog'>
+                            <IconButton onClick={onCloseField}>
+                              <CloseIcon />
+                            </IconButton>
+                          </Tooltip>
+                        </div>
                       </DialogTitle>
                       <DialogContent>
                         <Grid container spacing={8}>
+
+                          <Grid item xs={6}>
+                            <DialogContentText>
+                              {newFields.length} selection(s)
+                              </DialogContentText>
+                          </Grid>
+
+                          <Grid item xs={6}>
+                            <Button style={{ float: 'right' }} onClick={() => onAddOrRemoveField()}>
+                              <AddIcon></AddIcon>
+                              Add Selection
+                              </Button>
+
+                          </Grid>
                           {newFields.map((f, index) =>
                             (
                               <>
-                                <Grid item xs={8}>
+                                <Grid item xs={5}>
                                   <TextField
                                     name={'selection ' + (index + 1)}
                                     label={"Selection " + (index + 1)}
@@ -217,7 +254,7 @@ function StepDetail(props) {
                                     value={f}
                                   />
                                 </Grid>
-                                <Grid item xs={4}>
+                                <Grid item xs={1}>
                                   <IconButton onClick={() => onAddOrRemoveField(index)}>
                                     <RemoveIcon />
                                   </IconButton>
@@ -225,10 +262,6 @@ function StepDetail(props) {
                               </>
                             )
                           )}
-
-                          <Grid item xs={12}>
-                            <Button onClick={() => onAddOrRemoveField()} variant='outlined'>Add condition</Button>
-                          </Grid>
                         </Grid>
 
                       </DialogContent>
@@ -250,18 +283,6 @@ function StepDetail(props) {
 
         }
 
-      </Grid>
-      <Grid item xs={2}></Grid>
-      <Grid item xs={2}></Grid>
-      <Grid item xs={8}>
-        <Button
-          onClick={handleAddConditions}
-          variant="outlined"
-          color="default"
-        // className={(classes.addFeatureButton)}>
-        >
-          Add Conditions
-              </Button>
       </Grid>
 
     </Grid>

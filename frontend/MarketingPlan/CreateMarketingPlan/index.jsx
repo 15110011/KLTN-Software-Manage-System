@@ -457,7 +457,7 @@ function CreateMarketingPlan(props) {
   return (
     <div>
       <Dialog
-        open={createMarketingPlanDialog}
+        open={true}
         onClose={handleCloseCreateMarketingPlanDialog}
         classes={{ paper: classes.paperRoot }}
         fullWidth

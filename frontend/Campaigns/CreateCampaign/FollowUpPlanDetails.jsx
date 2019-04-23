@@ -26,8 +26,8 @@ import PreviewIcon from '@material-ui/icons/RemoveRedEye';
 import MaterialTable from 'material-table'
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
+import Tooltip from '@material-ui/core/Tooltip'
 import styles from './CreateCampaignStyle'
 
 // Components 
@@ -42,190 +42,202 @@ function FollowUpPlanDetails(props) {
     classes,
     onChangeCreateCampaign,
     createCampaign,
-    handleChangePackageSelect,
-    fetchPackageSuggestion,
-    handleChangeAssigneeSelect,
+    handleChangeFollowUpPlanSelect,
+    fetchFollowUpPlanSuggestion,
     user,
-    handleChangeMarketingPlanSelect,
-    fetchMarketingPlanSuggestion
+    viewingOrder,
+    onChangeViewingOrder
   } = props
+
+  let checkBoxOrRadio = []
+  if (createCampaign.follow_up_plan.steps) {
+    createCampaign.follow_up_plan.steps.forEach((s, index) => {
+      checkBoxOrRadio[index] = s.conditions.some(c => c.type == 'check_box' || c.type == 'radio')
+    })
+  }
+
   return (
     <Grid container spacing={24}>
-      <Grid item xs={10}>
-        <div className={cn(classes.stepper)}>
-          <Stepper activeStep={activeStep} alternativeLabel>
-            {/* {followUpPlan.steps.map((label, index) => (
-                <Step key={'steplabel' + index}>
-                  <StepLabel onClick={() => setActiveStep(index)}
-                    style={{ cursor: 'pointer' }}
-                  >Step {index + 1}</StepLabel>
-                </Step>
-              ))} */}
-            <Step>
-              <StepLabel>
-                aa
-                </StepLabel>
-            </Step>
-          </Stepper>
-        </div>
-      </Grid>
-      <Grid item xs={10}>
-        <Grid container spacing={24}>
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Plan name
+      <Grid className={classes.inputCustom} item xs={4}>
+        <InputLabel
+          htmlFor="custom-css-standard-input"
+          classes={{
+            root: classes.cssLabel,
+            focused: classes.cssFocused,
+          }}
+          required
+        >
+          Plan
             </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreatePlan}
-              // value={followUpPlan.name}
-              name="name"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
-          </Grid>
-        </Grid>
       </Grid>
+      <Grid item xs={6}>
+        <AsyncSelect
+          handleChange={(values, element) => handleChangeFollowUpPlanSelect(values, element)}
+          onChangeSelect={(values, element) => handleChangeFollowUpPlanSelect(values, element)}
+          data={
+            Object.keys(createCampaign.follow_up_plan).length === 0 ? '' :
+              {
+                label: `${createCampaign.follow_up_plan.name}`, value: createCampaign.follow_up_plan.id, ...createCampaign.follow_up_plan
+              }
+          }
+          single
+          placeholder=""
+          label=""
+          loadOptions={fetchFollowUpPlanSuggestion}
+        />
+      </Grid>
+      <Grid className={classes.inputCustom} item xs={4}>
+        <InputLabel
+          htmlFor="custom-css-standard-input"
+          classes={{
+            root: classes.cssLabel,
+            focused: classes.cssFocused,
+          }}
+        >
+          Steps
+        </InputLabel>
+      </Grid>
+      <Grid item xs={6}>
+        <Select
+          name='stepOrder'
+          value={viewingOrder}
+          onChange={onChangeViewingOrder}
+          style={{ float: 'right' }}
+        >
+          {createCampaign.follow_up_plan.steps && createCampaign.follow_up_plan.steps.map((s, index) => {
+            return <MenuItem key={'ViewOrder' + index} value={index}>
+              Step {index + 1} ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
+              </MenuItem>
+          })}
+        </Select>
+      </Grid>
+      <Grid item xs={2}></Grid>
+      <Grid item xs={2}></Grid>
+      {createCampaign.follow_up_plan.steps &&
+        <Grid item xs={8}>
+          <Paper className='p-4'>
+            <Grid container spacing={8}>
+              {
+                createCampaign.follow_up_plan.steps[viewingOrder].conditions.map((c, index) => {
+                  return (
+                    <>
+                      {
+                        checkBoxOrRadio[viewingOrder] ?
+                          <>
+                            <Grid item xs={5}>
+                              <TextField
+                                fullWidth
+                                required
+                                value={
+                                  c['name']
+                                }
+                                name="name"
+                                classes={{
+                                  underline: classes.cssUnderline,
+                                }}
+                                label="Name"
+                                disabled
+                              />
+                            </Grid>
+                            <Grid item xs={4}>
+                              <FormControl fullWidth className={classes.formControl}>
+                                <InputLabel>
+                                  Type
+                       </InputLabel>
+                                <Select
+                                  value={
+                                    c['type']
+                                  }
+                                  disabled
+                                  displayEmpty
+                                  name="type"
+                                  className={classes.selectEmpty}
+                                  label="Type"
+                                >
+                                  <MenuItem value="text">
+                                    Text Field
+                          </MenuItem>
+                                  <MenuItem value="number">Number</MenuItem>
+                                  <MenuItem value="check_box">
+                                    Check Box
+                          </MenuItem>
+                                  <MenuItem value="radio">
+                                    Check Box (Multiple choices)
+                          </MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                          </>
+                          :
+                          <>
 
-      <Grid item xs={10}>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Action
-            </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <FormControl fullWidth className={classes.formControl}>
-              <SelectCustom
-                // options={actions.actions.map((g, i) => ({
-                //   label: `${g}`,
-                //   value: `${g}`,
-                // }))}
-                // handleChange={(values, element) => handleChangeSelect(values, element)}
-                // data={
-                //   createStep.actions
-                //     .reduce((acc, g) => {
-                //       acc.push({ label: `${g.label}`, value: g.value })
-                //       return acc
-                //     }, [])
-                // }
-                multi
-                placeholder=""
-                label=""
-              />
-            </FormControl>
-          </Grid>
-        </Grid>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Duration (days)
-            </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <Input
-              fullWidth
-              required
-              // onChange={onChangeCreateSteps}
-              // value={createStep.duration}
-              type="number"
-              name="duration"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Grid container spacing={40}>
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              required
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Required Fields
-            </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <Grid container spacing={40}>
-              <Grid item xs={5}>
-                <Input
-                  fullWidth
-                  required
-                  // onChange={onChangeCreateProduct}
-                  // value={createProduct.desc}
-                  name="desc"
-                  classes={{
-                    underline: classes.cssUnderline,
-                  }}
-                />
-              </Grid>
-              <Grid item xs={2}>
-                <FormControl fullWidth className={classes.formControl}>
-                  <Select
-                    // value={createProduct.status}
-                    // onChange={onChangeCreateProduct}
-                    displayEmpty
-                    name="status"
-                    className={classes.selectEmpty}
-                  >
-                    <MenuItem value="text">
-                      Text Field
-                </MenuItem>
-                    <MenuItem value="number">Number</MenuItem>
-                    <MenuItem value="check_box">
-                      Check Box
-                </MenuItem>
-                    <MenuItem value="radio">
-                      Check Box (Multiple choices)
-                </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={5}>
-                <Input
-                  fullWidth
-                  required
-                  // onChange={onChangeCreateProduct}
-                  // value={createProduct.desc}
-                  name="desc"
-                  classes={{
-                    underline: classes.cssUnderline,
-                  }}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
+                            <Grid item xs={6}>
+                              <TextField
+                                fullWidth
+                                required
+                                value={
+                                  c['name']
+                                }
+                                name="name"
+                                classes={{
+                                  underline: classes.cssUnderline,
+                                }}
+                                label="Name"
+                                disabled
+                              />
+                            </Grid>
+                            <Grid item xs={6}>
+                              <FormControl fullWidth className={classes.formControl}>
+                                <InputLabel>
+                                  Type
+                                </InputLabel>
+                                <Select
+                                  value={
+                                    c['type']
+                                  }
+                                  disabled
+                                  displayEmpty
+                                  name="type"
+                                  className={classes.selectEmpty}
+                                  label="Type"
+                                >
+                                  <MenuItem value="text">
+                                    Text Field
+                                  </MenuItem>
+                                  <MenuItem value="number">Number</MenuItem>
+                                  <MenuItem value="check_box">
+                                    Check Box
+                                  </MenuItem>
+                                  <MenuItem value="radio">
+                                    Check Box (Multiple choices)
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
+                            </Grid>
+                          </>
+                      }
+                      {(c.type == 'check_box' || c.type == 'radio') &&
+                        <Grid item xs={3} style={{ position: 'relative' }}>
+                          <Tooltip
+                            title={<ul style={{ paddingInlineStart: '16px', fontSize: '12px', maxWidth: '150px', wordBreak: 'break-word' }}>
+                              {c.choices.map(c => <li key={`selection${c}`}>{c}</li>)}</ul>}>
+                            <Typography classes={{ root: classes.linkStyleCustom }}
+                              onClick={() => handleOpenDialog(index)}
+                            >{c.choices.length} selection(s)</spa>
+                          </Tooltip>
+                        </Grid>
+                      }
+                    </>
+
+                  )
+                })
+
+
+              }
+          </>
+          </Paper>
+        </Grid>}
     </Grid>
   )
 }
-export default FollowUpPlanDetails
+export default withStyles(styles)(FollowUpPlanDetails)

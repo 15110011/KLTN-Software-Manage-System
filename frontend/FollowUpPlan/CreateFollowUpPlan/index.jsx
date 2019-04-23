@@ -68,7 +68,7 @@ function CreateFollowUpPlan(props) {
     const steps = [...followUpPlan.steps]
     steps.push({
       nth: steps[steps.length - 1] ? steps[steps.length - 1].nth + 1 : 0,
-      action: '',
+      actions: [],
       duration: 0,
       conditions: [
       ],
@@ -151,6 +151,7 @@ function CreateFollowUpPlan(props) {
     const cloneFields = newFields.concat([])
     cloneFields[choiceIndex] = e.target.value
     setNewFields(cloneFields)
+    if (disableApply == true) { setDisableApply(false) }
   }
 
   const onAddOrRemoveField = (choiceIndex) => {
@@ -197,7 +198,7 @@ function CreateFollowUpPlan(props) {
     cloneStep = cloneStep.slice(0, activeStep).concat(cloneStep.slice(activeStep + 1))
 
     console.log(activeStep, cloneStep)
-    for (let i = activeStep; i < cloneStep.length ; i += 1) {
+    for (let i = activeStep; i < cloneStep.length; i += 1) {
       cloneStep[i].nth -= 1
     }
 
@@ -310,25 +311,31 @@ function CreateFollowUpPlan(props) {
               })
 
             }
-            <DialogActions>
-              <div className="d-flex justify-content-center">
-                {followUpPlan.steps.length > 0 && <Button color="primary" onClick={() => onDeleteCurrentStep()}>
-                  Delete current step
-                </Button>}
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  className={classes.backButton}
-                >
-                  Back
-                  </Button>
-                <Button variant="contained" color="primary" onClick={handleNext}>
-                  {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
-                </Button>
-              </div>
-            </DialogActions>
+
           </div>
         </DialogContent>
+        <DialogActions>
+          <div className="d-flex justify-content-center">
+            {followUpPlan.steps.length > 0 &&
+              <Tooltip title='Delete current step'>
+                <Button variant='contained' className={classes.deleteStep} color='secondary' onClick={() => onDeleteCurrentStep()}>
+                  Delete
+                </Button>
+              </Tooltip>
+            }
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              className={classes.backButton}
+              variant='contained'
+            >
+              Back
+            </Button>
+            <Button variant="contained" color="primary" onClick={handleNext}>
+              {activeStep === followUpPlan.steps.length - 1 ? 'Save' : 'Next'}
+            </Button>
+          </div>
+        </DialogActions>
       </Dialog>
     </div>
   )

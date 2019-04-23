@@ -50,6 +50,28 @@ const styles = theme => ({
   actionsContainer: {
     marginBottom: theme.spacing.unit * 2,
   },
+  linkStyleCustom: {
+    color: '#007bff',
+    textDecoration: 'none',
+    backgroundColor: 'transparent',
+    cursor: 'pointer',
+    position: 'absolute',
+    bottom: 20,
+    '&:hover': {
+      color: '#0056b3',
+      textDecoration: 'underline'
+    }
+  },
+  addStep: {
+    '& div + span': {
+      '&> span:nth-child(1)': {
+        cursor: 'pointer',
+        backgroundColor: 'rgba(0, 0, 0, 0.38)',
+        color: '#fff',
+        borderRadius: '50%',
+      }
+    }
+  },
 });
 
 export default styles;

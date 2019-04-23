@@ -14,6 +14,7 @@ class MailTemplate(BaseModel):
         User, on_delete=models.CASCADE, related_name='mail_templates')
     name = models.CharField(max_length=255)
     template = models.TextField()
+    is_public = models.BooleanField(default=False)
 
 
 class MarketingPlan(BaseModel):
@@ -29,6 +30,7 @@ class MarketingPlan(BaseModel):
         through='ContactMarketing',
         through_fields=('marketing_plan', 'contact'),
     )
+    can_modify = models.BooleanField(default=True)
 
     def _get_plan_name(self):
         return f'{self.name}'
@@ -41,6 +43,7 @@ class FollowUpPlan(BaseModel):
     name = models.CharField(max_length=255)
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='follow_up_plan')
+    can_modify = models.BooleanField(default=True)
 
 
 class Campaign(BaseModel):
@@ -53,7 +56,8 @@ class Campaign(BaseModel):
     name = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField()
-    assigned_to = models.ManyToManyField(User, related_name='sale_reps_campaign')
+    assigned_to = models.ManyToManyField(
+        User, related_name='sale_reps_campaign')
     desc = models.TextField()
     mail_template = models.ForeignKey(
         MailTemplate, on_delete=models.SET_NULL, related_name="campaigns", blank=True, null=True)
@@ -107,7 +111,8 @@ class Note(BaseModel):
         Campaign, on_delete=models.CASCADE, related_name='notes', blank=True, null=True)
     name = models.TextField()
     content = models.TextField(blank=True, null=True)
-    _type = models.CharField(max_length=20, choices=NOTE_CHOICES, default="Default")
+    _type = models.CharField(
+        max_length=20, choices=NOTE_CHOICES, default="Default")
 
     class Meta:
         unique_together = (("campaign", "_type", "contact"),)

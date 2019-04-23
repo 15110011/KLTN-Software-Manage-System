@@ -10,9 +10,10 @@ import FormControl from '@material-ui/core/FormControl'
 import Button from '@material-ui/core/Button'
 import { InputLabel } from '@material-ui/core';
 import useFetchData from '../../CustomHook/useFetchData'
-import CreateCampaign from '../CreateCampaign/index'
+import CreateCampaign from '../CreateCampaign'
 import styles from './CampaignListStyle'
 import CustomFilterRow from '../../components/CustomFilterRow'
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 // API
 import { CAMPAIGNS_URL, REFRESH_TOKEN_URL, PACKAGES_URL } from "../../common/urls";
@@ -21,6 +22,7 @@ import { BAD_REQUEST } from "../../common/Code";
 
 function CampaignList(props) {
   const [createCampaignDialog, setCreateCampaignDialog] = React.useState(false)
+  const [completeNotice, setCompleteNotice] = React.useState(false)
   const { classes, user } = props;
   const search = {}
   let activePage = 0
@@ -30,13 +32,24 @@ function CampaignList(props) {
     setCreateCampaignDialog(false)
   }
 
+  const notification = () => {
+    setCompleteNotice('Successfully Created')
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+    tableRef.current.onQueryChange()
+  }
+
   return (
     <div className={classes.root}>
-      <CreateCampaign
+      {createCampaignDialog && <CreateCampaign
         handleCloseCreateCampaignDialog={handleCloseCreateCampaignDialog}
         createCampaignDialog={createCampaignDialog}
         user={user}
-      />
+        notification={notification}
+      />}
+
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable

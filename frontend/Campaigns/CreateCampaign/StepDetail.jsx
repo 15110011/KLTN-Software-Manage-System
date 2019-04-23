@@ -98,7 +98,11 @@ function getStepContent(props) {
     marketingPlanConditions,
     applyConditionTable,
     handleApplyConditionTable,
-    deleteExceptionContacts
+    deleteExceptionContacts,
+    handleChangeFollowUpPlanSelect,
+    fetchFollowUpPlanSuggestion,
+    viewingOrder,
+    onChangeViewingOrder
   } = props
   switch (activeStep) {
     case 0:
@@ -145,8 +149,10 @@ function getStepContent(props) {
           fetchPackageSuggestion={fetchPackageSuggestion}
           handleChangeAssigneeSelect={handleChangeAssigneeSelect}
           user={user}
-          handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
-          fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
+          handleChangeFollowUpPlanSelect={handleChangeFollowUpPlanSelect}
+          fetchFollowUpPlanSuggestion={fetchFollowUpPlanSuggestion}
+          viewingOrder={viewingOrder}
+          onChangeViewingOrder={onChangeViewingOrder}
         />
       )
     default:

@@ -24,7 +24,6 @@ import Divider from '@material-ui/core/Divider'
 import EditIcon from '@material-ui/icons/Edit';
 import PreviewIcon from '@material-ui/icons/RemoveRedEye';
 import MaterialTable from 'material-table'
-import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
@@ -50,7 +49,6 @@ function MarketingPlanDetails(props) {
     applyConditionTable,
     deleteExceptionContacts
   } = props
-
   return (
     <Grid container spacing={24}>
       {/* <Grid item xs={12}>
@@ -94,7 +92,7 @@ function MarketingPlanDetails(props) {
             </Grid>
             <Grid item xs={1}>
               <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                <EditIcon fontSize="small" />
+                <EditIcon style={{ fontSize: '16px' }} />
               </IconButton>
             </Grid>
           </Grid>
@@ -131,7 +129,6 @@ function MarketingPlanDetails(props) {
               </FormControl>
             </Grid>
             <Grid item xs={1}>
-
             </Grid>
           </Grid>
         </Grid>
@@ -221,7 +218,33 @@ function MarketingPlanDetails(props) {
             })
           }
         </Grid>
-        {/* <Grid item xs={10}>
+        {
+          createCampaign.marketing_plan.actions &&
+          <Grid item xs={10}>
+            <Grid container spacing={24}>
+              <Grid className={classes.inputCustom} item xs={4}>
+                <InputLabel
+                  htmlFor="custom-css-standard-input"
+                  classes={{
+                    root: classes.cssLabel,
+                    focused: classes.cssFocused,
+                  }}
+                >
+                  Actions
+                </InputLabel>
+              </Grid>
+              <Grid item xs={7}>
+                <Input value={createCampaign.marketing_plan.actions.reduce((acc, a) => {
+                  acc += a + ', '
+                  return acc
+                }, '').slice(0, -2)} fullWidth
+                  disabled
+                ></Input>
+              </Grid>
+            </Grid>
+          </Grid>
+        }
+        {createCampaign.marketing_plan.actions && createCampaign.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 && <Grid item xs={10}>
           <Grid container spacing={24}>
             <Grid className={classes.inputCustom} item xs={4}>
               <InputLabel
@@ -232,7 +255,7 @@ function MarketingPlanDetails(props) {
                 }}
               >
                 Choose Email Template
-                    </InputLabel>
+              </InputLabel>
             </Grid>
             <Grid item xs={7}>
               <FormControl fullWidth className={classes.formControl}>
@@ -260,7 +283,8 @@ function MarketingPlanDetails(props) {
               </IconButton>
             </Grid>
           </Grid>
-        </Grid> */}
+        </Grid>}
+
         <Grid item xs={12}>
           <Grid container spacing={24}>
             <Grid item xs={12} style={{ marginTop: '20px' }}>

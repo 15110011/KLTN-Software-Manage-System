@@ -72,11 +72,11 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
-                  Campaign Name
+                  Name
                         </InputLabel>
               </Grid>
               <Grid item xs={10}>
@@ -100,7 +100,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -129,7 +129,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -158,7 +158,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -187,7 +187,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -246,7 +246,7 @@ function CampaignDetails(props) {
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -287,7 +287,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -315,7 +315,7 @@ function CampaignDetails(props) {
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelBot20,
                     focused: classes.cssFocused,
                   }}
                 >
