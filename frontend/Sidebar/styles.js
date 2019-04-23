@@ -108,6 +108,11 @@ const styles = theme => ({
   },
   toolbar: {
     backgroundColor: '#333333'
+  },
+  notiSection: {
+    '&button': {
+      position: 'relative'
+    }
   }
 })
 

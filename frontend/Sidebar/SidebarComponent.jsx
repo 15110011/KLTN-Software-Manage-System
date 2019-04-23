@@ -142,6 +142,7 @@ const SidebarComponent = props => {
           </Typography>
           <div className={classes.sectionDesktop}>
             <IconButton
+              style={{ position: 'relative' }}
               color="inherit"
               buttonRef={node => {
                 anchorel1 = node;
@@ -159,14 +160,16 @@ const SidebarComponent = props => {
                 />
               </Badge>
             </IconButton>
-            <Popper open={noti} anchorel1={anchorel1} transition disablePortal>
+            <Popper style={{ position: 'absolute', right: '45px', width: '330px' }} open={noti} anchorel1={anchorel1} transition disablePortal>
               {({ TransitionProps, placement }) => (
                 <Grow
                   {...TransitionProps}
                   id="menu-list-grow"
                   style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                 >
-                  <Paper>
+                  <Paper
+                    style={{ maxHeight: '350px', overflow: 'scroll' }}
+                  >
                     <ClickAwayListener onClickAway={handleCloseNoti}>
                       <Notification notifications={notificationData} />
                     </ClickAwayListener>

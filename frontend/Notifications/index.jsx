@@ -10,13 +10,12 @@ import styles from './NotificationStyles'
 
 function Notification(props) {
   const { socket, classes, notifications } = props
-  console.log(notifications)
   return (
     <>
       {
         notifications && notifications.notifications.map(notification => {
           return (
-            <List className={classes.root}>
+            <List>
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
                   <Avatar alt="Remy Sharp" src={`${notification.avatar}`} />
@@ -25,7 +24,7 @@ function Notification(props) {
                   primary="Duc Anh fix CSS"
                   secondary={
                     <React.Fragment>
-                      <Typography component="span" className={classes.inline} color="textPrimary">
+                      <Typography style={{ display: 'inline-block', width: '230px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: "ellipsis" }} component="span" className={classes.inline} color="textPrimary">
                         {notification.content}
                       </Typography>
                     </React.Fragment>
