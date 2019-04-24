@@ -2,7 +2,7 @@ import * as React from 'react'
 import { withStyles } from '@material-ui/core'
 import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
-import * as dateFns from '@date-io/date-fns'
+import * as dateFns from 'date-fns'
 
 import Button from '@material-ui/core/Button'
 import MaterialTable from 'material-table'
@@ -29,7 +29,7 @@ function ContactDetail(props) {
               return ({
                 action: h.action,
                 contactName: contact.first_name + ' ' + contact.last_name,
-                created: dateFns.format(h.created, 'DD-MM-YYYY')
+                created: dateFns.format(dateFns.parseISO(h.created), 'dd-MM-yyyy')
               })
             })
           }

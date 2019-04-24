@@ -170,15 +170,15 @@ const SidebarComponent = props => {
                   id="menu-list-grow"
                   style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                 >
-                  {/* <PerfectScrollbar> */}
+                  <PerfectScrollbar>
                     <Paper
-                      style={{ maxHeight: '350px', overflow: 'scroll' }}
+                      style={{ height: '350px', overflowY: 'auto', position: 'relative' }}
                     >
                       <ClickAwayListener onClickAway={handleCloseNoti}>
                         <Notification notifications={notificationData} />
                       </ClickAwayListener>
                     </Paper>
-                  {/* </PerfectScrollbar> */}
+                  </PerfectScrollbar>
                 </Grow>
               )}
             </Popper>

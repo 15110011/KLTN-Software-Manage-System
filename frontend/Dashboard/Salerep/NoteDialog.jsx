@@ -11,7 +11,7 @@ import CancelIcon from '@material-ui/icons/Cancel'
 import Tooltip from '@material-ui/core/Tooltip'
 import TextField from '@material-ui/core/TextField'
 import Typography from '@material-ui/core/Typography'
-import * as dateFns from '@date-io/date-fns'
+import * as dateFns from 'date-fns'
 
 import { Editor } from "react-draft-wysiwyg";
 import { htmlToState, draftToRaw } from "../../common/utils";

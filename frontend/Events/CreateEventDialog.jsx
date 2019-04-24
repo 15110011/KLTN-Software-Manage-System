@@ -14,7 +14,7 @@ import { htmlToState, draftToRaw } from "../common/utils";
 import { EVENTS_URL, REFRESH_TOKEN_URL, GET_SALE_REPS_URL } from '../../common/urls';
 import useFetchData from '../../CustomHook/useFetchData'
 import FormControl from '@material-ui/core/FormControl';
-import * as dateFns from '@date-io/date-fns'
+import * as dateFns from 'date-fns'
 import { apiPost } from '../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 import CustomSnackbar from '../components/CustomSnackbar'
@@ -36,8 +36,8 @@ function CreateEventDialog(props) {
   const [createEvent, setCreateEvent] = React.useState({
     name: '',
     assigned_to: assigned_to ? assigned_to : '',
-    start_date: dateFns.format(Date.now(), 'YYYY-MM-DD'),
-    end_date: dateFns.format(Date.now(), 'YYYY-MM-DD'),
+    start_date: dateFns.format(Date.now(), 'yyyy-MM-dd'),
+    end_date: dateFns.format(Date.now(), 'yyyy-MM-dd'),
     order: order ? order : '',
     marketing: marketing ? marketing.marketing_plan.id : '',
     content: '',
