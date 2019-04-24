@@ -10,30 +10,43 @@ import styles from './NotificationStyles'
 
 function Notification(props) {
   const { socket, classes, notifications } = props
+  const scrollEvent = e => {
+    console.log('hi', e)
+  }
   return (
     <>
       {
-        notifications && notifications.map((notification, i) => {
-          return (
-            <List key={i}>
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar alt="Remy Sharp" src={`${notification.avatar}`} />
-                </ListItemAvatar>
-                <ListItemText
-                  primary="Duc Anh fix CSS"
-                  secondary={
-                    <React.Fragment>
-                      <Typography style={{ display: 'inline-block', width: '230px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: "ellipsis" }} component="span" className={classes.inline} color="textPrimary">
-                        {notification.content}
-                      </Typography>
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-            </List>
-          )
-        })
+        notifications.length > 0 ?
+          notifications.map((notification, i) => {
+            return (
+              <List key={i} >
+                <ListItem alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar alt="Remy Sharp" src={`${notification.avatar}`} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary="Duc Anh fix CSS"
+                    secondary={
+                      <React.Fragment >
+                        <Typography style={{ display: 'inline-block', width: '230px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: "ellipsis" }} component="span" className={classes.inline} color="textPrimary">
+                          {notification.content}
+                        </Typography>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItem>
+              </List>
+            )
+          })
+          : <ListItemText
+            secondary={
+              <React.Fragment >
+                <Typography style={{display: 'flex','flexDirection': 'row', 'justifyContent': 'center', 'height': '40px', 'marginTop': '5%'}} component="span" className={classes.inline} color="textPrimary">
+                  No new notifications
+                </Typography>
+              </React.Fragment>
+            }
+          />
       }
     </>
   )
