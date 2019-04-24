@@ -50,6 +50,7 @@ import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuList from '@material-ui/core/MenuList';
 import { initWebsocket } from '../common/Utils'
+import * as PerfectScrollbar from 'react-perfect-scrollbar'
 
 import styles from './styles.js'
 import Notification from '../Notifications/index'
@@ -167,13 +168,15 @@ const SidebarComponent = props => {
                   id="menu-list-grow"
                   style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                 >
-                  <Paper
-                    style={{ maxHeight: '350px', overflow: 'scroll' }}
-                  >
-                    <ClickAwayListener onClickAway={handleCloseNoti}>
-                      <Notification notifications={notificationData} />
-                    </ClickAwayListener>
-                  </Paper>
+                  {/* <PerfectScrollbar> */}
+                    <Paper
+                      style={{ maxHeight: '350px', overflow: 'scroll' }}
+                    >
+                      <ClickAwayListener onClickAway={handleCloseNoti}>
+                        <Notification notifications={notificationData} />
+                      </ClickAwayListener>
+                    </Paper>
+                  {/* </PerfectScrollbar> */}
                 </Grow>
               )}
             </Popper>
