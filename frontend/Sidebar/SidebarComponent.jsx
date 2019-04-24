@@ -78,18 +78,19 @@ const SidebarComponent = props => {
         const notifications = JSON.parse(event.data)
         if (notifications.type) {
           if (notifications.type === 'create') {
-            let curNotification = [...notificationData.notifications]
+            let curNotification = [...notificationData]
             curNotification.push(notifications.notifications)
             setNotificationData([...curNotification])
             return
           }
         }
         if (notifications.type === 'update') {
-          setNotificationData([...notifications])
+          setNotificationData([...notifications.notifications])
           return
         }
-        setNotificationData(JSON.parse(event.data))
+        setNotificationData(notifications.notifications)
       }
+
     }
   }, [user.id])
 
@@ -102,15 +103,21 @@ const SidebarComponent = props => {
       return;
     }
     setNoti(false)
+    if (notificationData.filter(value => value.is_seen === false).length > 0) {
+      socket.send(JSON.stringify({
+        'type': 'update',
+        'data': notificationData
+      }))
+    }
   }
 
   const handleClickNotification = () => {
     setNoti(!noti)
     if (noti) {
-      if (notificationData.notifications.filter(value => value.is_seen === false).length > 0) {
+      if (notificationData.filter(value => value.is_seen === false).length > 0) {
         socket.send(JSON.stringify({
           'type': 'update',
-          'data': notificationData.notifications
+          'data': notificationData
         }))
       }
     }
@@ -155,8 +162,8 @@ const SidebarComponent = props => {
               onClick={handleClickNotification}
             >
               <Badge badgeContent={
-                notificationData.notifications &&
-                notificationData.notifications.filter(value => value.is_seen === false).length
+                notificationData &&
+                notificationData.filter(value => value.is_seen === false).length
               } color="secondary">
                 <NotificationsIcon
                   className={classes.rightIcon}
