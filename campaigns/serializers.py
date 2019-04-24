@@ -13,6 +13,13 @@ from events.models import Event
 from . import models
 
 
+class MailTemplateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.MailTemplate
+        fields = '__all__'
+
+
 class NoteSerializer(serializers.ModelSerializer):
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
 
@@ -128,7 +135,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 event.contacts.set([cur_contact])
 
         return campaign
-    
+
     def update(self, instance, validated_data):
         contacts = validated_data.pop('contacts', None)
         campaign = super().update(instance, validated_data)

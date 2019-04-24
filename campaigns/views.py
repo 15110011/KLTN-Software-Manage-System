@@ -1,21 +1,20 @@
+from datetime import datetime
+from contacts.serializers import ContactWithoutGroupSerializer
+from contacts.models import Contact
+from orders.models import Order
+from KLTN.common import MARKETING_PLAN_CONDITIONS
+from django.forms.models import model_to_dict
+from .documents import MarketingPlanDocument, CampaignDocument
+from rest_framework import status
 from django.shortcuts import render
 from django.db.models import Q, Count
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
-from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory
-from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer
-from rest_framework import status
-from .documents import MarketingPlanDocument, CampaignDocument
-from django.forms.models import model_to_dict
-from KLTN.common import MARKETING_PLAN_CONDITIONS
-from orders.models import Order
-from contacts.models import Contact
-from contacts.serializers import ContactWithoutGroupSerializer
+from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
 
-
-from datetime import datetime
 
 # Create your views here.
 
@@ -194,7 +193,8 @@ class MarketingPlanView(ModelViewSet):
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = CreateMarketingPlanSerializer(data=request.data, context={'request': request})
+        serializer = CreateMarketingPlanSerializer(
+            data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -207,23 +207,39 @@ class FollowUpPlanView(ModelViewSet):
     serializer_class = FollowUpPlanSerializer
 
     def list(self, request):
-        limit = self.request.query_params.get('limit', None)
-        page = self.request.query_params.get('page') if int(
-            self.request.query_params.get('page', 0)) > 0 else 0
-        if limit is not None:
-            queryset = FollowUpPlan.objects.filter(manager=request.user)[
-                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+        suggest_query = request.query_params.get('followup_plan_suggest', None)
+        name = request.query_params.get('name', None)
+        if suggest_query:
+            queryset = FollowUpPlan.objects.filter(
+                manager=request.user).filter(name__icontains=suggest_query)
+            serializer = self.get_serializer(queryset, many=True)
+
+            return Response({"suggestion": [f['name'] for f in serializer.data]}, status=status.HTTP_200_OK)
+        elif name:
+            queryset = FollowUpPlan.objects.filter(
+                manager=request.user).filter(name=name)
+            serializer = self.get_serializer(queryset, many=True)
+
+            return Response({"follow_up_plans": serializer.data}, status=status.HTTP_200_OK)
         else:
-            queryset = FollowUpPlan.objects.filter(manager=request.user)
-        serializer = self.get_serializer(queryset, many=True)
-        new_serializer = {}
-        new_serializer['data'] = serializer.data
-        new_serializer['total'] = FollowUpPlan.objects.filter(
-            manager=request.user).count()
-        return Response(new_serializer, status=status.HTTP_200_OK)
+            limit = self.request.query_params.get('limit', None)
+            page = self.request.query_params.get('page') if int(
+                self.request.query_params.get('page', 0)) > 0 else 0
+            if limit is not None:
+                queryset = FollowUpPlan.objects.filter(manager=request.user)[
+                    int(page)*int(limit):int(page)*int(limit)+int(limit)]
+            else:
+                queryset = FollowUpPlan.objects.filter(manager=request.user)
+            serializer = self.get_serializer(queryset, many=True)
+            new_serializer = {}
+            new_serializer['data'] = serializer.data
+            new_serializer['total'] = FollowUpPlan.objects.filter(
+                manager=request.user).count()
+            return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request):
-        serializer = CreateFollowUpPlanSerializer(data=request.data, context={'request': request})
+        serializer = CreateFollowUpPlanSerializer(
+            data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -381,4 +397,21 @@ class ContactMarketingView(ModelViewSet):
         history = ContactMarketingHistory.objects.create(
             action=request.data['action'], contact_marketing=instance)
         serializer = ContactMarketingHistorySerializer(history)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MailTemplateView(ModelViewSet):
+
+    serializer_class = MailTemplateSerializer
+    queryset = MailTemplate.objects
+
+    def list(self, request, *args, **kwargs):
+
+        filters = Q()
+        filters.add(Q(user=request.user.id), Q.AND)
+        filters.add(Q(is_public=True), Q.OR)
+
+        query = self.get_queryset().filter(filters)
+        serializer = self.get_serializer(query, many=True) 
+
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -36,6 +36,8 @@ export const GET_SALE_REPS_URL = `${API_URL}sale-reps`
 export const GMAIL_AUTH_URL = `${API_URL}gmail\\auth`
 export const GMAIL_SEND_URL = `${API_URL}gmail\\send`
 
+export const MAIL_TEMPLATES_URL = `${API_URL}mail-templates`
+
 export const WS_NOFICATION_URL = 'ws://localhost:8000/ws/notifications'
 
 export { serverUrl, API_URL }

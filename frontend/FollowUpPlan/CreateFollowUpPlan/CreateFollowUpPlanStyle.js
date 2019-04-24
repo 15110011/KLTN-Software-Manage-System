@@ -5,6 +5,9 @@ const styles = theme => ({
   backButton: {
     marginRight: theme.spacing.unit,
   },
+  deleteStep: {
+    marginRight: theme.spacing.unit
+  },
   instructions: {
     marginTop: theme.spacing.unit,
     marginBottom: theme.spacing.unit,

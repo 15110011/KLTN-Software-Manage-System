@@ -54,7 +54,8 @@ import {
   CONTACT_URL,
   GROUP_URL,
   MARKETING_PLANS_CONDITIONS_URL,
-  CONTACTS_MATCH_CONDITIONS_URL
+  CONTACTS_MATCH_CONDITIONS_URL,
+  FOLLOW_UP_PLANS_URL
 } from "../../common/urls";
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
@@ -93,7 +94,16 @@ function CreateCampaign(props) {
 
   const [activeStep, setActiveStep] = React.useState(0)
 
-  const { user } = props;
+  const [viewingOrder, setViewingOrder] = React.useState(0)
+
+  const { user, notification  } = props;
+
+
+
+  const onChangeViewingOrder = (e) => {
+    console.log(e.target.value)
+    setViewingOrder(e.target.value)
+  }
 
   const handleApplyConditionTable = e => {
     e.preventDefault()
@@ -150,7 +160,17 @@ function CreateCampaign(props) {
 
   const handleCreateCampaign = e => {
     e.preventDefault()
-    apiPostCampaign()
+    const data = { ...createCampaign, desc: draftToRaw(editorState) }
+    data.assigned_to = data.assigned_to.map(t => t.id)
+    data.follow_up_plan = data.follow_up_plan.id
+    if (data.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1)
+      data.mail_template = data.mail_template.id
+    else {
+      delete data.mail_template
+    }
+    data.marketing_plan = data.marketing_plan.id
+    data.packages = data.packages.map(p => p.id)
+    apiPostCampaign(data)
   }
 
   const fetchProductSuggestion = (input) => {
@@ -247,8 +267,9 @@ function CreateCampaign(props) {
     }
   }
 
-  const apiPostCampaign = () => {
-    apiPost(CAMPAIGNS_URL, { ...createCampaign, desc: draftToRaw(editorState) }, false, true)
+
+  const apiPostCampaign = (data) => {
+    apiPost(CAMPAIGNS_URL, data, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -257,7 +278,7 @@ function CreateCampaign(props) {
             }
             else {
               localStorage.setItem("token", res.data.access)
-              apiPostCampaign()
+              apiPostCampaign(data)
               // notification()
             }
           })
@@ -279,13 +300,31 @@ function CreateCampaign(props) {
     setCreateCampaign({ ...createCampaign, contacts: removedContact })
   }
 
+  const fetchFollowUpPlanSuggestion = (input) => {
+    return apiGet(FOLLOW_UP_PLANS_URL + "?followup_plan_suggest=" + input, true).then(res => {
+      return res.data.suggestion.map(s => ({ label: s, value: s }))
+    })
+  }
+
+  const handleChangeFollowUpPlanSelect = (value, action) => {
+    if (action.action == 'input-change') { }
+    else if (action.action == 'select-option') {
+      apiGet(FOLLOW_UP_PLANS_URL + "?name=" + value.value, true).then(res => {
+        const realResult = res.data.follow_up_plans[0]
+        setCreateCampaign({ ...createCampaign, follow_up_plan: realResult })
+      })
+    }
+    else if (action.action == 'remove-value' || action.action == 'clear') {
+      setCreateCampaign({ ...createCampaign, follow_up_plan: {} })
+    }
+  }
   const { classes, createCampaignDialog, handleCloseCreateCampaignDialog } = props;
 
   return (
     <div>
       <BreadcrumbsItem to='/campaigns/add'>ABC</BreadcrumbsItem>
       <Dialog
-        open={createCampaignDialog}
+        open={true}
         onClose={handleCloseCreateCampaignDialog}
         classes={{ paper: classes.paperRoot }}
         fullWidth
@@ -332,11 +371,15 @@ function CreateCampaign(props) {
                 user={user}
                 handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
                 fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
+                handleChangeFollowUpPlanSelect={handleChangeFollowUpPlanSelect}
+                fetchFollowUpPlanSuggestion={fetchFollowUpPlanSuggestion}
                 handleChangeProductSelect={handleChangeProductSelect}
                 fetchProductSuggestion={fetchProductSuggestion}
                 handleChangePackageSelectCustom={handleChangePackageSelectCustom}
                 handleChangeLoadContactSelect={handleChangeLoadContactSelect}
                 fetchLoadContactSuggestion={fetchLoadContactSuggestion}
+                viewingOrder={viewingOrder}
+                onChangeViewingOrder={onChangeViewingOrder}
               />
               <div style={{ float: 'right', marginTop: '50px' }}>
                 <Button

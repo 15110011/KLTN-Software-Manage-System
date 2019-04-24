@@ -66,10 +66,13 @@ function MarketingPlanList(props) {
 
   return (
     <div className={classes.root}>
-      <CreateMarketingPlan
-        createMarketingPlanDialog={createMarketingPlanDialog}
-        handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
-      />
+
+      {
+        createMarketingPlanDialog &&
+        <CreateMarketingPlan
+          createMarketingPlanDialog={createMarketingPlanDialog}
+          handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
+        />}
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable

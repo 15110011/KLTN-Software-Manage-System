@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import MarketingPlan, Campaign, FollowUpPlan, ContactMarketing, ContactMarketingHistory, Note
+from .models import MarketingPlan, Campaign, FollowUpPlan, ContactMarketing, ContactMarketingHistory, Note, MailTemplate
 
 
 # Register your models here.
@@ -30,4 +30,8 @@ class FollowUpPlanAdmin(admin.ModelAdmin):
 
 @admin.register(Note)
 class NoteAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(MailTemplate)
+class MailAdmin(admin.ModelAdmin):
     pass

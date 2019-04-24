@@ -13,9 +13,9 @@ function Notification(props) {
   return (
     <>
       {
-        notifications && notifications.notifications.map(notification => {
+        notifications && notifications.notifications.map((notification, i) => {
           return (
-            <List>
+            <List key={i}>
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
                   <Avatar alt="Remy Sharp" src={`${notification.avatar}`} />
