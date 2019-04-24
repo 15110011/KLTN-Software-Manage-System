@@ -13,7 +13,7 @@ function Notification(props) {
   return (
     <>
       {
-        notifications && notifications.notifications.map((notification, i) => {
+        notifications && notifications.map((notification, i) => {
           return (
             <List key={i}>
               <ListItem alignItems="flex-start">
