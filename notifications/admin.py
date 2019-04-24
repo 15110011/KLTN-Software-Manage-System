@@ -1,6 +1,7 @@
 from django.contrib import admin
-from . import models
+from .models import Notification
 
-@admin.register(models.Notification)
-class NotificationAdmin(admin.ModelAdmin):
-    pass
+# Register your models here.
+@admin.register(Notification)
+class NotificationsAdmin(admin.ModelAdmin):
+    pass   
