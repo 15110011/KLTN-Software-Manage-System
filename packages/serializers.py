@@ -28,6 +28,17 @@ class FeatureSerializer(serializers.ModelSerializer):
 
         return instance.id
 
+class PackageWithoutNumberSerializer(serializers.ModelSerializer):
+    numbers = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Package
+        fields = '__all__'
+
+    def get_numbers(self, instance):
+        features_serialized = FeatureSerializer(
+            instance.features.all(), many=True)
+        return [d['number'] for d in features_serialized.data]
 
 class PackageSerializer(serializers.ModelSerializer):
 
@@ -85,7 +96,7 @@ class ProductSerializier(serializers.ModelSerializer):
 class CreateProductSerializer(serializers.ModelSerializer):
 
     manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
-    features = FeatureSerializer(many=True)
+    features = FeatureSerializer(many=True, required=False)
     packages = serializers.SerializerMethodField()
     id = serializers.IntegerField(required=False)
 
@@ -95,28 +106,32 @@ class CreateProductSerializer(serializers.ModelSerializer):
 
     def get_packages(self, instance):
         features = instance.features.all()
-        packages = Package.objects.filter(features__in=features).distinct('id')
-        package_serialized = PackageSerializer(packages, many=True)
+        packages = Package.objects.filter(features__in=features)
+        print (packages)
+        package_serialized = PackageWithoutNumberSerializer(packages, many=True)
         return package_serialized.data
 
     def create(self, validated_data):
         packages = validated_data.pop('packages', None)
         features = validated_data.pop('features', None)
-        product_id = validated_data.get('id', None)
+        product_id = validated_data.pop('id', None)
+        print (features)
         if product_id is None:
             product = super().create(validated_data)
-
-        product = self.update(Product.objects.get(
-            id=product_id), **validated_data)
+        else:
+            product = self.update(Product.objects.get(
+                id=product_id), validated_data)
+        new_feature = []
         if features is not None:
             for feature in features:
-                feature = Feature(**feature, product=product)
-                feature.save()
-                # if feature.get('id', None) is None:
-                #     feature = Feature(**feature, product=product)
-                #     feature.save()
-                # else:
-                #     feature = self.update(Product.objects.get(id=feature['id']), {**validated_data, 'features': feaut})
+                if feature.get('id', None) is None:
+                    feature = Feature(**feature, product=product)
+                    feature.save()
+                    new_feature.append(feature)
+                else:
+                    feature = self.update(Product.objects.get(id=product_id), {features:features})
+                    new_feature.append(feature)
+        features = new_feature
         if packages is not None:
             for p in packages:
                 cur_features = []
@@ -124,9 +139,12 @@ class CreateProductSerializer(serializers.ModelSerializer):
                     for f in features:
                         if f.number == num:
                             cur_features.append(f)
+                p.pop('features')
+                p.pop('numbers')
                 cur_package = Package(**p)
                 cur_package.save()
-                cur_package.features.set(cur_features)
+                cur_package.features.set([f.id for f in cur_features])
+        
         return product
 
     def update(self, instance, validated_data):
@@ -135,8 +153,6 @@ class CreateProductSerializer(serializers.ModelSerializer):
         instance.status = validated_data.get('status', instance.status)
         instance.start_sale_date = validated_data.get(
             'start_sale_date', instance.start_sale_date)
-        instance.start_support_date = validated_data.get(
-            'start_support_date', instance.start_support_date)
         instance.save()
 
         packages = validated_data.get('packages')
