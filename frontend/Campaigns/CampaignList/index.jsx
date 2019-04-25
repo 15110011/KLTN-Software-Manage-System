@@ -45,6 +45,7 @@ function CampaignList(props) {
       {createCampaignDialog && <CreateCampaign
         handleCloseCreateCampaignDialog={handleCloseCreateCampaignDialog}
         createCampaignDialog={createCampaignDialog}
+        setCreateCampaignDialog={setCreateCampaignDialog}
         user={user}
         notification={notification}
       />}

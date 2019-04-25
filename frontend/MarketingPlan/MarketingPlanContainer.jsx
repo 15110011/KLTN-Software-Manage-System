@@ -1,12 +1,8 @@
 import * as React from 'react'
-import { Route, NavLink, Switch, Redirect } from 'react-router-dom'
+import FollowUpPlanList from './FollowUpPlanList/FollowUpPlanList';
+import { Route, NavLink, Switch } from 'react-router-dom'
 
-import Button from '@material-ui/core/Button';
-import Paper from '@material-ui/core/Paper';
-import AddIcon from '@material-ui/icons/Add';
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
-
-import Breadcrumb from '../components/Breadcrumb'
 import MarketingPlanList from './MarketingPlanList';
 import CreateMarketingPlan from './CreateMarketingPlan/index';
 import MarketingPlanDetail from './MarketingDetail';

@@ -58,11 +58,12 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen
     }),
-    backgroundColor: '#333333',
+    background: 'linear-gradient(0deg,rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(https://demos.creative-tim.com/material-dashboard-pro-react/static/media/sidebar-2.d30c9e30.jpg)',
     color: '#fff',
     [theme.breakpoints.down('xs')]: {
       width: '100%'
-    }
+    },
+    backgroundSize: 'cover',
   },
   drawerPaperClose: {
     overflowX: 'hidden',
@@ -90,13 +91,16 @@ const styles = theme => ({
     }
   },
   listItemSlected: {
-    backgroundColor: '#163a65db !important'
+    borderRadius: '5px',
+    background: '#00acc1 !important',
+    boxShadow: '0 12px 20px -10px rgba(0, 172, 193,.28), 0 4px 20px 0 rgba(0, 0, 0,.12), 0 7px 8px -5px rgba(0, 172, 193,.2)'
   },
-  listItemBgr: {
-    backgroundColor: '#EF5E29'
-  },
+  // listItemBgr: {
+  //   fontWeight: '500'
+  // },
   listItemText: {
-    color: '#fff'
+    color: '#fff',
+    fontWeight: '400'
   },
   listItemIcon: {
     color: '#fff'
@@ -107,7 +111,8 @@ const styles = theme => ({
   nested: {
   },
   toolbar: {
-    backgroundColor: '#333333'
+    background: 'linear-gradient(0deg,rgba(39, 54, 80, 0.7),rgba(39, 54, 80, 0.7)), url(https://demos.creative-tim.com/material-dashboard-pro-react/static/media/sidebar-2.d30c9e30.jpg)',
+    backgroundSize: 'cover',
   },
   notiSection: {
     '&button': {

@@ -28,9 +28,12 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import Tooltip from '@material-ui/core/Tooltip'
+import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from '@material-ui/icons/Add';
 import styles from './CreateCampaignStyle'
 
 // Components 
+import CreateFollowUpPlan from '../../FollowUpPlan/CreateFollowUpPlan';
 import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 import * as cn from 'classnames'
@@ -46,8 +49,17 @@ function FollowUpPlanDetails(props) {
     fetchFollowUpPlanSuggestion,
     user,
     viewingOrder,
-    onChangeViewingOrder
+    onChangeViewingOrder,
+    addFollowUpPlanToEdit,
+    isEditFollowUpPlan,
+    setIsEditFollowUpPlan
   } = props
+
+  const [createFollowUpPlanDialog, setCreateFollowUpPlanDialog] = React.useState(false)
+
+  const handleCloseCreateFollowUpPlan = e => {
+    setCreateFollowUpPlanDialog(false)
+  }
 
   let checkBoxOrRadio = []
   if (createCampaign.follow_up_plan.steps) {
@@ -58,6 +70,30 @@ function FollowUpPlanDetails(props) {
 
   return (
     <Grid container spacing={24}>
+      {
+        createFollowUpPlanDialog &&
+        <>
+          {
+            isEditFollowUpPlan ?
+              <CreateFollowUpPlan
+                followUpData={createCampaign.follow_up_plan}
+                createFollowUpPlanDialog={createFollowUpPlanDialog}
+                setCreateFollowUpPlanDialog={setCreateFollowUpPlanDialog}
+                handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
+                onCreateSuccess={addFollowUpPlanToEdit}
+                isEditFollowUpPlan={isEditFollowUpPlan}
+              />
+              :
+              <CreateFollowUpPlan
+                createFollowUpPlanDialog={createFollowUpPlanDialog}
+                setCreateFollowUpPlanDialog={setCreateFollowUpPlanDialog}
+                handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
+                onCreateSuccess={addFollowUpPlanToEdit}
+                isEditFollowUpPlan={isEditFollowUpPlan}
+              />
+          }
+        </>
+      }
       <Grid className={classes.inputCustom} item xs={4}>
         <InputLabel
           htmlFor="custom-css-standard-input"
@@ -86,31 +122,60 @@ function FollowUpPlanDetails(props) {
           loadOptions={fetchFollowUpPlanSuggestion}
         />
       </Grid>
-      <Grid className={classes.inputCustom} item xs={4}>
-        <InputLabel
-          htmlFor="custom-css-standard-input"
-          classes={{
-            root: classes.cssLabel,
-            focused: classes.cssFocused,
+
+      <Grid item xs={1}>
+        {
+          createCampaign.follow_up_plan.name &&
+          <IconButton
+            onClick={() => {
+              setCreateFollowUpPlanDialog(true)
+              setIsEditFollowUpPlan(true)
+            }}
+            aria-label="Edit"
+            classes={{ root: classes.fixButton }}>
+            <EditIcon style={{ fontSize: '16px' }} />
+          </IconButton>
+        }
+        <IconButton
+          onClick={() => {
+            setIsEditFollowUpPlan(false)
+            setCreateFollowUpPlanDialog(true)
           }}
-        >
-          Steps
+          aria-label="Add"
+          classes={{ root: classes.fixButton }}>
+          <AddIcon style={{ fontSize: '16px' }} />
+        </IconButton>
+      </Grid>
+      {
+        createCampaign.follow_up_plan.steps &&
+        <>
+          <Grid className={classes.inputCustom} item xs={4}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+            >
+              Steps
         </InputLabel>
-      </Grid>
-      <Grid item xs={6}>
-        <Select
-          name='stepOrder'
-          value={viewingOrder}
-          onChange={onChangeViewingOrder}
-          style={{ float: 'right' }}
-        >
-          {createCampaign.follow_up_plan.steps && createCampaign.follow_up_plan.steps.map((s, index) => {
-            return <MenuItem key={'ViewOrder' + index} value={index}>
-              Step {index + 1} ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
+          </Grid>
+          <Grid item xs={6}>
+            <Select
+              name='stepOrder'
+              value={viewingOrder}
+              onChange={onChangeViewingOrder}
+              style={{ float: 'right' }}
+            >
+              {createCampaign.follow_up_plan.steps && createCampaign.follow_up_plan.steps.map((s, index) => {
+                return <MenuItem key={'ViewOrder' + index} value={index}>
+                  Step {index + 1} ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
               </MenuItem>
-          })}
-        </Select>
-      </Grid>
+              })}
+            </Select>
+          </Grid>
+        </>
+      }
       <Grid item xs={2}></Grid>
       <Grid item xs={2}></Grid>
       {createCampaign.follow_up_plan.steps &&
@@ -118,7 +183,7 @@ function FollowUpPlanDetails(props) {
           <Paper className='p-4'>
             <Grid container spacing={8}>
               {
-                createCampaign.follow_up_plan.steps[viewingOrder].conditions.map((c, index) => {
+                createCampaign.follow_up_plan.steps[viewingOrder] && createCampaign.follow_up_plan.steps[viewingOrder].conditions.map((c, index) => {
                   return (
                     <>
                       {
@@ -170,7 +235,21 @@ function FollowUpPlanDetails(props) {
                           </>
                           :
                           <>
-
+                            <Grid item xs={12}>
+                            <TextField
+                                fullWidth
+                                required
+                                value={createCampaign.follow_up_plan.steps[viewingOrder].actions.reduce((acc, a) => {
+                                  acc += a + ', '
+                                  return acc
+                                }, '').slice(0, -2)}
+                                classes={{
+                                  underline: classes.cssUnderline,
+                                }}
+                                label="Actions"
+                                disabled
+                              />
+                            </Grid>
                             <Grid item xs={6}>
                               <TextField
                                 fullWidth
@@ -223,18 +302,16 @@ function FollowUpPlanDetails(props) {
                               {c.choices.map(c => <li key={`selection${c}`}>{c}</li>)}</ul>}>
                             <Typography classes={{ root: classes.linkStyleCustom }}
                               onClick={() => handleOpenDialog(index)}
-                            >{c.choices.length} selection(s)</spa>
+                            >{c.choices.length} selection(s)
+                            </Typography>
                           </Tooltip>
                         </Grid>
                       }
                     </>
-
                   )
                 })
-
-
               }
-          </>
+            </Grid>
           </Paper>
         </Grid>}
     </Grid>

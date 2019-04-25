@@ -83,6 +83,8 @@ function CreateCampaign(props) {
     groups: []
   })
 
+  const [isCreateMarketingPlanDialog, setIsCreateMarketingPlanDialog] = React.useState(false)
+
   const [applyConditionTable, setApplyConditionTable] = React.useState(false)
 
   const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
@@ -96,12 +98,15 @@ function CreateCampaign(props) {
 
   const [viewingOrder, setViewingOrder] = React.useState(0)
 
-  const { user, notification  } = props;
+  const [showEditIcon, setShowEditIcon] = React.useState(false)
 
+  const { user, notification } = props;
+
+  const [isEditMarketingPlan, setIsEditMarketingPlan] = React.useState(false)
+  const [isEditFollowUpPlan, setIsEditFollowUpPlan] = React.useState(false)
 
 
   const onChangeViewingOrder = (e) => {
-    console.log(e.target.value)
     setViewingOrder(e.target.value)
   }
 
@@ -159,18 +164,21 @@ function CreateCampaign(props) {
   }
 
   const handleCreateCampaign = e => {
-    e.preventDefault()
-    const data = { ...createCampaign, desc: draftToRaw(editorState) }
-    data.assigned_to = data.assigned_to.map(t => t.id)
-    data.follow_up_plan = data.follow_up_plan.id
-    if (data.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1)
-      data.mail_template = data.mail_template.id
-    else {
-      delete data.mail_template
+    if (isCreateMarketingPlanDialog == false && isEditMarketingPlan == false) {
+      e.preventDefault()
+      const data = { ...createCampaign, desc: draftToRaw(editorState) }
+      data.assigned_to = data.assigned_to.map(t => t.id)
+      data.follow_up_plan = data.follow_up_plan.id
+      if (data.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1)
+        data.mail_template = data.mail_template.id
+      else {
+        delete data.mail_template
+      }
+      data.marketing_plan = data.marketing_plan.id
+      data.packages = data.packages.map(p => p.id)
+      apiPostCampaign(data)
+      setCreateCampaignDialog(false)
     }
-    data.marketing_plan = data.marketing_plan.id
-    data.packages = data.packages.map(p => p.id)
-    apiPostCampaign(data)
   }
 
   const fetchProductSuggestion = (input) => {
@@ -203,16 +211,26 @@ function CreateCampaign(props) {
     })
   }
 
+  const addMarketingPlanToEdit = (createdMarketingPlan) => {
+    setCreateCampaign({ ...createCampaign, marketing_plan: createdMarketingPlan })
+  }
+
+  const addFollowUpPlanToEdit = (createdFollowUpPlan) => {
+    setCreateCampaign({ ...createCampaign, follow_up_plan: createdFollowUpPlan })
+  }
+
   const handleChangeMarketingPlanSelect = (value, action) => {
     if (action.action == 'input-change') { }
     else if (action.action == 'select-option') {
       apiGet(MARKETING_PLANS_URL + "?name=" + value.value, true).then(res => {
         const realResult = res.data.marketing_plans[0]
         setCreateCampaign({ ...createCampaign, marketing_plan: realResult })
+        setShowEditIcon(true)
       })
     }
     else if (action.action == 'remove-value' || action.action == 'clear') {
       setCreateCampaign({ ...createCampaign, marketing_plan: {} })
+      setShowEditIcon(false)
     }
   }
 
@@ -242,7 +260,6 @@ function CreateCampaign(props) {
           value: realResult.id
         })
         apiGet(PRODUCTS_URL + "?name=" + realResult.product.name, true).then(res => {
-          console.log(res)
           const realResultProduct = res.data.data[0]
           apiGet(PACKAGES_URL + "?searchProduct=" + realResultProduct.id, true).then(res => {
             setCreateCampaign({ ...createCampaign, packagesOptions: res.data.data, product: realResultProduct, packages: clonePackage })
@@ -318,7 +335,7 @@ function CreateCampaign(props) {
       setCreateCampaign({ ...createCampaign, follow_up_plan: {} })
     }
   }
-  const { classes, createCampaignDialog, handleCloseCreateCampaignDialog } = props;
+  const { classes, createCampaignDialog, handleCloseCreateCampaignDialog, setCreateCampaignDialog } = props;
 
   return (
     <div>
@@ -354,6 +371,14 @@ function CreateCampaign(props) {
           <div className={classes.paper}>
             <form onSubmit={handleCreateCampaign}>
               <StepDetail
+                isEditFollowUpPlan={isEditFollowUpPlan}
+                setIsEditFollowUpPlan={setIsEditFollowUpPlan}
+                addFollowUpPlanToEdit={addFollowUpPlanToEdit}
+                isEditMarketingPlan={isEditMarketingPlan}
+                setIsEditMarketingPlan={setIsEditMarketingPlan}
+                addMarketingPlanToEdit={addMarketingPlanToEdit}
+                isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
+                setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
                 deleteExceptionContacts={deleteExceptionContacts}
                 handleApplyConditionTable={handleApplyConditionTable}
                 applyConditionTable={applyConditionTable}
@@ -380,6 +405,7 @@ function CreateCampaign(props) {
                 fetchLoadContactSuggestion={fetchLoadContactSuggestion}
                 viewingOrder={viewingOrder}
                 onChangeViewingOrder={onChangeViewingOrder}
+                showEditIcon={showEditIcon}
               />
               <div style={{ float: 'right', marginTop: '50px' }}>
                 <Button
@@ -393,7 +419,7 @@ function CreateCampaign(props) {
                 {' '}
                 <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
                   Next
-            </Button>
+                </Button>
                 {
                   activeStep === getSteps.length - 1 &&
                   (

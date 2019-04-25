@@ -74,7 +74,7 @@ function StepDetail(props) {
                 createStep.actions &&
                 createStep.actions
                   .reduce((acc, g) => {
-                    acc.push({ label: `${g.label}`, value: g.value })
+                    acc.push({ label: `${g}`, value: g })
                     return acc
                   }, [])
               }

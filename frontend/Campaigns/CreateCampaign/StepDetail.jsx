@@ -102,7 +102,16 @@ function getStepContent(props) {
     handleChangeFollowUpPlanSelect,
     fetchFollowUpPlanSuggestion,
     viewingOrder,
-    onChangeViewingOrder
+    showEditIcon,
+    onChangeViewingOrder,
+    isCreateMarketingPlanDialog,
+    setIsCreateMarketingPlanDialog,
+    addMarketingPlanToEdit,
+    isEditMarketingPlan,
+    setIsEditMarketingPlan,
+    addFollowUpPlanToEdit,
+    isEditFollowUpPlan,
+    setIsEditFollowUpPlan
   } = props
   switch (activeStep) {
     case 0:
@@ -126,6 +135,10 @@ function getStepContent(props) {
     case 1:
       return (
         <MarketingPlanDetails
+          isEditMarketingPlan={isEditMarketingPlan}
+          setIsEditMarketingPlan={setIsEditMarketingPlan}
+          isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
+          setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
           deleteExceptionContacts={deleteExceptionContacts}
           classes={classes}
           handleApplyConditionTable={handleApplyConditionTable}
@@ -136,13 +149,16 @@ function getStepContent(props) {
           handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
           fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
           handleChangeLoadContactSelect={handleChangeLoadContactSelect},
-          fetchLoadContactSuggestion={fetchLoadContactSuggestion}
+          fetchLoadContactSuggestion={fetchLoadContactSuggestion},
+          showEditIcon={showEditIcon},
+          addMarketingPlanToEdit={addMarketingPlanToEdit}
         />
       )
     case 2:
       return (
         <FollowUpPlanDetails
           classes={classes}
+          addFollowUpPlanToEdit={addFollowUpPlanToEdit}
           onChangeCreateCampaign={onChangeCreateCampaign}
           createCampaign={createCampaign}
           handleChangePackageSelect={handleChangePackageSelect}
@@ -153,6 +169,8 @@ function getStepContent(props) {
           fetchFollowUpPlanSuggestion={fetchFollowUpPlanSuggestion}
           viewingOrder={viewingOrder}
           onChangeViewingOrder={onChangeViewingOrder}
+          isEditFollowUpPlan={isEditFollowUpPlan}
+          setIsEditFollowUpPlan={setIsEditFollowUpPlan}
         />
       )
     default:

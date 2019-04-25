@@ -23,11 +23,50 @@ export default function SidebarContainer(props) {
     if (action === '' || action.startsWith('dashboard')) {
       onClickSidebar('dashboard')
     }
+    else if (action.startsWith('contacts')) {
+      onClickSidebar('contacts')
+    }
+    else if (action.startsWith('marketing')) {
+      onClickSidebar('marketing-plans')
+    }
+    else if (action.startsWith('email-templates')) {
+      onClickSidebar('email-templates')
+    }
+    else if (action.startsWith('follow-up-plans')) {
+      onClickSidebar('follow-up-plans')
+    }
+    else if (action.startsWith('campaigns')) {
+      onClickSidebar('campaigns')
+    }
+    else if (action.startsWith('stocks')) {
+      onClickSidebar('stocks')
+    }
     else if (action.startsWith('products')) {
       onClickSidebar('products')
     }
-    else if (action.startsWith('contacts')) {
-      onClickSidebar('contacts')
+    else if (action.startsWith('invoices')) {
+      onClickSidebar('invoices')
+    }
+    else if (action.startsWith('orders')) {
+      onClickSidebar('orders')
+    }
+    else if (action.startsWith('deals')) {
+      onClickSidebar('deals')
+    }
+    else if (action.startsWith('reports')) {
+      onClickSidebar('reports')
+    }
+    else if (action.startsWith('inbox')) {
+      onClickSidebar('inbox')
+    }
+    else if (action.startsWith('notes')) {
+      onClickSidebar('notes')
+    }
+    else if (action.startsWith('calendar')) {
+      onClickSidebar('calendar')
+    }
+    else if (action.startsWith('settings')) {
+      onClickSidebar('settings')
     }
   })
 

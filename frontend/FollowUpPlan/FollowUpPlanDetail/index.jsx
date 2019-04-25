@@ -66,7 +66,7 @@ function FollowUpPlanDetail(props) {
   const [disableApply, setDisableApply] = React.useState(false)
   const [titleStt, setTitleStt] = React.useState('VIEW')
 
-  const [cloneDetail, setCloneDetail] = React.useState()
+  const [cloneDetail, setCloneDetail] = React.useState({})
 
 
 
@@ -107,7 +107,6 @@ function FollowUpPlanDetail(props) {
       .then(json => {
         if (json.data) return notification()
       })
-
   }
 
   const onChangeInput = (e) => {
@@ -224,6 +223,11 @@ function FollowUpPlanDetail(props) {
     })
     setFollowUpPlanDetail({ ...followUpPlanDetail, steps })
   }
+
+  React.useEffect(() => {
+    if(cloneDetail.name == followUpPlanDetail.name && cloneDetail.name != '')
+    handleSavePlanDetail()
+  },[followUpPlanDetail.name])
 
   return (
     <div className={classes.root}>

@@ -41,7 +41,7 @@ import {
   REFRESH_TOKEN_URL,
   MARKETING_PLANS_CONDITIONS_URL
 } from "../../common/urls";
-import { apiPost } from '../../common/Request'
+import { apiPost, apiPatch } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 const stepName = ['Basic Infomation', 'Choose Search Conditions', 'Choose Actions'];
@@ -60,7 +60,8 @@ function getStepContent(
   handleOpenConditionTable,
   marketingPlanConditions,
   handleChangeActionTypeSelect,
-  handleChangeSelectAddress
+  handleChangeSelectAddress,
+  isCreateMarketingPlanDialog,
   // applyConditionTable
 ) {
 
@@ -137,7 +138,6 @@ function getStepContent(
           <Grid item xs={8}>
             {
               createMarketingPlan.condition.must.map((m, i) => {
-                console.log(m)
                 return (
                   <Grid key={i} container spacing={24}>
                     <Grid item xs={4}>
@@ -305,6 +305,17 @@ function getStepContent(
 }
 
 function CreateMarketingPlan(props) {
+  const {
+    classes,
+    createMarketingPlanDialog,
+    handleCloseCreateMarketingPlanDialog,
+    setCreateMarketingPlanDialog,
+    isCreateMarketingPlanDialog,
+    setIsCreateMarketingPlanDialog,
+    notification,
+    isEditMarketingPlan,
+    marketingData
+  } = props;
 
   const [activeStep, setActiveStep] = React.useState(0)
   const [error, setError] = React.useState([{}, {}, {}])
@@ -319,6 +330,12 @@ function CreateMarketingPlan(props) {
 
   const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
   const [applyConditionTable, setApplyConditionTable] = React.useState(false)
+
+  React.useEffect(() => {
+    if (marketingData) {
+      setCreateMarketingPlan(marketingData)
+    }
+  }, [])
 
   const handleOpenConditionTable = e => {
     e.preventDefault()
@@ -400,31 +417,41 @@ function CreateMarketingPlan(props) {
     e.preventDefault()
     const err = [{}, {}, {}]
 
-    if (createMarketingPlan.name == '') {
-      err[0].name = "FILL YOUR PLAN NAME"
-    }
-    // for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
-    //   if (!err[1].must) {
-    //     err[1].must = {}
-    //   }
-    //   if (createMarketingPlan.condition.must[i].operand == '') {
-    //     err[1].must.operand = 'FILL YOUR OPERAND'
-    //     break
-    //   }
-    //   if (createMarketingPlan.condition.must[i].operator == '') {
-    //     err[1].must.operator = 'FILL YOUR OPERATOR'
-    //     break
-    //   }
-    //   if (createMarketingPlan.condition.must[i].condition == '') {
-    //     err[1].must.condition = 'FILL YOUR CONDITION'
-    //     break
-    //   }
-    // }
-    if (Object.keys(err[0]).length === 0 && Object.keys(err[1]).length === 0 && Object.keys(err[2]).length === 0) {
-      apiPostMarketingPlan()
-    }
-    else {
-      setError(err)
+    if (isEditMarketingPlan == false) {
+      if (createMarketingPlan.name == '') {
+        err[0].name = "FILL YOUR PLAN NAME"
+      }
+      // for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
+      //   if (!err[1].must) {
+      //     err[1].must = {}
+      //   }
+      //   if (createMarketingPlan.condition.must[i].operand == '') {
+      //     err[1].must.operand = 'FILL YOUR OPERAND'
+      //     break
+      //   }
+      //   if (createMarketingPlan.condition.must[i].operator == '') {
+      //     err[1].must.operator = 'FILL YOUR OPERATOR'
+      //     break
+      //   }
+      //   if (createMarketingPlan.condition.must[i].condition == '') {
+      //     err[1].must.condition = 'FILL YOUR CONDITION'
+      //     break
+      //   }
+      // }
+      if (Object.keys(err[0]).length === 0 && Object.keys(err[1]).length === 0 && Object.keys(err[2]).length === 0) {
+        apiPostMarketingPlan()
+      }
+      else {
+        setError(err)
+      }
+      setCreateMarketingPlanDialog(false)
+    } else {
+      const marketingId = marketingData.id
+      apiPatch(MARKETING_PLANS_URL + '/' + marketingId, { ...createMarketingPlan }, false, true)
+        .then(res => {
+          if (res.data) return notification(res.data)
+        })
+      setCreateMarketingPlanDialog(false)
     }
   }
 
@@ -447,12 +474,11 @@ function CreateMarketingPlan(props) {
           setError(res.data)
         }
         else {
-          // notification()
+          notification(res.data)
         }
       })
   }
 
-  const { classes, createMarketingPlanDialog, handleCloseCreateMarketingPlanDialog } = props;
 
   return (
     <div>
@@ -467,7 +493,10 @@ function CreateMarketingPlan(props) {
           Create Marketing Plan
           <div className="d-flex justify-content-between">
             <IconButton style={{ position: 'absolute', top: '12px', right: '12px' }}
-              aria-label="Close" onClick={handleCloseCreateMarketingPlanDialog}>
+              aria-label="Close" onClick={() => {
+                handleCloseCreateMarketingPlanDialog()
+                setIsCreateMarketingPlanDialog(false)
+              }}>
               <CloseIcon fontSize="small" />
             </IconButton>
           </div>
@@ -499,7 +528,8 @@ function CreateMarketingPlan(props) {
                           handleOpenConditionTable,
                           marketingPlanConditions,
                           handleChangeActionTypeSelect,
-                          handleChangeSelectAddress
+                          handleChangeSelectAddress,
+                          isCreateMarketingPlanDialog
                           {/* applyConditionTable */ }
                         )}
                       </Grid>
@@ -513,9 +543,27 @@ function CreateMarketingPlan(props) {
               <Button variant="outlined" color="default" onClick={handleReset} className={classes.button}>
                 Reset
             </Button>
-              <Button type="submit" variant="contained" color="primary" className={classes.button}>
-                Create
-            </Button>
+              {/* {
+                isCreateMarketingPlanDialog == true &&
+                <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                  Create
+                </Button>
+              } */}
+              {
+                isEditMarketingPlan ?
+                  <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                    Update
+                  </Button>
+                  :
+                  <>
+                    {
+                      isCreateMarketingPlanDialog == true &&
+                      <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                        Create
+                    </Button>
+                    }
+                  </>
+              }
             </Paper>
           </form>
         </DialogContent>

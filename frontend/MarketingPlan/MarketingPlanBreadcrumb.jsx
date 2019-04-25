@@ -6,7 +6,6 @@ import Paper from '@material-ui/core/Paper';
 import AddIcon from '@material-ui/icons/Add';
 import { Breadcrumbs } from 'react-breadcrumbs-dynamic'
 
-
 function MarketingPlanBreadcrumb(props) {
   const [checkCreateMarketingPlanButton, setCheckCreateMarketingPlanButton] = React.useState(true)
 

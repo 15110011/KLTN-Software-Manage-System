@@ -170,15 +170,15 @@ const SidebarComponent = props => {
                   id="menu-list-grow"
                   style={{ transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' }}
                 >
-                  {/* <PerfectScrollbar> */}
-                    <Paper
-                      style={{ maxHeight: '350px', overflow: 'scroll' }}
-                    >
+                  <Paper
+                    style={{ maxHeight: '350px', overflow: 'scroll' }}
+                  >
+                    <PerfectScrollbar>
                       <ClickAwayListener onClickAway={handleCloseNoti}>
                         <Notification notifications={notificationData} />
                       </ClickAwayListener>
-                    </Paper>
-                  {/* </PerfectScrollbar> */}
+                    </PerfectScrollbar>
+                  </Paper>
                 </Grow>
               )}
             </Popper>
@@ -226,7 +226,7 @@ const SidebarComponent = props => {
         </div>
         <Divider light />
         <List>
-          <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ root: classes.listItemBgr }} selected={selecting == 'contacts'}>
+          <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
             <ListItemIcon>
               <PersonalIcon classes={{ root: classes.listItemIcon }} />
             </ListItemIcon>
@@ -248,25 +248,48 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/marketing-plans')}>
+              <ListItem
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'marketing-plans'}
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/marketing-plans')}>
                 <ListItemIcon>
                   <MarketingListIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Marketing list" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Marketing Plans" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/email-templates')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/email-templates')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'email-templates'}
+              >
                 <ListItemIcon>
                   <EmailTemplateIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Email templates" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Email Templates" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/follow-up-plans')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/follow-up-plans')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'follow-up-plans'}
+              >
                 <ListItemIcon>
                   <FollowUpPlanIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Follow-up plan" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="Follow-up Plans" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/campaigns')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/campaigns')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'campaigns'}
+              >
                 <ListItemIcon>
                   <CampaignIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -289,31 +312,61 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle1} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/stocks')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/stocks')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'stocks'}
+              >
                 <ListItemIcon>
                   <CategoryIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Category & Type" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/products')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/products')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'products'}
+              >
                 <ListItemIcon>
                   <ProductIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Products" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/invoices')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/invoices')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'invoices'}
+              >
                 <ListItemIcon>
                   <InvoiceIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Invoices" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/orders')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/orders')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'orders'}
+              >
                 <ListItemIcon>
                   <SaleOrderIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Sale Orders" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/deals')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/deals')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'deals'}
+              >
                 <ListItemIcon>
                   <DealIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -336,13 +389,25 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle2} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/dashboard')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/dashboard')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'dashboard'}
+              >
                 <ListItemIcon>
                   <DashboardIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Dashboard" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/reports')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/reports')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'reports'}
+              >
                 <ListItemIcon>
                   <ReportIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -365,13 +430,25 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle3} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/inbox')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/inbox')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'inbox'}
+              >
                 <ListItemIcon>
                   <InboxIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Inbox" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/notes')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/notes')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'notes'}
+              >
                 <ListItemIcon>
                   <NoteIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
@@ -394,13 +471,25 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle4} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/calendar')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/calendar')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'calendar'}
+              >
                 <ListItemIcon>
                   <CalendarIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Calendar" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem button className={classes.nested} onClick={() => props.history.push('/settings')}>
+              <ListItem
+                button
+                className={classes.nested}
+                onClick={() => props.history.push('/settings')}
+                classes={{ selected: classes.listItemSlected }}
+                selected={selecting == 'settings'}
+              >
                 <ListItemIcon>
                   <SettingsIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>

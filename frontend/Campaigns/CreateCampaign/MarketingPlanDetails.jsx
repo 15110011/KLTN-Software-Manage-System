@@ -22,6 +22,7 @@ import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Divider from '@material-ui/core/Divider'
 import EditIcon from '@material-ui/icons/Edit';
+import AddIcon from '@material-ui/icons/Add';
 import PreviewIcon from '@material-ui/icons/RemoveRedEye';
 import MaterialTable from 'material-table'
 import InputLabel from '@material-ui/core/InputLabel';
@@ -35,6 +36,8 @@ import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 import * as cn from 'classnames'
 
+import CreateMarketingPlan from '../../MarketingPlan/CreateMarketingPlan';
+
 function MarketingPlanDetails(props) {
   const {
     classes,
@@ -47,8 +50,19 @@ function MarketingPlanDetails(props) {
     handleChangeLoadContactSelect,
     handleApplyConditionTable,
     applyConditionTable,
-    deleteExceptionContacts
+    deleteExceptionContacts,
+    showEditIcon,
+    isCreateMarketingPlanDialog,
+    setIsCreateMarketingPlanDialog,
+    addMarketingPlanToEdit,
+    isEditMarketingPlan,
+    setIsEditMarketingPlan
   } = props
+
+  const [createMarketingPlanDialog, setCreateMarketingPlanDialog] = React.useState(false)
+  const handleCloseCreateMarketingPlanDialog = e => {
+    setCreateMarketingPlanDialog(false)
+  }
   return (
     <Grid container spacing={24}>
       {/* <Grid item xs={12}>
@@ -60,6 +74,38 @@ function MarketingPlanDetails(props) {
               ))
             }
       </Grid> */}
+      {
+        createMarketingPlanDialog &&
+        <>
+          {
+            isEditMarketingPlan ?
+              <>
+                <CreateMarketingPlan
+                  marketingData={createCampaign.marketing_plan}
+                  isEditMarketingPlan={isEditMarketingPlan}
+                  notification={addMarketingPlanToEdit}
+                  isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
+                  createMarketingPlanDialog={createMarketingPlanDialog}
+                  handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
+                  setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
+                  setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
+                />
+              </>
+              :
+              <>
+                <CreateMarketingPlan
+                  isEditMarketingPlan={isEditMarketingPlan}
+                  notification={addMarketingPlanToEdit}
+                  isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
+                  createMarketingPlanDialog={createMarketingPlanDialog}
+                  handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
+                  setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
+                  setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
+                />
+              </>
+          }
+        </>
+      }
       <Grid container spacing={24}>
         <Grid item xs={10}>
           <Grid container spacing={24}>
@@ -90,9 +136,29 @@ function MarketingPlanDetails(props) {
                 loadOptions={fetchMarketingPlanSuggestion}
               />
             </Grid>
-            <Grid item xs={1}>
-              <IconButton aria-label="Edit" classes={{ root: classes.fixButton }}>
-                <EditIcon style={{ fontSize: '16px' }} />
+            <Grid item xs={1} style={{ display: 'inline-flex' }}>
+              {
+                createCampaign.marketing_plan.name &&
+                <IconButton
+                  onClick={() => {
+                    setCreateMarketingPlanDialog(true)
+                    setIsEditMarketingPlan(true)
+                  }}
+                  aria-label="Edit"
+                  classes={{ root: classes.fixButton }}>
+                  <EditIcon style={{ fontSize: '16px' }} />
+                </IconButton>
+              }
+              <IconButton
+                onClick={() => {
+                  setCreateMarketingPlanDialog(true)
+                  setIsCreateMarketingPlanDialog(true)
+                  setIsEditMarketingPlan(false)
+                }
+                }
+                aria-label="Add"
+                classes={{ root: classes.fixButton }}>
+                <AddIcon style={{ fontSize: '16px' }} />
               </IconButton>
             </Grid>
           </Grid>
@@ -138,7 +204,7 @@ function MarketingPlanDetails(props) {
             createCampaign.marketing_plan.condition.must.map((m, i) => {
               return (
                 <>
-                  <Grid container spacing={24}>
+                  <Grid container key={i} spacing={24}>
                     <Grid className={classes.inputCustom} item xs={4}>
                       <InputLabel
                         htmlFor="custom-css-standard-input"
@@ -344,7 +410,7 @@ function MarketingPlanDetails(props) {
           </Grid>
         }
       </Grid>
-    </Grid>
+    </Grid >
   )
 }
 export default MarketingPlanDetails

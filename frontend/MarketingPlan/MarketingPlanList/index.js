@@ -72,6 +72,7 @@ function MarketingPlanList(props) {
         <CreateMarketingPlan
           createMarketingPlanDialog={createMarketingPlanDialog}
           handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
+          setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
         />}
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>

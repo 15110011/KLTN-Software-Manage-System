@@ -20,6 +20,9 @@ import FormControl from '@material-ui/core/FormControl';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialTable from 'material-table'
+import EditIcon from '@material-ui/icons/Edit'
+import CloseIcon from '@material-ui/icons/Close'
+import DoneIcon from '@material-ui/icons/Done'
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -57,8 +60,10 @@ function MarketingPlanDetail(props) {
       actions: [],
       manager: ''
     })
-  console.log(marketingPlanDetail)
+  const [titleStt, setTitleStt] = React.useState('VIEW')
   const [value, setValue] = React.useState(0)
+  const [cloneDetail, setCloneDetail] = React.useState({})
+
 
   const { classes } = props;
 
@@ -107,14 +112,24 @@ function MarketingPlanDetail(props) {
   const handleSavePlanDetail = () => {
     apiPatch(MARKETING_PLANS_URL + '/' + marketingPlanId, { ...marketingPlanDetail }, false, true)
       .then(json => {
-        console.log(123)
         if (json.data) return notification()
       })
   }
 
+  const onChangeCloneInput = (e) => {
+    setCloneDetail({ ...cloneDetail, [e.target.name]: e.target.value })
+  }
+
+  React.useEffect(() => {
+    if (cloneDetail.name == marketingPlanDetail.name && cloneDetail.name != '')
+      handleSavePlanDetail()
+  }, [marketingPlanDetail.name])
+
+
   return (
     <div lassName={classes.root}>
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+      <BreadcrumbsItem to={`/marketing-plans/ + ${marketingPlanId}`}>{marketingPlanDetail.name}</BreadcrumbsItem>
       <div className={classes.paper}>
         <Grid container spacing={8} style={{ margin: 'unset' }}>
           <div className={classes.wrapAvatar}>
@@ -123,7 +138,40 @@ function MarketingPlanDetail(props) {
             </div>
             <ul style={{ listStyleType: 'none', paddingLeft: '10px', textAlign: 'left' }}>
               <li><span style={{ color: '#616161' }}>Category</span></li>
-              <li><p style={{ fontSize: '16px' }}>ABC</p></li>
+              {titleStt == 'VIEW' &&
+                <li>
+                  <p style={{ fontSize: '16px' }}>{marketingPlanDetail.name}
+                    <IconButton onClick={() => {
+                      setCloneDetail({ ...marketingPlanDetail })
+                      setTitleStt('EDIT')
+                    }} >
+                      <EditIcon style={{ fontSize: '18px' }} />
+                    </IconButton>
+                  </p>
+                </li>}
+              {titleStt == 'EDIT' &&
+                <li>
+                  <TextField
+                    name='name'
+                    onChange={onChangeCloneInput}
+                    value={cloneDetail.name}
+                    style={{ fontSize: '16px' }}
+                  />
+                  <Tooltip title='Discard Change'>
+                    <IconButton onClick={() => setTitleStt('VIEW')} >
+                      <CloseIcon style={{ fontSize: '18px' }} />
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title='Apply Change'>
+                    <IconButton onClick={() => {
+                      setMarketingPlanDetail({ ...marketingPlanDetail, name: cloneDetail.name })
+                      setTitleStt('VIEW')
+                    }} >
+                      <DoneIcon style={{ fontSize: '18px' }} />
+                    </IconButton>
+                  </Tooltip>
+                </li>
+              }
             </ul>
           </div>
         </Grid>

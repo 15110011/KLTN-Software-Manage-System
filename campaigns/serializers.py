@@ -83,7 +83,7 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
                     step.conditions = item.get('conditions', step.conditions)
                     step.save()
                 except:
-                    step = Step(**step)
+                    step = Step(**item)
                     step.save()
         return instance
 
