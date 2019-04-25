@@ -300,10 +300,9 @@ function CampaignDetails(props) {
                     onChange={onChangeCreateCampaign}
                     value={createCampaign.status}
                     name="status"
-                    native
                   >
-                    <option value="ACTIVE">ACTIVE</option>
-                    <option value="INACTIVE">INACTIVE</option>
+                    <MenuItem value="ACTIVE">ACTIVE</MenuItem>
+                    <MenuItem value="INACTIVE">INACTIVE</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
