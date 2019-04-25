@@ -59,7 +59,6 @@ function FormPackage(props) {
     createPackage,
     handleCreatePackage
   } = props;
-  console.log(createProduct)
   return (
     <div className={classes.root}>
       <Dialog

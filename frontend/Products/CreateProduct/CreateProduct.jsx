@@ -142,14 +142,9 @@ function CreateProduct(props) {
       clonePackage[packageIndex].features.push({
         ...createProduct.features[featureIndex]
       })
-      console.log(createProduct.features)
-      console.log(featureIndex)
       clonePackage[packageIndex].numbers.push(
         createProduct.features[featureIndex].number
       )
-
-      console.log(clonePackage)
-      console.log(packageIndex)
     } else {
       clonePackage[packageIndex].features = clonePackage.slice(0, featureIndex).concat(clonePackage.slice(featureIndex + 1))
       clonePackage[packageIndex].numbers = clonePackage.slice(0, featureIndex).concat(clonePackage.slice(featureIndex + 1))

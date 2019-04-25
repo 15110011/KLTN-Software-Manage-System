@@ -107,7 +107,6 @@ class CreateProductSerializer(serializers.ModelSerializer):
     def get_packages(self, instance):
         features = instance.features.all()
         packages = Package.objects.filter(features__in=features)
-        print (packages)
         package_serialized = PackageWithoutNumberSerializer(packages, many=True)
         return package_serialized.data
 
@@ -115,7 +114,6 @@ class CreateProductSerializer(serializers.ModelSerializer):
         packages = validated_data.pop('packages', None)
         features = validated_data.pop('features', None)
         product_id = validated_data.pop('id', None)
-        print (features)
         if product_id is None:
             product = super().create(validated_data)
         else:
