@@ -7,14 +7,22 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import styles from './NotificationStyles'
+import 'react-perfect-scrollbar/dist/css/styles.css';
+import * as PerfectScrollbar from 'react-perfect-scrollbar'
+import { Scrollbars } from 'react-custom-scrollbars';
 
 function Notification(props) {
   const { socket, classes, notifications } = props
-  const scrollEvent = e => {
-    console.log('hi', e)
+  const handelScroll = e => {
+    console.log(document.body.offsetHeight, document.body.scrollTop, document.body.scrollHeight)
+    if (document.body.offsetHeight + document.body.scrollTop == document.body.scrollHeight) {
+      console.log('end')
+    }
   }
   return (
-    <>
+    <Scrollbars
+      onScroll={handelScroll}
+    >
       {
         notifications.length > 0 ?
           notifications.map((notification, i) => {
@@ -41,14 +49,14 @@ function Notification(props) {
           : <ListItemText
             secondary={
               <React.Fragment >
-                <Typography style={{display: 'flex','flexDirection': 'row', 'justifyContent': 'center', 'height': '40px', 'marginTop': '5%'}} component="span" className={classes.inline} color="textPrimary">
+                <Typography style={{ display: 'flex', 'flexDirection': 'row', 'justifyContent': 'center', 'height': '40px', 'marginTop': '5%' }} component="span" className={classes.inline} color="textPrimary">
                   No new notifications
                 </Typography>
               </React.Fragment>
             }
           />
       }
-    </>
+    </Scrollbars>
   )
 }
 export default withStyles(styles)(Notification)
