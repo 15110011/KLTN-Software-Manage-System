@@ -43,6 +43,7 @@ class EventView(ModelViewSet):
         target = request.query_params.get('target', None)
         campaign = request.query_params.get('campaign', None)
         phase = request.query_params.get('phase', None)
+        phase_id = request.query_params.get('phaseId', None)
         # order
         if remaining_order:
             remaining_order = '-end_date' if remaining_order == 'desc' else 'end_date'
@@ -81,6 +82,27 @@ class EventView(ModelViewSet):
             if 'Order' in phase:
                 phase_filter.add(Q(order__status='COMPLETED'), Q.OR)
             filters.add(phase_filter, Q.AND)
+        if phase_id and ('O' in phase_id or 'T' in phase_id or 'F' in phase_id):
+            phase_type = phase_id[0]
+            look_id = phase_id[1:]
+            if look_id:
+                if phase_type == 'O':
+                    filters.add(Q(order__status='COMPLETED'), Q.AND)
+                    filters.add(Q(order__id=int(look_id)), Q.AND)
+                elif phase_type == 'F':
+                    filters.add(Q(marketing__status='COMPLETED')
+                                & Q(order__status='RUNNING') & Q(order__id=int(look_id)), Q.AND)
+                elif phase_type == 'T':
+                    filters.add(Q(marketing__status='RUNNING') &
+                                Q(marketing__id=int(look_id)), Q.AND)
+            else:
+                if phase_type == 'O':
+                    filters.add(Q(order__status='COMPLETED'), Q.AND)
+                elif phase_type == 'F':
+                    filters.add(Q(marketing__status='COMPLETED')
+                                & Q(order__status='RUNNING'), Q.AND)
+                elif phase_type == 'T':
+                    filters.add(Q(marketing__status='RUNNING'), Q.AND)
         # paging
         page = request.query_params.get(
             'page') if int(request.query_params.get('page', 0)) > 0 else 0

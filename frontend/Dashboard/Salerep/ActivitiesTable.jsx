@@ -14,6 +14,7 @@ import MoreDialog from './MoreDialog'
 import { EVENTS_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
+import CreateEventDialog from '../../Events/CreateEventDialog'
 import CardBody from "../../components/Card/CardBody";
 
 import USERCONTEXT from '../../components/UserContext'
@@ -24,6 +25,8 @@ function ActivitiesTable(props) {
   const { classes, tableActivtyRef, tableMarketingRef, forceActivities } = props
 
   const [viewType, setViewType] = React.useState('campaign')
+
+  const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
   const [openDialog, setOpenDialog] = React.useState(false)
   const [moreRow, setMoreRow] = React.useState(null)
@@ -46,6 +49,7 @@ function ActivitiesTable(props) {
       {({ user }) =>
         <>
 
+          {createEventDialog && <CreateEventDialog toggleDialog={() => { setCreateEventDialog(!createEventDialog) }} user={user} />}
           {openDialog == 'marketing' && moreRow && <MoreDialog setDialog={stt => { setOpenDialog(stt) }}
             histories={moreRow.histories}
             campaign={moreRow.campaign} contact={moreRow.contact}
@@ -73,11 +77,14 @@ function ActivitiesTable(props) {
                   }}
                 />,
                 Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
-                  if (columnId == 4) {
+                  if (columnId == 5) {
                     activitySearch.priority = value
                   }
-                  else if (columnId == 5) {
+                  else if (columnId == 6) {
                     activitySearch.remaining = value
+                  }
+                  else if (columnId == 4) {
+                    activitySearch.phaseId = value
                   }
                   else if (columnId == 1) {
                     activitySearch.target = value
@@ -118,7 +125,7 @@ function ActivitiesTable(props) {
                           <MenuItem value='personal'>Personal</MenuItem>
                         </Select>
                         <Tooltip title="Create new activity">
-                          <IconButton>
+                          <IconButton onClick={() => { setCreateEventDialog(true) }}>
                             <AddIcon></AddIcon>
                           </IconButton>
                         </Tooltip>
@@ -154,6 +161,7 @@ function ActivitiesTable(props) {
                   'Order': 'Order',
                 }
               },
+              { title: 'PhaseID', field: 'phaseId' },
               {
                 title: 'Priority', field: 'priority'
                 ,
@@ -186,8 +194,9 @@ function ActivitiesTable(props) {
                 searchString += `${activitySearch.target ? '&target=' + activitySearch.target : ''}`
                 searchString += `${activitySearch.campaign ? '&campaign=' + activitySearch.campaign : ''}`
                 searchString += `${activitySearch.phase ? '&phase=' + activitySearch.phase : ''}`
-                searchString += `${activityOrder[5] ? '&remainingOrder=' + activityOrder[5] : ''}`
-                searchString += `${activityOrder[4] ? '&priorityOrder=' + activityOrder[4] : ''}`
+                searchString += `${activitySearch.phaseId ? '&phaseId=' + activitySearch.phaseId : ''}`
+                searchString += `${activityOrder[6] ? '&remainingOrder=' + activityOrder[6] : ''}`
+                searchString += `${activityOrder[5] ? '&priorityOrder=' + activityOrder[5] : ''}`
                 searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
                 searchString += `${activityOrder[2] ? '&campaignOrder=' + activityOrder[2] : ''}`
                 searchString += `${activityOrder[3] ? '&phaseOrder=' + activityOrder[3] : ''}`
@@ -198,14 +207,18 @@ function ActivitiesTable(props) {
                   const data = res.data.data.reduce((acc, d, index) => {
                     const priority = ['Low', 'Medium', 'High']
                     let phase = ''
+                    let phaseId = ''
                     if (d.order && d.order.status == 'COMPLETED') {
                       phase = 'Order'
+                      phaseId = `O` + d.order.id
                     }
                     else if (d.order) {
                       phase = 'Follow-up'
+                      phaseId = `F` + d.order.id
                     }
                     else {
                       phase = 'Ticket'
+                      phaseId = `T` + d.marketing.id
                     }
                     console.log(d)
                     console.log(phase)
@@ -218,7 +231,8 @@ function ActivitiesTable(props) {
                         priority: priority[d.priority],
                         remaining: d.remaining + ' day(s)',
                         id: d.id,
-                        marketing: d.marketing
+                        marketing: d.marketing,
+                        phaseId
                       }
                     }))
                     return acc
@@ -318,7 +332,9 @@ function ActivitiesTable(props) {
                           <MenuItem value='personal'>Personal</MenuItem>
                         </Select>
                         <Tooltip title="Create new activity">
-                          <IconButton>
+                          <IconButton onClick={() => {
+                            setCreateEventDialog(true)
+                          }}>
                             <AddIcon></AddIcon>
                           </IconButton>
                         </Tooltip>
