@@ -7,6 +7,7 @@ const styles = theme => ({
   root: {
     padding: '11px',
     marginBottom: '10px',
+    backgroundColor: '#e9ecef'
   }
 })
 
