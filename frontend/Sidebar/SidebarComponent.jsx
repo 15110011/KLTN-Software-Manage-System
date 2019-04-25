@@ -180,11 +180,9 @@ const SidebarComponent = props => {
                   <Paper
                     style={{ maxHeight: '350px', overflow: 'scroll' }}
                   >
-                    <PerfectScrollbar>
                       <ClickAwayListener onClickAway={handleCloseNoti}>
                         <Notification notifications={notificationData} />
                       </ClickAwayListener>
-                    </PerfectScrollbar>
                   </Paper>
                 </Grow>
               )}
