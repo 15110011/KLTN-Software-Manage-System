@@ -15,15 +15,15 @@ function CategoryBreadcrumb(props) {
       padding: '11px 72px',
       marginBottom: '10px',
       marginTop: 10,
-      backgroundColor: '#F5F5F5'
+      backgroundColor: '#e9ecef',
     }}>
       <Breadcrumbs
         separator={<b> / </b>}
         item={NavLink}
-        finalItem={'b'}
+        finalItem={'span'}
         container={Breadcrumb}
         finalProps={{
-          style: { color: 'black' }
+          style: { color: '#333333' }
         }}
       />
       {/* {

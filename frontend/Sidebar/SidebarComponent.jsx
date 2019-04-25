@@ -170,7 +170,7 @@ const SidebarComponent = props => {
                 />
               </Badge>
             </IconButton>
-            <Popper style={{ position: 'absolute', right: '45px', width: '330px' }} open={noti} anchorel1={anchorel1} transition disablePortal>
+            <Popper style={{ position: 'absolute', right: '45px', width: '330px' }} open={noti} anchorEl={anchorel1} transition disablePortal>
               {({ TransitionProps, placement }) => (
                 <Grow
                   {...TransitionProps}
@@ -180,11 +180,9 @@ const SidebarComponent = props => {
                   <Paper
                     style={{ maxHeight: '350px', overflow: 'scroll' }}
                   >
-                    <PerfectScrollbar>
-                      <ClickAwayListener onClickAway={handleCloseNoti}>
-                        <Notification notifications={notificationData} />
-                      </ClickAwayListener>
-                    </PerfectScrollbar>
+                    <ClickAwayListener onClickAway={handleCloseNoti}>
+                      <Notification notifications={notificationData} />
+                    </ClickAwayListener>
                   </Paper>
                 </Grow>
               )}
@@ -237,7 +235,7 @@ const SidebarComponent = props => {
             <ListItemIcon>
               <PersonalIcon classes={{ root: classes.listItemIcon }} />
             </ListItemIcon>
-            <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemText }} />
+            <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemTextHeader }} />
           </ListItem>
           <Divider classes={{ root: classes.divider }} />
           <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
@@ -249,7 +247,7 @@ const SidebarComponent = props => {
             </ListItemIcon>
             <ListItemText
               primary="MARKETING"
-              classes={{ primary: classes.listItemText }}
+              classes={{ primary: classes.listItemTextHeader }}
             />
             {toggle ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
@@ -313,7 +311,7 @@ const SidebarComponent = props => {
             </ListItemIcon>
             <ListItemText
               primary="INVENTORY"
-              classes={{ primary: classes.listItemText }}
+              classes={{ primary: classes.listItemTextHeader }}
             />
             {toggle1 ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
@@ -390,7 +388,7 @@ const SidebarComponent = props => {
             </ListItemIcon>
             <ListItemText
               primary="PRODUCTIVITY"
-              classes={{ primary: classes.listItemText }}
+              classes={{ primary: classes.listItemTextHeader }}
             />
             {toggle2 ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
@@ -431,7 +429,7 @@ const SidebarComponent = props => {
             </ListItemIcon>
             <ListItemText
               primary="CONVERSATION"
-              classes={{ primary: classes.listItemText }}
+              classes={{ primary: classes.listItemTextHeader }}
             />
             {toggle3 ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
@@ -472,7 +470,7 @@ const SidebarComponent = props => {
             </ListItemIcon>
             <ListItemText
               primary="TOOLS"
-              classes={{ primary: classes.listItemText }}
+              classes={{ primary: classes.listItemTextHeader }}
             />
             {toggle4 ? <ExpandLess /> : <ExpandMore />}
           </ListItem>

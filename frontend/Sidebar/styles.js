@@ -102,6 +102,10 @@ const styles = theme => ({
     color: '#fff',
     fontWeight: '400'
   },
+  listItemTextHeader: {
+    color: '#fff',
+    fontWeight: '500'
+  },
   listItemIcon: {
     color: '#fff'
   },
@@ -111,7 +115,7 @@ const styles = theme => ({
   nested: {
   },
   toolbar: {
-    background: 'linear-gradient(0deg,rgba(39, 54, 80, 0.7),rgba(39, 54, 80, 0.7)), url(https://demos.creative-tim.com/material-dashboard-pro-react/static/media/sidebar-2.d30c9e30.jpg)',
+    background: 'linear-gradient(0deg,rgba(0,0,0,0.7),rgba(0,0,0,0.7)),url(https://demos.creative-tim.com/material-dashboard-pro-react/static/media/sidebar-2.d30c9e30.jpg)',
     backgroundSize: 'cover',
   },
   notiSection: {

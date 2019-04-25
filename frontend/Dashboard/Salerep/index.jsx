@@ -28,24 +28,20 @@ function SalerepDashboard(props) {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={40} classes={{ container: classes.fixTable }}>
+      <Grid container classes={{ container: classes.fixTable }}>
         <Grid item xs={12}>
           <ActivitiesTable tableActivtyRef={tableActivtyRef}
             tableMarketingRef={tableMarketingRef}
             forceActivities={forceActivities}
           />
         </Grid>
-
         <Grid item xs={12}>
           <MarketingTable forceActivities={forceActivities}
             forceMarketing={forceMarketing}
             tableMarketingRef={tableMarketingRef}
           />
         </Grid>
-
-
       </Grid>
-
     </div>
   )
 }
