@@ -14,7 +14,7 @@ import { htmlToState, draftToRaw } from "../common/utils";
 import { EVENTS_URL, REFRESH_TOKEN_URL, GET_SALE_REPS_URL } from '../../common/urls';
 import useFetchData from '../../CustomHook/useFetchData'
 import FormControl from '@material-ui/core/FormControl';
-import * as dateFns from '@date-io/date-fns'
+import * as dateFns from 'date-fns'
 import { apiPost } from '../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 import CustomSnackbar from '../components/CustomSnackbar'
@@ -24,7 +24,7 @@ import styles from './EventStyles'
 function CreateEventDialog(props) {
 
   const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal, user,
-    updateActivities
+    updateActivities, type_
   } = props
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
@@ -36,15 +36,16 @@ function CreateEventDialog(props) {
   const [createEvent, setCreateEvent] = React.useState({
     name: '',
     assigned_to: assigned_to ? assigned_to : '',
-    start_date: dateFns.format(Date.now(), 'YYYY-MM-DD'),
-    end_date: dateFns.format(Date.now(), 'YYYY-MM-DD'),
-    order: order ? order : '',
+    start_date: dateFns.format(Date.now(), 'yyyy-MM-dd'),
+    end_date: dateFns.format(Date.now(), 'yyyy-MM-dd'),
+    order: order ? order.id : '',
     marketing: marketing ? marketing.marketing_plan.id : '',
     content: '',
-    contacts: targets.map(t => ({
+    contacts: targets ? targets.map(t => ({
       label: t.first_name + ' ' + t.last_name, value: t.id, ...t
-    })),,
-    priority: 0
+    })) : [],
+    priority: 0,
+    type_: type_ ? type_ : 'personal'
   })
 
 
@@ -293,29 +294,101 @@ function CreateEventDialog(props) {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} style={{ 'marginTop': '2%' }} item xs={2}>
+
+          <Grid className={classes.inputCustom} item xs={2}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+              required
+            >
+              Event type
+          </InputLabel>
+          </Grid>
+          <Grid item xs={4} className='pr-5'>
+            <FormControl fullWidth className={classes.formControl} margin='dense'>
+              <Select
+                value={createEvent.type_}
+                onChange={onChangeInput}
+                name="type_"
+              >
+                <MenuItem value='personal'>
+                  Personal
+                </MenuItem>
+                <MenuItem value='campaign'>
+                  Campaign
+                </MenuItem>
+
+              </Select>
+            </FormControl>
+          </Grid>
+
+          {createEvent.type_ == 'campaign' ?
+            <>
+              <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
                     root: classes.cssLabel,
                     focused: classes.cssFocused,
                   }}
+                  required
                 >
-                  Description
+                  Of campaign
                 </InputLabel>
               </Grid>
-              <Grid item xs={10} spacing={40}>
-                <Editor
-                  editorState={editorState}
-                  wrapperClassName="editor-wrapper"
-                  editorClassName="editor"
-                  onEditorStateChange={onEditorStateChange}
+              <Grid item xs={4}>
+                <SelectCustom
+                  // handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
+                  name="contacts"
+                  options={targets && targets.reduce((acc, u) => {
+                    acc.push(
+                      {
+                        label: `${u.full_name}`,
+                        value: u.id,
+                        ...u
+                      }
+                    )
+                    return acc
+                  }, [])}
+                  data={
+                    createEvent.contacts
+                      .reduce((acc, u) => {
+                        acc.push({ label: `${u.full_name}`, value: u.id, ...u })
+                        return acc
+                      }, [])
+                  }
+                  fullWidth
+                  multi
                 />
               </Grid>
-            </Grid>
+            </>
+            :
+            <Grid item xs={6}></Grid>
+          }
+          <Grid className={classes.inputCustom} style={{ 'marginTop': '1%' }} item xs={2}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+            >
+              Description
+                </InputLabel>
           </Grid>
+          <Grid item xs={10} style={{ 'marginTop': '2%' }}>
+            <Editor
+              editorState={editorState}
+              wrapperClassName="editor-wrapper"
+              editorClassName="editor"
+              onEditorStateChange={onEditorStateChange}
+            />
+          </Grid>
+
+
         </Grid>
       </DialogContent>
       <DialogActions>

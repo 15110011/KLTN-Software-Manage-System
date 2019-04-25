@@ -87,6 +87,14 @@ const styles = (theme) => ({
     '&:hover': {
       backgroundColor: '#c3c0c094'
     }
+  },
+  activityTagline: {
+    fontSize: '0.75rem',
+    fontStyle: 'italic',
+    color: '#707070',
+    display: 'inline',
+    alignSelf: 'center'
+
   }
 })
 

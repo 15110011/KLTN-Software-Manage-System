@@ -10,7 +10,7 @@ import EmailIcon from '@material-ui/icons/Email'
 import NoteIcon from '@material-ui/icons/Note'
 import TimerIcon from '@material-ui/core/AccessTime'
 
-import * as dateFns from '@date-io/date-fns'
+import * as dateFns from 'date-fns'
 
 import { Input, InputLabel } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
@@ -25,6 +25,7 @@ import CreateEventDialog from '../../Events/CreateEventDialog'
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
 import SendMailDialog from '../../Mailbox/SendMailDialog'
+
 
 function MoreDialog(props) {
 
@@ -183,11 +184,11 @@ function MoreDialog(props) {
             {histories.length > 0 ?
               <>
                 <Grid className={classes.inputCustom} item xs={2}>
-                  Latest contact:
+                  Last contact:
                 </Grid>
                 <Grid item xs={4}>
                   <DialogContentText>
-                    {dateFns.format(histories[0].created, 'DD-MM-YYYY')}
+                    {dateFns.format(dateFns.parseISO(histories[0].created), 'dd-MM-yyyy')}
                   </DialogContentText>
                 </Grid>
               </>

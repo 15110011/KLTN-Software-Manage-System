@@ -8,7 +8,7 @@ import EmailIcon from '@material-ui/icons/Email'
 import NoteIcon from '@material-ui/icons/Note'
 import TimerIcon from '@material-ui/core/AccessTime'
 
-import * as dateFns from '@date-io/date-fns'
+import * as dateFns from 'date-fns'
 
 import { Input, InputLabel } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'

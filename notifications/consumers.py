@@ -31,7 +31,7 @@ class NotificationConsumer(JsonWebsocketConsumer):
             })
 
     def get_notifications(self, user_id):
-        queryset = Notification.objects.filter(user=user_id)
+        queryset = Notification.objects.filter(user=user_id).order_by('-created')
         data = serializers.NotificationSerializer(queryset, many=True).data
         return data
 

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.db.models import Q
+from django.db import models as DjangoModel
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import action
@@ -29,36 +30,80 @@ class EventView(ModelViewSet):
         queryset = self.get_queryset()
         filters.add(Q(assigned_to=request.user), Q.AND)
         # upcomping or calender list render
+        view_type = request.query_params.get('view_type', 'campaign')
         list_type = request.query_params.get('list_type', 'upcoming')
         remaining_order = request.query_params.get('remainingOrder', None)
         priority_order = request.query_params.get('priorityOrder', None)
-        if list_type == 'upcoming':
-            # Filter
-            remaining = request.query_params.get('remaining', None)
-            priority = request.query_params.get('priority', None)
-            # order
-            if remaining_order:
-                remaining_order = '-end_date' if remaining_order == 'desc' else 'end_date'
-            if priority_order:
-                priority_order = '-priority' if priority_order == 'desc' else 'priority'
-
-            filters.add(Q(end_date__gte=now), Q.AND)
-            filters.add(Q(start_date__lte=now), Q.AND)
-            if remaining:
-                filters.add(Q(end_date=datetime.timedelta(
-                    days=int(remaining))+now), Q.AND)
-            if priority:
-                priorities = [int(p) for p in priority.split(',')]
-                filters.add(Q(priority__in=priorities), Q.AND)
-        elif list_type == 'marketing':
-            filters.add(Q(end_date__gte=now), Q.AND)
-            filters.add(Q(order=None), Q.AND)
+        target_order = request.query_params.get('targetOrder', None)
+        campaign_order = request.query_params.get('campaignOrder', None)
+        phase_order = request.query_params.get('phaseOrder', None)
+        # Filter
+        remaining = request.query_params.get('remaining', None)
+        priority = request.query_params.get('priority', None)
+        target = request.query_params.get('target', None)
+        campaign = request.query_params.get('campaign', None)
+        phase = request.query_params.get('phase', None)
+        phase_id = request.query_params.get('phaseId', None)
+        # order
+        if remaining_order:
+            remaining_order = '-end_date' if remaining_order == 'desc' else 'end_date'
+        if priority_order:
+            priority_order = '-priority' if priority_order == 'desc' else 'priority'
+        if campaign_order:
+            campaign_order = '-priority' if priority_order == 'desc' else 'priority'
+        if view_type == 'campaign':
             excludes.add(Q(marketing=None), Q.AND)
-        elif list_type == 'followup':
-            filters.add(Q(end_date__gte=now), Q.AND)
-            filters.add(Q(marketing=None), Q.AND)
             excludes.add(Q(order=None), Q.AND)
-        # pagin
+        elif view_type == 'personal':
+            filters.add(Q(marketing=None), Q.AND)
+            filters.add(Q(order=None), Q.AND)
+        filters.add(Q(end_date__gte=now), Q.AND)
+        filters.add(Q(start_date__lte=now), Q.AND)
+        if remaining:
+            filters.add(Q(end_date=datetime.timedelta(
+                days=int(remaining))+now), Q.AND)
+        if priority:
+            priorities = [int(p) for p in priority.split(',')]
+            filters.add(Q(priority__in=priorities), Q.AND)
+        if target:
+            filters.add(Q(contacts__first_name__icontains=target) |
+                        Q(contacts__last_name__icontains=target), Q.AND)
+        if campaign:
+            filters.add(
+                Q(marketing__campaign__name__icontains=campaign), Q.AND)
+        if phase:
+            phases = [p for p in phase.split(',')]
+            phase_filter = Q()
+            if 'Ticket' in phase:
+                phase_filter.add(Q(marketing__status='RUNNING'), Q.OR)
+            if 'Follow-Up' in phase:
+                phase_filter.add(Q(marketing__status='COMPLETED')
+                                 & Q(order__status='RUNNING'), Q.OR)
+            if 'Order' in phase:
+                phase_filter.add(Q(order__status='COMPLETED'), Q.OR)
+            filters.add(phase_filter, Q.AND)
+        if phase_id and ('O' in phase_id or 'T' in phase_id or 'F' in phase_id):
+            phase_type = phase_id[0]
+            look_id = phase_id[1:]
+            if look_id:
+                if phase_type == 'O':
+                    filters.add(Q(order__status='COMPLETED'), Q.AND)
+                    filters.add(Q(order__id=int(look_id)), Q.AND)
+                elif phase_type == 'F':
+                    filters.add(Q(marketing__status='COMPLETED')
+                                & Q(order__status='RUNNING') & Q(order__id=int(look_id)), Q.AND)
+                elif phase_type == 'T':
+                    filters.add(Q(marketing__status='RUNNING') &
+                                Q(marketing__id=int(look_id)), Q.AND)
+            else:
+                if phase_type == 'O':
+                    filters.add(Q(order__status='COMPLETED'), Q.AND)
+                elif phase_type == 'F':
+                    filters.add(Q(marketing__status='COMPLETED')
+                                & Q(order__status='RUNNING'), Q.AND)
+                elif phase_type == 'T':
+                    filters.add(Q(marketing__status='RUNNING'), Q.AND)
+        # paging
         page = request.query_params.get(
             'page') if int(request.query_params.get('page', 0)) > 0 else 0
 
@@ -70,29 +115,67 @@ class EventView(ModelViewSet):
             filters.add(Q(marketing__status='RUNNING') |
                         Q(order__status='RUNNING'), Q.AND)
             # queryset = queryset.exclude(excludes).filter(filters)
-            if list_type == 'marketing' or list_type == 'followup':
-                queryset = queryset.exclude(excludes).filter(filters).order_by('modified', 'end_date', '-priority')[
-                    int(page)*int(limit):int(page)*int(limit)+int(limit)]
-            elif remaining_order == None and priority_order == None:
-                queryset = queryset.exclude(excludes).filter(filters).order_by('end_date', '-priority')[
-                    int(page)*int(limit):int(page)*int(limit)+int(limit)]
-
-            elif remaining_order != None:
+            if remaining_order != None:
                 queryset = queryset.exclude(excludes).filter(filters).order_by(remaining_order, '-priority')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]
             elif priority_order != None:
                 queryset = queryset.exclude(excludes).filter(filters).order_by(priority_order, 'end_date')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]
-
+            elif phase_order != None:
+                if phase_order == 'asc':
+                    queryset = queryset.exclude(excludes).filter(filters).annotate(
+                        phase=DjangoModel.Case(
+                            DjangoModel.When(
+                                marketing__status='RUNNING', then=DjangoModel.Value(0)),
+                            DjangoModel.When(marketing__status='COMPLETED',
+                                             order__status='RUNNING', then=DjangoModel.Value(1)),
+                            DjangoModel.When(
+                                marketing__status='COMPLETED', order__status='COMPLETED', then=DjangoModel.Value(2)),
+                            output_field=DjangoModel.IntegerField()
+                        )
+                    ).order_by('phase')[int(page)*int(limit):int(page)*int(limit)+int(limit)]
+                elif phase_order == 'desc':
+                    queryset = queryset.exclude(excludes).filter(filters).annotate(
+                        phase=DjangoModel.Case(
+                            DjangoModel.When(
+                                marketing__status='RUNNING', then=DjangoModel.Value(0)),
+                            DjangoModel.When(marketing__status='COMPLETED',
+                                             order__status='RUNNING', then=DjangoModel.Value(1)),
+                            DjangoModel.When(
+                                marketing__status='COMPLETED', order__status='COMPLETED', then=DjangoModel.Value(2)),
+                            output_field=DjangoModel.IntegerField()
+                        )
+                    ).order_by('-phase')[int(page)*int(limit):int(page)*int(limit)+int(limit)]
+                print(queryset.query)
+            elif target_order != None:
+                if target_order == 'asc':
+                    queryset = queryset.exclude(excludes).filter(filters).order_by('contacts__first_name', 'contacts__last_name', 'end_date')[
+                        int(page)*int(limit):int(page)*int(limit)+int(limit)]
+                elif target_order == 'desc':
+                    queryset = queryset.exclude(excludes).filter(filters).order_by('-contacts__first_name', '-contacts__last_name', 'end_date')[
+                        int(page)*int(limit):int(page)*int(limit)+int(limit)]
+            else:
+                queryset = queryset.exclude(excludes).filter(filters).order_by('end_date', '-priority')[
+                    int(page)*int(limit):int(page)*int(limit)+int(limit)]
             serializer = serializers.EventReadSerializer(queryset, many=True)
-
         else:
             serializer = serializers.EventReadSerializer(queryset.filter(
                 filters).order_by('priority'), many=True)
 
+        set_id = set()
+        final_data = []
+        for event in serializer.data:
+
+            if event['id'] not in set_id:
+                if target:
+                    event['contacts'] = [c for c in event['contacts']
+                                         if target.upper() in c['first_name'].upper() or c['last_name'].upper() in target.upper()]
+                final_data.append(event)
+                set_id.add(event['id'])
+
         new_data = {
-            "data": serializer.data,
-            "total": len(serializer.data)
+            "data": final_data,
+            "total": self.get_queryset().exclude(excludes).filter(filters).values('contacts__first_name').count()
         }
 
         return Response(new_data, status=status.HTTP_200_OK)
