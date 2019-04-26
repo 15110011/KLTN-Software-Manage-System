@@ -7,7 +7,6 @@ import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import styles from './NotificationStyles'
-import { Scrollbars } from 'react-custom-scrollbars';
 
 function Notification(props) {
   const { socket, classes, notifications } = props
