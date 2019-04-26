@@ -38,7 +38,6 @@ function SendMailDialog(props) {
   const onSendMail = () => {
 
     apiPost(GMAIL_SEND_URL, mail, false, true).then(res => {
-      console.log(res)
     })
     if (updateMailMetric) {
       updateMailMetric()

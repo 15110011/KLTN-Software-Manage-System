@@ -53,7 +53,7 @@ def ContactMatchConditions(request):
             if condition['operator'] == 'Not equal to':
                 excludes.add(Q(state=condition['data']), Q.AND)
                 filters.add(Q(id__in=[c['id'] for c in contacts]), Q.AND)
-                queryset = Contact.objects.exclude(excludes)
+                queryset = Contact.objects.exclude(excludes).filter(filters)
                 queryset = ContactWithoutGroupSerializer(
                     queryset, many=True).data
                 return Response(queryset, status=status.HTTP_200_OK)
@@ -176,6 +176,7 @@ class MarketingPlanView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
+            print(qs)
             return Response(qs)
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
@@ -375,7 +376,7 @@ class ContactMarketingView(ModelViewSet):
             filters.add(Q(status='RUNNING'), Q.AND)
             queryset = queryset.exclude(excludes).filter(filters).order_by('modified')[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
-
+            print(queryset.query)
             serializer = self.get_serializer(queryset, many=True)
 
         else:

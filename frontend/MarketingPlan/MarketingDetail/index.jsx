@@ -271,7 +271,6 @@ function MarketingPlanDetail(props) {
                       <Grid item xs={8}>
                         {
                           marketingPlanDetail.condition.must.map((m, i) => {
-                            console.log(m)
                             return (
                               <Grid key={i} container spacing={24}>
                                 <Grid item xs={4}>

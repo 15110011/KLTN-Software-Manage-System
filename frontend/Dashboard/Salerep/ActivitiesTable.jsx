@@ -52,6 +52,7 @@ function ActivitiesTable(props) {
           {createEventDialog && <CreateEventDialog toggleDialog={() => { setCreateEventDialog(!createEventDialog) }} user={user} />}
           {openDialog == 'marketing' && moreRow && <MoreDialog setDialog={stt => { setOpenDialog(stt) }}
             histories={moreRow.histories}
+            allHistories={moreRow.histories}
             campaign={moreRow.campaign} contact={moreRow.contact}
             id={moreRow.id}
             contact={moreRow.contact}
@@ -220,8 +221,6 @@ function ActivitiesTable(props) {
                       phase = 'Ticket'
                       phaseId = `T` + d.marketing.id
                     }
-                    console.log(d)
-                    console.log(phase)
                     acc.push(...d.contacts.map(c => {
                       return {
                         work: d.name,
@@ -419,7 +418,6 @@ function ActivitiesTable(props) {
             }
             }
             onRowClick={(e, rowData) => {
-              console.log(rowData)
             }}
 
             title="Contacts List"

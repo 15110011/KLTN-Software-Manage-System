@@ -167,9 +167,10 @@ function CreateCampaign(props) {
     if (isCreateMarketingPlanDialog == false && isEditMarketingPlan == false) {
       e.preventDefault()
       const data = { ...createCampaign, desc: draftToRaw(editorState) }
-      data.assigned_to = data.assigned_to.map(t => t.id)
+      data.assigned_to = data.assigned_to.map(t => t.user.id)
+      data.contacts = data.contacts.map(c => c.id)
       data.follow_up_plan = data.follow_up_plan.id
-      if (data.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1)
+      if (data.marketing_plan.actions && data.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1)
         data.mail_template = data.mail_template.id
       else {
         delete data.mail_template
@@ -177,7 +178,6 @@ function CreateCampaign(props) {
       data.marketing_plan = data.marketing_plan.id
       data.packages = data.packages.map(p => p.id)
       apiPostCampaign(data)
-      setCreateCampaignDialog(false)
     }
   }
 
@@ -305,6 +305,7 @@ function CreateCampaign(props) {
         }
         else {
           notification()
+          setCreateCampaignDialog(false)
         }
       })
   }

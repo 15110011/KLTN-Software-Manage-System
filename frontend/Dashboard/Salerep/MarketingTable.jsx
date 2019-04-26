@@ -20,7 +20,7 @@ import USERCONTEXT from '../../components/UserContext'
 
 function MarketingTable(props) {
 
-  const { classes, tableMarketingRef, forceActivities, forceMarketing } = props
+  const { classes, tableMarketingRef, forceActivities, forceMarketing, history } = props
 
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
@@ -28,9 +28,6 @@ function MarketingTable(props) {
 
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [moreDialog, setMoreDialog] = React.useState(false)
-
-
-
 
 
   //Marketing
@@ -61,6 +58,7 @@ function MarketingTable(props) {
         <>
           {moreDialog && <MoreDialog setDialog={stt => { setMoreDialog(stt) }}
             histories={moreRow.histories}
+            allHistories={moreRow.histories}
             campaign={moreRow.campaign} contact={moreRow.contact}
             id={moreRow.id}
             contact={moreRow.contact}
@@ -68,6 +66,8 @@ function MarketingTable(props) {
             updateActivities={forceActivities}
             marketing={moreRow.marketing}
             user={user}
+            setMovingRow={setMovingRow}
+            setDeletingRow={setDeletingRow}
           />}
           <Dialog open={Object.keys(movingRow).length != 0}
             onClose={() => { setMovingRow({}) }
@@ -114,7 +114,7 @@ function MarketingTable(props) {
                 Toolbar: props =>
                   <Card plain>
                     <CardHeader color="primary">
-                      <h4 className={classes.cardTitleWhite}>Contacts in Marketing Plan</h4>
+                      <h4 onClick={()=> history.push('/dashboard/ticket-detail')} className={classes.cardTitleWhite}>Tickets</h4>
                     </CardHeader>
                   </Card>,
                 Pagination: props => <TablePagination {...props}
@@ -165,7 +165,6 @@ function MarketingTable(props) {
                 })
               })
             }
-
             actions={[
               {
                 icon: 'remove',
@@ -188,7 +187,6 @@ function MarketingTable(props) {
                 onClick: (event, row) => {
                   setMoreRow(row)
                   setMoreDialog(true)
-
                 },
               },
             ]}

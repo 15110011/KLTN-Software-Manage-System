@@ -120,9 +120,7 @@ class Content extends React.Component {
         // })
         window.gapi.auth2.getAuthInstance().grantOfflineAccess()
           .then((res) => {
-            console.log(res)
             apiPost(GMAIL_AUTH_URL, { code: res.code }, false, true).then(res => {
-              console.log(res)
             })
           });
       }

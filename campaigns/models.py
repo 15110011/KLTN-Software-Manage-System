@@ -24,12 +24,12 @@ class MarketingPlan(BaseModel):
                          size=8, default=list)
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='marketing_plan')
-    contacts = models.ManyToManyField(
-        Contact,
-        related_name='marketing_plans',
-        through='ContactMarketing',
-        through_fields=('marketing_plan', 'contact'),
-    )
+    # contacts = models.ManyToManyField(
+    #     Contact,
+    #     related_name='marketing_plans',
+    #     through='ContactMarketing',
+    #     through_fields=('marketing_plan', 'contact'),
+    # )
     can_modify = models.BooleanField(default=True)
 
     def _get_plan_name(self):

@@ -16,7 +16,6 @@ import ManagerDashboard from './Manager'
 
 function Dashboard(props) {
 
-
   return (
       <USERCONTEXT.Consumer>
         {({ user }) => (

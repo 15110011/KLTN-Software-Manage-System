@@ -2,34 +2,67 @@ import * as React from 'react'
 
 import { Link, withRouter } from 'react-router-dom'
 
-import { withStyles } from '@material-ui/core'
+import { withStyles, Typography, Paper } from '@material-ui/core'
 import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import PhoneIcon from '@material-ui/icons/Phone'
+import SwapIcon from '@material-ui/icons/SwapHoriz'
+import RemoveIcon from '@material-ui/icons/Remove'
 import EmailIcon from '@material-ui/icons/Email'
 import NoteIcon from '@material-ui/icons/Note'
-import TimerIcon from '@material-ui/core/AccessTime'
-
+import TimerIcon from '@material-ui/icons/AccessAlarm'
 import * as dateFns from 'date-fns'
-
 import { Input, InputLabel } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
-
-import styles from './SalerepStyles.js'
-import ContactDetail from './ContactDetail'
-import NoteDialog from './NoteDialog'
+import Input from '@material-ui/core/Input';
+import OutlinedInput from '@material-ui/core/OutlinedInput';
+import FilledInput from '@material-ui/core/FilledInput';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 import { apiPost } from '../../common/Request'
 import CustomSnackbar from '../../components/CustomSnackbar'
 import CreateEventDialog from '../../Events/CreateEventDialog'
+import SwipeableViews from 'react-swipeable-views';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
+
+
+import styles from './SalerepStyles.js'
+import NoteDetail from './NoteDetail'
+import ContactDetail from './ContactDetail'
 import SendMailDialog from '../../Mailbox/SendMailDialog'
 
+function TabContainer({ children, dir }) {
+  return (
+    <Typography component="div" dir={dir} style={{ padding: 8 * 3 }}>
+      {children}
+    </Typography>
+  );
+}
 
 function MoreDialog(props) {
 
-  const { classes, setDialog, campaign, contact, histories, id, updateTable, marketing, user,
+  const {
+    classes,
+    setDialog,
+    campaign,
+    contact,
+    histories,
+    allHistories,
+    id,
+    updateTable,
+    marketing,
+    user,
+    setDeletingRow,
+    setMovingRow,
     updateActivities
   } = props
 
@@ -37,6 +70,9 @@ function MoreDialog(props) {
     'Send Email ': 0,
     'Send Email Manually': 0,
     'Call Client': 0
+  })
+  const [selectTabActivity, setSelectTabActivity] = React.useState({
+    type: 'notes'
   })
 
   const [noteDialog, setNoteDialog] = React.useState(false)
@@ -48,7 +84,19 @@ function MoreDialog(props) {
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
   const [error, setError] = React.useState(false)
+  const [value, setValue] = React.useState(1)
 
+  const handleChangeSelectTabActivity = e => {
+    setSelectTabActivity({ [e.target.name]: e.target.value });
+  }
+
+  const handleChange = (event, value) => {
+    setValue(value)
+  };
+
+  const handleChangeIndex = index => {
+    setValue(index)
+  };
 
   React.useEffect(() => {
     // Effect
@@ -80,7 +128,6 @@ function MoreDialog(props) {
 
   const onSendEmail = () => {
     setMailDialog(true)
-
   }
 
   const updateMailMetric = () => {
@@ -95,7 +142,6 @@ function MoreDialog(props) {
   }
 
 
-
   return (
     <>
       {mailDialog &&
@@ -105,98 +151,153 @@ function MoreDialog(props) {
       }
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
       {error.all && <CustomSnackbar isErr msg={error.all} />}
-      {contactDetail && <ContactDetail toggleDialog={() => {
+      {/* {contactDetail && <ContactDetail toggleDialog={() => {
         setContactDetail(false)
       }}
         contact={contact}
         contactHistories={histories}
-      ></ContactDetail>}
+      ></ContactDetail>} */}
 
       {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
         targets={[contact]} marketing={marketing}
         updateActivities={updateActivities}
       />}
-      {noteDialog && <NoteDialog toggleDialog={() => {
+      {/* {noteDialog && <NoteDialog toggleDialog={() => {
         setNoteDialog(false)
       }}
         campaign={campaign}
         contact={contact}
-      ></NoteDialog>}
+      ></NoteDialog>} */}
       <Dialog open={true} onClose={() => { setDialog(false) }}
-        maxWidth="md"
+        maxWidth="lg"
         fullWidth
       >
         <DialogTitle>
-          Contact Actions - Campaign {campaign.name}
+          <h4>
+          Manage Contact
+          </h4>
         </DialogTitle>
         <DialogContent>
-          <Grid container spacing={8}>
+          <Grid style={{ padding: '10px 40px' }} container spacing={24}>
+            <Grid item xs={12}>
+              <Typography variant="title">
+                {contact.first_name}
+              </Typography>
+              <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
+                {marketing.marketing_plan.actions.findIndex(a => a == 'Call Client') != -1 &&
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnGreen
+                    }}
+                    onClick={() => {
+                      onCall()
+                    }}
+                  >
+                    <PhoneIcon fontSize="small" />
+                  </Button>
+                }
+
+                {marketing.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 &&
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnPink
+                    }}
+                    onClick={() => {
+                      onSendEmail()
+                    }}
+                  >
+                    <EmailIcon fontSize="small" />
+                  </Button>
+                }
+
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnBlue
+                  }}
+                  onClick={() => { setNoteDialog(true) }}
+                >
+                  <NoteIcon fontSize="small" />
+                </Button>
+
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnYellow
+                  }}
+                  onClick={() => {
+                    setLaterDialog(!laterDialog)
+                  }}
+                >
+                  <TimerIcon fontSize="small" />
+                </Button>
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnPurple
+                  }}
+                  onClick={() => {
+                    setMovingRow({ id: id, full_name: marketing.contact.full_name })
+                  }}
+                >
+                  <SwapIcon fontSize="small" />
+                </Button>
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnRed
+                  }}
+                  onClick={() => {
+                    setDeletingRow({ id: id, full_name: marketing.contact.full_name, campaignName: marketing.campaign.name })
+                  }}
+                >
+                  <RemoveIcon fontSize="small" />
+                </Button>
+              </DialogActions>
+            </Grid>
+            <Grid className={classes.inputHeaderCustom} item xs={12}>
+              Contact info
+            </Grid>
             <Grid className={classes.inputCustom} item xs={2}>
-              Contact:
-          </Grid>
+              Full name
+            </Grid>
             <Grid item xs={4}>
-              <DialogContentText>
+              <DialogContentText className={classes.inputCustom}>
                 {contact.first_name + ' ' + contact.last_name}
               </DialogContentText>
             </Grid>
-
             <Grid className={classes.inputCustom} item xs={2}>
-              Email:
-          </Grid>
-            <Grid item xs={4}>
-              <DialogContentText>
+              Email
+            </Grid>
+            <Grid item xs={4} >
+              <DialogContentText className={classes.inputCustom}>
                 {contact.mail}
               </DialogContentText>
             </Grid>
-
             <Grid className={classes.inputCustom} item xs={2}>
-              Phone:
+              Phone
           </Grid>
             <Grid item xs={4}>
-              <DialogContentText>
+              <DialogContentText className={classes.inputCustom}>
                 {contact.phone}
               </DialogContentText>
             </Grid>
-            <Grid item xs={6}></Grid>
-
-            <Grid className={classes.inputCustom} item xs={2}>
-              Contact times:
-          </Grid>
-            <Grid item xs={4}>
-              {histories.length > 0 ? <DialogContentText onClick={() => { setContactDetail(true) }} className={classes.linkStyle}
-                style={{ cursor: 'pointer' }}>
-                {
-                  Object.keys(contactHistories).reduce((acc, k) => {
-                    if (contactHistories[k] != 0) {
-                      acc += `${contactHistories[k]} (${k}), `
-                    }
-                    return acc
-                  }, '').slice(0, -2)
-                }
-              </DialogContentText>
-                :
-                <DialogContentText>
-                  0
-                 </DialogContentText>
-              }
+            <Grid className={classes.inputHeaderCustom} item xs={12}>
+              Campaign info
             </Grid>
-
-            {histories.length > 0 ?
-              <>
-                <Grid className={classes.inputCustom} item xs={2}>
-                  Last contact:
-                </Grid>
-                <Grid item xs={4}>
-                  <DialogContentText>
-                    {dateFns.format(dateFns.parseISO(histories[0].created), 'dd-MM-yyyy')}
-                  </DialogContentText>
-                </Grid>
-              </>
-              : <Grid item xs={6}></Grid>
-            }
             <Grid className={classes.inputCustom} item xs={2}>
-              Packages:
-          </Grid>
+              Campaign name
+            </Grid>
+            <Grid item xs={4}>
+            <DialogContentText className={classes.inputCustom}>
+                {campaign.name}
+              </DialogContentText>
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2}>
+              Packages
+            </Grid>
             <Grid item xs={4}>
               <Grid container spacing={8}>
                 {
@@ -214,63 +315,129 @@ function MoreDialog(props) {
                 }
               </Grid>
             </Grid>
+            {/* <Grid className={classes.inputCustom} item xs={2}>
+              Contact times:
+            </Grid>
+            <Grid item xs={4}>
+              {histories.length > 0 ? <DialogContentText onClick={() => { setContactDetail(true) }} className={classes.linkStyle}
+                style={{ cursor: 'pointer' }}>
+                {
+                  Object.keys(contactHistories).reduce((acc, k) => {
+                    if (contactHistories[k] != 0) {
+                      acc += `${contactHistories[k]} (${k}), `
+                    }
+                    return acc
+                  }, '').slice(0, -2)
+                }
+              </DialogContentText>
+                :
+                <DialogContentText>
+                  0
+                 </DialogContentText>
+              }
+            </Grid> */}
+
+            {/* {histories.length > 0 ?
+              <>
+                <Grid className={classes.inputCustom} item xs={2}>
+                  Last contact:
+                </Grid>
+                <Grid item xs={4}>
+                  <DialogContentText>
+                    {dateFns.format(dateFns.parseISO(histories[0].created), 'dd-MM-yyyy')}
+                  </DialogContentText>
+                </Grid>
+              </>
+              : <Grid item xs={6}></Grid>
+            } */}
+            <Grid className={classes.inputHeaderCustom} item xs={9}>
+              Activity
           </Grid>
-
+            <Grid className="d-flex justify-content-end" item xs={3}>
+              <FormControl className={classes.formControl}>
+                <Select
+                  value={selectTabActivity.type}
+                  onChange={handleChangeSelectTabActivity}
+                  inputProps={{
+                    name: 'type',
+                  }}
+                >
+                  <MenuItem value="history">
+                    History
+                  </MenuItem>
+                  <MenuItem value="notes">
+                    Notes
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Paper>
+                <Tabs
+                  value={value}
+                  onChange={handleChange}
+                  classes={{ root: classes.tabsRoot, indicator: classes.tabsIndicator }}
+                >
+                  <Tab
+                    disableRipple
+                    classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
+                    label="All"
+                  />
+                  <Tab
+                    disableRipple
+                    classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
+                    label="Personal"
+                  />
+                </Tabs>
+                {
+                  selectTabActivity.type == "history" &&
+                  <>
+                    {value === 0 &&
+                      <TabContainer>
+                        <ContactDetail
+                          contact={contact}
+                          contactHistories={allHistories}
+                        />
+                      </TabContainer>
+                    }
+                    {value === 1 &&
+                      <TabContainer>
+                        <ContactDetail
+                          contact={contact}
+                          contactHistories={histories}
+                        />
+                      </TabContainer>
+                    }
+                  </>
+                }
+                {
+                  selectTabActivity.type == "notes" &&
+                  <>
+                    {
+                      value === 0 &&
+                      <TabContainer>
+                        <NoteDetail
+                          type="all"
+                          campaign={campaign}
+                          contact={contact}
+                        />
+                      </TabContainer>
+                    }
+                    {value === 1 &&
+                      <TabContainer>
+                        <NoteDetail
+                          campaign={campaign}
+                          contact={contact}
+                        />
+                      </TabContainer>
+                    }
+                  </>
+                }
+              </Paper>
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions>
 
-          {marketing.marketing_plan.actions.findIndex(a => a == 'Call Client') != -1 && < Button
-            variant='contained'
-            classes={{
-              contained: classes.btnGreen
-            }}
-            onClick={() => {
-              onCall()
-            }}
-          >
-            Call{' '}
-            <PhoneIcon></PhoneIcon>
-          </Button>
-          }
-
-          {marketing.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 && <Button
-            variant='contained'
-            classes={{
-              contained: classes.btnPink
-            }}
-            onClick={() => {
-              onSendEmail()
-            }}
-          >
-            Mail{' '}
-            <EmailIcon></EmailIcon>
-          </Button>
-          }
-
-          <Button
-            variant='contained'
-            classes={{
-              contained: classes.btnBlue
-            }}
-            onClick={() => { setNoteDialog(true) }}
-          >
-            Note{' '}
-            <NoteIcon></NoteIcon>
-          </Button>
-
-          <Button
-            variant='contained'
-            classes={{
-              contained: classes.btnYellow
-            }}
-            onClick={() => {
-              setLaterDialog(!laterDialog)
-            }}
-          >
-            Later{' '}
-            {/* <TimerIcon></TimerIcon> */}
-          </Button>
-        </DialogActions>
       </Dialog>
     </>
   )

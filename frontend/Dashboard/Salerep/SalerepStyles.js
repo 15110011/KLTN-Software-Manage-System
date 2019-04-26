@@ -39,6 +39,8 @@ const styles = (theme) => ({
   btnGreen: {
     color: '#FFF',
     backgroundColor: '#4CAF50',
+    minWidth: 'unset',
+    padding: '6px 6px !important',
     "&:hover": {
       backgroundColor: '#347f37'
     }
@@ -46,6 +48,8 @@ const styles = (theme) => ({
   btnPink: {
     color: '#FFF',
     backgroundColor: '#E10050',
+    minWidth: 'unset',
+    padding: '6px 6px !important',
     "&:hover": {
       backgroundColor: '#b20442'
     }
@@ -53,6 +57,8 @@ const styles = (theme) => ({
   btnBlue: {
     color: '#FFF',
     backgroundColor: '#17A2B8',
+    minWidth: 'unset',
+    padding: '6px 6px !important',
     "&:hover": {
       backgroundColor: '#106c7b'
     }
@@ -60,8 +66,28 @@ const styles = (theme) => ({
   btnYellow: {
     color: '#FFF',
     backgroundColor: '#FFC107',
+    minWidth: 'unset',
+    padding: '6px 6px !important',
     "&:hover": {
       backgroundColor: '#b28808'
+    }
+  },
+  btnPurple: {
+    color: '#FFF',
+    backgroundColor: '#3F51B5',
+    minWidth: 'unset',
+    padding: '6px 6px !important',
+    "&:hover": {
+      backgroundColor: '#222D6E'
+    }
+  },
+  btnRed: {
+    color: '#FFF',
+    backgroundColor: '#E30000',
+    minWidth: 'unset',
+    padding: '6px 6px !important',
+    "&:hover": {
+      backgroundColor: '#840909'
     }
   },
   rootTransparent: {
@@ -85,7 +111,9 @@ const styles = (theme) => ({
     padding: '24px 24px 24px',
     maxHeight: '600px',
     '&:hover': {
-      backgroundColor: '#c3c0c094'
+      borderRadius: '4px',
+      backgroundColor: '#f4f5f7',
+      borderBottomColor: 'rgba(9,30,66,.25)'
     }
   },
   activityTagline: {
@@ -94,7 +122,53 @@ const styles = (theme) => ({
     color: '#707070',
     display: 'inline',
     alignSelf: 'center'
-
+  },
+  tabsRoot: {
+    borderBottom: '1px solid #e8e8e8',
+  },
+  tabsIndicator: {
+    backgroundColor: '#1890ff',
+  },
+  tabRoot: {
+    textTransform: 'initial',
+    minWidth: 72,
+    fontWeight: theme.typography.fontWeightRegular,
+    marginRight: theme.spacing.unit * 4,
+    fontFamily: [
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
+      'sans-serif',
+      '"Apple Color Emoji"',
+      '"Segoe UI Emoji"',
+      '"Segoe UI Symbol"',
+    ].join(','),
+    '&:hover': {
+      color: '#40a9ff',
+      opacity: 1,
+    },
+    '&$tabSelected': {
+      color: '#1890ff',
+      fontWeight: theme.typography.fontWeightMedium,
+    },
+    '&:focus': {
+      color: '#40a9ff',
+    },
+  },
+  tabSelected: {},
+  typography: {
+    padding: theme.spacing.unit * 3,
+  },
+  inputHeaderCustom: {
+    fontSize: '16px',
+    fontWeight: 'bold',
+    color: '#333333'
+  },
+  inputCustom: {
+    fontSize: '15px',
   }
 })
 

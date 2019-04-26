@@ -37,6 +37,7 @@ function SalerepDashboard(props) {
         </Grid>
         <Grid item xs={12}>
           <MarketingTable forceActivities={forceActivities}
+            history={props.history}
             forceMarketing={forceMarketing}
             tableMarketingRef={tableMarketingRef}
           />
