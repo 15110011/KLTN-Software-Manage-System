@@ -40,3 +40,15 @@ class OrderHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderHistory
         fields = '__all__'
+
+
+class LicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.License
+        fields = '__all__'
+
+
+class LifetimeLicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.LifetimeLicense
+        fields = '__all__'
