@@ -11,7 +11,7 @@ import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
 import styles from './SalerepStyles.js'
 import MoreDialog from './MoreDialog'
-import { EVENTS_URL } from '../../common/urls';
+import { EVENTS_URL, GROUP_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CreateEventDialog from '../../Events/CreateEventDialog'
@@ -19,6 +19,7 @@ import CardBody from "../../components/Card/CardBody";
 
 import USERCONTEXT from '../../components/UserContext'
 import { apiGet, apiPost } from '../../common/Request'
+import useFetchData from '../../CustomHook/useFetchData'
 
 function ActivitiesTable(props) {
 
@@ -31,7 +32,9 @@ function ActivitiesTable(props) {
   const [openDialog, setOpenDialog] = React.useState(false)
   const [moreRow, setMoreRow] = React.useState(null)
 
+  const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
 
+  console.log(groups)
 
   //Activity
   let activitySearch = {
@@ -49,7 +52,17 @@ function ActivitiesTable(props) {
       {({ user }) =>
         <>
 
-          {createEventDialog && <CreateEventDialog toggleDialog={() => { setCreateEventDialog(!createEventDialog) }} user={user} />}
+          {createEventDialog && <CreateEventDialog toggleDialog={() => { setCreateEventDialog(!createEventDialog) }} user={user}
+            mustBeCampaign={viewType=='campaign'}
+            mustBePersonal={viewType=='personal'}
+            type_={viewType}
+            contactOptions={groups.data.reduce((acc, g) => {
+              g.contacts = g.contacts.map(c => ({ ...c, label: `${c.first_name} ${c.last_name}`, value: c.id }))
+              acc.push(...g.contacts)
+              return acc
+            }, [])}
+            updateActivities={forceActivities}
+          />}
           {openDialog == 'marketing' && moreRow && <MoreDialog setDialog={stt => { setOpenDialog(stt) }}
             histories={moreRow.histories}
             campaign={moreRow.campaign} contact={moreRow.contact}

@@ -115,6 +115,7 @@ function MoreDialog(props) {
       {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
         targets={[contact]} marketing={marketing}
         updateActivities={updateActivities}
+        contactOptions={[contact]}
       />}
       {noteDialog && <NoteDialog toggleDialog={() => {
         setNoteDialog(false)

@@ -16,6 +16,7 @@ from campaigns.serializers import ContactMarketingHistorySerializer
 
 now = datetime.datetime.now()
 
+
 # Create your views here.
 
 
@@ -54,11 +55,13 @@ class EventView(ModelViewSet):
         if view_type == 'campaign':
             excludes.add(Q(marketing=None), Q.AND)
             excludes.add(Q(order=None), Q.AND)
+            filters.add(Q(marketing__campaign__end_date__gte=now) & Q(marketing__campaign__start_date__lte=now), Q.AND)
+            filters.add(Q(marketing__status='RUNNING') |
+                        Q(order__status='RUNNING'), Q.AND)
         elif view_type == 'personal':
             filters.add(Q(marketing=None), Q.AND)
             filters.add(Q(order=None), Q.AND)
-        filters.add(Q(end_date__gte=now), Q.AND)
-        filters.add(Q(start_date__lte=now), Q.AND)
+        filters.add(Q(end_date__gte=now) & Q(start_date__lte=now), Q.AND)
         if remaining:
             filters.add(Q(end_date=datetime.timedelta(
                 days=int(remaining))+now), Q.AND)
@@ -112,8 +115,6 @@ class EventView(ModelViewSet):
             limit = self.request.query_params.get('limit')
 
         if limit:
-            filters.add(Q(marketing__status='RUNNING') |
-                        Q(order__status='RUNNING'), Q.AND)
             # queryset = queryset.exclude(excludes).filter(filters)
             if remaining_order != None:
                 queryset = queryset.exclude(excludes).filter(filters).order_by(remaining_order, '-priority')[

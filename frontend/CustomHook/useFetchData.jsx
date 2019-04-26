@@ -24,7 +24,12 @@ export default function FetchData(inputUrl, history, init = null) {
         })
       }
       else if (res.data.code == CODE.NOT_AUTHORIZED) {
-        history.push('/logout')
+        if (history) {
+          history.push('/logout')
+        }
+        else {
+          window.location.pathname = '/logout'
+        }
       }
       else {
         setData({ ...init, ...res.data })
