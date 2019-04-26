@@ -233,8 +233,6 @@ function ActivitiesTable(props) {
                       phase = 'Ticket'
                       phaseId = `T` + d.marketing.id
                     }
-                    console.log(d)
-                    console.log(phase)
                     acc.push(...d.contacts.map(c => {
                       return {
                         work: d.name,

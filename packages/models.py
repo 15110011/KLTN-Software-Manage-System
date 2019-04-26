@@ -29,10 +29,9 @@ class Product(BaseModel):
     name = models.CharField(max_length=255)
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='products')
-    desc = models.TextField()
+    desc = models.TextField(null=True, blank=True)
     status = models.TextField(choices=PRODUCT_CHOICES, default='ACTIVE')
     start_sale_date = models.DateField()
-    start_support_date = models.DateField()
     product_type = models.ForeignKey(
         ProductType, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
     category = models.ForeignKey(
@@ -46,7 +45,7 @@ class Feature(BaseModel):
     product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="features")
     name = models.CharField(max_length=255)
-    desc = models.TextField()
+    desc = models.TextField(null=True, blank=True)
     price = models.IntegerField()
     number = models.IntegerField()
 
