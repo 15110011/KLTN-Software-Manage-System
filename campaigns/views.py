@@ -12,8 +12,13 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.exceptions import MethodNotAllowed
+
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
 from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
+
+import datetime
+now = datetime.datetime.now()
 
 
 # Create your views here.
@@ -344,6 +349,30 @@ class CampaignExtraView(ModelViewSet):
             return Response({'msg': 'Please provide more query params'}, status=status.HTTP_400_BAD_REQUEST)
 
 
+class AssignedCampaigns(ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = Campaign.objects
+    serializer_class = CampaignSerializer
+    http_method_names = ['get']
+
+    def list(self, request, *args, **kwargs):
+        suggest = request.query_params.get('suggest', None)
+        if suggest:
+            instance = request.user
+            queryset = self.get_queryset().filter(start_date__lte=now).filter(
+                end_date__gte=now).filter(assigned_to__id=instance.id).filter(name__icontains=suggest)
+            serializer = CampaignSerializer(queryset, many=True)
+            return Response({"suggestion": serializer.data, 'total': len(serializer.data)})
+        instance = request.user
+        queryset = self.get_queryset().filter(start_date__lte=now).filter(
+            end_date__gte=now).filter(assigned_to__id=instance.id)
+        serializer = CampaignSerializer(queryset, many=True)
+        return Response({'data': serializer.data, 'total': len(serializer.data)})
+
+    def retrieve(self, request, *args, **kwargs):
+        raise MethodNotAllowed('GET')
+
+
 class NoteView(ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
@@ -364,6 +393,7 @@ class ContactMarketingView(ModelViewSet):
         queryset = self.get_queryset()
         if not request.user.profile.is_manager:
             filters.add(Q(campaign__assigned_to__id=request.user.id), Q.AND)
+            filters.add(Q(campaign__start_date__lte=now) & Q(campaign__end_date__gte=now), Q.AND)
         # pagin
         page = request.query_params.get(
             'page') if int(request.query_params.get('page', 0)) > 0 else 0
@@ -413,6 +443,6 @@ class MailTemplateView(ModelViewSet):
         filters.add(Q(is_public=True), Q.OR)
 
         query = self.get_queryset().filter(filters)
-        serializer = self.get_serializer(query, many=True) 
+        serializer = self.get_serializer(query, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)

@@ -4,6 +4,7 @@ from contacts.serializers import ContactSerializer
 from packages.serializers import PackageSerializer
 from steps.serializers import StepDetailWithoutOrderSerializer
 from steps.models import StepDetail
+from campaigns.serializers import CampaignSerializer
 
 from . import models
 
@@ -12,6 +13,7 @@ class OrderSerializer(serializers.ModelSerializer):
     contacts = ContactSerializer()
     sale_rep = MeSerializer()
     packages = PackageSerializer(many=True)
+    campaign = CampaignSerializer()
 
     class Meta:
         model = models.Order

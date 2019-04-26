@@ -34,9 +34,10 @@ import Typography from '@material-ui/core/Typography';
 import * as cn from 'classnames'
 
 // API
-import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
+import { PRODUCTS_URL, REFRESH_TOKEN_URL, PRODUCT_TYPES_URL, PRODUCT_CATEGORIES_URL } from "../../common/urls";
 import { apiPost } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
+import useFetchData from '../../CustomHook/useFetchData'
 import TableHeader from 'material-table/dist/m-table-header'
 
 // Components 
@@ -67,6 +68,8 @@ function CreateProduct(props) {
 
   const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
   const [error, setError] = React.useState({})
+  const [categoryData, setCategoryData, setURLCategory, forceUpdateCategory] = useFetchData(PRODUCT_CATEGORIES_URL, props.history, {})
+  const [productTypeData, setProductTypeData, setURLProductType, forceUpdateProductType] = useFetchData(PRODUCT_TYPES_URL, props.history, {})
 
   const [createProduct, setCreateProduct] = React.useState({
     name: '',
@@ -85,7 +88,7 @@ function CreateProduct(props) {
       // }
     ],
     features: [],
-    type: '',
+    product_type: '',
     category: ''
   })
 
@@ -139,7 +142,6 @@ function CreateProduct(props) {
       clonePackage[packageIndex].features.push({
         ...createProduct.features[featureIndex]
       })
-
       clonePackage[packageIndex].numbers.push(
         createProduct.features[featureIndex].number
       )
@@ -183,6 +185,12 @@ function CreateProduct(props) {
 
     setCreateProduct({ ...createProduct, packages })
 
+  }
+
+  const handleChangeCategoryAndType = (values, element) => {
+    // const products = 
+    createProduct[element.name] = values.value
+    setCreateProduct({...createProduct})
   }
 
   const handleDeleteFeature = (e, unitIndex) => {
@@ -354,10 +362,7 @@ function CreateProduct(props) {
     } else if (tabIndex == 1) {
       delete cloneProduct.packages
     } else {
-      cloneProduct.packages = cloneProduct.packages.map(p => {
-        p.numbers = p.numbers.map(n => n.number)
-        return p
-      })
+     
     }
     apiPost(PRODUCTS_URL, cloneProduct, false, true)
       .then(res => {
@@ -581,21 +586,22 @@ function CreateProduct(props) {
                         </Grid>
                         <Grid item xs={8}>
                           <SelectCustom
-                            // options={actions.actions.map((g, i) => ({
-                            //   label: `${g}`,
-                            //   value: `${g}`,
-                            // }))}
-                            // handleChange={(values, element) => handleChangeSelect(values, element)}
-                            // data={
-                            //   createStep.actions
-                            //     .reduce((acc, g) => {
-                            //       acc.push({ label: `${g.label}`, value: g.value })
-                            //       return acc
-                            //     }, [])
-                            // }
-                            single
-                            placeholder=""
-                            label=""
+                            options={Object.values(productTypeData).map((g, i) => ({
+                              label: `${g.name}`,
+                              value: `${g.id}`,
+                            }))}
+                            handleChange={(values, element) => handleChangeCategoryAndType(values, element)}
+                          // data={
+                          //   createProduct.actions
+                          //     .reduce((acc, g) => {
+                          //       acc.push({ label: `${g.label}`, value: g.value })
+                          //       return acc
+                          //     }, [])
+                          // }
+                          single
+                          placeholder=""
+                          label=""
+                          name="product_type"
                           />
                         </Grid>
                       </Grid>
@@ -614,11 +620,11 @@ function CreateProduct(props) {
                         </Grid>
                         <Grid item xs={8}>
                           <SelectCustom
-                            // options={actions.actions.map((g, i) => ({
-                            //   label: `${g}`,
-                            //   value: `${g}`,
-                            // }))}
-                            // handleChange={(values, element) => handleChangeSelect(values, element)}
+                            options={Object.values(categoryData).map((g, i) => ({
+                              label: `${g.name}`,
+                              value: `${g.id}`,
+                            }))}
+                            handleChange={(values, element) => handleChangeCategoryAndType(values, element)}
                             // data={
                             //   createStep.actions
                             //     .reduce((acc, g) => {
@@ -626,7 +632,8 @@ function CreateProduct(props) {
                             //       return acc
                             //     }, [])
                             // }
-                            multi
+                            single
+                            name="category"
                             placeholder=""
                             label=""
                           />

@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.fields import set_value
 from .models import Event
 from campaigns.models import ContactMarketing
 from orders.models import Order
@@ -55,3 +56,32 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
+
+    def create(self, validated_data):
+        type_ = validated_data.pop('type_', None)
+        campaign = validated_data.pop( 'campaign', None )
+        if type_ == 'campaign':
+            for c in validated_data['contacts']:
+                try:
+                    cur_contact_marketing = ContactMarketing.objects.filter(contact=c).filter(
+                        campaign=int(campaign))[0]
+                    if cur_contact_marketing.status == 'COMPLETED':
+                        cur_order = Order.objects.filter(contact=c).filter(
+                            campaign=int(campaign))[0]
+
+                        validated_data['order'] = Order.objects.get(id=cur_order.id)
+                    else:
+                        validated_data['marketing'] = ContactMarketing.objects.get(id=cur_contact_marketing.id)
+                except:
+                    pass
+        instance = super().create(validated_data)
+
+        return instance
+
+    def to_internal_value(self, data):
+        ret = super().to_internal_value(data)
+        set_value(ret, ['type_'], data['type_'])
+        if data['type_'] == 'campaign':
+            set_value(ret, ['campaign'], data['campaign'])
+
+        return ret

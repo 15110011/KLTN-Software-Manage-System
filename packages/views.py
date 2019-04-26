@@ -16,13 +16,13 @@ from .documents import PackageDocument, ProductDocument
 class ProductCategoryView(ModelViewSet):
     serializer_class = ProductCategorySerializer
     queryset = ProductCategory.objects
-    permission_classes = (IsAuthenticated, IsAdminUser,)
+    permission_classes = (IsAuthenticated,)
 
 
 class ProductTypeView(ModelViewSet):
     serializer_class = ProductTypeSerializer
     queryset = ProductType.objects
-    permission_classes = (IsAuthenticated, IsAdminUser,)
+    permission_classes = (IsAuthenticated,)
 
 
 class ProductViewSet(ModelViewSet):

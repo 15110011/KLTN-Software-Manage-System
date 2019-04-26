@@ -9,7 +9,7 @@ from rest_framework_simplejwt.views import (
 from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView
 from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
-from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView
+from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView, AssignedCampaigns
 from campaigns.views import ContactMarketingView, MailTemplateView
 from orders.views import OrderHistoryView, OrderView
 from steps.views import StepView, StepDetailView
@@ -29,6 +29,7 @@ router.register('marketing-plans', MarketingPlanView,
 router.register('follow-up-plans', FollowUpPlanView,
                 base_name='follow-up-plans')
 router.register('campaigns', CampaignView, base_name='campaigns')
+router.register('assigned-campaigns', AssignedCampaigns, base_name='assigned-campaigns')
 router.register('notes', NoteView, base_name='notes')
 router.register('contact-marketings', ContactMarketingView,
                 base_name='contact-marketing')

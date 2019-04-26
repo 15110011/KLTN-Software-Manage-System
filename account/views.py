@@ -7,7 +7,7 @@ from rest_framework import status, generics, viewsets
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework_simplejwt.backends import TokenBackend
 
 import logging
@@ -21,13 +21,17 @@ from . import serializers
 from . import models
 from KLTN import settings
 from KLTN.gmail_utils import send_mail, exchange_code
+from campaigns.models import Campaign
+from campaigns.serializers import CampaignSerializer
 import jwt
 import requests
 import json
 from pprint import pprint
+import datetime
 
 log = logging.getLogger('account')
 
+now = datetime.datetime.now()
 # Create your views here.
 
 
@@ -46,6 +50,7 @@ class MeView(generics.RetrieveAPIView):
         # new_serializer['sale_reps'] = [model_to_dict(item) for item in serializer.data['sale_reps']]
 
         return Response(new_serializer)
+
 
 
 class LoginAndUpdateView(generics.CreateAPIView, generics.UpdateAPIView):
