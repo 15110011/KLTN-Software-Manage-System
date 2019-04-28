@@ -42,6 +42,9 @@ class OrderHistory(BaseModel):
 class License(BaseModel):
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='licenses')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packages_license'
+    )
     start_date = models.DateField()
     duration = models.IntegerField()
     code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
@@ -50,5 +53,8 @@ class License(BaseModel):
 class LifetimeLicense(BaseModel):
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='lifetime_licenses')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packages_lifetime_license'
+    )
     start_date = models.DateField()
     code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
