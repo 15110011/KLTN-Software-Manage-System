@@ -11,7 +11,7 @@ from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, 
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView, AssignedCampaigns
 from campaigns.views import ContactMarketingView, MailTemplateView
-from orders.views import OrderHistoryView, OrderView
+from orders.views import OrderHistoryView, OrderView, LicenseView, LifetimeLicenseView
 from steps.views import StepView, StepDetailView
 from events.views import EventView
 from reports.views import ReportView
@@ -39,6 +39,8 @@ router.register('mail-templates', MailTemplateView,
 router.register('orders', OrderView, base_name='orders')
 router.register('order-histories', OrderHistoryView,
                 base_name='order-histories')
+router.register('licenses', LicenseView, base_name='licenses')
+router.register('lifetime-license', LifetimeLicenseView, base_name='lifetime_licenses')
 # contact app
 router.register('contacts', ContactView, base_name='contacts')
 router.register('contactgroups', ContactGroupView, base_name='contactgroups')

@@ -5,8 +5,12 @@ from packages.serializers import PackageSerializer
 from steps.serializers import StepDetailWithoutOrderSerializer
 from steps.models import StepDetail
 from campaigns.serializers import CampaignSerializer
-
 from . import models
+from KLTN.common import send_email
+from django.contrib.auth.models import User
+import django_rq
+from datetime import datetime, timedelta, timezone
+import calendar
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -39,4 +43,25 @@ class CreateOrderSerialzier(serializers.ModelSerializer):
 class OrderHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderHistory
+        fields = '__all__'
+
+
+class LicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.License
+        fields = '__all__'
+
+    def create(self, validated_data):
+        license = super().create(validated_data)
+        scheduler = django_rq.get_scheduler('default')
+        user = User.objects.get(username=self.context.get('request').user)
+        remind_date = license.start_date + timedelta(days=license.duration*30) - timedelta(days=10)
+        timestamp1 = calendar.timegm((remind_date).timetuple())
+        start_date = datetime.utcfromtimestamp(timestamp1)
+        scheduler.enqueue_at(start_date, send_email, user, 'License Reminder', 'Your license will be expired in 7 days')
+        return license
+
+class LifetimeLicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.LifetimeLicense
         fields = '__all__'

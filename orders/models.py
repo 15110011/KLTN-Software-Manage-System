@@ -7,6 +7,7 @@ from packages.models import Package
 from steps.models import StepDetail
 from campaigns.models import Campaign
 # Create your models here.
+import uuid
 
 ORDER_CHOICES = (
     ('FAILED', 'Failed'),
@@ -36,3 +37,24 @@ class OrderHistory(BaseModel):
         StepDetail, on_delete=models.CASCADE, related_name='order_history')
     date = models.DateField(auto_now_add=True)
     action = models.TextField()
+
+
+class License(BaseModel):
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name='licenses')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packages_license'
+    )
+    start_date = models.DateField()
+    duration = models.IntegerField()
+    code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+
+
+class LifetimeLicense(BaseModel):
+    order = models.ForeignKey(
+        Order, on_delete=models.CASCADE, related_name='lifetime_licenses')
+    package = models.ForeignKey(
+        Package, on_delete=models.CASCADE, related_name='packages_lifetime_license'
+    )
+    start_date = models.DateField()
+    code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
