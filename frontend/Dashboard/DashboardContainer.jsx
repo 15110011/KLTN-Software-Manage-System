@@ -13,6 +13,7 @@ import { Paper } from '@material-ui/core'
 import USERCONTEXT from '../components/UserContext'
 import SalerepDashboard from './Salerep'
 import ManagerDashboard from './Manager'
+import TicketDetail from './Salerep/TicketDetail'
 
 function Dashboard(props) {
 
@@ -24,7 +25,7 @@ function Dashboard(props) {
               padding: '11px 72px',
               marginBottom: '10px',
               marginTop: 10,
-              backgroundColor: '#e9ecef',
+              backgroundColor: '#fff',
             }}>
               <Breadcrumbs
                 separator={<b> / </b>}
@@ -32,19 +33,19 @@ function Dashboard(props) {
                 finalItem={'span'}
                 container={Breadcrumb}
                 finalProps={{
-                  style: { color: '#333333' }
+                  style: { color: 'rgb(51, 51, 51)', fontWeight: 'bold' }
                 }}
               />
             </Paper>
             <BreadcrumbsItem to='/dashboard'>Dashboard</BreadcrumbsItem>
             <Switch>
+              <Route path="/dashboard/ticket-detail" component={(props) => (<TicketDetail {...props} user={user} />)} />
+              <Route path="/dashboard/ticket-detail/:id" component={(props) => (<ContactTicketDetail {...props} user={user} />)} />
               <Route path='/' component={props => {
                 if (user.profile.is_manager)
                   return <ManagerDashboard {...props} user={user} />
                 return <SalerepDashboard {...props} user={user} />
-
               }} />
-
             </Switch>
           </>
         )}

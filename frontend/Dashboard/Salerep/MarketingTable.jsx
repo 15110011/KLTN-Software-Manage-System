@@ -14,6 +14,7 @@ import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
 
 import MoreDialog from './MoreDialog'
+import Detail from './Detail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
 import USERCONTEXT from '../../components/UserContext'
@@ -56,19 +57,35 @@ function MarketingTable(props) {
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
-          {moreDialog && <MoreDialog setDialog={stt => { setMoreDialog(stt) }}
-            histories={moreRow.histories}
-            allHistories={moreRow.histories}
-            campaign={moreRow.campaign} contact={moreRow.contact}
-            id={moreRow.id}
-            contact={moreRow.contact}
-            updateTable={tableMarketingRef.current.onQueryChange}
-            updateActivities={forceActivities}
-            marketing={moreRow.marketing}
-            user={user}
-            setMovingRow={setMovingRow}
-            setDeletingRow={setDeletingRow}
-          />}
+          {moreDialog &&
+            <Dialog
+              open={true}
+              onClose={() => setMoreDialog(false)}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>
+                <h4>
+                  Manage Contact
+                </h4>
+              </DialogTitle>
+              <DialogContent>
+                <Detail
+                  histories={moreRow.histories}
+                  allHistories={moreRow.histories}
+                  campaign={moreRow.campaign} contact={moreRow.contact}
+                  id={moreRow.id}
+                  contact={moreRow.contact}
+                  updateTable={tableMarketingRef.current.onQueryChange}
+                  updateActivities={forceActivities}
+                  marketing={moreRow.marketing}
+                  user={user}
+                  setMovingRow={setMovingRow}
+                  setDeletingRow={setDeletingRow}
+                />
+              </DialogContent>
+            </Dialog>
+          }
           <Dialog open={Object.keys(movingRow).length != 0}
             onClose={() => { setMovingRow({}) }
             }
@@ -114,7 +131,7 @@ function MarketingTable(props) {
                 Toolbar: props =>
                   <Card plain>
                     <CardHeader color="primary">
-                      <h4 onClick={()=> history.push('/dashboard/ticket-detail')} className={classes.cardTitleWhite}>Tickets</h4>
+                      <h4 onClick={() => history.push('/dashboard/ticket-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Tickets</h4>
                     </CardHeader>
                   </Card>,
                 Pagination: props => <TablePagination {...props}
