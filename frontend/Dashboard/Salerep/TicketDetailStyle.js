@@ -18,7 +18,7 @@ const styles = (theme) => ({
   formContact: {
     borderRadius: '4px',
     width: '100%',
-    height: '75%',
+    height: '80%',
     overflow: 'scroll',
     '& ul': {
       marginBottom: 'unset',
@@ -35,11 +35,7 @@ const styles = (theme) => ({
           backgroundColor: '#f4f5f7',
           borderBottomColor: 'rgba(9,30,66,.25)'
         },
-        '&:active &:visited': {
-          color: '#2196F3',
-          backgroundColor: '#f4f5f7',
-          borderBottomColor: 'rgba(9,30,66,.25)'
-        }
+        
       }
     },
   },

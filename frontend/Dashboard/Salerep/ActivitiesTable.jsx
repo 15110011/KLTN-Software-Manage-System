@@ -6,11 +6,11 @@ import MTableHeader from 'material-table/dist/m-table-header'
 import TablePagination from '@material-ui/core/TablePagination'
 import AddIcon from '@material-ui/icons/Add'
 import Tooltip from '@material-ui/core/Tooltip'
+import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
 
 import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
 import styles from './SalerepStyles.js'
-import MoreDialog from './MoreDialog'
 import { EVENTS_URL, GROUP_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
@@ -20,6 +20,7 @@ import CardBody from "../../components/Card/CardBody";
 import USERCONTEXT from '../../components/UserContext'
 import { apiGet, apiPost } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
+import Detail from './Detail'
 
 function ActivitiesTable(props) {
 
@@ -30,12 +31,11 @@ function ActivitiesTable(props) {
   const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
   const [openDialog, setOpenDialog] = React.useState(false)
+
   const [moreRow, setMoreRow] = React.useState(null)
 
   const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
-
-  console.log(groups)
-
+  console.log(moreRow)
   //Activity
   let activitySearch = {
     viewType: 'campaign'
@@ -44,7 +44,23 @@ function ActivitiesTable(props) {
 
   const activityOrder = []
   let activePageActivity = 0
-
+  const getMoreRow = id => {
+    apiGet(CONTACT_MARKETING_URL + '/' + id, true).then(res => {
+      const c = res.data
+      setMoreRow({
+        full_name: c.contact.full_name,
+        mail: c.contact.mail,
+        phone: c.contact.phone,
+        campaignName: c.campaign.name,
+        id: c.id,
+        contact: c.contact,
+        campaign: c.campaign,
+        histories: c.histories,
+        marketing: c
+      })
+      setOpenDialog('marketing')
+    })
+  }
 
   return (
 
@@ -53,8 +69,8 @@ function ActivitiesTable(props) {
         <>
 
           {createEventDialog && <CreateEventDialog toggleDialog={() => { setCreateEventDialog(!createEventDialog) }} user={user}
-            mustBeCampaign={viewType=='campaign'}
-            mustBePersonal={viewType=='personal'}
+            mustBeCampaign={viewType == 'campaign'}
+            mustBePersonal={viewType == 'personal'}
             type_={viewType}
             contactOptions={groups.data.reduce((acc, g) => {
               g.contacts = g.contacts.map(c => ({ ...c, label: `${c.first_name} ${c.last_name}`, value: c.id }))
@@ -63,17 +79,34 @@ function ActivitiesTable(props) {
             }, [])}
             updateActivities={forceActivities}
           />}
-          {openDialog == 'marketing' && moreRow && <MoreDialog setDialog={stt => { setOpenDialog(stt) }}
-            histories={moreRow.histories}
-            allHistories={moreRow.histories}
-            campaign={moreRow.campaign} contact={moreRow.contact}
-            id={moreRow.id}
-            contact={moreRow.contact}
-            updateTable={tableMarketingRef.current.onQueryChange}
-            updateActivities={forceActivities}
-            marketing={moreRow.marketing}
-            user={user}
-          />}
+          {openDialog == 'marketing' && moreRow &&
+            <Dialog
+              open={true}
+              onClose={() => setOpenDialog(false)}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>
+                <h4>
+                  Manage Contact
+                </h4>
+              </DialogTitle>
+              <DialogContent>
+                <Detail
+                  histories={moreRow.histories}
+                  allHistories={moreRow.histories}
+                  campaign={moreRow.campaign} contact={moreRow.contact}
+                  id={moreRow.id}
+                  contact={moreRow.contact}
+                  updateTable={tableActivtyRef.current.onQueryChange}
+                  updateActivities={forceActivities}
+                  marketing={moreRow.marketing}
+                  user={user}
+                  getMoreRow={getMoreRow}
+                />
+              </DialogContent>
+            </Dialog>
+          }
           {viewType == 'campaign' && <MaterialTable
             tableRef={tableActivtyRef}
             components={
@@ -258,21 +291,7 @@ function ActivitiesTable(props) {
             onRowClick={(e, rowData) => {
               if (rowData.phase == 'Ticket') {
 
-                apiGet(CONTACT_MARKETING_URL + '/' + rowData.marketing.id, true).then(res => {
-                  const c = res.data
-                  setMoreRow({
-                    full_name: c.contact.full_name,
-                    mail: c.contact.mail,
-                    phone: c.contact.phone,
-                    campaignName: c.campaign.name,
-                    id: c.id,
-                    contact: c.contact,
-                    campaign: c.campaign,
-                    histories: c.histories,
-                    marketing: c
-                  })
-                  setOpenDialog('marketing')
-                })
+                getMoreRow(rowData.marketing.id)
               }
             }}
             title="Contacts List"

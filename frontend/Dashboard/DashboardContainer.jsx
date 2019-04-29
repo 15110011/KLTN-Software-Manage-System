@@ -40,7 +40,6 @@ function Dashboard(props) {
             <BreadcrumbsItem to='/dashboard'>Dashboard</BreadcrumbsItem>
             <Switch>
               <Route path="/dashboard/ticket-detail" component={(props) => (<TicketDetail {...props} user={user} />)} />
-              <Route path="/dashboard/ticket-detail/:id" component={(props) => (<ContactTicketDetail {...props} user={user} />)} />
               <Route path='/' component={props => {
                 if (user.profile.is_manager)
                   return <ManagerDashboard {...props} user={user} />

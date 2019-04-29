@@ -36,6 +36,7 @@ import * as cn from 'classnames'
 
 import styles from './TicketDetailStyle.js'
 import NoteDetail from './NoteDetail'
+import Detail from './Detail'
 import ContactDetail from './ContactDetail'
 import { apiPost } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
@@ -44,13 +45,12 @@ import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '..
 
 
 function TicketDetail(props) {
-  const { classes } = props;
+  const { classes, history } = props;
   const [sortOption, setSortOption] = React.useState({
     type: 'name'
   })
-  const [dataViewDetail, setDataViewDetail] = React.useState({
-
-  })
+  const [moreRow, setMoreRow] = React.useState(null)
+  const [indexActive, setIndexActive] = React.useState(0)
 
   const [contactHistories, setContactHistories] = React.useState({
     'Send Email ': 0,
@@ -58,37 +58,57 @@ function TicketDetail(props) {
     'Call Client': 0
   })
 
+  const [first, setFirst] = React.useState(true)
+
   const [tickets, setTickets, setUrl, forceUpdate] =
-    useFetchData(CONTACT_MARKETING_URL, props.history, {
-
+    useFetchData(CONTACT_MARKETING_URL, history, {
+      data: []
     })
-  console.log(tickets.data)
+  
+  React.useEffect(()=>{
+    if(!first){
+      handleViewDetail(indexActive)
+    }
+  })
 
-  const onCall = () => {
-    apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
-      updateTable()
-      setContactHistories({ ...contactHistories, 'Call Client': contactHistories['Call Client'] + 1 })
-      setSuccessNoti('Successfully Called')
-      setTimeout(() => {
-        setSuccessNoti(false)
-      }, 2000);
-    })
-  }
-
+  React.useEffect(() => {
+    if (first && tickets.data.length > 0) {
+      let t = tickets.data[0]
+      setFirst(false)
+      setMoreRow({
+        full_name: t.contact.full_name,
+        mail: t.contact.mail,
+        phone: t.contact.phone,
+        campaignName: t.campaign.name,
+        id: t.id,
+        contact: t.contact,
+        campaign: t.campaign,
+        histories: t.histories,
+        marketing: t
+      })
+    }
+  }, [tickets.data.length])
 
   const handleChangeSelectSortOption = e => {
     setSortOption({ [e.target.name]: e.target.value });
   }
 
-  // const handleViewDetail = (e, id) => {
-  //   // props.history.push(`/ticket-detail/${id}`)
-  //   console.log(id)
-  //   const [dataViewDetail, setDataViewDetail, setUrl, forceUpdate] =
-  //   useFetchData(CONTACT_MARKETING_URL + '/' + id, props.history, {
+  const handleViewDetail = (index) => {
+    let t = tickets.data[index]
+    setMoreRow({
+      full_name: t.contact.full_name,
+      mail: t.contact.mail,
+      phone: t.contact.phone,
+      campaignName: t.campaign.name,
+      id: t.id,
+      contact: t.contact,
+      campaign: t.campaign,
+      histories: t.histories,
+      marketing: t
+    })
+    setIndexActive(index)
+  }
 
-  //   })
-  //   console.log(dataViewDetail)
-  // }
 
   return (
     <div className={classes.root}>
@@ -129,19 +149,18 @@ function TicketDetail(props) {
                   }}
                 />
               </Grid>
-              &nbsp;
               <div className={classes.formContact}>
                 <ul>
                   {
-                    tickets.data && tickets.data.map((t, i) => {
+                    tickets.data && tickets.data.map((t, index) => {
                       return (
-                        <li key={i} onClick={(e) => {
-                          handleViewDetail(e, t.id)
+                        <li className={cn({ active: index == indexActive })} key={index} onClick={() => {
+                          handleViewDetail(index)
                         }}>
-                          <Typography variant="p">
+                          <Typography variant="body2" style={{ paddingBottom: '10px' }}>
                             {t.contact.full_name}
                           </Typography>
-                          <Typography variant="p">
+                          <Typography>
                             {t.contact.phone}
                           </Typography>
                         </li>
@@ -161,7 +180,18 @@ function TicketDetail(props) {
         </Grid>
         <Grid item xs={9}>
           <Grid style={{ padding: '45px 40px' }} container spacing={24}>
-
+            {
+              moreRow &&
+              <Detail
+                histories={moreRow.histories}
+                allHistories={moreRow.histories}
+                campaign={moreRow.campaign}
+                id={moreRow.id}
+                contact={moreRow.contact}
+                marketing={moreRow.marketing}
+                updateTable={() => { forceUpdate() }}
+              />
+            }
           </Grid>
         </Grid>
       </Grid>

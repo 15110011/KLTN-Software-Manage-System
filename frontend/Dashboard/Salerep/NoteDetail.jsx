@@ -210,13 +210,13 @@ function NoteDetail(props) {
                 <Typography variant="subtitle2" className={classes.heading}>{note.name}</Typography>
               </ExpansionPanelSummary>
               <ExpansionPanelDetails>
-                <Typography variant="p" dangerouslySetInnerHTML={{ __html: note.content }}>
+                <Typography component="div" dangerouslySetInnerHTML={{ __html: note.content }}>
                 </Typography>
               </ExpansionPanelDetails>
             </ExpansionPanel>
             </>
               :
-              <Typography variant="p">
+              <Typography component="div">
                 {
                   contentStt == 'VIEW' ?
                     <>

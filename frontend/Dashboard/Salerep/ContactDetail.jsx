@@ -65,7 +65,7 @@ function ContactDetail(props) {
           {
             contactHistories.length > 0 ? contactHistories.map((h, index) => {
               return (
-                <tr>
+                <tr key={index}>
                   <th scope="row">{index + 1}</th>
                   <td>{h.action}</td>
                   <td>{contact.first_name + ' ' + contact.last_name}</td>

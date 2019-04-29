@@ -62,7 +62,8 @@ function Detail(props) {
     user,
     setDeletingRow,
     setMovingRow,
-    updateActivities
+    updateActivities,
+    getMoreRow,
   } = props
 
   const [contactHistories, setContactHistories] = React.useState({
@@ -122,6 +123,7 @@ function Detail(props) {
       setTimeout(() => {
         setSuccessNoti(false)
       }, 2000);
+      getMoreRow(id)
     })
   }
 
@@ -205,16 +207,6 @@ function Detail(props) {
             <Button
               variant='contained'
               classes={{
-                contained: classes.btnBlue
-              }}
-              onClick={() => { setNoteDialog(true) }}
-            >
-              <NoteIcon fontSize="small" />
-            </Button>
-
-            <Button
-              variant='contained'
-              classes={{
                 contained: classes.btnYellow
               }}
               onClick={() => {
@@ -278,7 +270,7 @@ function Detail(props) {
           Campaign info
             </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
-          Campaign name
+          Name
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
