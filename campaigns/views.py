@@ -4,10 +4,12 @@ from contacts.models import Contact
 from orders.models import Order
 from KLTN.common import MARKETING_PLAN_CONDITIONS
 from django.forms.models import model_to_dict
+from django.db.models.functions import Lower
 from .documents import MarketingPlanDocument, CampaignDocument
 from rest_framework import status
 from django.shortcuts import render
 from django.db.models import Q, Count
+from django.db import models as DjangoModel
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
@@ -304,7 +306,10 @@ class CampaignView(ModelViewSet):
         # Filter
         campaign_name = request.query_params.get('campaign_name', None)
         product_name = request.query_params.get('product_name', None)
-        start = request.query_params.get('start', None)
+        start_from = request.query_params.get('start_from', None)
+        start_to = request.query_params.get('start_to', None)
+        end_from = request.query_params.get('end_from', None)
+        end_to = request.query_params.get('end_to', None)
 
         campaign_status = request.query_params.get('status', None)
 
@@ -314,9 +319,24 @@ class CampaignView(ModelViewSet):
         if product_name:
             filters.add(
                 Q(packages__features__product__name__icontains=product_name), Q.AND)
-        if start:
+        if start_from and start_to:
             filters.add(
-                Q(start_date=start), Q.AND)
+                Q(start_date__range=[start_from, start_to]), Q.AND)
+        elif start_from:
+            filters.add(
+                Q(start_date__gte=start_from), Q.AND)
+        elif start_to:
+            filters.add(
+                Q(start_date__lte=start_to), Q.AND)
+        if end_from and end_to:
+            filters.add(
+                Q(end_date__range=[end_from, end_to]), Q.AND)
+        elif end_from:
+            filters.add(
+                Q(end_date__gte=end_from), Q.AND)
+        elif end_to:
+            filters.add(
+                Q(end_date__lte=end_to), Q.AND)
 
         if campaign_status:
             statuses = campaign_status.split(',')
@@ -327,20 +347,46 @@ class CampaignView(ModelViewSet):
                 elif s == 'Active':
                     status_filters.add(Q(start_date__lte=now)
                                        & Q(end_date__gte=now), Q.OR)
-                elif s =='Finished':
+                elif s == 'Finished':
                     status_filters.add(Q(end_date__lt=now), Q.OR)
 
             filters.add(status_filters, Q.AND)
-        # order
 
         if type_ == 'both':
             filters.add(Q(assigned_to=request.user), Q.OR)
 
+        # order
+        name_order = request.query_params.get('name_order', None)
+        product_order = request.query_params.get('product_order', None)
+        start_order = request.query_params.get('start_order', None)
+        end_order = request.query_params.get('end_order', None)
+        status_order = request.query_params.get('status_order', None)
+        queryset = Campaign.objects.filter(filters)
+        if name_order:
+            name_order = Lower('name').desc() if name_order == 'desc' else Lower('name').asc()
+            queryset = queryset.order_by(name_order)
+        if product_order:
+            product_order = Lower('packages__features__product__name').asc() if product_order == 'desc' else Lower('packages__features__product__name').desc()
+            queryset = queryset.order_by(product_order)
+        if start_order:
+            start_order = '-start_date' if start_order == 'desc' else 'start_date'
+            queryset = queryset.order_by(start_order)
+        if end_order:
+            end_order = '-end_date' if end_order == 'desc' else 'end_date'
+            queryset = queryset.order_by(end_order)
+        if status_order:
+            status_order = '-status' if status_order == 'desc' else 'status'
+            queryset = queryset.annotate(status=DjangoModel.Case(
+                DjangoModel.When(
+                    start_date__gt=now, then=DjangoModel.Value(0)),
+                DjangoModel.When(start_date__lte=now,
+                                 end_date__gte=now, then=DjangoModel.Value(1)),
+                DjangoModel.When(
+                    end_date__lt=now, then=DjangoModel.Value(2)),
+                output_field=DjangoModel.IntegerField()
+            )).order_by(status_order)
         if limit is not None:
-            queryset = Campaign.objects.filter(filters)[
-                int(page)*int(limit):int(page)*int(limit)+int(limit)]
-        else:
-            queryset = Campaign.objects.filter(filters)
+            queryset = queryset[int(page)*int(limit):int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data

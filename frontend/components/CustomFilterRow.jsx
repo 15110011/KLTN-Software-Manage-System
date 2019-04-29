@@ -4,10 +4,11 @@ import {
   TableCell, TableRow, TextField,
   FormControl, Select, Input,
   MenuItem, Checkbox, ListItemText,
-  InputAdornment, Icon, Tooltip,
+  InputAdornment, Icon, Tooltip, Grid
 } from '@material-ui/core';
 import * as DateFnsUtils from '@date-io/date-fns';
 import * as formatDate from 'date-fns/format';
+import * as parseISO from 'date-fns/parseISO'
 import { MuiPickersUtilsProvider, TimePicker, DatePicker, DateTimePicker } from 'material-ui-pickers';
 
 const ITEM_HEIGHT = 48;
@@ -93,8 +94,7 @@ class MTableFilterRow extends React.Component {
   }
 
   renderDateTypeFilter = (columnDef) => {
-    const { from, to } = this.state
-    const { onFilterDateRange } = this.props
+    const { onFilterDateRange, timeRanges } = this.props
     let dateInputElement = null;
     let onDateInputChange
     let onDateFromInputChange
@@ -102,31 +102,22 @@ class MTableFilterRow extends React.Component {
     onDateInputChange = date => this.props.onFilterChanged(columnDef.tableData.id, date);
     onDateFromInputChange = date => {
       if (date) {
-        this.setState({
-          from: formatDate(date, 'yyyy/MM/dd')
-        })
         onFilterDateRange('from', formatDate(date, 'yyyy-MM-dd'), columnDef.tableData.id)
-
       }
       else {
-        this.setState({ from: date })
         onFilterDateRange('from', date, columnDef.tableData.id)
-
       }
     }
     onDateToInputChange = date => {
       if (date) {
-        this.setState({ to: formatDate(date, 'yyyy/MM/dd') })
         onFilterDateRange('to', formatDate(date, 'yyyy-MM-dd'), columnDef.tableData.id)
-
       }
       else {
-        this.setState({ to: date })
         onFilterDateRange('to', date, columnDef.tableData.id)
-
       }
 
     }
+
     if (columnDef.type === 'date') {
       dateInputElement = (
         <DatePicker
@@ -138,27 +129,30 @@ class MTableFilterRow extends React.Component {
     }
     else if (columnDef.type === 'dateRange') {
       dateInputElement = (
-        <>
-          <DatePicker
-            value={from || null}
-            onChange={onDateFromInputChange}
-            clearable
-            format="dd/MM/yyyy"
-            name='from'
-            label='From'
-          />
-          &nbsp;
-          &nbsp;
-          &nbsp;
-          <DatePicker
-            value={to || null}
-            onChange={onDateToInputChange}
-            clearable
-            name='to'
-            format="dd/MM/yyyy"
-            label='To'
-          />
-        </>
+        <Grid container spacing={8}>
+          <Grid item xs={6}>
+            <DatePicker
+              value={timeRanges[columnDef.tableData.id].from || null}
+              onChange={date => onDateFromInputChange(date)}
+              clearable
+              format="dd/MM/yyyy"
+              name='from'
+              // label='From'
+              placeholder='From'
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <DatePicker
+              value={timeRanges[columnDef.tableData.id].to || null}
+              onChange={date => onDateToInputChange(date)}
+              clearable
+              name='to'
+              format="dd/MM/yyyy"
+              // label='To'
+              placeholder='To'
+            />
+          </Grid>
+        </Grid>
       );
     }
     else if (columnDef.type === 'datetime') {

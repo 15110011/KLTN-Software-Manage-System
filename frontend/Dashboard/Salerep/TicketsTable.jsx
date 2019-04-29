@@ -187,18 +187,7 @@ function TicketsTable(props) {
                       contact: c.contact,
                       campaign: c.campaign,
                       histories: c.histories,
-                      marketing: c,
-                      moreRow: {
-                        full_name: c.contact.full_name,
-                        mail: c.contact.mail,
-                        phone: c.contact.phone,
-                        campaignName: c.campaign.name,
-                        id: c.id,
-                        contact: c.contact,
-                        campaign: c.campaign,
-                        histories: c.histories,
-                        marketing: c
-                      }
+                      marketing: c
                     })
                   })
                   resolve({

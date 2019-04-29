@@ -17,11 +17,14 @@ import { CAMPAIGNS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
+import CustomFItlerRow from '../../components/CustomFilterRow'
 
 import CampaignDetail from './CampaignDetail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
 import USERCONTEXT from '../../components/UserContext'
+
+const search = { timeRanges: [null, null, null, { from: null, to: null }, { from: null, to: null }] }
 
 function CampaignTable(props) {
 
@@ -33,10 +36,11 @@ function CampaignTable(props) {
 
   const [moreDialog, setMoreDialog] = React.useState(false)
 
+  const [timeRanges, setTimeRanges] = React.useState([null, null, null, { from: null, to: null }, { from: null, to: null }])
+
 
   //Campaign
-  const search = {}
-  const order = []
+  let order = []
   let activePageCampaign = 0
 
 
@@ -155,7 +159,7 @@ function CampaignTable(props) {
                   </Card>,
                 Header: props => <MTableHeader {...props}
                   onOrderChange={(orderBy, dir) => {
-                    order.forEach((order, index) => {
+                    order.forEach((orderType, index) => {
                       if (orderBy != index) {
                         order[index] = null
                       }
@@ -174,7 +178,7 @@ function CampaignTable(props) {
                     activePageCampaign = nextPage
                   }}
                 />,
-                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
+                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value, position) => {
                   if (columnId == 1) {
                     search.name = value
                   }
@@ -182,10 +186,14 @@ function CampaignTable(props) {
                     search.productName = value
                   }
                   else if (columnId == 3) {
-                    search.start = value
+                    search.timeRanges[columnId][position] = value
+                    console.log(search)
+                    return
                   }
                   else if (columnId == 4) {
-                    search.end = value
+                    search.timeRanges[columnId][position] = value
+
+                    return
                   }
                   else if (columnId == 5) {
                     search.status = value
@@ -223,7 +231,7 @@ function CampaignTable(props) {
                   }
                   if (props.action.icon == 'delete' && props.data.status == 'Idle') {
                     return (
-                      <Tooltip title={props.data.tooltip}>
+                      <Tooltip title={props.action.tooltip}>
                         <IconButton
                           onClick={(event) => props.action.onClick(event, props.data)}
                         >
@@ -233,16 +241,29 @@ function CampaignTable(props) {
                   }
                   return null
                 },
-                FilterRow: props => <MTableFilterRow {...props} />
+                FilterRow: props =>
+                  <CustomFItlerRow {{
+                    ...props,
+                    onFilterDateRange: (position, date, colId) => {
+                      search.timeRanges[colId][position] = date
+                      const timeRangesClone = [...timeRanges]
+                      timeRangesClone[colId][position] = date
+                      setTimeRanges(timeRangesClone)
+                      // props.onFilterChanged(colId, date, position)
+                      tableRef.current.onQueryChange()
+                    },
+                    timeRanges: timeRanges
+
+                  }} />
               }
             }
             columns={[
               { title: '#', field: '#', filtering: false, headerStyle: { maxWidth: '0px' } },
               { title: 'Name', field: 'name', headerStyle: { minWidth: '200px' } },
               { title: 'Product', field: 'product' },
-              { title: 'Start', field: 'start', type: 'date' },
+              { title: 'Start', field: 'start', type: 'dateRange' },
               {
-                title: 'End', field: 'end', type: 'date'
+                title: 'End', field: 'end', type: 'dateRange'
               },
               {
                 title: 'Status', field: 'status',
@@ -268,9 +289,16 @@ function CampaignTable(props) {
               new Promise((resolve, reject) => {
                 let searchString = `${search.name ? '&campaign_name=' + search.name : ''}`
                 searchString += `${search.productName ? '&product_name=' + search.productName : ''}`
-                searchString += `${search.start ? '&start=' + search.start : ''}`
-                searchString += `${search.end ? '&end=' + search.end : ''}`
+                searchString += `${search.timeRanges[3].from ? '&start_from=' + search.timeRanges[3].from : ''}`
+                searchString += `${search.timeRanges[3].to ? '&start_to=' + search.timeRanges[3].to : ''}`
+                searchString += `${search.timeRanges[4].from ? '&end_from=' + search.timeRanges[4].from : ''}`
+                searchString += `${search.timeRanges[4].to ? '&end_to=' + search.timeRanges[4].to : ''}`
                 searchString += `${search.status ? '&status=' + search.status : ''}`
+                searchString += `${order[1] ? '&name_order=' + order[1] : ''}`
+                searchString += `${order[2] ? '&product_order=' + order[2] : ''}`
+                searchString += `${order[3] ? '&start_order=' + order[3] : ''}`
+                searchString += `${order[4] ? '&end_order=' + order[4] : ''}`
+                searchString += `${order[5] ? '&status_order=' + order[5] : ''}`
                 apiGet(CAMPAIGNS_URL + `?page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
                   const data = res.data.data.map((c, index) => {
                     let status = 'Idle'
@@ -285,8 +313,8 @@ function CampaignTable(props) {
                       '#': (activePageCampaign * query.pageSize + index + 1),
                       name: c.name,
                       product: c.product ? c.product.name : <i>Undefined</i>,
-                      start: c.start_date,
-                      end: c.end_date,
+                      start: dateFns.format(dateFns.parseISO(c.start_date), 'dd-MM-yyyy'),
+                      end: dateFns.format(dateFns.parseISO(c.end_date), 'dd-MM-yyyy'),
                       id: c.id,
                       packages: c.packages,
                       follow_up_plan: c.follow_up_plan,
@@ -294,6 +322,7 @@ function CampaignTable(props) {
                       status
                     }
                   })
+                  console.log(data)
                   resolve({
                     data,
                     page: res.data.page,
