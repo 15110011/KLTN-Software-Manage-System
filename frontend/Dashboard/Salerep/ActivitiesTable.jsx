@@ -20,7 +20,7 @@ import CardBody from "../../components/Card/CardBody";
 import USERCONTEXT from '../../components/UserContext'
 import { apiGet, apiPost } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
-import Detail from './Detail'
+import TicketDetail from './TicketDetail'
 
 function ActivitiesTable(props) {
 
@@ -35,7 +35,6 @@ function ActivitiesTable(props) {
   const [moreRow, setMoreRow] = React.useState(null)
 
   const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
-  console.log(moreRow)
   //Activity
   let activitySearch = {
     viewType: 'campaign'
@@ -92,7 +91,7 @@ function ActivitiesTable(props) {
                 </h4>
               </DialogTitle>
               <DialogContent>
-                <Detail
+                <TicketDetail
                   histories={moreRow.histories}
                   allHistories={moreRow.histories}
                   campaign={moreRow.campaign} contact={moreRow.contact}

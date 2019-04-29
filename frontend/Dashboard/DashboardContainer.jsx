@@ -13,7 +13,8 @@ import { Paper } from '@material-ui/core'
 import USERCONTEXT from '../components/UserContext'
 import SalerepDashboard from './Salerep'
 import ManagerDashboard from './Manager'
-import TicketDetail from './Salerep/TicketDetail'
+import TicketTableDetail from './Salerep/TicketTableDetail'
+import CampaignTableDetail from './Salerep/CampaignTableDetail'
 
 function Dashboard(props) {
 
@@ -39,7 +40,8 @@ function Dashboard(props) {
             </Paper>
             <BreadcrumbsItem to='/dashboard'>Dashboard</BreadcrumbsItem>
             <Switch>
-              <Route path="/dashboard/ticket-detail" component={(props) => (<TicketDetail {...props} user={user} />)} />
+              <Route path="/dashboard/ticket-detail" component={(props) => (<TicketTableDetail {...props} user={user} />)} />
+              <Route path="/dashboard/campaign-detail" component={(props) => (<CampaignTableDetail {...props} user={user} />)} />
               <Route path='/' component={props => {
                 if (user.profile.is_manager)
                   return <ManagerDashboard {...props} user={user} />

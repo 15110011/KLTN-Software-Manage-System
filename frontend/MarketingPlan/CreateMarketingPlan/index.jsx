@@ -328,6 +328,8 @@ function CreateMarketingPlan(props) {
     manager: ''
   })
 
+  console.log(isCreateMarketingPlanDialog)
+
   const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
   const [applyConditionTable, setApplyConditionTable] = React.useState(false)
 

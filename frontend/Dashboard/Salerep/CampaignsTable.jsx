@@ -18,7 +18,7 @@ import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
 
-import MoreDialog from './CampaignMoreDialog'
+import CampaignDetail from './CampaignDetail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
 import USERCONTEXT from '../../components/UserContext'
@@ -55,11 +55,55 @@ function CampaignTable(props) {
       })
   }
 
+  // const getMoreRow = id => {
+  //   apiGet(CAMPAIGNS_URL + '/' + id, true).then(res => {
+  //     const c = res.data
+  //     let status = 'Idle'
+  //     if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
+  //       && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
+  //       status = 'Active'
+  //     }
+  //     else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date().toISOString()))) {
+  //       status = 'Finished'
+  //     }
+  //     setMoreRow({
+  //       '#': (activePageCampaign * query.pageSize + index + 1),
+  //       name: c.name,
+  //       product: c.product ? c.product.name : <i>Undefined</i>,
+  //       start: c.start_date,
+  //       end: c.end_date,
+  //       id: c.id,
+  //       status
+  //     })
+  //   })
+  // }
+
   return (
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
-          {moreDialog && <div>More Dialog</div>}
+          {moreDialog &&
+            <Dialog
+              open={true}
+              onClose={() => setMoreDialog(false)}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>
+                <h4>
+                  Manage Campaign
+                </h4>
+              </DialogTitle>
+              <DialogContent>
+                <CampaignDetail
+                  moreRow={moreRow}
+                  setDeletingRow={setDeletingRow}
+                  setMovingRow={setMovingRow}
+                // getMoreRow={getMoreRow}
+                />
+              </DialogContent>
+            </Dialog>
+          }
           <Dialog open={Object.keys(campaignRow).length != 0}
             onClose={() => { setMovingRow({}) }
             }
@@ -70,7 +114,7 @@ function CampaignTable(props) {
             <DialogContent>
               <DialogContentText>
                 <div>
-                  The start date is {campaignRow.start_date}.
+                  The start date is <i>{campaignRow.start}</i>.
                 </div>
                 <div>This action cannot be undone</div>
               </DialogContentText>
@@ -106,7 +150,7 @@ function CampaignTable(props) {
                 Toolbar: props =>
                   <Card plain>
                     <CardHeader color="rose">
-                      <h4 onClick={() => history.push('/dashboard/ticket-detail')} className={classes.cardTitleWhite}>Campaigns</h4>
+                      <h4 onClick={() => history.push('/dashboard/campaign-detail')} className={classes.cardTitleWhite}>Campaigns</h4>
                     </CardHeader>
                   </Card>,
                 Header: props => <MTableHeader {...props}
@@ -172,7 +216,7 @@ function CampaignTable(props) {
                         <IconButton
                           onClick={(event) => props.action.onClick(event, props.data)}
                         >
-                          <PlayIcon></PlayIcon>
+                          <PlayIcon />
                         </IconButton>
                       </Tooltip>
                     )
@@ -244,6 +288,9 @@ function CampaignTable(props) {
                       start: c.start_date,
                       end: c.end_date,
                       id: c.id,
+                      packages: c.packages,
+                      follow_up_plan: c.follow_up_plan,
+                      marketing_plan: c.marketing_plan,
                       status
                     }
                   })
@@ -289,12 +336,10 @@ function CampaignTable(props) {
               sorting: true
             }}
           />
-        </div>
+        </>
       }
     </USERCONTEXT.Consumer>
   )
-
-
 }
 
 export default withStyles(styles)(CampaignTable)

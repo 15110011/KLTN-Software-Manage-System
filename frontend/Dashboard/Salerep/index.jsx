@@ -4,9 +4,9 @@ import { withStyles } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid'
 
 import styles from './SalerepStyles.js'
-import MarketingTable from './MarketingTable'
+import TicketsTable from './TicketsTable'
 import ActivitiesTable from './ActivitiesTable'
-import CampaignTable from './CampaignsTable'
+import CampaignsTable from './CampaignsTable'
 import { apiGet, apiPost } from '../../common/Request.js';
 
 
@@ -42,13 +42,13 @@ function SalerepDashboard(props) {
           />
         </Grid>
         <Grid item xs={12}>
-          <CampaignTable forceActivities={forceActivities}
+          <CampaignsTable forceActivities={forceActivities}
             history={props.history}
             tableRef={tableCampaignRef}
           />
         </Grid>
         <Grid item xs={12}>
-          <MarketingTable forceActivities={forceActivities}
+          <TicketsTable forceActivities={forceActivities}
             history={props.history}
             forceMarketing={forceMarketing}
             tableMarketingRef={tableMarketingRef}

@@ -12,12 +12,12 @@ import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
-import Detail from './Detail'
+import TicketDetail from './TicketDetail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
 import USERCONTEXT from '../../components/UserContext'
 
-function MarketingTable(props) {
+function TicketsTable(props) {
 
   const { classes, tableMarketingRef, forceActivities, forceMarketing, history } = props
 
@@ -66,7 +66,7 @@ function MarketingTable(props) {
         setMovingRow({})
       })
   }
-  
+
 
   return (
     <USERCONTEXT.Consumer>
@@ -85,7 +85,7 @@ function MarketingTable(props) {
                 </h4>
               </DialogTitle>
               <DialogContent>
-                <Detail
+                <TicketDetail
                   histories={moreRow.histories}
                   allHistories={moreRow.histories}
                   campaign={moreRow.campaign}
@@ -247,8 +247,6 @@ function MarketingTable(props) {
       }
     </USERCONTEXT.Consumer>
   )
-
-
 }
 
-export default withStyles(styles)(MarketingTable)
+export default withStyles(styles)(TicketsTable)
