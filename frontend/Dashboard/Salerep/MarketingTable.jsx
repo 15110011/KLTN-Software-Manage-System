@@ -12,8 +12,6 @@ import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
-
-import MoreDialog from './MoreDialog'
 import Detail from './Detail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
@@ -35,6 +33,22 @@ function MarketingTable(props) {
   const marketingSearch = {}
   let activePageMarketing = 0
 
+  const getMoreRow = id => {
+    apiGet(CONTACT_MARKETING_URL + '/' + id, true).then(res => {
+      const c = res.data
+      setMoreRow({
+        full_name: c.contact.full_name,
+        mail: c.contact.mail,
+        phone: c.contact.phone,
+        campaignName: c.campaign.name,
+        id: c.id,
+        contact: c.contact,
+        campaign: c.campaign,
+        histories: c.histories,
+        marketing: c
+      })
+    })
+  }
 
   const onRemoveContact = () => {
     apiPatch(CONTACT_MARKETING_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
@@ -52,6 +66,7 @@ function MarketingTable(props) {
         setMovingRow({})
       })
   }
+  
 
   return (
     <USERCONTEXT.Consumer>
@@ -73,7 +88,7 @@ function MarketingTable(props) {
                 <Detail
                   histories={moreRow.histories}
                   allHistories={moreRow.histories}
-                  campaign={moreRow.campaign} contact={moreRow.contact}
+                  campaign={moreRow.campaign}
                   id={moreRow.id}
                   contact={moreRow.contact}
                   updateTable={tableMarketingRef.current.onQueryChange}
@@ -82,6 +97,7 @@ function MarketingTable(props) {
                   user={user}
                   setMovingRow={setMovingRow}
                   setDeletingRow={setDeletingRow}
+                  getMoreRow={getMoreRow}
                 />
               </DialogContent>
             </Dialog>
@@ -171,7 +187,18 @@ function MarketingTable(props) {
                       contact: c.contact,
                       campaign: c.campaign,
                       histories: c.histories,
-                      marketing: c
+                      marketing: c,
+                      moreRow: {
+                        full_name: c.contact.full_name,
+                        mail: c.contact.mail,
+                        phone: c.contact.phone,
+                        campaignName: c.campaign.name,
+                        id: c.id,
+                        contact: c.contact,
+                        campaign: c.campaign,
+                        histories: c.histories,
+                        marketing: c
+                      }
                     })
                   })
                   resolve({
