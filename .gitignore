@@ -8,6 +8,7 @@ node_modules/
 .env
 *.swp
 */migrations
+design
 
 public/*
 !public/index.html

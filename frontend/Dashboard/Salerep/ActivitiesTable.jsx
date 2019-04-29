@@ -91,14 +91,11 @@ function ActivitiesTable(props) {
                   }}
                 />,
                 Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
-                  if (columnId == 5) {
+                  if (columnId == 4) {
                     activitySearch.priority = value
                   }
-                  else if (columnId == 6) {
+                  else if (columnId == 5) {
                     activitySearch.remaining = value
-                  }
-                  else if (columnId == 4) {
-                    activitySearch.phaseId = value
                   }
                   else if (columnId == 1) {
                     activitySearch.target = value
@@ -175,7 +172,6 @@ function ActivitiesTable(props) {
                   'Order': 'Order',
                 }
               },
-              { title: 'PhaseID', field: 'phaseId' },
               {
                 title: 'Priority', field: 'priority'
                 ,
@@ -209,8 +205,8 @@ function ActivitiesTable(props) {
                 searchString += `${activitySearch.campaign ? '&campaign=' + activitySearch.campaign : ''}`
                 searchString += `${activitySearch.phase ? '&phase=' + activitySearch.phase : ''}`
                 searchString += `${activitySearch.phaseId ? '&phaseId=' + activitySearch.phaseId : ''}`
-                searchString += `${activityOrder[6] ? '&remainingOrder=' + activityOrder[6] : ''}`
-                searchString += `${activityOrder[5] ? '&priorityOrder=' + activityOrder[5] : ''}`
+                searchString += `${activityOrder[5] ? '&remainingOrder=' + activityOrder[5] : ''}`
+                searchString += `${activityOrder[4] ? '&priorityOrder=' + activityOrder[4] : ''}`
                 searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
                 searchString += `${activityOrder[2] ? '&campaignOrder=' + activityOrder[2] : ''}`
                 searchString += `${activityOrder[3] ? '&phaseOrder=' + activityOrder[3] : ''}`

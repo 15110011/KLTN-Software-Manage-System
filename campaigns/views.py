@@ -294,19 +294,57 @@ class CampaignView(ModelViewSet):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
+
+        filters = Q()
+        filters.add(Q(manager=request.user), Q.AND)
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
+        type_ = request.query_params.get('type', 'manager')
+        # Filter
+        campaign_name = request.query_params.get('campaign_name', None)
+        product_name = request.query_params.get('product_name', None)
+        start = request.query_params.get('start', None)
+
+        campaign_status = request.query_params.get('status', None)
+
+        if campaign_name:
+            filters.add(Q(name__icontains=campaign_name), Q.AND)
+
+        if product_name:
+            filters.add(
+                Q(packages__features__product__name__icontains=product_name), Q.AND)
+        if start:
+            filters.add(
+                Q(start_date=start), Q.AND)
+
+        if campaign_status:
+            statuses = campaign_status.split(',')
+            status_filters = Q()
+            for s in statuses:
+                if s == 'Idle':
+                    status_filters.add(Q(start_date__gt=now), Q.OR)
+                elif s == 'Active':
+                    status_filters.add(Q(start_date__lte=now)
+                                       & Q(end_date__gte=now), Q.OR)
+                elif s =='Finished':
+                    status_filters.add(Q(end_date__lt=now), Q.OR)
+
+            filters.add(status_filters, Q.AND)
+        # order
+
+        if type_ == 'both':
+            filters.add(Q(assigned_to=request.user), Q.OR)
+
         if limit is not None:
-            queryset = Campaign.objects.filter(manager=request.user)[
+            queryset = Campaign.objects.filter(filters)[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
         else:
-            queryset = Campaign.objects.filter(manager=request.user)
+            queryset = Campaign.objects.filter(filters)
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
-        new_serializer['total'] = Campaign.objects.filter(
-            manager=request.user).count()
+        new_serializer['total'] = Campaign.objects.filter(filters).count()
         return Response(new_serializer, status=status.HTTP_200_OK)
 
     def create(self, request):
@@ -393,7 +431,8 @@ class ContactMarketingView(ModelViewSet):
         queryset = self.get_queryset()
         if not request.user.profile.is_manager:
             filters.add(Q(campaign__assigned_to__id=request.user.id), Q.AND)
-            filters.add(Q(campaign__start_date__lte=now) & Q(campaign__end_date__gte=now), Q.AND)
+            filters.add(Q(campaign__start_date__lte=now) &
+                        Q(campaign__end_date__gte=now), Q.AND)
         # pagin
         page = request.query_params.get(
             'page') if int(request.query_params.get('page', 0)) > 0 else 0

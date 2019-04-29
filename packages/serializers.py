@@ -15,6 +15,7 @@ class FeatureSerializer(serializers.ModelSerializer):
     label = serializers.SerializerMethodField()
     value = serializers.SerializerMethodField()
     id = serializers.IntegerField(required=False)
+    product_ = serializers.SerializerMethodField()
 
     class Meta:
         model = Feature
@@ -28,6 +29,11 @@ class FeatureSerializer(serializers.ModelSerializer):
 
         return instance.id
 
+    def get_product_(self, instance):
+        return instance.product.name
+
+
+
 class PackageWithoutNumberSerializer(serializers.ModelSerializer):
     numbers = serializers.SerializerMethodField()
 
@@ -40,10 +46,12 @@ class PackageWithoutNumberSerializer(serializers.ModelSerializer):
             instance.features.all(), many=True)
         return [d['number'] for d in features_serialized.data]
 
+
 class PackageSerializer(serializers.ModelSerializer):
 
     numbers = serializers.SerializerMethodField()
     id = serializers.IntegerField(required=False)
+    features_ = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
@@ -57,6 +65,12 @@ class PackageSerializer(serializers.ModelSerializer):
         features_serialized = FeatureSerializer(
             instance.features.all(), many=True)
         return features_serialized.data
+
+    def get_features_(self, instance):
+        features_serialized = FeatureSerializer(
+            instance.features.all(), many=True)
+        return features_serialized.data
+
 
 
 class PackageHistorySerializer(serializers.ModelSerializer):
@@ -107,7 +121,8 @@ class CreateProductSerializer(serializers.ModelSerializer):
     def get_packages(self, instance):
         features = instance.features.all()
         packages = Package.objects.filter(features__in=features)
-        package_serialized = PackageWithoutNumberSerializer(packages, many=True)
+        package_serialized = PackageWithoutNumberSerializer(
+            packages, many=True)
         return package_serialized.data
 
     def create(self, validated_data):
@@ -127,7 +142,8 @@ class CreateProductSerializer(serializers.ModelSerializer):
                     feature.save()
                     new_feature.append(feature)
                 else:
-                    feature = self.update(Product.objects.get(id=product_id), {features:features})
+                    feature = self.update(Product.objects.get(
+                        id=product_id), {features: features})
                     new_feature.append(feature)
         features = new_feature
         if packages is not None:
@@ -142,7 +158,7 @@ class CreateProductSerializer(serializers.ModelSerializer):
                 cur_package = Package(**p)
                 cur_package.save()
                 cur_package.features.set([f.id for f in cur_features])
-        
+
         return product
 
     def update(self, instance, validated_data):

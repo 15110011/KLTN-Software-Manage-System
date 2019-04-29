@@ -6,6 +6,7 @@ import Grid from '@material-ui/core/Grid'
 import styles from './SalerepStyles.js'
 import MarketingTable from './MarketingTable'
 import ActivitiesTable from './ActivitiesTable'
+import CampaignTable from './CampaignsTable'
 import { apiGet, apiPost } from '../../common/Request.js';
 
 
@@ -18,6 +19,11 @@ function SalerepDashboard(props) {
   const tableMarketingRef = React.useRef(null);
   const tableActivtyRef = React.useRef(null);
 
+  const tableCampaignRef = React.useRef(null);
+
+  const forceCampaign = () => {
+    tableCampaignRef.current.onQueryChange()
+  }
   const forceMarketing = () => {
     tableMarketingRef.current.onQueryChange()
   }
@@ -33,6 +39,12 @@ function SalerepDashboard(props) {
           <ActivitiesTable tableActivtyRef={tableActivtyRef}
             tableMarketingRef={tableMarketingRef}
             forceActivities={forceActivities}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <CampaignTable forceActivities={forceActivities}
+            history={props.history}
+            tableRef={tableCampaignRef}
           />
         </Grid>
         <Grid item xs={12}>

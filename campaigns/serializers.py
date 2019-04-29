@@ -3,7 +3,7 @@ from rest_framework.fields import set_value
 
 from account.serializers import MeSerializer
 from steps.serializers import StepSerializer, StepWithOutFollowUpSerializer
-from packages.serializers import PackageSerializer
+from packages.serializers import PackageSerializer, ProductSerializier
 
 from orders.models import Order
 from steps.models import Step
@@ -94,10 +94,26 @@ class CampaignSerializer(serializers.ModelSerializer):
     manager = MeSerializer()
     packages = PackageSerializer(many=True)
     notes = NoteSerializer(many=True)
+    product = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Campaign
         fields = '__all__'
+
+    def get_product(self, instance):
+        # package = None
+        # for p in instance.packages.all():
+        #     package = p
+        #     break
+        # feature = None
+        # for f in package.features.all():
+        #      = p
+        #     break
+        try:
+            return ProductSerializier(instance.packages.all()[0].features.all()[0].product).data
+        except:
+            return None
+        # return {"product": 12312}
 
 
 class CreateContactMarketingSerializer(serializers.ModelSerializer):
@@ -129,7 +145,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
                         cur_contact.first_name, cur_contact.last_name),
-                    start_date=campaign.start_date, end_date=campaign.start_date, name=f'Start contacting '+ f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
+                    start_date=campaign.start_date, end_date=campaign.start_date, name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
                 )
                 event.save()
                 event.contacts.set([cur_contact])
