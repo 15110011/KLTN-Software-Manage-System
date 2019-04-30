@@ -84,7 +84,7 @@ function FormPackage(props) {
                   'aria-label': 'Package Name',
                 }}
                 name='name'
-                value={createPackage.name}
+                // value={createPackage.name}
                 onChange={onChangeCreatePackage}
               />
             </Grid>

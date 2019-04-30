@@ -16,6 +16,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import DetailIcon from '@material-ui/icons/Assignment'
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
+import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
@@ -24,7 +25,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import MaterialTable from 'material-table'
 import IconButton from '@material-ui/core/IconButton';
 import CustomSnackbar from '../../components/CustomSnackbar'
-
+import * as numeral from 'numeral'
 
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
@@ -32,9 +33,19 @@ import { apiGet, apiPost, apiPatch, apiPut } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 // Components 
-import FormPackage from '../CreateProduct/FormPackage/FormPackage'
+import SelectCustom from '../../../components/SelectCustom'
+import FormLicensePrice from '../CreateProduct/FormLicensePrice/FormLicensePrice'
+
 
 import styles from './ProductDetailStyle'
+
+const MONTHS = [
+  { value: '1', label: '1 Month' },
+  { value: '6', label: '6 Months' },
+  { value: '12', label: '1 Year' },
+  { value: '999', label: 'Lifetime' },
+]
+
 
 function TabContainer(props) {
   return (
@@ -76,7 +87,7 @@ function ProductDetail(props) {
     ],
     features: []
   })
-
+  console.log(productDetailData)
   const [createFeature, setCreateFeature] = React.useState({
     name: '',
     price: '',
@@ -337,6 +348,11 @@ function ProductDetail(props) {
             <div style={{ textAlign: 'left' }}>
               {value === 0 &&
                 <TabContainer>
+                <Grid item xs={12}>
+                    <Typography variant="h5" gutterBottom>
+                      Product Info
+                    </Typography>
+                  </Grid>
                   <Grid container spacing={24}>
                     <Grid className={classes.inputCustom} item xs={2}>
                       <InputLabel
@@ -484,7 +500,7 @@ function ProductDetail(props) {
                   </Grid>
                 </TabContainer>
               }
-              {value === 1 &&
+              {value === 2 &&
                 <TabContainer>
                   <Grid container spacing={40}>
                     <Grid item xs={12}>
@@ -608,7 +624,7 @@ function ProductDetail(props) {
                             color="default"
                             onClick={toggleUpdateFeature}
                           >
-                            cancel
+                            Cancel
                       </Button>
                           &nbsp;
                           <Button
@@ -678,24 +694,7 @@ function ProductDetail(props) {
                     </Grid>
                   </Grid>
                   <br />
-                  <Grid item xs={12}>
-                    <Typography variant="h5" gutterBottom>
-                      Feature Info
-                    </Typography>
-                  </Grid>
-                  <br />
-                  <FormPackage
-                    handleProfileMenuOpen={handleProfileMenuOpen}
-                    createProduct={productDetailData}
-                    anchorEl={anchorEl}
-                    setAnchorEl={setAnchorEl}
-                    onRemoveLicenseType={onRemoveLicenseType}
-                    handleAddPackageForm={handleAddPackageForm}
-                    onLicenseTypeClick={onLicenseTypeClick}
-                    onChangeLicenseInput={onChangeLicenseInput}
-                    handleRemovePackageForm={handleRemovePackageForm}
-                    handleChangeSelect={handleChangeSelect}
-                  />
+
                   <Grid container>
                     <Grid item xs={12} className="d-flex justify-content-center mt-3">
                       <Button onClick={handleResetData} variant="contained" className={classes.button}>
@@ -707,11 +706,166 @@ function ProductDetail(props) {
                     </Grid>
                   </Grid>
                 </TabContainer>}
+              {
+                value === 1 &&
+                <TabContainer>
+                  <Grid item xs={12}>
+                    <Typography variant="h5" gutterBottom>
+                      Package Info
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <MaterialTable
+                      columns={[
+                        { title: '', field: 'actions' },
+                        { title: 'Package Name', field: 'packageName' },
+                        { title: 'Sell Price', field: 'sellPrice' },
+                        {
+                          title: 'Notes', field: 'notes',
+                        },
+                      ]}
+                      data={
+                        productDetailData.packages.map((p, packageIndex) => {
+                          return (
+                            {
+                              actions:
+                                (
+                                  <>
+                                    <Button
+                                      variant="outlined"
+                                      className={classes.button}
+                                      aria-owns={Boolean(anchorEl) ? 'material-appbar' : undefined}
+                                      aria-haspopup="true"
+                                      onClick={handleProfileMenuOpen}
+                                      color="default"
+                                    >
+                                      Actions
+                      </Button>
+                                    <Menu
+                                      anchorEl={anchorEl}
+                                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                      transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                      open={Boolean(anchorEl)}
+                                      onClose={() => setAnchorEl(null)} >
+                                      <MenuItem onClick={() => {
+                                        handleAddPackageForm()
+                                      }}>
+                                        Add
+                                      </MenuItem>
+                                      <MenuItem onClick={() => { handleRemovePackageForm(packageIndex) }}>Remove</MenuItem>
+                                    </Menu>
+                                  </>
+                                )
+                              ,
+                              packageName:
+                                (<form className={classes.container} noValidate autoComplete="off">
+                                  <Grid container>
+                                    <Grid item xs={12} className="mb-3">
+                                      <Input
+                                        placeholder="Type package's name..."
+                                        fullWidth
+                                        className={classes.input}
+                                        inputProps={{
+                                          'aria-label': 'Package Name',
+                                        }}
+                                        name='name'
+                                        value={p.name}
+                                        onChange={(e) => onChangeLicenseInput(e, packageIndex)}
+
+                                      />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                      <SelectCustom
+                                        options={productDetailData.features.map(f => ({ label: f.name + `(${numeral(f.price).format('0,0.00')} VND)`, value: f.number, ...f }))}
+                                        handleChange={(values, element) => handleChangeSelect(values, element, packageIndex)}
+                                        data={
+                                          productDetailData.packages[packageIndex].numbers
+                                            .reduce((acc, p) => {
+                                              acc.push({ label: p.name, value: p.number, ...p })
+                                              return acc
+                                            }, [])
+                                        }
+                                        multi
+                                        placeholder=""
+                                        label="Features"
+                                      />
+                                    </Grid>
+                                  </Grid>
+                                </form>)
+                              ,
+                              sellPrice:
+                                (<div style={{ display: 'inline-grid' }}>
+                                  {
+                                    Object.keys(p.prices).map((pkey, priceIndex) => {
+                                      let thisScopeIndex = priceIndex
+                                      return (
+                                        <>
+                                          <FormLicensePrice key={`priceIndex${thisScopeIndex}`}
+                                            onRemoveLicenseType={() => { onRemoveLicenseType(packageIndex, pkey) }}
+                                            price={{ value: p.prices[pkey], month: pkey }}
+                                            onInputChange={(e, curMonth) => onChangeLicenseInput(e, packageIndex, curMonth)}
+                                            months={
+                                              MONTHS.reduce((acc, m) => {
+                                                if (Object.keys(p.prices).findIndex(pr => pr == m.value && pr != pkey) == -1) {
+                                                  acc.push(<MenuItem value={m.value}>{m.label}</MenuItem>)
+                                                }
+                                                return acc
+                                              }, [])
+                                            }
+                                          />
+
+                                        </>
+                                      )
+                                    })
+                                  }
+                                  <Button onClick={() => {
+                                    onLicenseTypeClick(packageIndex)
+                                  }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
+                                    License Price
+                            </Button>
+                                </div>)
+                              ,
+                              notes:
+                                (<Input
+                                  fullWidth
+                                  placeholder="Notes"
+                                  className={classes.input}
+                                  inputProps={{
+                                    'aria-label': 'Description',
+                                  }}
+                                  onChange={(e) => onChangeLicenseInput(e, packageIndex)}
+                                  name='note'
+                                  value={p.note}
+                                />)
+
+                            }
+                          )
+                        })
+                      }
+                      title="Basic"
+                      options={{
+                        toolbar: false,
+                        paging: false,
+                      }}
+                    />
+                  </Grid>
+                  <Grid container>
+                    <Grid item xs={12} className="d-flex justify-content-center mt-3">
+                      <Button onClick={handleResetData} variant="contained" className={classes.button}>
+                        RESET
+                      </Button>&nbsp;&nbsp;
+                      <Button onClick={handleSave} variant="contained" color="primary" className={classes.button}>
+                        SAVE
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </TabContainer>
+              }
             </div>
           </div>
         </Grid>
       </Grid>
-    </div >
+    </div>
   )
 }
 
