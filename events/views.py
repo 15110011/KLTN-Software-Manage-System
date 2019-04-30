@@ -38,6 +38,7 @@ class EventView(ModelViewSet):
         target_order = request.query_params.get('targetOrder', None)
         campaign_order = request.query_params.get('campaignOrder', None)
         phase_order = request.query_params.get('phaseOrder', None)
+        start_order = request.query_params.get('startOrder', None)
         # Filter
         remaining = request.query_params.get('remaining', None)
         priority = request.query_params.get('priority', None)
@@ -45,6 +46,8 @@ class EventView(ModelViewSet):
         campaign = request.query_params.get('campaign', None)
         phase = request.query_params.get('phase', None)
         phase_id = request.query_params.get('phaseId', None)
+        start_from = request.query_params.get('start_from', None)
+        start_to = request.query_params.get('start_to', None)
         # order
         if remaining_order:
             remaining_order = '-end_date' if remaining_order == 'desc' else 'end_date'
@@ -52,16 +55,20 @@ class EventView(ModelViewSet):
             priority_order = '-priority' if priority_order == 'desc' else 'priority'
         if campaign_order:
             campaign_order = '-priority' if priority_order == 'desc' else 'priority'
+        if start_order:
+            start_order = '-start_date' if start_order == 'desc' else 'start_date'
         if view_type == 'campaign':
             excludes.add(Q(marketing=None), Q.AND)
             excludes.add(Q(order=None), Q.AND)
-            filters.add(Q(marketing__campaign__end_date__gte=now) & Q(marketing__campaign__start_date__lte=now), Q.AND)
+            # filters.add(Q(marketing__campaign__end_date__gte=now) & Q(marketing__campaign__start_date__lte=now), Q.AND)
+            filters.add(Q(marketing__campaign__end_date__gte=now), Q.AND)
             filters.add(Q(marketing__status='RUNNING') |
                         Q(order__status='RUNNING'), Q.AND)
         elif view_type == 'personal':
             filters.add(Q(marketing=None), Q.AND)
             filters.add(Q(order=None), Q.AND)
-        filters.add(Q(end_date__gte=now) & Q(start_date__lte=now), Q.AND)
+        # filters.add(Q(end_date__gte=now) & Q(start_date__lte=now), Q.AND)
+        filters.add(Q(end_date__date__gte=now), Q.AND)
         if remaining:
             filters.add(Q(end_date=datetime.timedelta(
                 days=int(remaining))+now), Q.AND)
@@ -74,6 +81,7 @@ class EventView(ModelViewSet):
         if campaign:
             filters.add(
                 Q(marketing__campaign__name__icontains=campaign), Q.AND)
+
         if phase:
             phases = [p for p in phase.split(',')]
             phase_filter = Q()
@@ -106,6 +114,10 @@ class EventView(ModelViewSet):
                                 & Q(order__status='RUNNING'), Q.AND)
                 elif phase_type == 'T':
                     filters.add(Q(marketing__status='RUNNING'), Q.AND)
+        if start_from:
+            filters.add(Q(start_date__date__gte=start_from), Q.AND)
+        if start_to:
+            filters.add(Q(start_date__date__lte=start_to), Q.AND)
         # paging
         page = request.query_params.get(
             'page') if int(request.query_params.get('page', 0)) > 0 else 0
@@ -116,13 +128,13 @@ class EventView(ModelViewSet):
 
         if limit:
             # queryset = queryset.exclude(excludes).filter(filters)
-            if remaining_order != None:
+            if remaining_order:
                 queryset = queryset.exclude(excludes).filter(filters).order_by(remaining_order, '-priority')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]
-            elif priority_order != None:
+            elif priority_order:
                 queryset = queryset.exclude(excludes).filter(filters).order_by(priority_order, 'end_date')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]
-            elif phase_order != None:
+            elif phase_order:
                 if phase_order == 'asc':
                     queryset = queryset.exclude(excludes).filter(filters).annotate(
                         phase=DjangoModel.Case(
@@ -147,14 +159,16 @@ class EventView(ModelViewSet):
                             output_field=DjangoModel.IntegerField()
                         )
                     ).order_by('-phase')[int(page)*int(limit):int(page)*int(limit)+int(limit)]
-                print(queryset.query)
-            elif target_order != None:
+            elif target_order:
                 if target_order == 'asc':
                     queryset = queryset.exclude(excludes).filter(filters).order_by('contacts__first_name', 'contacts__last_name', 'end_date')[
                         int(page)*int(limit):int(page)*int(limit)+int(limit)]
                 elif target_order == 'desc':
                     queryset = queryset.exclude(excludes).filter(filters).order_by('-contacts__first_name', '-contacts__last_name', 'end_date')[
                         int(page)*int(limit):int(page)*int(limit)+int(limit)]
+            elif start_order:
+                queryset = queryset.exclude(excludes).filter(filters).order_by(start_order, 'end_date')[
+                    int(page)*int(limit):int(page)*int(limit)+int(limit)]
             else:
                 queryset = queryset.exclude(excludes).filter(filters).order_by('end_date', '-priority')[
                     int(page)*int(limit):int(page)*int(limit)+int(limit)]

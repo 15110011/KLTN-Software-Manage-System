@@ -29,6 +29,8 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
+import * as dateFns from 'date-fns'
+import CampaignContactDetail from './CampaignContactDetail'
 
 
 
@@ -48,7 +50,9 @@ function CampaignDetail(props) {
     classes,
     setMovingRow,
     setDeletingRow,
-    moreRow
+    moreRow,
+    userId,
+
   } = props
 
   // const [contactHistories, setContactHistories] = React.useState({
@@ -57,7 +61,7 @@ function CampaignDetail(props) {
   //   'Call Client': 0
   // })
   const [selectTabActivity, setSelectTabActivity] = React.useState({
-    type: 'history'
+    type: 'contact'
   })
 
   const [noteDialog, setNoteDialog] = React.useState(false)
@@ -99,7 +103,6 @@ function CampaignDetail(props) {
   //   )
 
   // }, [histories.length])
-  console.log(moreRow.status,'ssssss')
   return (
     <>
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
@@ -150,28 +153,35 @@ function CampaignDetail(props) {
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnPurple
-              }}
-              onClick={() => {
-                setMovingRow({ id: moreRow.id, name: moreRow.name, start: moreRow.start_date })
-              }}
-            >
-              <PlayIcon fontSize="small" />
-            </Button>
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnRed
-              }}
-              onClick={() => {
-                setDeletingRow({ id: moreRow.id, name: moreRow.name })
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </Button>
+            {
+              moreRow.manager == userId && moreRow.status == 'Idle' &&
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPurple
+                }}
+                onClick={() => {
+                  setMovingRow({ id: moreRow.id, name: moreRow.name, start: moreRow.start })
+                }}
+              >
+                <PlayIcon fontSize="small" />
+              </Button>
+            }
+            {
+
+              moreRow.manager == userId && moreRow.status == 'Idle' &&
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnRed
+                }}
+                onClick={() => {
+                  setDeletingRow({ id: moreRow.id, name: moreRow.name })
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </Button>
+            }
           </DialogActions>
         </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={12}>
@@ -213,7 +223,7 @@ function CampaignDetail(props) {
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
-            </Grid>
+        </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
           </DialogContentText>
@@ -239,7 +249,7 @@ function CampaignDetail(props) {
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
-            {moreRow.start}
+            {dateFns.format(dateFns.parseISO(moreRow.start), 'dd-MM-yyyy')}
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
@@ -247,12 +257,12 @@ function CampaignDetail(props) {
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
-            {moreRow.end}
+            {dateFns.format(dateFns.parseISO(moreRow.end), 'dd-MM-yyyy')}
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={9}>
-          Activity
-          </Grid>
+          More Info
+        </Grid>
         <Grid className="d-flex justify-content-end" item xs={3}>
           <FormControl className={classes.formControl}>
             <Select
@@ -262,8 +272,8 @@ function CampaignDetail(props) {
                 name: 'type',
               }}
             >
-              <MenuItem value="history">
-                History
+              <MenuItem value="contact">
+                Contacts
                   </MenuItem>
             </Select>
           </FormControl>
@@ -282,14 +292,13 @@ function CampaignDetail(props) {
               />
             </Tabs>
             {
-              selectTabActivity.type == "history" &&
+              selectTabActivity.type == "contact" &&
               <>
                 {value === 0 &&
                   <TabContainer>
-                    {/* <ContactDetail
-                      contact={contact}
-                      contactHistories={allHistories}
-                    /> */}
+                    <CampaignContactDetail
+                      allContacts={moreRow.allContacts}
+                    />
                   </TabContainer>
                 }
               </>

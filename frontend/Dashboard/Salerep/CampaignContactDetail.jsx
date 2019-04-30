@@ -8,11 +8,12 @@ import Button from '@material-ui/core/Button'
 import MaterialTable from 'material-table'
 import styles from './SalerepStyles.js'
 import { title } from '../../components/material-dashboard-react.jsx';
+import stateHashes from '../../common/StateHash'
 
 
-function ContactDetail(props) {
+function CampaignContactDetail(props) {
 
-  const { classes, contactHistories, contact, toggleDialog } = props
+  const { classes, allContacts, toggleDialog } = props
   return (
     // <Dialog open={true} onClose={toggleDialog} classes={{ paper: classes.rootTransparent }}>
     //   <DialogContent style={{ overflowY: 'hidden' }} id='material-force-height'>
@@ -23,7 +24,7 @@ function ContactDetail(props) {
     //         { title: 'Date', field: 'created' },
     //       ]}
     //       data={
-    //         contactHistories.map(h => {
+    //         allContacts.map(h => {
     //           return ({
     //             action: h.action,
     //             contactName: contact.first_name + ' ' + contact.last_name,
@@ -54,23 +55,25 @@ function ContactDetail(props) {
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Action</th>
-            <th scope="col">Contact</th>
-            <th scope="col">Time</th>
-            <th scope="col">Date</th>
+            <th scope="col">Full name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Phone</th>
+            <th scope="col">State</th>
+            <th scope="col">Organization</th>
             {/* <th scope="col">Direction</th> */}
           </tr>
         </thead>
         <tbody>
           {
-            contactHistories.length > 0 ? contactHistories.map((h, index) => {
+            allContacts.length > 0 ? allContacts.map((c, index) => {
               return (
                 <tr key={index}>
                   <th scope="row">{index + 1}</th>
-                  <td>{h.action}</td>
-                  <td>{contact.first_name + ' ' + contact.last_name}</td>
-                  <td>{dateFns.format(dateFns.parseISO(h.created), 'HH:mm')}</td>
-                  <td>{dateFns.format(dateFns.parseISO(h.created), 'dd/MM/yyyy')}</td>
+                  <td>{c.first_name + ' ' + c.last_name}</td>
+                  <td>{c.mail}</td>
+                  <td>{c.phone}</td>
+                  <td>{stateHashes[c.state]}</td>
+                  <td>{c.org}</td>
                   {/* <td>IN</td> */}
                 </tr>
               )
@@ -87,4 +90,4 @@ function ContactDetail(props) {
   )
 }
 
-export default withStyles(styles)(ContactDetail)
+export default withStyles(styles)(CampaignContactDetail)

@@ -7,6 +7,7 @@ import TablePagination from '@material-ui/core/TablePagination'
 import AddIcon from '@material-ui/icons/Add'
 import Tooltip from '@material-ui/core/Tooltip'
 import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
+import * as dateFns from 'date-fns'
 
 import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -16,11 +17,18 @@ import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CreateEventDialog from '../../Events/CreateEventDialog'
 import CardBody from "../../components/Card/CardBody";
+import CustomFItlerRow from '../../components/CustomFilterRow'
 
 import USERCONTEXT from '../../components/UserContext'
 import { apiGet, apiPost } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import TicketDetail from './TicketDetail'
+
+let activitySearch = {
+  viewType: 'campaign',
+  timeRanges: [null, null, null, null, null, { from: null, to: null }]
+}
+let activePageActivity = 0
 
 function ActivitiesTable(props) {
 
@@ -35,14 +43,11 @@ function ActivitiesTable(props) {
   const [moreRow, setMoreRow] = React.useState(null)
 
   const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
+  const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
-  let activitySearch = {
-    viewType: 'campaign'
-  }
 
 
   const activityOrder = []
-  let activePageActivity = 0
   const getMoreRow = id => {
     apiGet(CONTACT_MARKETING_URL + '/' + id, true).then(res => {
       const c = res.data
@@ -123,13 +128,7 @@ function ActivitiesTable(props) {
                   }}
                 />,
                 Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
-                  if (columnId == 4) {
-                    activitySearch.priority = value
-                  }
-                  else if (columnId == 5) {
-                    activitySearch.remaining = value
-                  }
-                  else if (columnId == 1) {
+                  if (columnId == 1) {
                     activitySearch.target = value
                   }
                   else if (columnId == 2) {
@@ -137,6 +136,16 @@ function ActivitiesTable(props) {
                   }
                   else if (columnId == 3) {
                     activitySearch.phase = value
+                  }
+                  else if (columnId == 4) {
+                    activitySearch.priority = value
+                  }
+                  else if (columnId == 5) {
+                    activitySearch.timeRanges[columnId][position] = value
+                    return
+                  }
+                  else if (columnId == 6) {
+                    activitySearch.remaining = value
                   }
                   activePageActivity = 0
                   props.onFilterChanged(columnId, value);
@@ -185,7 +194,23 @@ function ActivitiesTable(props) {
                     // setActivePage(nextPage)
                     activePageActivity = nextPage
                   }}
-                />
+                />,
+
+                FilterRow: props =>
+                  <CustomFItlerRow {{
+                    ...props,
+                    onFilterDateRange: (position, date, colId) => {
+                      activitySearch.timeRanges[colId][position] = date
+                      const timeRangesClone = [...timeRanges]
+                      timeRangesClone[colId][position] = date
+                      setTimeRanges(timeRangesClone)
+                      // props.onFilterChanged(colId, date, position)
+                      tableActivtyRef.current.onQueryChange()
+                    },
+                    timeRanges: timeRanges
+                  }}
+                  />
+
               }
             }
             columns={[
@@ -225,6 +250,15 @@ function ActivitiesTable(props) {
                 }
               },
               {
+                title: 'Start', field: 'start',
+                render: (row) => {
+                  return dateFns.format(dateFns.parseISO(row.start), 'hh:mm:ss  dd-MM-yyyy')
+
+                },
+                type: 'dateRange'
+
+              },
+              {
                 title: 'Remaining', field: 'remaining', type: 'numeric'
               },
             ]}
@@ -237,7 +271,10 @@ function ActivitiesTable(props) {
                 searchString += `${activitySearch.campaign ? '&campaign=' + activitySearch.campaign : ''}`
                 searchString += `${activitySearch.phase ? '&phase=' + activitySearch.phase : ''}`
                 searchString += `${activitySearch.phaseId ? '&phaseId=' + activitySearch.phaseId : ''}`
-                searchString += `${activityOrder[5] ? '&remainingOrder=' + activityOrder[5] : ''}`
+                searchString += `${activitySearch.timeRanges[5].from ? '&start_from=' + activitySearch.timeRanges[5].from : ''}`
+                searchString += `${activitySearch.timeRanges[5].to ? '&start_to=' + activitySearch.timeRanges[5].to : ''}`
+                searchString += `${activityOrder[6] ? '&remainingOrder=' + activityOrder[6] : ''}`
+                searchString += `${activityOrder[5] ? '&startOrder=' + activityOrder[5] : ''}`
                 searchString += `${activityOrder[4] ? '&priorityOrder=' + activityOrder[4] : ''}`
                 searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
                 searchString += `${activityOrder[2] ? '&campaignOrder=' + activityOrder[2] : ''}`
@@ -272,6 +309,7 @@ function ActivitiesTable(props) {
                         remaining: d.remaining + ' day(s)',
                         id: d.id,
                         marketing: d.marketing,
+                        start: d.start_date,
                         phaseId
                       }
                     }))

@@ -3,7 +3,7 @@ import { apiGet, apiPost } from '../common/Request'
 import * as CODE from '../common/Code'
 import { REFRESH_TOKEN_URL } from '../common/urls'
 
-export default function FetchData(inputUrl, history, init = null) {
+export default function FetchData(inputUrl, history, init = null, callBack) {
   const [data, setData] = React.useState(init)
   const [update, setUpdate] = React.useState(1)
   const [url, setUrl] = React.useState(inputUrl)
@@ -34,6 +34,9 @@ export default function FetchData(inputUrl, history, init = null) {
       else {
         setData({ ...init, ...res.data })
         ref.current = res.data
+        if (callBack) {
+          callBack(res.data)
+        }
       }
     })
   }
