@@ -20,11 +20,13 @@ import CardBody from "../../components/Card/CardBody";
 import CustomFItlerRow from '../../components/CustomFilterRow'
 
 import CampaignDetail from './CampaignDetail'
-import { apiGet, apiPost, apiPatch } from '../../common/Request'
+import { apiGet, apiPost, apiPatch, apiDelete } from '../../common/Request'
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 import USERCONTEXT from '../../components/UserContext'
 
 const search = { timeRanges: [null, null, null, { from: null, to: null }, { from: null, to: null }] }
+let activePageCampaign = 0
 
 function CampaignTable(props) {
 
@@ -37,25 +39,38 @@ function CampaignTable(props) {
   const [moreDialog, setMoreDialog] = React.useState(false)
 
   const [timeRanges, setTimeRanges] = React.useState([null, null, null, { from: null, to: null }, { from: null, to: null }])
+  const [notiSuccess, setNotiSuccess] = React.useState(false)
+
 
 
   //Campaign
   let order = []
-  let activePageCampaign = 0
+
+
+  const onNotiSuccess = (msg) => {
+    setNotiSuccess(msg)
+    setTimeout(() => {
+      setNotiSuccess(false)
+    }, 2000);
+  }
 
 
   const onRemoveCampaign = () => {
-    apiPatch(CAMPAIGNS_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
-      forceActivities()
+    apiDelete(CAMPAIGNS_URL + '/' + deletingRow.id, { status: 'FAILED' }, true).then(res => {
       setDeletingRow({})
+      forceActivities()
+      tableRef.current.onQueryChange()
+      onNotiSuccess('Successfully Removed')
     })
   }
 
   const onForceStart = () => {
-    apiPatch(CONTACT_MARKETING_URL + '/' + campaignRow.id,
-      { status: 'COMPLETED' }, false, true).then(res => {
+    apiPatch(CAMPAIGNS_URL + '/' + campaignRow.id,
+      { start_date: dateFns.format(new Date(), 'yyyy-MM-dd') }, false, true).then(res => {
+        tableRef.current.onQueryChange()
+        setMovingRow(false)
         forceActivities()
-        setMovingRow({})
+        onNotiSuccess('Successfully Updated')
       })
   }
 
@@ -86,6 +101,10 @@ function CampaignTable(props) {
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
+          {
+            notiSuccess &&
+            <CustomSnackbar success msg={notiSuccess} />
+          }
           {moreDialog &&
             <Dialog
               open={true}
@@ -103,31 +122,38 @@ function CampaignTable(props) {
                   moreRow={moreRow}
                   setDeletingRow={setDeletingRow}
                   setMovingRow={setMovingRow}
+                  onNotiSuccess={onNotiSuccess}
+                  userId={user.id}
                 // getMoreRow={getMoreRow}
                 />
               </DialogContent>
             </Dialog>
           }
-          <Dialog open={Object.keys(campaignRow).length != 0}
-            onClose={() => { setMovingRow({}) }
-            }
-          >
-            <DialogTitle>
-              Start campaign {campaignRow.name}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText>
-                <div>
-                  The start date is <i>{campaignRow.start}</i>.
-                </div>
-                <div>This action cannot be undone</div>
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => { setMovingRow({}) }}>Cancel</Button>
-              <Button color='primary' onClick={() => { onForceStart() }}>Start now</Button>
-            </DialogActions>
-          </Dialog>
+          {Object.keys(campaignRow).length != 0
+            && <Dialog open={true}
+              onClose={() => { setMovingRow({}) }
+              }
+            >
+              <DialogTitle>
+                Start campaign {campaignRow.name}
+              </DialogTitle>
+              <DialogContent>
+                <DialogContentText>
+                  <div>
+                    The original start date is <i>{dateFns.format(dateFns.parseISO(campaignRow.start), 'dd-MM-yyyy')}</i>.
+                  </div>
+                  <div>
+                    New start date will be <i>{dateFns.format(dateFns.parseISO(new Date().toISOString()), 'dd-MM-yyyy')}</i>
+                  </div>
+                  <div>This action cannot be undone</div>
+                </DialogContentText>
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={() => { setMovingRow({}) }}>Cancel</Button>
+                <Button color='primary' onClick={() => { onForceStart() }}>Start now</Button>
+              </DialogActions>
+            </Dialog>
+          }
           <Dialog open={Object.keys(deletingRow).length != 0}
             onClose={() => { setDeletingRow({}) }
             }
@@ -187,7 +213,6 @@ function CampaignTable(props) {
                   }
                   else if (columnId == 3) {
                     search.timeRanges[columnId][position] = value
-                    console.log(search)
                     return
                   }
                   else if (columnId == 4) {
@@ -218,7 +243,7 @@ function CampaignTable(props) {
                       </Tooltip>
                     )
                   }
-                  if (props.action.icon == 'play_circle_filled' && props.data.status == 'Idle') {
+                  if (props.action.icon == 'play_circle_filled' && props.data.status == 'Idle' && props.data.manager == user.id) {
                     return (
                       <Tooltip title={props.action.tooltip}>
                         <IconButton
@@ -229,7 +254,7 @@ function CampaignTable(props) {
                       </Tooltip>
                     )
                   }
-                  if (props.action.icon == 'delete' && props.data.status == 'Idle') {
+                  if (props.action.icon == 'delete' && props.data.status == 'Idle' && props.data.manager == user.id) {
                     return (
                       <Tooltip title={props.action.tooltip}>
                         <IconButton
@@ -259,14 +284,51 @@ function CampaignTable(props) {
             }
             columns={[
               { title: '#', field: '#', filtering: false, headerStyle: { maxWidth: '0px' } },
-              { title: 'Name', field: 'name', headerStyle: { minWidth: '200px' } },
-              { title: 'Product', field: 'product' },
-              { title: 'Start', field: 'start', type: 'dateRange' },
               {
-                title: 'End', field: 'end', type: 'dateRange'
+                title: 'Name', field: 'name', headerStyle: { minWidth: '200px' },
+                customSort: (a, b) => a.name.toString().toLowerCase() < b.name.toString().toLowerCase()
+              },
+              {
+                title: 'Product', field: 'product',
+                render: (rowData) => {
+                  if (!rowData.product) return <i>Undefined</i>
+                  return rowData.product
+                },
+                customSort: (a, b) => {
+
+                  if (!a.product) return 1
+                  if (!b.product) return -1
+                  return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
+
+                }
+              },
+              {
+                title: 'Start', field: 'start', type: 'dateRange',
+                customSort: (a, b) => {
+                  if (dateFns.isBefore(dateFns.parseISO(a.start), dateFns.parseISO(b.start))) return -1
+                  return 1
+
+                },
+                render: row => {
+                  return dateFns.format(dateFns.parseISO(row.start), 'dd-MM-yyyy')
+                }
+              },
+              {
+                title: 'End', field: 'end', type: 'dateRange',
+                customSort: (a, b) => {
+                  if (dateFns.isBefore(dateFns.parseISO(a.end), dateFns.parseISO(b.end))) return -1
+                  return 1
+                },
+                render: row => dateFns.format(dateFns.parseISO(row.end), 'dd-MM-yyyy')
               },
               {
                 title: 'Status', field: 'status',
+                customSort: (a, b) => {
+                  if (a.status == 'Idle' || b.status == 'Finished') return -1
+                  if (b.status == 'Idle' || a.status == 'Finished') return 1
+                  return 0
+                },
+
                 render: (data) => {
                   if (data.status == 'Active') {
                     return <div className="text-success">Active</div>
@@ -299,7 +361,7 @@ function CampaignTable(props) {
                 searchString += `${order[3] ? '&start_order=' + order[3] : ''}`
                 searchString += `${order[4] ? '&end_order=' + order[4] : ''}`
                 searchString += `${order[5] ? '&status_order=' + order[5] : ''}`
-                apiGet(CAMPAIGNS_URL + `?page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
+                apiGet(CAMPAIGNS_URL + `?type=both&page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
                   const data = res.data.data.map((c, index) => {
                     let status = 'Idle'
                     if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
@@ -312,17 +374,19 @@ function CampaignTable(props) {
                     return {
                       '#': (activePageCampaign * query.pageSize + index + 1),
                       name: c.name,
-                      product: c.product ? c.product.name : <i>Undefined</i>,
-                      start: dateFns.format(dateFns.parseISO(c.start_date), 'dd-MM-yyyy'),
-                      end: dateFns.format(dateFns.parseISO(c.end_date), 'dd-MM-yyyy'),
+                      product: c.product ? c.product.name : null,
+                      start: c.start_date,
+                      end: c.end_date,
                       id: c.id,
                       packages: c.packages,
                       follow_up_plan: c.follow_up_plan,
                       marketing_plan: c.marketing_plan,
-                      status
+                      status,
+                      manager: c.manager.id,
+                      allContacts: c.contacts
+
                     }
                   })
-                  console.log(data)
                   resolve({
                     data,
                     page: res.data.page,

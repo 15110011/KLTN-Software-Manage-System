@@ -38,8 +38,9 @@ import * as cn from 'classnames'
 import styles from './CampaignTableDetailStyle'
 import NoteDetail from './NoteDetail'
 import CampaignDetail from './CampaignDetail'
+import CustomSnackbar from '../../components/CustomSnackbar'
 import ContactDetail from './ContactDetail'
-import { apiPost } from '../../common/Request'
+import { apiPatch, apiPost } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import { CAMPAIGNS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -48,15 +49,19 @@ import { CAMPAIGNS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from 
 function CampaignTableDetail(props) {
   const { classes,
     history,
-    setMovingRow,
-    setDeletingRow
   } = props;
   const [sortOption, setSortOption] = React.useState({
     type: 'name'
   })
   const [moreRow, setMoreRow] = React.useState(null)
+  const [campaignRow, setMovingRow] = React.useState(false)
+  const [deletingRow, setDeletingRow] = React.useState(false)
+
+
   const [indexActive, setIndexActive] = React.useState(0)
   const [update, setUpdate] = React.useState(0)
+  const [notiSuccess, setNotiSuccess] = React.useState(false)
+
   // const [contactHistories, setContactHistories] = React.useState({
   //   'Send Email ': 0,
   //   'Send Email Manually': 0,
@@ -68,6 +73,30 @@ function CampaignTableDetail(props) {
   const [campaigns, setCampaigns, setUrl, forceUpdate] =
     useFetchData(CAMPAIGNS_URL, history, {
       data: []
+    }, (data) => {
+      if (!first) {
+        let c = data.data[indexActive]
+        let status = 'Idle'
+        if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
+          && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
+          status = 'Active'
+        }
+        else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date()))) {
+          status = 'Finished'
+        }
+        setMoreRow({
+          name: c.name,
+          product: c.product ? c.product.name : <i>Undefined</i>,
+          start: c.start_date,
+          end: c.end_date,
+          id: c.id,
+          packages: c.packages,
+          follow_up_plan: c.follow_up_plan,
+          marketing_plan: c.marketing_plan,
+          status,
+          allContacts: c.contacts
+        })
+      }
     })
 
 
@@ -83,11 +112,11 @@ function CampaignTableDetail(props) {
     if (first && campaigns.data.length > 0) {
       let c = campaigns.data[0]
       let status = 'Idle'
-      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
-        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
+      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
+        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
         status = 'Active'
       }
-      else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date().toISOString()))) {
+      else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date()))) {
         status = 'Finished'
       }
       setFirst(false)
@@ -101,12 +130,19 @@ function CampaignTableDetail(props) {
         packages: c.packages,
         follow_up_plan: c.follow_up_plan,
         marketing_plan: c.marketing_plan,
-        status
+        status,
+        allContacts: c.contacts
       })
     }
   }, [campaigns.data.length])
 
 
+  const onNotiSuccess = (msg) => {
+    setNotiSuccess(msg)
+    setTimeout(() => {
+      setNotiSuccess(false)
+    }, 2000);
+  }
   const handleChangeSelectSortOption = e => {
     setSortOption({ [e.target.name]: e.target.value });
   }
@@ -114,8 +150,8 @@ function CampaignTableDetail(props) {
   const handleViewDetail = (index) => {
     let c = campaigns.data[index]
     let status = 'Idle'
-    if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
-      && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
+    if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
+      && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
       status = 'Active'
     }
     else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date().toISOString()))) {
@@ -130,15 +166,82 @@ function CampaignTableDetail(props) {
       packages: c.packages,
       follow_up_plan: c.follow_up_plan,
       marketing_plan: c.marketing_plan,
-      status
+      status,
+      allContacts: c.contacts
+
     })
     setIndexActive(index)
+  }
+
+  const onRemoveCampaign = () => {
+    apiDelete(CAMPAIGNS_URL + '/' + deletingRow.id, { status: 'FAILED' }, true).then(res => {
+      setDeletingRow({})
+      onNotiSuccess('Successfully Removed')
+      forceUpdate()
+    })
+  }
+
+  const onForceStart = () => {
+    apiPatch(CAMPAIGNS_URL + '/' + campaignRow.id,
+      { start_date: dateFns.format(new Date(), 'yyyy-MM-dd') }, false, true).then(res => {
+        onNotiSuccess('Successfully Updated')
+        setMovingRow(false)
+        forceUpdate()
+      })
   }
 
 
   return (
     <div className={classes.root}>
       <BreadcrumbsItem to={`/dashboard/`}>Campaigns</BreadcrumbsItem>
+      {
+        notiSuccess &&
+        <CustomSnackbar success msg={notiSuccess} />
+      }
+      {Object.keys(campaignRow).length != 0
+        && <Dialog open={true}
+          onClose={() => { setMovingRow({}) }
+          }
+        >
+          <DialogTitle>
+            Start campaign {campaignRow.name}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <div>
+                The original start date is <i>{dateFns.format(dateFns.parseISO(campaignRow.start), 'dd-MM-yyyy')}</i>.
+                  </div>
+              <div>
+                New start date will be <i>{dateFns.format(dateFns.parseISO(new Date()), 'dd-MM-yyyy')}</i>
+              </div>
+              <div>This action cannot be undone</div>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => { setMovingRow({}) }}>Cancel</Button>
+            <Button color='primary' onClick={() => { onForceStart() }}>Start now</Button>
+          </DialogActions>
+        </Dialog>
+      }
+      <Dialog open={Object.keys(deletingRow).length != 0}
+        onClose={() => { setDeletingRow({}) }
+        }
+      >
+        <DialogTitle>
+          REMOVE CAMPAIGN {deletingRow.name}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            <div>
+              This action cannot be undone
+            </div>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setDeletingRow({}) }}>Cancel</Button>
+          <Button color='primary' onClick={() => { onRemoveCampaign() }}>Remove</Button>
+        </DialogActions>
+      </Dialog>
       <Grid container spacing={8}>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -180,11 +283,11 @@ function CampaignTableDetail(props) {
                   {
                     campaigns.data && campaigns.data.map((c, index) => {
                       let status = 'Idle'
-                      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
-                        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
+                      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
+                        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
                         status = 'Active'
                       }
-                      else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date().toISOString()))) {
+                      else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date()))) {
                         status = 'Finished'
                       }
                       return (
@@ -237,7 +340,7 @@ function CampaignTableDetail(props) {
                 <SortIcon fontSize="small" />
               </Grid>
               <Grid className="text-right" item xs={6}>
-                contact 1 of 5
+                {campaigns.data.length} Campaign(s)
               </Grid>
             </Grid>
           </Paper>

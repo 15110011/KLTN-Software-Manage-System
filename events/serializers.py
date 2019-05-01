@@ -44,11 +44,11 @@ class EventReadSerializer(serializers.ModelSerializer):
         return instance
 
     def get_remaining(self, instance):
-
-        return (instance.end_date - datetime.now().date()).days
+        print(instance.end_date,datetime.now().date(), (instance.end_date.date() - datetime.now().date()).days)
+        return (instance.end_date.date() - datetime.now().date()).days
 
     def get_is_overdue(self, instance):
-        return (instance.end_date - datetime.now().date()).days < 0
+        return (instance.end_date.date() - datetime.now().date()).days < 0
 
 
 class EventSerializer(serializers.ModelSerializer):

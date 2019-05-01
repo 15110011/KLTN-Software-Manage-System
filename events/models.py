@@ -18,8 +18,8 @@ class Event(BaseModel):
     marketing = models.ForeignKey(
         ContactMarketing, related_name='events', on_delete=models.CASCADE, blank=True, null=True)
     content = models.TextField()
-    start_date = models.DateField()
-    end_date = models.DateField()
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
     name = models.CharField(max_length=255)
     # action = models.TextField(blank=True, null=True)
     contacts = models.ManyToManyField(Contact, related_name='contact_events')

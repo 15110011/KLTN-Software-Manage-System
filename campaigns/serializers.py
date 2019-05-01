@@ -1,9 +1,12 @@
+
+from django.forms.models import model_to_dict
 from rest_framework import serializers
 from rest_framework.fields import set_value
 
 from account.serializers import MeSerializer
 from steps.serializers import StepSerializer, StepWithOutFollowUpSerializer
 from packages.serializers import PackageSerializer, ProductSerializier
+# from contacts.serializers import ContactWithoutGroupSerializer
 
 from orders.models import Order
 from steps.models import Step
@@ -95,25 +98,26 @@ class CampaignSerializer(serializers.ModelSerializer):
     packages = PackageSerializer(many=True)
     notes = NoteSerializer(many=True)
     product = serializers.SerializerMethodField()
+    contacts = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Campaign
         fields = '__all__'
 
     def get_product(self, instance):
-        # package = None
-        # for p in instance.packages.all():
-        #     package = p
-        #     break
-        # feature = None
-        # for f in package.features.all():
-        #      = p
-        #     break
         try:
             return ProductSerializier(instance.packages.all()[0].features.all()[0].product).data
         except:
             return None
-        # return {"product": 12312}
+    
+    def get_contacts(self, instance):
+        orders = Order.objects.filter(campaign=instance)
+        contacts= [model_to_dict(o.contact) for o in orders.all()]
+        contact_distinct = set([c['id'] for c in contacts])
+
+        marketings = models.ContactMarketing.objects.filter(campaign=instance)
+        contacts+=[model_to_dict(m.contact) for m in marketings.all() if not m.contact.id in contact_distinct]
+        return contacts
 
 
 class CreateContactMarketingSerializer(serializers.ModelSerializer):

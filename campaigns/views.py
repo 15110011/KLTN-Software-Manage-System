@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from contacts.serializers import ContactWithoutGroupSerializer
 from contacts.models import Contact
 from orders.models import Order
@@ -19,8 +19,7 @@ from rest_framework.exceptions import MethodNotAllowed
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
 from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
 
-import datetime
-now = datetime.datetime.now()
+now = datetime.now()
 
 
 # Create your views here.
@@ -363,10 +362,12 @@ class CampaignView(ModelViewSet):
         status_order = request.query_params.get('status_order', None)
         queryset = Campaign.objects.filter(filters)
         if name_order:
-            name_order = Lower('name').desc() if name_order == 'desc' else Lower('name').asc()
+            name_order = Lower('name').desc(
+            ) if name_order == 'desc' else Lower('name').asc()
             queryset = queryset.order_by(name_order)
         if product_order:
-            product_order = Lower('packages__features__product__name').asc() if product_order == 'desc' else Lower('packages__features__product__name').desc()
+            product_order = Lower('packages__features__product__name').desc(
+            ) if product_order == 'desc' else Lower('packages__features__product__name').asc()
             queryset = queryset.order_by(product_order)
         if start_order:
             start_order = '-start_date' if start_order == 'desc' else 'start_date'
@@ -403,11 +404,24 @@ class CampaignView(ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
+        if request.data.get('start_date', None):
+            instance = self.get_object()
+            for m in instance.contact_marketing_plan.all():
+                for e in m.events.all():
+                    e.start_date = request.data.get('start_date')
+                    e.end_date = datetime.strptime(request.data.get(
+                        'start_date'), '%Y-%m-%d') + timedelta(days=1)
+                    e.save()
         serializer = CreateCampaignSerializer(
             instance, data=request.data, partial=True, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        super().destroy(request, *args, **kwargs)
+        return Response({'msg': 'Remove OK'}, status=status.HTTP_200_OK)
+
 
 
 class CampaignExtraView(ModelViewSet):
