@@ -18,6 +18,7 @@ class OrderSerializer(serializers.ModelSerializer):
     sale_rep = MeSerializer()
     packages = PackageSerializer(many=True)
     campaign = CampaignSerializer()
+    step_details = StepDetailWithoutOrderSerializer(many=True)
 
     class Meta:
         model = models.Order

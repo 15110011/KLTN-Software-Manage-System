@@ -7,6 +7,7 @@ import styles from './SalerepStyles.js'
 import TicketsTable from './TicketsTable'
 import ActivitiesTable from './ActivitiesTable'
 import CampaignsTable from './CampaignsTable'
+import FollowUpTable from './FollowUp/FollowUpTable'
 import { apiGet, apiPost } from '../../common/Request.js';
 
 
@@ -20,6 +21,7 @@ function SalerepDashboard(props) {
   const tableActivtyRef = React.useRef(null);
 
   const tableCampaignRef = React.useRef(null);
+  const tableFollowUpRef = React.useRef(null)
 
   const forceCampaign = () => {
     tableCampaignRef.current.onQueryChange()
@@ -29,6 +31,10 @@ function SalerepDashboard(props) {
   }
   const forceActivities = () => {
     tableActivtyRef.current.onQueryChange()
+  }
+
+  const forceFollowUp = ()=>{
+    tableFollowUpRef.current.onQueryChange()
   }
 
 
@@ -52,6 +58,12 @@ function SalerepDashboard(props) {
             history={props.history}
             forceMarketing={forceMarketing}
             tableMarketingRef={tableMarketingRef}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <FollowUpTable forceActivities={forceActivities}
+            history={props.history}
+            tableRef={tableFollowUpRef}
           />
         </Grid>
       </Grid>
