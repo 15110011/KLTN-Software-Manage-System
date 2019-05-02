@@ -4,6 +4,8 @@ from django.contrib.postgres.fields import JSONField, ArrayField
 from KLTN.models import BaseModel
 from campaigns.models import FollowUpPlan
 
+STEP_STATUS_CHOICES = (('RUNNING', 'Running'), ('COMPLETED', 'Completed'),)
+
 
 class Step(BaseModel):
     follow_up = models.ForeignKey(
@@ -20,3 +22,4 @@ class StepDetail(BaseModel):
     order = models.ForeignKey(
         'orders.Order', on_delete=models.CASCADE, related_name='step_details')
     information = JSONField()
+    status = models.CharField(max_length=50, choices=STEP_STATUS_CHOICES, default='RUNNING')

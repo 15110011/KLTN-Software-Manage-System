@@ -112,7 +112,7 @@ class CampaignSerializer(serializers.ModelSerializer):
     
     def get_contacts(self, instance):
         orders = Order.objects.filter(campaign=instance)
-        contacts= [model_to_dict(o.contact) for o in orders.all()]
+        contacts= [model_to_dict(o.contacts) for o in orders.all()]
         contact_distinct = set([c['id'] for c in contacts])
 
         marketings = models.ContactMarketing.objects.filter(campaign=instance)
