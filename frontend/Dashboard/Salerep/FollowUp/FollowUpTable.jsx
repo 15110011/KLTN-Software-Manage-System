@@ -149,7 +149,7 @@ function FollowUpTable(props) {
                         }
                         columns={[
                             { title: '#', field: '#', headerStyle: { maxWidth: '0px' }, filtering: false, sorting: false },
-                            { title: 'Name', field: 'fname' },
+                            { title: 'Full Name', field: 'fname' },
                             {
                                 title: 'Email', field: 'email'
                             },
@@ -182,7 +182,7 @@ function FollowUpTable(props) {
                                 searchString += `${flSearch.noSteps ? '&no_steps=' + flSearch.noSteps : ''}`
                                 searchString += `${flOrder[1] ? '&contact_order=' + flOrder[1] : ''}`
                                 searchString += `${flOrder[2] ? '&email_order=' + flOrder[2] : ''}`
-                                searchString += `${flOrder[4] ? '&camapign_order=' + flOrder[4] : ''}`
+                                searchString += `${flOrder[4] ? '&campaign_order=' + flOrder[4] : ''}`
                                 searchString += `${flOrder[5] ? '&no_steps_order=' + flOrder[5] : ''}`
                                 searchString += `${flOrder[6] ? '&progress_order=' + flOrder[6] : ''}`
 

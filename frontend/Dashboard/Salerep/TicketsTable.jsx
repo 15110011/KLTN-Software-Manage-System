@@ -17,6 +17,10 @@ import { apiGet, apiPost, apiPatch } from '../../common/Request'
 
 import USERCONTEXT from '../../components/UserContext'
 
+const search = {}
+let activePage = 0
+let order = []
+
 function TicketsTable(props) {
 
   const { classes, tableMarketingRef, forceActivities, forceMarketing, history } = props
@@ -31,7 +35,7 @@ function TicketsTable(props) {
 
   //Marketing
   const marketingSearch = {}
-  let activePageMarketing = 0
+  let activePage = 0
 
   const getMoreRow = id => {
     apiGet(CONTACT_MARKETING_URL + '/' + id, true).then(res => {
@@ -150,35 +154,69 @@ function TicketsTable(props) {
                       <h4 onClick={() => history.push('/dashboard/ticket-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Tickets</h4>
                     </CardHeader>
                   </Card>,
+                Header: props => <MTableHeader {...props}
+                  onOrderChange={(orderBy, dir) => {
+                    order.forEach((orderType, index) => {
+                      if (orderBy != index) {
+                        order[index] = null
+                      }
+                    })
+                    order[orderBy] = dir
+
+                    props.onOrderChange(orderBy, dir)
+                  }}
+                />,
+                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value, position) => {
+                  if (columnId == 1) {
+                    search.full_name = value
+                  }
+                  else if (columnId == 2) {
+                    search.email = value
+                  }
+                  else if (columnId == 3) {
+                    search.phone = value
+                  }
+                  else if (columnId == 4) {
+                    search.campaign = value
+                  }
+                  activePage = 0
+                  props.onFilterChanged(columnId, value);
+                }}
+                />,
                 Pagination: props => <TablePagination {...props}
-                  page={activePageMarketing} rowsPerPageOptions={[5, 10, 20]}
+                  page={activePage} rowsPerPageOptions={[5, 10, 20]}
                   count={props.count}
                   onChangePage={(e, nextPage) => {
                     props.onChangePage(a, nextPage)
                     // setActivePage(nextPage)
-                    activePageMarketing = nextPage
+                    activePage = nextPage
                   }}
                 />
               }
             }
             columns={[
-              { title: '#', field: '#', filtering: false, headerStyle: { maxWidth: '0px' } },
-              { title: 'Full name', field: 'full_name', filtering: false, headerStyle: { minWidth: '200px' } },
-              { title: 'Phone', field: 'phone' },
+              { title: '#', field: '#', filtering: false, headerStyle: { maxWidth: '0px' }, sorting: false, filtering: false },
+              { title: 'Full name', field: 'full_name', headerStyle: { minWidth: '200px' } },
               { title: 'Email', field: 'mail' },
+              { title: 'Phone', field: 'phone', sorting: false },
               {
                 title: 'Campaign', field: 'campaignName'
               },
             ]}
             data={(query) =>
               new Promise((resolve, reject) => {
-                // let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
-                // searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
-                apiGet(CONTACT_MARKETING_URL + `?page=${activePageMarketing}&limit=${query.pageSize}`, true).then(res => {
+                let searchString = `${search.full_name ? '&contact_name=' + search.full_name : ''}`
+                searchString += `${search.email ? '&email=' + search.email : ''}`
+                searchString += `${search.phone ? '&phone=' + search.phone : ''}`
+                searchString += `${search.campaign ? '&campaign=' + search.campaign : ''}`
+                searchString += `${order[1] ? '&contact_name_order=' + order[1] : ''}`
+                searchString += `${order[2] ? '&email_order=' + order[2] : ''}`
+                searchString += `${order[4] ? '&campaign_order=' + order[4] : ''}`
+                apiGet(CONTACT_MARKETING_URL + `?page=${activePage}&limit=${query.pageSize}`+searchString, true).then(res => {
                   const data = []
                   res.data.data.forEach((c, index) => {
                     data.push({
-                      '#': (activePageMarketing * query.pageSize + index + 1),
+                      '#': (activePage * query.pageSize + index + 1),
                       full_name: c.contact.full_name,
                       mail: c.contact.mail,
                       phone: c.contact.phone,
@@ -225,11 +263,10 @@ function TicketsTable(props) {
             ]}
             options={{
               search: false,
-              filtering: false,
               paging: true,
+              filtering: true,
               actionsColumnIndex: -1,
               debounceInterval: 300,
-              sorting: false
             }}
           />
         </>

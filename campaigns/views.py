@@ -8,7 +8,8 @@ from django.db.models.functions import Lower
 from .documents import MarketingPlanDocument, CampaignDocument
 from rest_framework import status
 from django.shortcuts import render
-from django.db.models import Q, Count
+from django.db.models import Q, Count, CharField, Value as V
+from django.db.models.functions import Concat, Lower
 from django.db import models as DjangoModel
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import api_view, permission_classes, action
@@ -387,7 +388,8 @@ class CampaignView(ModelViewSet):
                 output_field=DjangoModel.IntegerField()
             )).order_by(status_order)
         if limit is not None:
-            queryset = queryset[int(page)*int(limit):int(page)*int(limit)+int(limit)]
+            queryset = queryset[int(page)*int(limit)
+                                    :int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
@@ -421,7 +423,6 @@ class CampaignView(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         super().destroy(request, *args, **kwargs)
         return Response({'msg': 'Remove OK'}, status=status.HTTP_200_OK)
-
 
 
 class CampaignExtraView(ModelViewSet):
@@ -501,20 +502,52 @@ class ContactMarketingView(ModelViewSet):
         if 'limit' in self.request.query_params:
             limit = self.request.query_params.get('limit')
 
+        # Filter
+        contact_name = request.query_params.get('contact_name', None)
+        email = request.query_params.get('email', None)
+        phone = request.query_params.get('phone', None)
+        campaign = request.query_params.get('campaign', None)
+        if contact_name:
+            print(contact_name)
+            filters.add(Q(contact__first_name__icontains=contact_name) | Q(
+                contact__last_name__icontains=contact_name) | Q(full_name__icontains=contact_name), Q.AND)
+        if email:
+            filters.add(Q(contact__mail__icontains=email), Q.AND)
+        if phone:
+            filters.add(Q(contact__phone__icontains=phone), Q.AND)
+        if campaign:
+            filters.add(Q(campaign__name__icontains=campaign), Q.AND)
+        queryset = queryset.annotate(full_name=Concat('contact__first_name', V(
+            ' '), 'contact__last_name', output_field=CharField())).exclude(excludes).filter(filters)
+        # Order
+        contact_name_order = request.query_params.get(
+            'contact_name_order', None)
+        email_order = request.query_params.get(
+            'email_order', None)
+        campaign_order = request.query_params.get(
+            'campaign_order', None)
+        if contact_name_order:
+            first_name_order = '-contact__first_name' if contact_name_order == 'desc' else 'contact__first_name'
+            last_name_order = '-contact__last_name' if contact_name_order == 'desc' else 'contact__last_name'
+            queryset = queryset.order_by(first_name_order, last_name_order)
+        if email_order:
+            email_order = '-contact__mail' if email_order == 'desc' else 'contact__mail'
+            queryset = queryset.order_by(email_order)
+        if campaign_order:
+            campaign_order = '-campaign__name' if email_order == 'desc' else 'campaign__name'
+            queryset = queryset.order_by(campaign_order)
         if limit:
             filters.add(Q(status='RUNNING'), Q.AND)
-            queryset = queryset.exclude(excludes).filter(filters).order_by('modified')[
+            query = queryset[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
-            print(queryset.query)
-            serializer = self.get_serializer(queryset, many=True)
+            serializer = self.get_serializer(query, many=True)
 
         else:
-            serializer = self.get_serializer(queryset.filter(
-                filters), many=True)
+            serializer = self.get_serializer(queryset, many=True)
 
         new_data = {
             "data": serializer.data,
-            "total": ContactMarketing.objects.filter(filters).count()
+            "total": queryset.count()
         }
 
         return Response(new_data, status=status.HTTP_200_OK)
