@@ -32,7 +32,7 @@ let activePage = 0
 
 function FollowUpTable(props) {
 
-    const { classes, forceActivities, tableRef } = props
+    const { classes, forceActivities, tableRef, history } = props
 
     // const [viewType, setViewType] = React.useState('campaign')
 
@@ -130,7 +130,7 @@ function FollowUpTable(props) {
                                     <>
                                         <Card plain>
                                             <CardHeader color="warning">
-                                                <h4 className={classes.cardTitleWhite}>Follow-up</h4>
+                                                <h4 onClick={() => history.push('/dashboard/follow-up-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Follow-up</h4>
                                             </CardHeader>
                                         </Card>
                                     </>
@@ -174,7 +174,6 @@ function FollowUpTable(props) {
                         data={(query) => {
 
                             return new Promise((resolve, reject) => {
-                                console.log(flSearch)
                                 let searchString = `${flSearch.fname ? '&contact_name=' + flSearch.fname : ''}`
                                 searchString += `${flSearch.email ? '&email=' + flSearch.email : ''}`
                                 searchString += `${flSearch.phone ? '&phone=' + flSearch.phone : ''}`

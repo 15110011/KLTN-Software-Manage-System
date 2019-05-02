@@ -87,7 +87,6 @@ function ProductDetail(props) {
     ],
     features: []
   })
-  console.log(productDetailData)
   const [createFeature, setCreateFeature] = React.useState({
     name: '',
     price: '',

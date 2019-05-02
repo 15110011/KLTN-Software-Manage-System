@@ -180,7 +180,7 @@ function CampaignTable(props) {
                 Toolbar: props =>
                   <Card plain>
                     <CardHeader color="rose">
-                      <h4 onClick={() => history.push('/dashboard/campaign-detail')} className={classes.cardTitleWhite}>Campaigns</h4>
+                      <h4 onClick={() => history.push('/dashboard/campaign-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Campaigns</h4>
                     </CardHeader>
                   </Card>,
                 Header: props => <MTableHeader {...props}
@@ -368,7 +368,7 @@ function CampaignTable(props) {
                       && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
                       status = 'Active'
                     }
-                    else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date().toISOString()))) {
+                    else if (dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
                       status = 'Finished'
                     }
                     return {
