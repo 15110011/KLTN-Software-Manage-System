@@ -336,7 +336,8 @@ class CampaignView(ModelViewSet):
         elif end_to:
             filters.add(
                 Q(end_date__lte=end_to), Q.AND)
-
+        if type_ == 'both':
+            filters.add(Q(assigned_to=request.user), Q.OR)
         if campaign_status:
             statuses = campaign_status.split(',')
             status_filters = Q()
@@ -350,9 +351,6 @@ class CampaignView(ModelViewSet):
                     status_filters.add(Q(end_date__lt=now), Q.OR)
 
             filters.add(status_filters, Q.AND)
-
-        if type_ == 'both':
-            filters.add(Q(assigned_to=request.user), Q.OR)
 
         # order
         name_order = request.query_params.get('name_order', None)

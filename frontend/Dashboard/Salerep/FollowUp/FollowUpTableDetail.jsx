@@ -34,85 +34,20 @@ import Paper from "@material-ui/core/Paper";
 
 import * as cn from 'classnames'
 
-import styles from './TicketTableDetailStyle.js'
-import NoteDetail from './NoteDetail'
-import TicketDetail from './TicketDetail'
-import ContactDetail from './ContactDetail'
+import styles from './FollowUpStyle.js'
 import { apiPost } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
 
 
-function TicketTableDetail(props) {
-  const { classes, history } = props;
-  const [sortOption, setSortOption] = React.useState({
-    type: 'name'
-  })
-  const [moreRow, setMoreRow] = React.useState(null)
-  const [indexActive, setIndexActive] = React.useState(0)
-
-  const [contactHistories, setContactHistories] = React.useState({
-    'Send Email ': 0,
-    'Send Email Manually': 0,
-    'Call Client': 0
-  })
-
-  const [first, setFirst] = React.useState(true)
-
-  const [tickets, setTickets, setUrl, forceUpdate] =
-    useFetchData(CONTACT_MARKETING_URL, history, {
-      data: []
-    })
-
-  React.useEffect(() => {
-    if (!first) {
-      handleViewDetail(indexActive)
-    }
-  })
-
-  React.useEffect(() => {
-    if (first && tickets.data.length > 0) {
-      let t = tickets.data[0]
-      setFirst(false)
-      setMoreRow({
-        full_name: t.contact.full_name,
-        mail: t.contact.mail,
-        phone: t.contact.phone,
-        campaignName: t.campaign.name,
-        id: t.id,
-        contact: t.contact,
-        campaign: t.campaign,
-        histories: t.histories,
-        marketing: t
-      })
-    }
-  }, [tickets.data.length])
-
-  const handleChangeSelectSortOption = e => {
-    setSortOption({ [e.target.name]: e.target.value });
-  }
-
-  const handleViewDetail = (index) => {
-    let t = tickets.data[index]
-    setMoreRow({
-      full_name: t.contact.full_name,
-      mail: t.contact.mail,
-      phone: t.contact.phone,
-      campaignName: t.campaign.name,
-      id: t.id,
-      contact: t.contact,
-      campaign: t.campaign,
-      histories: t.histories,
-      marketing: t
-    })
-    setIndexActive(index)
-  }
-
+function FollowUpTableDetail(props) {
+  
+  const {classes, history} = props;
 
   return (
     <div className={classes.root}>
-      <BreadcrumbsItem to={`/dashboard/`}>Tickets</BreadcrumbsItem>
+      <BreadcrumbsItem to={`/dashboard/`}>Follow-up Contacts</BreadcrumbsItem>
       <Grid container spacing={8}>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -120,8 +55,8 @@ function TicketTableDetail(props) {
               <Grid item xs={6}>
                 <FormControl className={classes.formControl}>
                   <Select
-                    value={sortOption.type}
-                    onChange={handleChangeSelectSortOption}
+                    // value={sortOption.type}
+                    // onChange={handleChangeSelectSortOption}
                     inputProps={{
                       name: 'type',
                     }}
@@ -151,7 +86,7 @@ function TicketTableDetail(props) {
               </Grid>
               <div className={classes.formContact}>
                 <ul>
-                  {
+                  {/* {
                     tickets.data && tickets.data.map((t, index) => {
                       return (
                         <li className={cn({ active: index == indexActive })} key={index} onClick={() => {
@@ -166,7 +101,7 @@ function TicketTableDetail(props) {
                         </li>
                       )
                     })
-                  }
+                  } */}
                 </ul>
               </div>
               <Grid className="pt-1" item xs={6}>
@@ -199,4 +134,4 @@ function TicketTableDetail(props) {
   )
 }
 
-export default withStyles(styles)(TicketTableDetail);
+export default withStyles(styles)(FollowUpTableDetail);
