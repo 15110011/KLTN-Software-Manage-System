@@ -77,11 +77,11 @@ function CampaignTableDetail(props) {
       if (!first) {
         let c = data.data[indexActive]
         let status = 'Idle'
-        if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
-          && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
+        if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
+          && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
           status = 'Active'
         }
-        else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date()))) {
+        else if (dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
           status = 'Finished'
         }
         setMoreRow({
@@ -112,11 +112,11 @@ function CampaignTableDetail(props) {
     if (first && campaigns.data.length > 0) {
       let c = campaigns.data[0]
       let status = 'Idle'
-      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
-        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
+      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
+        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
         status = 'Active'
       }
-      else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date()))) {
+      else if (dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
         status = 'Finished'
       }
       setFirst(false)
@@ -150,11 +150,11 @@ function CampaignTableDetail(props) {
   const handleViewDetail = (index) => {
     let c = campaigns.data[index]
     let status = 'Idle'
-    if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
-      && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
+    if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
+      && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
       status = 'Active'
     }
-    else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date().toISOString()))) {
+    else if (dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
       status = 'Finished'
     }
     setMoreRow({
@@ -283,11 +283,11 @@ function CampaignTableDetail(props) {
                   {
                     campaigns.data && campaigns.data.map((c, index) => {
                       let status = 'Idle'
-                      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date()))
-                        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date()))) {
+                      if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
+                        && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
                         status = 'Active'
                       }
-                      else if (dateFns.isAfter(c.end_date, dateFns.parseISO(new Date()))) {
+                      else if (dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
                         status = 'Finished'
                       }
                       return (
@@ -340,7 +340,7 @@ function CampaignTableDetail(props) {
                 <SortIcon fontSize="small" />
               </Grid>
               <Grid className="text-right" item xs={6}>
-                {campaigns.data.length} Campaign(s)
+                {campaigns.data.length} campaign(s)
               </Grid>
             </Grid>
           </Paper>
