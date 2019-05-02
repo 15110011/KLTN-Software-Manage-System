@@ -13,12 +13,33 @@ from datetime import datetime, timedelta, timezone
 import calendar
 
 
+class LicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.License
+        fields = '__all__'
+
+    def create(self, validated_data):
+        license = super().create(validated_data)
+        scheduler = django_rq.get_scheduler('default')
+        user = User.objects.get(username=self.context.get('request').user)
+        remind_date = license.start_date + timedelta(days=license.duration*30) - timedelta(days=10)
+        timestamp1 = calendar.timegm((remind_date).timetuple())
+        start_date = datetime.utcfromtimestamp(timestamp1)
+        scheduler.enqueue_at(start_date, send_email, user, 'License Reminder', 'Your license will be expired in 10 days')
+        return license
+
+class LifetimeLicenseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.LifetimeLicense
+        fields = '__all__'
+
 class OrderSerializer(serializers.ModelSerializer):
     contacts = ContactSerializer()
     sale_rep = MeSerializer()
     packages = PackageSerializer(many=True)
     campaign = CampaignSerializer()
     step_details = StepDetailWithoutOrderSerializer(many=True)
+    licenses = LicenseSerializer(many=True)
 
     class Meta:
         model = models.Order
@@ -47,22 +68,3 @@ class OrderHistorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class LicenseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.License
-        fields = '__all__'
-
-    def create(self, validated_data):
-        license = super().create(validated_data)
-        scheduler = django_rq.get_scheduler('default')
-        user = User.objects.get(username=self.context.get('request').user)
-        remind_date = license.start_date + timedelta(days=license.duration*30) - timedelta(days=10)
-        timestamp1 = calendar.timegm((remind_date).timetuple())
-        start_date = datetime.utcfromtimestamp(timestamp1)
-        scheduler.enqueue_at(start_date, send_email, user, 'License Reminder', 'Your license will be expired in 7 days')
-        return license
-
-class LifetimeLicenseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.LifetimeLicense
-        fields = '__all__'

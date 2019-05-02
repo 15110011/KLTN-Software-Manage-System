@@ -8,6 +8,7 @@ import TicketsTable from './TicketsTable'
 import ActivitiesTable from './ActivitiesTable'
 import CampaignsTable from './CampaignsTable'
 import FollowUpTable from './FollowUp/FollowUpTable'
+import OrderTable from './Order/OrderTable'
 import { apiGet, apiPost } from '../../common/Request.js';
 
 
@@ -62,6 +63,12 @@ function SalerepDashboard(props) {
         </Grid>
         <Grid item xs={12}>
           <FollowUpTable forceActivities={forceActivities}
+            history={props.history}
+            tableRef={tableFollowUpRef}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <OrderTable forceActivities={forceActivities}
             history={props.history}
             tableRef={tableFollowUpRef}
           />
