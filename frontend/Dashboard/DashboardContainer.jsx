@@ -22,7 +22,9 @@ function Dashboard(props) {
 
   return (
       <USERCONTEXT.Consumer>
-        {({ user }) => (
+        {({ user }) => 
+        {
+          return (
           <>
           <Paper className="d-flex justify-content-between" style={{
               padding: '11px 72px',
@@ -53,7 +55,7 @@ function Dashboard(props) {
               }} />
             </Switch>
           </>
-        )}
+        )}}
       </USERCONTEXT.Consumer>
   )
 }

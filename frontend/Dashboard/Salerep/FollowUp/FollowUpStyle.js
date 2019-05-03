@@ -4,6 +4,13 @@ const styles = (theme) => ({
     flexWrap: 'wrap',
     padding: '15px 35px'
   },
+  stepPaper: {
+    padding: '25px'
+  },
+  cssLabel: {
+    position: 'absolute',
+    bottom: 0,
+  },
   paper: {
     width: '100%',
     padding: '0 16px',
@@ -46,6 +53,7 @@ const styles = (theme) => ({
   },
   inputCustom: {
     fontSize: '15px',
+    position: 'relative'
   },
   btnGreen: {
     color: '#FFF',
