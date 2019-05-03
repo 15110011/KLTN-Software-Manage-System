@@ -12,6 +12,11 @@ import django_rq
 from datetime import datetime, timedelta, timezone
 import calendar
 
+class OrderHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.OrderHistory
+        fields = '__all__'
+
 
 class LicenseSerializer(serializers.ModelSerializer):
     package = PackageSerializer()
@@ -41,6 +46,7 @@ class OrderSerializer(serializers.ModelSerializer):
     packages = PackageSerializer(many=True)
     campaign = CampaignSerializer()
     step_details = StepDetailWithoutOrderSerializer(many=True)
+    history = OrderHistorySerializer(many=True)
     licenses = LicenseSerializer(many=True)
 
     class Meta:
@@ -64,9 +70,5 @@ class CreateOrderSerialzier(serializers.ModelSerializer):
         return order
 
 
-class OrderHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.OrderHistory
-        fields = '__all__'
 
 

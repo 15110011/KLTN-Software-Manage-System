@@ -35,15 +35,88 @@ import Paper from "@material-ui/core/Paper";
 import * as cn from 'classnames'
 
 import styles from './FollowUpStyle.js'
-import { apiPost } from '../../common/Request'
-import useFetchData from '../../CustomHook/useFetchData'
-import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
-
+import useFetchData from '../../../CustomHook/useFetchData'
+import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../../common/urls';
+import FollowUpDetail from './FollowUpDetail'
 
 
 function FollowUpTableDetail(props) {
-  
-  const {classes, history} = props;
+
+  const { classes, history } = props;
+  const [sortOption, setSortOption] = React.useState({
+    type: 'name'
+  })
+  const [moreRow, setMoreRow] = React.useState(null)
+  const [deletingRow, setDeletingRow] = React.useState(null)
+  const [movingRow, setMovingRow] = React.useState(null)
+  const [indexActive, setIndexActive] = React.useState(0)
+  const [update, setUpdate] = React.useState(0)
+
+
+  const [first, setFirst] = React.useState(true)
+
+  const [followUps, setFollowUps, setUrl, forceUpdate] =
+    useFetchData(ORDER_URL, history, {
+      data: []
+    },
+    )
+  console.log(followUps)
+
+  React.useEffect(() => {
+    if (!first) {
+      handleViewDetail(indexActive)
+    }
+  }, [update])
+
+  const handleChangeSelectSortOption = e => {
+    setSortOption({ [e.target.name]: e.target.value });
+  }
+
+
+  React.useEffect(() => {
+    if (first && followUps.data.length > 0) {
+      let d = followUps.data[0]
+      const noSteps = d.campaign.follow_up_plan.steps.length
+      const progress = (d.step_details.reduce((acc, s) => {
+        if (s.status == 'COMPLETED')
+          acc += 1
+        return acc
+      }, 0) / noSteps * 100)
+      setFirst(false)
+      setUpdate(update + 1)
+      setMoreRow({
+        fname: d.contacts.first_name + ' ' + d.contacts.last_name,
+        phone: d.contacts.phone,
+        email: d.contacts.mail,
+        campaignName: d.campaign.name,
+        noSteps,
+        progress,
+        id: d.id,
+        followup: d
+      })
+    }
+  }, [followUps.data.length])
+
+  const handleViewDetail = (index) => {
+    let d = followUps.data[0]
+    const noSteps = d.campaign.follow_up_plan.steps.length
+    const progress = (d.step_details.reduce((acc, s) => {
+      if (s.status == 'COMPLETED')
+        acc += 1
+      return acc
+    }, 0) / noSteps * 100)
+    setMoreRow({
+      fname: d.contacts.first_name + ' ' + d.contacts.last_name,
+      phone: d.contacts.phone,
+      email: d.contacts.mail,
+      campaignName: d.campaign.name,
+      noSteps,
+      progress,
+      id: d.id,
+      followup: d
+    })
+    setIndexActive(index)
+  }
 
   return (
     <div className={classes.root}>
@@ -55,8 +128,8 @@ function FollowUpTableDetail(props) {
               <Grid item xs={6}>
                 <FormControl className={classes.formControl}>
                   <Select
-                    // value={sortOption.type}
-                    // onChange={handleChangeSelectSortOption}
+                    value={sortOption.type}
+                    onChange={handleChangeSelectSortOption}
                     inputProps={{
                       name: 'type',
                     }}
@@ -86,29 +159,29 @@ function FollowUpTableDetail(props) {
               </Grid>
               <div className={classes.formContact}>
                 <ul>
-                  {/* {
-                    tickets.data && tickets.data.map((t, index) => {
+                  {
+                    followUps.data && followUps.data.map((f, index) => {
                       return (
                         <li className={cn({ active: index == indexActive })} key={index} onClick={() => {
                           handleViewDetail(index)
                         }}>
                           <Typography variant="body2" style={{ paddingBottom: '10px' }}>
-                            {t.contact.full_name}
+                            {f.contacts.first_name + ' ' + f.contacts.last_name}
                           </Typography>
                           <Typography>
-                            {t.contact.phone}
+                            {f.contacts.phone}
                           </Typography>
                         </li>
                       )
                     })
-                  } */}
+                  }
                 </ul>
               </div>
               <Grid className="pt-1" item xs={6}>
                 <SortIcon fontSize="small" />
               </Grid>
               <Grid className="text-right" item xs={6}>
-                {tickets.data.length} ticket(s)
+                {followUps.data.length} contact(s)
               </Grid>
             </Grid>
           </Paper>
@@ -117,13 +190,13 @@ function FollowUpTableDetail(props) {
           <Grid style={{ padding: '45px 40px' }} container spacing={24}>
             {
               moreRow &&
-              <TicketDetail
-                histories={moreRow.histories}
-                allHistories={moreRow.histories}
-                campaign={moreRow.campaign}
+              <FollowUpDetail
+                // histories={moreRow.histories}
+                // allHistories={moreRow.histories}
                 id={moreRow.id}
-                contact={moreRow.contact}
-                marketing={moreRow.marketing}
+                moreRow={moreRow}
+                followup={moreRow.followup}
+                // contact={followUps.data.contacts}
                 updateTable={() => { forceUpdate() }}
               />
             }

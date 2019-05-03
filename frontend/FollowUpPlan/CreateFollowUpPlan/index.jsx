@@ -40,6 +40,7 @@ function CreateFollowUpPlan(props) {
     isEditFollowUpPlan
   } = props
 
+
   const [activeStep, setActiveStep] = React.useState(0)
   const [completeNotice, setCompleteNotice] = React.useState(false)
   const [error, setError] = React.useState(false)
@@ -62,6 +63,7 @@ function CreateFollowUpPlan(props) {
   }, [])
 
   const handleNext = () => {
+    console.log(12312)
     if (activeStep === followUpPlan.steps.length - 1 || followUpPlan.steps.length == 0) {
       apiCreateFollowUpPlan()
     }
@@ -131,9 +133,17 @@ function CreateFollowUpPlan(props) {
     let cloneFollowUpPlan = { ...followUpPlan }
     cloneFollowUpPlan.steps.forEach(s => {
       s.actions = s.actions.map(a => {
-        return a })
+        return a
+      })
     })
-    if (isEditFollowUpPlan == false) {
+    if (isEditFollowUpPlan == true) {
+      const followUpPlanId = followUpData.id
+      apiPatch(FOLLOW_UP_PLANS_URL + '/' + followUpPlanId, cloneFollowUpPlan, false, true)
+        .then(res => {
+          if (res.data) return onCreateSuccess(res.data)
+        })
+      setCreateFollowUpPlanDialog(false)
+    } else {
       apiPost(FOLLOW_UP_PLANS_URL, cloneFollowUpPlan, false, true)
         .then(res => {
           if (res.data.code == "token_not_valid") {
@@ -158,13 +168,6 @@ function CreateFollowUpPlan(props) {
             handleCloseCreateFollowUpPlan()
           }
         })
-    } else {
-      const followUpPlanId = followUpData.id
-      apiPatch(FOLLOW_UP_PLANS_URL + '/' + followUpPlanId, cloneFollowUpPlan, false, true)
-        .then(res => {
-          if (res.data) return onCreateSuccess(res.data)
-        })
-      setCreateFollowUpPlanDialog(false)
     }
   }
 
