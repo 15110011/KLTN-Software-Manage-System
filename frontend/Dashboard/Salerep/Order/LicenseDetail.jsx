@@ -35,7 +35,7 @@ function LicenseDetail(props) {
                   <td>{l.code}</td>
                   <td>
                     {
-                      dateFns.formatDistanceStrict(new Date(), dateFns.addMonths(new Date(l.start_date), l.duration), { unit: 'day' })
+                      dateFns.formatDistanceStrict(dateFns.addMonths(new Date(l.start_date), l.duration), new Date(), { unit: 'day', addSuffix: true })
                     }
                   </td>
                 </tr>
