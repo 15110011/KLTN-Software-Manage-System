@@ -23,7 +23,7 @@ import USERCONTEXT from '../../../components/UserContext'
 import { apiGet, apiPost } from '../../../common/Request'
 import useFetchData from '../../../CustomHook/useFetchData'
 import { spawn } from 'child_process';
-// import TicketDetail from './TicketDetail'
+import OrderDetail from './OrderDetail'
 
 let flSearch = {
 }
@@ -55,37 +55,39 @@ function OrderTable(props) {
 
   const flOrder = []
 
+  const onNotiSuccess = (msg) => {
+    setNotiSuccess(msg)
+    setTimeout(() => {
+      setNotiSuccess(false)
+    }, 2000);
+  }
 
   return (
 
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
-          {openDialog && moreRow &&
+          {moreDialog && 
             <Dialog
               open={true}
-              onClose={() => setOpenDialog(false)}
+              onClose={() => setMoreDialog(false)}
               maxWidth="lg"
               fullWidth
             >
               <DialogTitle>
                 <h4>
-                  Manage Contact
+                  Manage Orders
                 </h4>
               </DialogTitle>
               <DialogContent>
-                {/* <TicketDetail
-                  histories={moreRow.histories}
-                  allHistories={moreRow.histories}
-                  campaign={moreRow.campaign} contact={moreRow.contact}
-                  id={moreRow.id}
-                  contact={moreRow.contact}
-                  updateTable={tableActivtyRef.current.onQueryChange}
-                  updateActivities={forceActivities}
-                  marketing={moreRow.marketing}
-                  user={user}
-                  getMoreRow={getMoreRow}
-                /> */}
+              <OrderDetail
+                  moreRow={moreRow}
+                  setDeletingRow={setDeletingRow}
+                  setMovingRow={setMovingRow}
+                  onNotiSuccess={onNotiSuccess}
+                  userId={user.id}
+                // getMoreRow={getMoreRow}
+                />
               </DialogContent>
             </Dialog>
           }
@@ -149,7 +151,7 @@ function OrderTable(props) {
             }
             columns={[
               { title: 'Order ID', field: '#', headerStyle: { maxWidth: '0px' }, filtering: false, sorting: false },
-              { title: 'Name', field: 'fname' },
+              { title: 'Name', field: 'name' },
               {
                 title: 'Email', field: 'email'
               },
@@ -157,7 +159,7 @@ function OrderTable(props) {
                 title: 'Phone', field: 'phone', sorting: false
               },
               {
-                title: 'Packages', field: 'packages',
+                title: 'Packages', field: 'numberOfPackages',
               },
               {
                 title: 'Licenses Status', field: 'status',
@@ -166,7 +168,7 @@ function OrderTable(props) {
                     return <div className="text-success">All licenses are working fine</div>
                   if (rowData.license[0].status === 'EXPIRING')
                     return <div className="text-warning">Some licenses are expiring soon</div>
-                  if (rowData.license[0].status === 'EXPIRED') 
+                  if (rowData.license[0].status === 'EXPIRED')
                     return <div className="text-danger">Some licenses are expired</div>
                 }
               },
@@ -193,6 +195,7 @@ function OrderTable(props) {
                       const timeLeft = licenseTime - dateFns.addDays(new Date(), 10)
                       const tenDays = 864000000
                       if (timeLeft < 0) {
+                        const data = {}
                         const time = -timeLeft
                         if (time > tenDays) return { status: 'EXPIRED' }
                         if (time > 0 && time < tenDays) return { status: 'EXPIRING' }
@@ -201,11 +204,15 @@ function OrderTable(props) {
                     })
                     return {
                       '#': query.pageSize * activePage + index + 1,
-                      fname: d.name,
+                      name: d.name,
                       phone: d.contacts.phone,
                       email: d.contacts.mail,
-                      packages: d.packages.length,
+                      numberOfPackages: d.packages.length,
+                      packages: d.packages,
+                      status: d.status,
                       license,
+                      contacts: d.contacts,
+                      allLicenses: d.licenses,
                       id: d.id
                     }
                   })

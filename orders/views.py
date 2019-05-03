@@ -124,7 +124,7 @@ class OrderHistoryView(ModelViewSet):
 
 
 class LicenseView(ModelViewSet):
-    queryset = License.objects
+    queryset = License.objects.select_related('package')
     serializer_class = LicenseSerializer
     permission_classes = (IsAuthenticated,)
 
