@@ -29,6 +29,8 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../../common/urls';
+import SendMailDialog from '../../../Mailbox/SendMailDialog'
+
 import * as dateFns from 'date-fns'
 import LicenseDetail from './LicenseDetail'
 
@@ -52,7 +54,7 @@ function OrderDetail(props) {
     setDeletingRow,
     moreRow,
     userId,
-
+    user
   } = props
   console.log(moreRow)
   // const [contactHistories, setContactHistories] = React.useState({
@@ -87,24 +89,41 @@ function OrderDetail(props) {
     setValue(index)
   };
 
-  // React.useEffect(() => {
-  //   // Effect
-  //   const cloneHistoriesInfo = {
-  //     'Send Email': 0,
-  //     'Call Client': 0,
-  //     'Send Email Manually': 0
-  //   }
-  //   histories.forEach(h => {
-  //     cloneHistoriesInfo[h.action] += 1
-  //   })
+  const updateMailMetric = () => {
+    apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Send Email Manually' }, false, true).then(res => {
+      updateTable()
+      setContactHistories({ ...contactHistories, 'Send Email Manually': contactHistories['Send Email Manually'] + 1 })
+      setSuccessNoti('Successfully Sent Email')
+      setTimeout(() => {
+        setSuccessNoti(false)
+      }, 2000);
+    })
+  }
+  const onSendEmail = () => {
+    setMailDialog(true)
+  }
 
-  //   setContactHistories(
-  //     cloneHistoriesInfo
-  //   )
+  const onCall = () => {
+    apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
+      updateTable()
+      setContactHistories({ ...contactHistories, 'Call Client': contactHistories['Call Client'] + 1 })
+      setSuccessNoti('Successfully Called')
+      setTimeout(() => {
+        setSuccessNoti(false)
+      }, 2000);
+      getMoreRow(id)
+    })
+  }
 
-  // }, [histories.length])
   return (
     <>
+      {
+        mailDialog &&
+        <SendMailDialog user={user.id} contact={moreRow.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
+          updateMailMetric={updateMailMetric}
+        />
+      }
+
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
       {error.all && <CustomSnackbar isErr msg={error.all} />}
       <Grid style={{ padding: '10px 40px' }} container spacing={24}>
@@ -117,71 +136,38 @@ function OrderDetail(props) {
               &nbsp;
               &nbsp;
               &nbsp;
-              {
-                moreRow.status == 'Active' &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusActive
-                  }}
-                >
-                  {/* {moreRow.status} */}
-                </Button>
-              }
-              {
-                moreRow.status == 'Idle' &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusIdle
-                  }}
-                >
-                  {moreRow.status}
-                </Button>
-              }
-              {
-                moreRow.status == 'Finished' &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusFinished
-                  }}
-                >
-                  {moreRow.status}
-                </Button>
-              }
+
+
+
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-            {
-              moreRow.manager == userId && moreRow.status == 'Idle' &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnPurple
-                }}
-                onClick={() => {
-                  setMovingRow({ id: moreRow.id, name: moreRow.name, start: moreRow.start })
-                }}
-              >
-                <PlayIcon fontSize="small" />
-              </Button>
-            }
-            {
-
-              moreRow.manager == userId && moreRow.status == 'Idle' &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnRed
-                }}
-                onClick={() => {
-                  setDeletingRow({ id: moreRow.id, name: moreRow.name })
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </Button>
-            }
+          <Tooltip title="Send Email">
+            <Button
+              variant='contained'
+              classes={{
+                contained: classes.btnPink
+              }}
+              onClick={() => {
+                onSendEmail()
+              }}
+            >
+              <EmailIcon fontSize="small" />
+            </Button>
+            </Tooltip>
+          <Tooltip title="Call">
+            <Button
+              variant='contained'
+              classes={{
+                contained: classes.btnGreen
+              }}
+              onClick={() => {
+                onCall()
+              }}
+            >
+              <PhoneIcon fontSize="small" />
+            </Button>
+            </Tooltip>
           </DialogActions>
         </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={12}>
@@ -229,7 +215,50 @@ function OrderDetail(props) {
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
-            {moreRow.status}
+            {
+              moreRow.status == 'RUNNING' &&
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnStatusActive
+                }}
+              >
+                {moreRow.status}
+              </Button>
+            }
+            {
+              moreRow.status == 'FAILED' &&
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnStatusFinished
+                }}
+              >
+                {moreRow.status}
+              </Button>
+            }
+            {
+              moreRow.status == 'OVERDUE' &&
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnStatusFinished
+                }}
+              >
+                {moreRow.status}
+              </Button>
+            }
+            {
+              moreRow.status == 'COMPLETED' &&
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnStatusIdle
+                }}
+              >
+                {moreRow.status}
+              </Button>
+            }
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>

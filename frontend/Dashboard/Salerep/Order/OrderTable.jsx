@@ -86,7 +86,7 @@ function OrderTable(props) {
                   setMovingRow={setMovingRow}
                   onNotiSuccess={onNotiSuccess}
                   userId={user.id}
-                // getMoreRow={getMoreRow}
+                  user={user}
                 />
               </DialogContent>
             </Dialog>

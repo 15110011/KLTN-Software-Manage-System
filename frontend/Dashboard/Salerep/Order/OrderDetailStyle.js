@@ -116,7 +116,7 @@ const styles = (theme) => ({
   btnStatusIdle: {
     color: '#FFF',
     backgroundColor: '#FFC107',
-    width: '50px',
+    width: '63px',
     minWidth: 'unset',
     height: '25px',
     fontSize: '10px',
