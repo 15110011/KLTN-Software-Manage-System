@@ -131,42 +131,85 @@ function OrderDetail(props) {
           <Grid container spacing={8}>
             <Grid item xs={12} className="d-flex">
               <Typography variant="title" style={{ marginTop: '5px' }}>
-                {/* {moreRow.name} */}
+                {moreRow.name}
               </Typography>
               &nbsp;
               &nbsp;
               &nbsp;
-
+              {
+                moreRow.status == 'RUNNING' &&
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnStatusActive
+                  }}
+                >
+                  {moreRow.status}
+                </Button>
+              }
+              {
+                moreRow.status == 'FAILED' &&
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnStatusFinished
+                  }}
+                >
+                  {moreRow.status}
+                </Button>
+              }
+              {
+                moreRow.status == 'OVERDUE' &&
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnStatusFinished
+                  }}
+                >
+                  {moreRow.status}
+                </Button>
+              }
+              {
+                moreRow.status == 'COMPLETED' &&
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnStatusIdle
+                  }}
+                >
+                  {moreRow.status}
+                </Button>
+              }
 
 
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-          <Tooltip title="Send Email">
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnPink
-              }}
-              onClick={() => {
-                onSendEmail()
-              }}
-            >
-              <EmailIcon fontSize="small" />
-            </Button>
+            <Tooltip title="Send Email">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPink
+                }}
+                onClick={() => {
+                  onSendEmail()
+                }}
+              >
+                <EmailIcon fontSize="small" />
+              </Button>
             </Tooltip>
-          <Tooltip title="Call">
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnGreen
-              }}
-              onClick={() => {
-                onCall()
-              }}
-            >
-              <PhoneIcon fontSize="small" />
-            </Button>
+            <Tooltip title="Call">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnGreen
+                }}
+                onClick={() => {
+                  onCall()
+                }}
+              >
+                <PhoneIcon fontSize="small" />
+              </Button>
             </Tooltip>
           </DialogActions>
         </Grid>
@@ -179,14 +222,6 @@ function OrderDetail(props) {
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
             {moreRow.id}
-          </DialogContentText>
-        </Grid>
-        <Grid className={classes.inputCustom} item xs={2}>
-          Name
-            </Grid>
-        <Grid item xs={4}>
-          <DialogContentText className={classes.inputCustom}>
-            {moreRow.name}
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
@@ -210,55 +245,9 @@ function OrderDetail(props) {
             </Tooltip>
           </DialogContentText>
         </Grid>
-        <Grid className={classes.inputCustom} item xs={2}>
-          Status
-            </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
-            {
-              moreRow.status == 'RUNNING' &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnStatusActive
-                }}
-              >
-                {moreRow.status}
-              </Button>
-            }
-            {
-              moreRow.status == 'FAILED' &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnStatusFinished
-                }}
-              >
-                {moreRow.status}
-              </Button>
-            }
-            {
-              moreRow.status == 'OVERDUE' &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnStatusFinished
-                }}
-              >
-                {moreRow.status}
-              </Button>
-            }
-            {
-              moreRow.status == 'COMPLETED' &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnStatusIdle
-                }}
-              >
-                {moreRow.status}
-              </Button>
-            }
+
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
@@ -283,7 +272,7 @@ function OrderDetail(props) {
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
-            {moreRow.phone}
+            {moreRow.contacts.phone}
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
