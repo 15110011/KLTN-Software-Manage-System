@@ -19,6 +19,8 @@ class OrderHistorySerializer(serializers.ModelSerializer):
 
 
 class LicenseSerializer(serializers.ModelSerializer):
+    package = PackageSerializer()
+
     class Meta:
         model = models.License
         fields = '__all__'
