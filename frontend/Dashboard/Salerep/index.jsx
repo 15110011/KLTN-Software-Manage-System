@@ -23,6 +23,7 @@ function SalerepDashboard(props) {
 
   const tableCampaignRef = React.useRef(null);
   const tableFollowUpRef = React.useRef(null)
+  const tableOrderUpRef = React.useRef(null)
 
   const forceCampaign = () => {
     tableCampaignRef.current.onQueryChange()
@@ -36,6 +37,9 @@ function SalerepDashboard(props) {
 
   const forceFollowUp = ()=>{
     tableFollowUpRef.current.onQueryChange()
+  }
+  const forceOrder= ()=>{
+    tableOrderUpRef.current.onQueryChange()
   }
 
 
@@ -65,12 +69,14 @@ function SalerepDashboard(props) {
           <FollowUpTable forceActivities={forceActivities}
             history={props.history}
             tableRef={tableFollowUpRef}
+            forceFollowUp={forceFollowUp}
           />
         </Grid>
         <Grid item xs={12}>
           <OrderTable forceActivities={forceActivities}
             history={props.history}
-            tableRef={tableFollowUpRef}
+            tableRef={tableOrderUpRef}
+            forceOrder={forceOrder}
           />
         </Grid>
       </Grid>

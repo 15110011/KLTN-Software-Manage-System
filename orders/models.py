@@ -16,6 +16,11 @@ ORDER_CHOICES = (
     ('OVERDUE', 'Overdue')
 )
 
+class OrderPackages(BaseModel):
+    order = models.ForeignKey('orders.Order', on_delete=models.CASCADE, related_name='order_packages')
+    package = models.ForeignKey('packages.Package', on_delete=models.CASCADE, related_name='order_packages')
+    duration=models.IntegerField()
+
 
 class Order(BaseModel):
     contacts = models.ForeignKey(
@@ -27,7 +32,7 @@ class Order(BaseModel):
     name = models.CharField(max_length=255)
     status = models.CharField(
         max_length=100, choices=ORDER_CHOICES, default='RUNNING')
-    packages = models.ManyToManyField(Package, related_name='orders')
+    packages = models.ManyToManyField(Package, related_name='orders', through='OrderPackages', through_fields=('order', 'package'))
 
 
 class OrderHistory(BaseModel):

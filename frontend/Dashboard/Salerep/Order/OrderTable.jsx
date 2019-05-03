@@ -162,6 +162,7 @@ function OrderTable(props) {
               {
                 title: 'Licenses Status', field: 'status',
                 render: rowData => {
+                  console.log(rowData)
                   if (rowData.license[0].status === 'GOOD')
                     return <div className="text-success">All licenses are working fine</div>
                   if (rowData.license[0].status === 'EXPIRING')
@@ -174,7 +175,6 @@ function OrderTable(props) {
             data={(query) => {
 
               return new Promise((resolve, reject) => {
-                console.log(flSearch)
                 let searchString = `${flSearch.fname ? '&contact_name=' + flSearch.fname : ''}`
                 searchString += `${flSearch.email ? '&email=' + flSearch.email : ''}`
                 searchString += `${flSearch.phone ? '&phone=' + flSearch.phone : ''}`
@@ -186,7 +186,7 @@ function OrderTable(props) {
                 searchString += `${flOrder[5] ? '&no_steps_order=' + flOrder[5] : ''}`
                 searchString += `${flOrder[6] ? '&progress_order=' + flOrder[6] : ''}`
 
-                apiGet(ORDER_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
+                apiGet(ORDER_URL + `?status=COMPLETED&page=${activePage}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
                   const data = res.data.data.map((d, index) => {
                     const license = d.licenses.map((license) => {
                       const licenseTime = dateFns.addMonths(new Date(license.start_date), license.duration)

@@ -3,14 +3,15 @@ from django.db.models import Q
 from django.db.models.functions import Concat, Lower
 from django.db.models import Count, CharField, Value as V
 
-
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
+
 from .serializers import OrderSerializer, OrderHistorySerializer, CreateOrderSerialzier, LicenseSerializer, LifetimeLicenseSerializer
 from .models import Order, OrderHistory, License, LifetimeLicense
-
+from steps.models import StepDetail
 from datetime import datetime
 # Create your views here.
 now = datetime.now()
@@ -29,6 +30,8 @@ class OrderView(ModelViewSet):
             filters.add(Q(campaign__assigned_to=request.user), Q.AND)
             filters.add(Q(campaign__start_date__lte=now) &
                         Q(campaign__end_date__gte=now), Q.AND)
+        order_status = request.query_params.get('status', 'RUNNING')
+        filters.add(Q(status=order_status), Q.AND)
         page = request.query_params.get(
             'page') if int(request.query_params.get('page', 0)) > 0 else 0
 
@@ -82,14 +85,13 @@ class OrderView(ModelViewSet):
         elif progress_order:
             progress_order = '-progress' if progress_order == 'desc' else 'progress'
             queryset = queryset.order_by(progress_order)
-
         if limit:
-            filters.add(Q(status='RUNNING'), Q.AND)
             query = queryset[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
             serializer = self.get_serializer(query, many=True)
 
         else:
+
             serializer = self.get_serializer(queryset.filter(
                 filters), many=True)
 
@@ -116,6 +118,16 @@ class OrderView(ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=['POST'], detail=True)
+    def history(self, request, pk=None):
+        instance = self.get_object()
+        # instance.modified = datetime.datetime.now
+        instance.save()
+        step_detail = StepDetail.objects.get(id=request.data['step_detail'])
+        history = OrderHistory.objects.create(
+            action=request.data['action'], order=instance, step_detail=step_detail)
+        serializer = OrderHistorySerializer(history)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class OrderHistoryView(ModelViewSet):
     queryset = OrderHistory.objects

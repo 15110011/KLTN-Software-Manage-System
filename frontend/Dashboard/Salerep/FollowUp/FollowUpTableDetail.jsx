@@ -36,19 +36,20 @@ import * as cn from 'classnames'
 
 import styles from './FollowUpStyle.js'
 import useFetchData from '../../../CustomHook/useFetchData'
+import { apiPatch } from '../../../common/Request'
 import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../../common/urls';
 import FollowUpDetail from './FollowUpDetail'
 
 
 function FollowUpTableDetail(props) {
 
-  const { classes, history } = props;
+  const { classes, history, user } = props;
   const [sortOption, setSortOption] = React.useState({
     type: 'name'
   })
   const [moreRow, setMoreRow] = React.useState(null)
-  const [deletingRow, setDeletingRow] = React.useState(null)
-  const [movingRow, setMovingRow] = React.useState(null)
+  const [deletingRow, setDeletingRow] = React.useState({})
+  const [movingRow, setMovingRow] = React.useState({})
   const [indexActive, setIndexActive] = React.useState(0)
   const [update, setUpdate] = React.useState(0)
 
@@ -58,9 +59,29 @@ function FollowUpTableDetail(props) {
   const [followUps, setFollowUps, setUrl, forceUpdate] =
     useFetchData(ORDER_URL, history, {
       data: []
-    },
-    )
-  console.log(followUps)
+    }, (data) => {
+      if (!first) {
+        if (data.data.length > 0) {
+          let d = data.data[0]
+          const noSteps = d.campaign.follow_up_plan.steps.length
+          const progress = (d.step_details.reduce((acc, s) => {
+            if (s.status == 'COMPLETED')
+              acc += 1
+            return acc
+          }, 0) / noSteps * 100)
+          setMoreRow({
+            fname: d.contacts.first_name + ' ' + d.contacts.last_name,
+            phone: d.contacts.phone,
+            email: d.contacts.mail,
+            campaignName: d.campaign.name,
+            noSteps,
+            progress,
+            id: d.id,
+            followup: d
+          })
+        }
+      }
+    })
 
   React.useEffect(() => {
     if (!first) {
@@ -71,7 +92,6 @@ function FollowUpTableDetail(props) {
   const handleChangeSelectSortOption = e => {
     setSortOption({ [e.target.name]: e.target.value });
   }
-
 
   React.useEffect(() => {
     if (first && followUps.data.length > 0) {
@@ -118,10 +138,42 @@ function FollowUpTableDetail(props) {
     setIndexActive(index)
   }
 
+  const onRemoveContact = () => {
+    apiPatch(ORDER_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
+      forceUpdate()
+      setDeletingRow({})
+      if (followUps.data.length == 1) {
+        setMoreRow(null)
+      }
+      else {
+        handleViewDetail(0)
+      }
+    })
+  }
+
   return (
     <div className={classes.root}>
       <BreadcrumbsItem to={`/dashboard/`}>Follow-up Contacts</BreadcrumbsItem>
       <Grid container spacing={8}>
+        <Dialog open={Object.keys(deletingRow).length != 0}
+          onClose={() => { setDeletingRow({}) }
+          }
+        >
+          <DialogTitle>
+            FAIL CONTACT {deletingRow.fname} OUT OF CAMPAIGN {deletingRow.campaignName}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <div>
+                This action cannot be undone
+            </div>
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => { setDeletingRow({}) }}>Cancel</Button>
+            <Button color='primary' onClick={() => { onRemoveContact() }}>Remove</Button>
+          </DialogActions>
+        </Dialog>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <Grid container style={{ height: '100%' }} spacing={8}>
@@ -189,16 +241,18 @@ function FollowUpTableDetail(props) {
         <Grid item xs={9}>
           <Grid style={{ padding: '45px 40px' }} container spacing={24}>
             {
-              moreRow &&
-              <FollowUpDetail
-                // histories={moreRow.histories}
-                // allHistories={moreRow.histories}
-                id={moreRow.id}
-                moreRow={moreRow}
-                followup={moreRow.followup}
-                // contact={followUps.data.contacts}
-                updateTable={() => { forceUpdate() }}
-              />
+              moreRow ?
+                <FollowUpDetail
+                  // histories={moreRow.histories}
+                  // allHistories={moreRow.histories}
+                  id={moreRow.id}
+                  moreRow={moreRow}
+                  followup={moreRow.followup}
+                  // contact={followUps.data.contacts}
+                  updateTable={() => { forceUpdate() }}
+                  user={user}
+                  setDeletingRow={setDeletingRow}
+                /> : 'No record to display'
             }
           </Grid>
         </Grid>

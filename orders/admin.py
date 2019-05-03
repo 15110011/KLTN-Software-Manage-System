@@ -1,7 +1,9 @@
 from django.contrib import admin
-from .models import Order, OrderHistory, License, LifetimeLicense
+from .models import Order, OrderHistory, License, LifetimeLicense, OrderPackages
 
-
+@admin.register(OrderPackages)
+class OrderPackageAdmin(admin.ModelAdmin):
+    pass  
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     pass    

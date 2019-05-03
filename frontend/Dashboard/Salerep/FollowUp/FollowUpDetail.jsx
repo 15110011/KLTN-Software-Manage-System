@@ -17,13 +17,12 @@ import Tooltip from '@material-ui/core/Tooltip'
 import DoneIcon from '@material-ui/icons/Done'
 import { Input, InputLabel } from '@material-ui/core'
 import Divider from '@material-ui/core/Divider'
-import DeleteIcon from '@material-ui/icons/Delete'
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import CustomSnackbar from '../../components/CustomSnackbar'
+import CustomSnackbar from '../../../components/CustomSnackbar'
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -33,11 +32,20 @@ import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
 import * as cn from 'classnames'
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import Checkbox from '@material-ui/core/Checkbox';
+import SendMailDialog from '../../../Mailbox/SendMailDialog'
 
 import ContactDetail from '../ContactDetail'
 import NoteDetail from '../NoteDetail'
-import { apiPost } from '../../../common/Request'
-import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../../common/urls';
+import { apiPost, apiPatch } from '../../../common/Request'
+import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL, STEP_DETAIL_URL } from '../../../common/urls';
 import styles from './FollowUpStyle.js'
 import StepFollowUpDetail from './StepFollowUpDetail'
 
@@ -56,11 +64,13 @@ function FollowUpDetail(props) {
     setMovingRow,
     setDeletingRow,
     moreRow,
+    handleResetStepDetail,
     userId,
     followup,
-    id
+    id,
+    updateTable,
+    user
   } = props
-
   const [selectTabActivity, setSelectTabActivity] = React.useState({
     type: 'history'
   })
@@ -68,15 +78,63 @@ function FollowUpDetail(props) {
   const [noteDialog, setNoteDialog] = React.useState(false)
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [mailDialog, setMailDialog] = React.useState(false)
-
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
   const [error, setError] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [viewingOrder, setViewingOrder] = React.useState(0)
+  const [stepDetail, setStepDetail] = React.useState([])
+  const [update, setUpdate] = React.useState(0)
+
+  React.useEffect(() => {
+    if (followup) {
+
+      setStepDetail(followup.campaign.follow_up_plan.steps.map((s, i) => {
+        let information = s.conditions.reduce((acc, c) => {
+          acc[c.name] = {
+            type: c.type,
+            result: c.type == 'check_box' ? [] : ''
+          }
+          return acc
+        }, {})
+        let status = 'RUNNING'
+        if (followup.step_details.length > i) {
+          information = followup.step_details[i].information
+          status = followup.step_details[i].status
+        }
+
+        return {
+          step: s.id,
+          order: followup.id,
+          information,
+          status,
+          id: followup.step_details[i] ? followup.step_details[i].id : null
+        }
+      }))
+    }
+  }, [followup, update])
+
+
 
   const handleChangeSelectTabActivity = e => {
     setSelectTabActivity({ [e.target.name]: e.target.value });
+  }
+
+  const onChangeUpdateStepDetail = (e, iKey, checked) => {
+    const cloneStepDetail = [...stepDetail]
+    if (cloneStepDetail[activeStep].information[iKey].type != 'check_box') {
+      cloneStepDetail[activeStep].information[iKey].result = e.target.value
+    }
+    else {
+      const foundIndex = cloneStepDetail[activeStep].information[iKey].result.findIndex(r => r == e.target.value)
+      if (foundIndex != -1) {
+        cloneStepDetail[activeStep].information[iKey].result = cloneStepDetail[activeStep].information[iKey].result.slice(0, foundIndex).concat(cloneStepDetail[activeStep].information[iKey].result.slice(foundIndex + 1))
+      }
+      else {
+        cloneStepDetail[activeStep].information[iKey].result.push(e.target.value)
+      }
+    }
+    setStepDetail(cloneStepDetail)
   }
 
   const onChangeViewingOrder = (e) => {
@@ -92,13 +150,26 @@ function FollowUpDetail(props) {
   };
 
   const onCall = () => {
-    apiPost(ORDER_URL + '/' + id + '/history', false, true).then(res => {
-      updateTable()
-      setSuccessNoti('Successfully Called')
-      setTimeout(() => {
-        setSuccessNoti(false)
-      }, 2000);
-    })
+    if (!stepDetail[activeStep].id) {
+      apiPost(STEP_DETAIL_URL ,{ ...stepDetail[activeStep] }, false, true).then(res => {
+        apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client', step_detail: res.data.id }, false, true).then(res => {
+          updateTable()
+          setSuccessNoti('Successfully Called')
+          setTimeout(() => {
+            setSuccessNoti(false)
+          }, 2000);
+        })
+      })
+    } else {
+      apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client', step_detail: stepDetail[activeStep].id }, false, true).then(res => {
+        updateTable()
+        setSuccessNoti('Successfully Called')
+        setTimeout(() => {
+          setSuccessNoti(false)
+        }, 2000);
+      })
+    }
+    
   }
 
   const onSendEmail = () => {
@@ -123,12 +194,55 @@ function FollowUpDetail(props) {
   //   })
   // }
 
-  console.log(moreRow)
+  const handleUpdateStepDetail = (e) => {
+    e.preventDefault()
+    if (stepDetail[activeStep].id) {
+      apiPatch(STEP_DETAIL_URL + '/' + stepDetail[activeStep].id, { ...stepDetail[activeStep], status: 'COMPLETED' }, false, true).then(res => {
+        updateTable()
+        setSuccessNoti(`Step ${activeStep + 1} is completed`)
+        setTimeout(() => {
+          setSuccessNoti(false)
+        }, 2000);
+      })
+    } else {
+      apiPost(STEP_DETAIL_URL, { ...stepDetail[activeStep], status: 'COMPLETED' }, false, true).then(res => {
+        updateTable()
+        setSuccessNoti(`Step ${activeStep + 1} is completed`)
+        setTimeout(() => {
+          setSuccessNoti(false)
+        }, 2000);
+      })
+    }
+  }
+
+  const handleApplyStepDetail = () => {
+    if (stepDetail[activeStep].id) {
+      apiPatch(STEP_DETAIL_URL + '/' + stepDetail[activeStep].id, stepDetail[activeStep], false, true).then(res => {
+        setSuccessNoti(`Step ${activeStep + 1} is applied`)
+        updateTable()
+        setTimeout(() => {
+          setSuccessNoti(false)
+        }, 2000);
+      })
+    } else {
+      apiPost(STEP_DETAIL_URL, stepDetail[activeStep], false, true).then(res => {
+        setSuccessNoti(`Step ${activeStep + 1} is applied`)
+        updateTable()
+        setTimeout(() => {
+          setSuccessNoti(false)
+        }, 2000);
+      })
+    }
+  }
 
   return (
     <>
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
       {error.all && <CustomSnackbar isErr msg={error.all} />}
+      {mailDialog &&
+        <SendMailDialog user={user} contact={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
+        />
+      }
       <Grid style={{ padding: '10px 40px' }} container spacing={24}>
         <Grid item xs={12}>
           <Grid container spacing={8}>
@@ -147,7 +261,7 @@ function FollowUpDetail(props) {
                     contained: classes.btnStatusActive
                   }}
                 >
-                  {moreRow.progress}
+                  {moreRow.progress}%
                 </Button>
               }
               {
@@ -158,38 +272,13 @@ function FollowUpDetail(props) {
                     contained: classes.btnStatusFinished
                   }}
                 >
-                  {moreRow.progress}
+                  {moreRow.progress}%
                 </Button>
               }
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-            {followup &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnGreen
-                }}
-                onClick={() => {
-                  onCall()
-                }}
-              >
-                <PhoneIcon fontSize="small" />
-              </Button>
-            }
-            {followup &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnPink
-                }}
-                onClick={() => {
-                  onSendEmail()
-                }}
-              >
-                <EmailIcon fontSize="small" />
-              </Button>
-            }
+
             <Button
               variant='contained'
               classes={{
@@ -201,8 +290,7 @@ function FollowUpDetail(props) {
             >
               <TimerIcon fontSize="small" />
             </Button>
-            {
-              moreRow.progress == 100 &&
+              
               <Button
                 variant='contained'
                 classes={{
@@ -211,10 +299,10 @@ function FollowUpDetail(props) {
                 onClick={() => {
                   setMovingRow({ id: moreRow.id })
                 }}
+                disabled={moreRow.progress != 100}
               >
                 <DoneIcon fontSize="small" />
               </Button>
-            }
             {
               moreRow.progress >= 0 &&
               <Button
@@ -223,10 +311,10 @@ function FollowUpDetail(props) {
                   contained: classes.btnRed
                 }}
                 onClick={() => {
-                  setDeletingRow({ id: moreRow.id })
+                  setDeletingRow(moreRow)
                 }}
               >
-                <DeleteIcon fontSize="small" />
+                <RemoveIcon fontSize="small" />
               </Button>
             }
           </DialogActions>
@@ -306,7 +394,7 @@ function FollowUpDetail(props) {
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
-          Marketing Plan
+          Marketing plan
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
@@ -314,7 +402,7 @@ function FollowUpDetail(props) {
           </DialogContentText>
         </Grid>
         <Grid className={classes.inputCustom} item xs={2}>
-          Follow-up Plan
+          Follow-up plan
             </Grid>
         <Grid item xs={4}>
           <DialogContentText className={classes.inputCustom}>
@@ -326,186 +414,189 @@ function FollowUpDetail(props) {
         </Grid>
         <Grid item xs={12}>
           <Stepper activeStep={activeStep} alternativeLabel>
-            {moreRow.followup.campaign.follow_up_plan.steps.map((label, index) => (
-              <Step key={'steplabel' + index}>
-                <StepLabel
-                  // onClick={() => setActiveStep(index)}
-                  style={{ cursor: 'pointer' }}
-                >Step {index + 1}</StepLabel>
-              </Step>
-            ))}
+            {moreRow.followup.campaign.follow_up_plan.steps.map((step, index) => {
+              return (
+                <Step key={'steplabel' + index}
+                  completed={activeStep !== index && stepDetail[index] && stepDetail[index].status == 'COMPLETED'}
+                >
+                  <StepLabel
+                    onClick={() => {
+                      setActiveStep(index)
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    Step {index + 1}
+                  </StepLabel>
+                </Step>
+              )
+            })}
             {/* <Step classes={{ root: classes.addStep }}>
               <StepLabel StepIconProps={{ icon: <AddIcon /> }}>Add Step</StepLabel>
             </Step> */}
           </Stepper>
-          <Grid container spacing={8}>
-            {
-              moreRow.followup.campaign.follow_up_plan.steps &&
-              <>
-                <Grid className={classes.inputCustom} item xs={6}>
-                  <InputLabel
-                    htmlFor="custom-css-standard-input"
-                    classes={{
-                      root: classes.cssLabel,
-                      focused: classes.cssFocused,
-                    }}
-                  >
-                    Steps
-                  </InputLabel>
-                </Grid>
-                <Grid item xs={6}>
-                  <Select
-                    name='stepOrder'
-                    value={viewingOrder}
-                    onChange={onChangeViewingOrder}
-                    style={{ float: 'right' }}
-                  >
-                    {moreRow.followup.campaign.follow_up_plan.steps && moreRow.followup.campaign.follow_up_plan.steps.map((s, index) => {
-                      return <MenuItem key={'ViewOrder' + index} value={index}>
-                        Step {index + 1} ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
-                  </MenuItem>
-                    })}
-                  </Select>
-                </Grid>
-              </>
-            }
-            {moreRow.followup.campaign.follow_up_plan.steps &&
-              <Grid className='p-4' item xs={12}>
-                <Paper className='p-4'>
-                  <Grid container spacing={8}>
-                    {
-                      moreRow.followup.campaign.follow_up_plan.steps[viewingOrder] && moreRow.followup.campaign.follow_up_plan.steps[viewingOrder].conditions.map((c, index) => {
-                        return (
-                          <>
-                            {
-                              checkBoxOrRadio[viewingOrder] ?
-                                <>
-                                  <Grid item xs={5}>
-                                    <TextField
-                                      fullWidth
-                                      required
-                                      value={
-                                        c['name']
+          <Paper className={classes.stepPaper}>
+            <Grid className={classes.inputHeaderCustom} item xs={12}>
+              Step {activeStep +1}
+            </Grid>
+            <Grid item xs={12} className='my-2'>
+              {followup.campaign.follow_up_plan.steps[activeStep].actions.includes('Call Client') &&
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnGreen
+                  }}
+                  onClick={() => {
+                    onCall()
+                  }}
+                >
+                  <PhoneIcon fontSize="small" />
+                </Button>
+              }
+              &nbsp;
+              {followup.campaign.follow_up_plan.steps[activeStep].actions.includes('Send Email Manually') &&
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnPink
+                  }}
+                  onClick={() => {
+                    onSendEmail()
+                  }}
+                >
+                  <EmailIcon fontSize="small" />
+                </Button>
+              }
+            </Grid>
+            <form onSubmit={handleUpdateStepDetail}>
+              {
+                stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).map((iKey, index) => {
+                  return (
+                    <Grid item xs={12} key={`st${index}`}>
+                      <Grid container spacing={8}>
+
+                        <Grid style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }} item xs={4}>
+                          <InputLabel
+                            required
+                            htmlFor="custom-css-standard-input"
+                            classes={{
+                              focused: classes.cssFocused,
+                            }}
+                            style={{ marginBottom: 0 }}
+                          >
+                            {iKey}
+                          </InputLabel>
+                        </Grid>
+                        {
+                          stepDetail[activeStep].information[iKey].type == 'text' &&
+                          <Grid item xs={8}>
+                            <Input
+                              fullWidth
+                              required
+                              onChange={(e) => onChangeUpdateStepDetail(e, iKey)}
+                              value={stepDetail[activeStep].information[iKey].result}
+                              name="result"
+                              classes={{
+                                underline: classes.cssUnderline,
+                              }}
+                            />
+                          </Grid>
+                        }
+                        {
+                          stepDetail[activeStep].information[iKey].type == 'number' &&
+                          <Grid item xs={8}>
+                            <Input
+                              fullWidth
+                              required
+                              onChange={(e) => onChangeUpdateStepDetail(e, iKey)}
+                              value={stepDetail[activeStep].information[iKey].result}
+                              type='number'
+                              name="result"
+                              classes={{
+                                underline: classes.cssUnderline,
+                              }}
+                            />
+                          </Grid>
+                        }
+                        {
+                          stepDetail[activeStep].information[iKey].type == 'check_box' &&
+                          <Grid item xs={8}>
+                            <FormControl component="fieldset" className={classes.formControl}>
+                              <FormGroup row>
+                                {followup.campaign.follow_up_plan.steps[activeStep].conditions[index].choices.map((c, index) => {
+                                  return (
+                                    <FormControlLabel
+                                      control={
+                                        <Checkbox checked={stepDetail[activeStep].information[iKey].result.includes(c)}
+                                          onChange={(e) => onChangeUpdateStepDetail(e, iKey)}
+                                          value={c}
+                                          color='primary'
+                                          style={{ marginBottom: 0 }}
+
+                                        />
                                       }
-                                      name="name"
-                                      classes={{
-                                        underline: classes.cssUnderline,
-                                      }}
-                                      label="Name"
-                                      disabled
+                                      key={c + index}
+                                      label={c}
                                     />
-                                  </Grid>
-                                  <Grid item xs={4}>
-                                    <FormControl fullWidth className={classes.formControl}>
-                                      <InputLabel>
-                                        Type
-                       </InputLabel>
-                                      <Select
-                                        value={
-                                          c['type']
-                                        }
-                                        disabled
-                                        displayEmpty
-                                        name="type"
-                                        className={classes.selectEmpty}
-                                        label="Type"
-                                      >
-                                        <MenuItem value="text">
-                                          Text Field
-                          </MenuItem>
-                                        <MenuItem value="number">Number</MenuItem>
-                                        <MenuItem value="check_box">
-                                          Check Box
-                          </MenuItem>
-                                        <MenuItem value="radio">
-                                          Check Box (Multiple choices)
-                          </MenuItem>
-                                      </Select>
-                                    </FormControl>
-                                  </Grid>
-                                </>
-                                :
-                                <>
-                                  <Grid item xs={12}>
-                                    <TextField
-                                      fullWidth
-                                      required
-                                      value={moreRow.followup.campaign.follow_up_plan.steps[viewingOrder].actions.reduce((acc, a) => {
-                                        acc += a + ', '
-                                        return acc
-                                      }, '').slice(0, -2)}
-                                      classes={{
-                                        underline: classes.cssUnderline,
-                                      }}
-                                      label="Actions"
-                                      disabled
-                                    />
-                                  </Grid>
-                                  <Grid item xs={6}>
-                                    <TextField
-                                      fullWidth
-                                      required
-                                      value={
-                                        c['name']
-                                      }
-                                      name="name"
-                                      classes={{
-                                        underline: classes.cssUnderline,
-                                      }}
-                                      label="Name"
-                                      disabled
-                                    />
-                                  </Grid>
-                                  <Grid item xs={6}>
-                                    <FormControl fullWidth className={classes.formControl}>
-                                      <InputLabel>
-                                        Type
-                                </InputLabel>
-                                      <Select
-                                        value={
-                                          c['type']
-                                        }
-                                        disabled
-                                        displayEmpty
-                                        name="type"
-                                        className={classes.selectEmpty}
-                                        label="Type"
-                                      >
-                                        <MenuItem value="text">
-                                          Text Field
-                                  </MenuItem>
-                                        <MenuItem value="number">Number</MenuItem>
-                                        <MenuItem value="check_box">
-                                          Check Box
-                                  </MenuItem>
-                                        <MenuItem value="radio">
-                                          Check Box (Multiple choices)
-                                  </MenuItem>
-                                      </Select>
-                                    </FormControl>
-                                  </Grid>
-                                </>
-                            }
-                            {(c.type == 'check_box' || c.type == 'radio') &&
-                              <Grid item xs={3} style={{ position: 'relative' }}>
-                                <Tooltip
-                                  title={<ul style={{ paddingInlineStart: '16px', fontSize: '12px', maxWidth: '150px', wordBreak: 'break-word' }}>
-                                    {c.choices.map(c => <li key={`selection${c}`}>{c}</li>)}</ul>}>
-                                  <Typography classes={{ root: classes.linkStyleCustom }}
-                                    onClick={() => handleOpenDialog(index)}
-                                  >{c.choices.length} selection(s)
-                            </Typography>
-                                </Tooltip>
-                              </Grid>
-                            }
-                          </>
-                        )
-                      })
-                    }
-                  </Grid>
-                </Paper>
+                                  )
+                                })}
+                              </FormGroup>
+                            </FormControl>
+                          </Grid>
+                        }
+                        {
+                          stepDetail[activeStep].information[iKey].type == 'radio' &&
+                          <Grid item xs={8}>
+                            <FormControl component="fieldset" className={classes.formControl} >
+                              <RadioGroup
+                                aria-label="Gender"
+                                name="result"
+                                className={classes.group}
+                                value={stepDetail[activeStep].information[iKey].result}
+                                onChange={(value) => onChangeUpdateStepDetail(value, iKey)}
+                                row
+
+                              >
+                                {followup.campaign.follow_up_plan.steps[activeStep].conditions[index].choices.map((c, index) => {
+                                  return <FormControlLabel value={c} control={<Radio color='primary' required />} label={c} key={c + index}
+                                    style={{ marginBottom: 0 }}
+                                  />
+                                })}
+                              </RadioGroup>
+                            </FormControl>
+                          </Grid>
+                        }
+
+                      </Grid>
+                    </Grid>
+                  )
+                })
+
+              }
+              {' '}
+              <Grid item xs={12} style={{ margin: '20px 0', textAlign: 'right' }}>
+                <Button variant='contained'
+                  onClick={() => setUpdate(update + 1)}
+                  disabled={(activeStep == 0 || (stepDetail[activeStep - 1].status == 'COMPLETED')) && stepDetail[activeStep] && stepDetail[activeStep].status == 'RUNNING' ? undefined : true}
+                >Reset</Button>
+                {' '}
+                <Button
+                  type="button"
+                  variant='contained'
+                  color='primary'
+                  style={{ backgroundColor: '#2196F3', color: '#fff' }}
+                  disabled={(activeStep == 0 || (stepDetail[activeStep - 1].status == 'COMPLETED')) && stepDetail[activeStep] && stepDetail[activeStep].status == 'RUNNING' ? undefined : true}
+                  onClick={() => handleApplyStepDetail()}
+                >Apply</Button>
+                {' '}
+                <Button type="submit" variant='contained' color='primary'
+                  disabled={(activeStep == 0 || (stepDetail[activeStep - 1].status == 'COMPLETED')) && stepDetail[activeStep] && stepDetail[activeStep].status == 'RUNNING' ? undefined : true}
+
+                >Complete</Button>
               </Grid>
-            }
+            </form>
+          </Paper>
+          <Grid container spacing={8}>
+
           </Grid>
         </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={9}>

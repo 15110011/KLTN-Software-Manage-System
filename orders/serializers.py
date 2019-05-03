@@ -38,14 +38,22 @@ class LifetimeLicenseSerializer(serializers.ModelSerializer):
         model = models.LifetimeLicense
         fields = '__all__'
 
+class OrderPackageSerializer(serializers.ModelSerializer):
+    package = PackageSerializer()
+
+    class Meta:
+        model = models.OrderPackages
+        fields = '__all__'
+
 class OrderSerializer(serializers.ModelSerializer):
     contacts = ContactSerializer()
     sale_rep = MeSerializer()
-    packages = PackageSerializer(many=True)
+    order_packages = OrderPackageSerializer(many=True)
     campaign = CampaignSerializer()
     step_details = StepDetailWithoutOrderSerializer(many=True)
     history = OrderHistorySerializer(many=True)
     licenses = LicenseSerializer(many=True)
+    # order_packages = Order
 
     class Meta:
         model = models.Order
@@ -53,18 +61,18 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerialzier(serializers.ModelSerializer):
-    step_details = StepDetailWithoutOrderSerializer(many=True)
+    # step_details = StepDetailWithoutOrderSerializer(many=True)
 
     class Meta:
         model = models.Order
         fields = '__all__'
 
     def create(self, validated_data):
-        step_details = validated_data.pop('step_details')
+        # step_details = validated_data.pop('step_details')
         order = super().create(validated_data)
-        step_details = [StepDetail(**item, order=order)
-                        for item in step_details]
-        step_details = StepDetail.objects.bulk_create(step_details)
+        # step_details = [StepDetail(**item, order=order)
+        #                 for item in step_details]
+        # step_details = StepDetail.objects.bulk_create(step_details)
         return order
 
 
