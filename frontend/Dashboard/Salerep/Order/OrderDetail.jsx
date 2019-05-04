@@ -37,6 +37,7 @@ import LicenseDetail from './LicenseDetail'
 
 
 import styles from './OrderDetailStyle.js'
+import LifetimeLicenseDetail from './LifetimeLicenseDetail';
 
 function TabContainer({ children, dir }) {
   return (
@@ -63,7 +64,7 @@ function OrderDetail(props) {
   //   'Call Client': 0
   // })
   const [selectTabActivity, setSelectTabActivity] = React.useState({
-    type: 'contact'
+    type: 'description'
   })
 
   const [noteDialog, setNoteDialog] = React.useState(false)
@@ -131,7 +132,7 @@ function OrderDetail(props) {
           <Grid container spacing={8}>
             <Grid item xs={12} className="d-flex">
               <Typography variant="title" style={{ marginTop: '5px' }}>
-                {moreRow.name}
+                #{moreRow.id}
               </Typography>
               &nbsp;
               &nbsp;
@@ -304,20 +305,27 @@ function OrderDetail(props) {
               <Tab
                 disableRipple
                 classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
-                label="All"
+                label="Description"
+              />
+              <Tab
+                disableRipple
+                classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
+                label="Lifetime"
               />
             </Tabs>
-            {
-              selectTabActivity.type == "contact" &&
-              <>
-                {value === 0 &&
-                  <TabContainer>
-                    <LicenseDetail
-                      allLicenses={moreRow.allLicenses}
-                    />
-                  </TabContainer>
-                }
-              </>
+            {value === 0 &&
+              <TabContainer>
+                <LicenseDetail
+                  allLicenses={moreRow.allLicenses}
+                />
+              </TabContainer>
+            }
+            {value === 1 &&
+              <TabContainer>
+                <LifetimeLicenseDetail
+                  allLicenses={moreRow.allLifetimeLicenses}
+                />
+              </TabContainer>
             }
           </Paper>
         </Grid>

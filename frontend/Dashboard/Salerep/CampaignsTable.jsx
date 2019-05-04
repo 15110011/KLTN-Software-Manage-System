@@ -364,11 +364,19 @@ function CampaignTable(props) {
                 apiGet(CAMPAIGNS_URL + `?type=both&page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
                   const data = res.data.data.map((c, index) => {
                     let status = 'Idle'
-                    if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
-                      && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
+                    let currentDate = dateFns.parseISO(new Date().toISOString())
+                    currentDate = dateFns.setHours(currentDate, 0)
+                    currentDate = dateFns.setMinutes(currentDate, 0)
+                    currentDate = dateFns.setSeconds(currentDate, 0)
+                    if (
+                      (!dateFns.isAfter(dateFns.parseISO(c.start_date), currentDate)
+                        && !dateFns.isBefore(dateFns.parseISO(c.end_date), currentDate)
+                      )
+                      || dateFns.isSameDay(dateFns.parseISO(c.end_date), currentDate)
+                    ) {
                       status = 'Active'
                     }
-                    else if (dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {
+                    else if (dateFns.isBefore(dateFns.parseISO(c.end_date), currentDate)) {
                       status = 'Finished'
                     }
                     return {

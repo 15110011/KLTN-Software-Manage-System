@@ -23,3 +23,6 @@ class StepDetail(BaseModel):
         'orders.Order', on_delete=models.CASCADE, related_name='step_details')
     information = JSONField()
     status = models.CharField(max_length=50, choices=STEP_STATUS_CHOICES, default='RUNNING')
+
+    class Meta:
+        ordering = ('id',)

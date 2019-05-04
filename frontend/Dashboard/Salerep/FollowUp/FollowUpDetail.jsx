@@ -91,9 +91,17 @@ function FollowUpDetail(props) {
 
       setStepDetail(followup.campaign.follow_up_plan.steps.map((s, i) => {
         let information = s.conditions.reduce((acc, c) => {
+          let result = ''
+          if (c.type == 'check_box') { result = [] }
+          if (c.type == 'final') {
+            result = {}
+            moreRow.packages.forEach(p => {
+              result[p.id] = { type: '', price: '' }
+            })
+          }
           acc[c.name] = {
             type: c.type,
-            result: c.type == 'check_box' ? [] : ''
+            result
           }
           return acc
         }, {})
@@ -136,6 +144,14 @@ function FollowUpDetail(props) {
     }
     setStepDetail(cloneStepDetail)
   }
+  const onChangePackages = (e, iKey, packageIndex, pid) => {
+
+    const cloneStepDetail = [...stepDetail]
+    cloneStepDetail[activeStep].information[iKey].result[pid].type = parseInt(e.target.value)
+    cloneStepDetail[activeStep].information[iKey].result[pid].price = moreRow.packages[packageIndex].prices[e.target.value]
+
+    setStepDetail(cloneStepDetail)
+  }
 
   const onChangeViewingOrder = (e) => {
     setViewingOrder(e.target.value)
@@ -151,7 +167,7 @@ function FollowUpDetail(props) {
 
   const onCall = () => {
     if (!stepDetail[activeStep].id) {
-      apiPost(STEP_DETAIL_URL ,{ ...stepDetail[activeStep] }, false, true).then(res => {
+      apiPost(STEP_DETAIL_URL, { ...stepDetail[activeStep] }, false, true).then(res => {
         apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client', step_detail: res.data.id }, false, true).then(res => {
           updateTable()
           setSuccessNoti('Successfully Called')
@@ -169,19 +185,18 @@ function FollowUpDetail(props) {
         }, 2000);
       })
     }
-    
   }
 
   const onSendEmail = () => {
     setMailDialog(true)
   }
 
-  let checkBoxOrRadio = []
-  if (moreRow.followup.campaign.follow_up_plan.steps) {
-    moreRow.followup.campaign.follow_up_plan.steps.forEach((s, index) => {
-      checkBoxOrRadio[index] = s.conditions.some(c => c.type == 'check_box' || c.type == 'radio')
-    })
-  }
+  // let checkBoxOrRadio = []
+  // if (moreRow.followup.campaign.follow_up_plan.steps) {
+  //   moreRow.followup.campaign.follow_up_plan.steps.forEach((s, index) => {
+  //     checkBoxOrRadio[index] = s.conditions.some(c => c.type == 'check_box' || c.type == 'radio')
+  //   })
+  // }
 
   // const updateMailMetric = () => {
   //   apiPost(ORDER_URL + '/' + id + '/history', { action: 'Send Email Manually' }, false, true).then(res => {
@@ -261,7 +276,7 @@ function FollowUpDetail(props) {
                     contained: classes.btnStatusActive
                   }}
                 >
-                  {moreRow.progress}%
+                  {moreRow.progress.toFixed(2)}%
                 </Button>
               }
               {
@@ -272,7 +287,7 @@ function FollowUpDetail(props) {
                     contained: classes.btnStatusFinished
                   }}
                 >
-                  {moreRow.progress}%
+                  {moreRow.progress.toFixed(2)}%
                 </Button>
               }
             </Grid>
@@ -290,19 +305,19 @@ function FollowUpDetail(props) {
             >
               <TimerIcon fontSize="small" />
             </Button>
-              
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnPurple
-                }}
-                onClick={() => {
-                  setMovingRow({ id: moreRow.id })
-                }}
-                disabled={moreRow.progress != 100}
-              >
-                <DoneIcon fontSize="small" />
-              </Button>
+
+            <Button
+              variant='contained'
+              classes={{
+                contained: classes.btnPurple
+              }}
+              onClick={() => {
+                setMovingRow({ id: moreRow.id })
+              }}
+              disabled={moreRow.progress != 100}
+            >
+              <DoneIcon fontSize="small" />
+            </Button>
             {
               moreRow.progress >= 0 &&
               <Button
@@ -366,7 +381,7 @@ function FollowUpDetail(props) {
               placement='bottom-start'
               title={
                 <ul style={{ paddingInlineStart: '16px', fontSize: '12px', wordBreak: 'break-word' }}>
-                  {moreRow.followup.packages.map(p =>
+                  {moreRow.packages.map(p =>
                     <li key={`package${p}`}>{p.name}</li>)
                   }
                 </ul>
@@ -374,7 +389,7 @@ function FollowUpDetail(props) {
               <Typography classes={{ root: classes.linkStyleCustom }}
                 onClick={() => handleOpenDialog(index)}
               >
-                {moreRow.followup.packages.length}&nbsp;package(s)
+                {moreRow.packages.length}&nbsp;package(s)
               </Typography>
             </Tooltip>
           </DialogContentText>
@@ -436,7 +451,7 @@ function FollowUpDetail(props) {
           </Stepper>
           <Paper className={classes.stepPaper}>
             <Grid className={classes.inputHeaderCustom} item xs={12}>
-              Step {activeStep +1}
+              Step {activeStep + 1}
             </Grid>
             <Grid item xs={12} className='my-2'>
               {followup.campaign.follow_up_plan.steps[activeStep].actions.includes('Call Client') &&
@@ -470,6 +485,8 @@ function FollowUpDetail(props) {
             <form onSubmit={handleUpdateStepDetail}>
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).map((iKey, index) => {
+                  console.log(stepDetail[activeStep].information)
+                  console.log(followup.campaign.follow_up_plan.steps[activeStep].conditions, index)
                   return (
                     <Grid item xs={12} key={`st${index}`}>
                       <Grid container spacing={8}>
@@ -554,7 +571,6 @@ function FollowUpDetail(props) {
                                 value={stepDetail[activeStep].information[iKey].result}
                                 onChange={(value) => onChangeUpdateStepDetail(value, iKey)}
                                 row
-
                               >
                                 {followup.campaign.follow_up_plan.steps[activeStep].conditions[index].choices.map((c, index) => {
                                   return <FormControlLabel value={c} control={<Radio color='primary' required />} label={c} key={c + index}
@@ -565,6 +581,33 @@ function FollowUpDetail(props) {
                             </FormControl>
                           </Grid>
                         }
+                        <Grid item xs={8}>
+                          {
+                            stepDetail[activeStep].information[iKey].type == 'final' &&
+                            moreRow.packages.map((p, packageIndex) => {
+                              return (
+                                <FormControl component="fieldset" className={classes.formControl} >
+                                  <FormLabel component="legend">{p.name}</FormLabel>
+                                  <RadioGroup
+                                    aria-label="Gender"
+                                    name="result"
+                                    className={classes.group}
+                                    value={stepDetail[activeStep].information[iKey].result[p.id].type}
+                                    onChange={(value) => onChangePackages(value, iKey, packageIndex, p.id)}
+                                    row
+
+                                  >
+                                    {Object.keys(p.prices).map((k, index) => {
+                                      return <FormControlLabel value={parseInt(k)} control={<Radio color='primary' disabled={stepDetail[stepDetail.length -1].status == 'COMPLETED'} />} label={k != 999999 ? k + ` month(s) ($${p.prices[k]})` : `Lifetime ($${p.prices[k]})`} key={k + index}
+                                        style={{ marginBottom: 0 }}
+                                      />
+                                    })}
+                                  </RadioGroup>
+                                </FormControl>
+                              )
+                            })
+                          }
+                        </Grid>
 
                       </Grid>
                     </Grid>

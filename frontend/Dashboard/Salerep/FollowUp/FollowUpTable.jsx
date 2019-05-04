@@ -10,7 +10,7 @@ import Button from '@material-ui/core/Button'
 import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
 import * as dateFns from 'date-fns'
 
-import { EVENTS_URL, CONTACT_MARKETING_URL, ORDER_URL } from '../../../common/urls';
+import { EVENTS_URL, CONTACT_MARKETING_URL, ORDER_URL, LIFETIME_LICENSE_URL, LICENSE_URL } from '../../../common/urls';
 
 import styles from '../SalerepStyles.js'
 import { EVENTS_URL, GROUP_URL } from '../../../common/urls';
@@ -23,7 +23,7 @@ import CardBody from "../../../components/Card/CardBody";
 import USERCONTEXT from '../../../components/UserContext'
 import { apiGet, apiPost, apiPatch } from '../../../common/Request'
 import useFetchData from '../../../CustomHook/useFetchData'
-import { spawn } from 'child_process';
+import FollowUpDetail from './FollowUpDetail';
 // import TicketDetail from './TicketDetail'
 
 let flSearch = {
@@ -33,13 +33,15 @@ let activePage = 0
 
 function FollowUpTable(props) {
 
-  const { classes, forceActivities, tableRef, history, forceFollowUp } = props
+  const { classes, forceActivities, tableRef, history, forceFollowUp, forceOrder } = props
 
   // const [viewType, setViewType] = React.useState('campaign')
 
   // const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
   const [openDialog, setOpenDialog] = React.useState(false)
+  const [tableData, setTableData] = React.useState([])
+
 
   const [moreRow, setMoreRow] = React.useState(null)
   const [deletingRow, setDeletingRow] = React.useState({})
@@ -61,6 +63,41 @@ function FollowUpTable(props) {
       forceActivities()
       forceFollowUp()
       setDeletingRow({})
+    })
+  }
+
+  const onConfirmDeal = e => {
+    const promises = []
+    const currentPackages = movingRow.followup.step_details[movingRow.followup.step_details.length - 1].information['Choose Packages'].result
+    promises.push(
+      apiPatch(ORDER_URL + '/' + movingRow.id, {
+        status: 'COMPLETED', packages: Object.keys(currentPackages).reduce((acc, k) => {
+          if (currentPackages[k].type != '') {
+            acc.push(k)
+          }
+          return acc
+        }, [])
+      }, false, true)
+    )
+    Object.keys(currentPackages).forEach((k, index) => {
+      if (currentPackages[k].type == 999999) {
+        promises.push(
+          apiPost(LIFETIME_LICENSE_URL,
+            { order: movingRow.id, package: parseInt(k), start_date: dateFns.format(new Date(), 'yyyy-MM-dd') }, false, true)
+        )
+      }
+      else {
+        promises.push(
+          apiPost(LICENSE_URL,
+            { duration: currentPackages[k].type, order: movingRow.id, package: parseInt(k), start_date: dateFns.format(new Date(), 'yyyy-MM-dd') }
+            , false, true)
+        )
+      }
+    })
+    Promise.all(promises).then(res => {
+      console.log('OKKK')
+      forceFollowUp()
+      forceOrder()
     })
   }
 
@@ -88,6 +125,26 @@ function FollowUpTable(props) {
               <Button color='primary' onClick={() => { onRemoveContact() }}>Remove</Button>
             </DialogActions>
           </Dialog>
+          {Object.keys(movingRow).length > 0 &&
+            <Dialog
+              open={true}
+              onClose={() => setMovingRow({})}
+              maxWidth="md"
+              fullWidth
+            >
+              <DialogTitle>
+                <h4>
+                  Confirm Deal
+                  </h4>
+              </DialogTitle>
+              <DialogContent>
+              </DialogContent>
+              <DialogActions>
+                <Button variant='contained' onClick={() => setMovingRow({})}>Cancel </Button>
+                <Button variant='contained' color='primary' onClick={onConfirmDeal}>Confirm</Button>
+              </DialogActions>
+            </Dialog>
+          }
           {openDialog && moreRow &&
             <Dialog
               open={true}
@@ -101,18 +158,18 @@ function FollowUpTable(props) {
                 </h4>
               </DialogTitle>
               <DialogContent>
-                {/* <TicketDetail
-                  histories={moreRow.histories}
-                  allHistories={moreRow.histories}
-                  campaign={moreRow.campaign} contact={moreRow.contact}
+                <FollowUpDetail
                   id={moreRow.id}
-                  contact={moreRow.contact}
-                  updateTable={tableActivtyRef.current.onQueryChange}
-                  updateActivities={forceActivities}
-                  marketing={moreRow.marketing}
+                  moreRow={moreRow}
+                  followup={moreRow.followup}
+                  // contact={followUps.data.contacts}
+                  updateTable={() => {
+                    forceFollowUp()
+
+                  }}
                   user={user}
-                  getMoreRow={getMoreRow}
-                /> */}
+                  setDeletingRow={setDeletingRow}
+                />
               </DialogContent>
             </Dialog>
           }
@@ -228,10 +285,16 @@ function FollowUpTable(props) {
                       campaignName: d.campaign.name,
                       noSteps,
                       progress,
-                      id: d.id
+                      id: d.id,
+                      packages: d.campaign.packages,
+                      followup: d
                     }
                   })
+                  if (moreRow) {
+                    setMoreRow(data[moreRow.tableData.id])
+                  }
 
+                  setTableData(data)
                   resolve({
                     data,
                     page: res.data.page,
@@ -262,7 +325,7 @@ function FollowUpTable(props) {
                 tooltip: 'More actions',
                 onClick: (event, row) => {
                   setMoreRow(row)
-                  setMoreDialog(true)
+                  setOpenDialog(true)
                 },
               },
             ]}

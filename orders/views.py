@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework import status
 
-from .serializers import OrderSerializer, OrderHistorySerializer, CreateOrderSerialzier, LicenseSerializer, LifetimeLicenseSerializer
+from .serializers import OrderSerializer, OrderHistorySerializer, CreateOrderSerialzier, LicenseSerializer, LifetimeLicenseSerializer, CreateLicenseSerializer, CreateLifetimeLicenseSerializer
 from .models import Order, OrderHistory, License, LifetimeLicense
 from steps.models import StepDetail
 from datetime import datetime
@@ -141,10 +141,20 @@ class LicenseView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def create(self, request):
-        serializer = LicenseSerializer(
+        serializer = CreateLicenseSerializer(
             data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        serializer = CreateLicenseSerializer(instance,
+            data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -153,3 +163,21 @@ class LifetimeLicenseView(ModelViewSet):
     queryset = LifetimeLicense.objects
     serializer_class = LifetimeLicenseSerializer
     permission_classes = (IsAuthenticated,)
+
+    def create(self, request):
+        serializer = CreateLifetimeLicenseSerializer(
+            data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        serializer = CreateLifetimeLicenseSerializer(instance,
+            data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
