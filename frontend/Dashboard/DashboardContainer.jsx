@@ -16,6 +16,7 @@ import ManagerDashboard from './Manager'
 import TicketTableDetail from './Salerep/TicketTableDetail'
 import CampaignTableDetail from './Salerep/CampaignTableDetail'
 import FollowUpTableDetail from './Salerep/FollowUp/FollowUpTableDetail'
+import OrderTableDetail from './Salerep/Order/OrderTableDetail'
 
 function Dashboard(props) {
 
@@ -46,6 +47,7 @@ function Dashboard(props) {
               <Route path="/dashboard/ticket-detail" component={(props) => (<TicketTableDetail {...props} user={user} />)} />
               <Route path="/dashboard/campaign-detail" component={(props) => (<CampaignTableDetail {...props} user={user} />)} />
               <Route path="/dashboard/follow-up-detail" component={(props) => (<FollowUpTableDetail {...props} user={user} />)} />
+              <Route path="/dashboard/order-detail" component={(props) => (<OrderTableDetail {...props} user={user} />)} />
               <Route path='/' component={props => {
                 if (user.profile.is_manager)
                   return <ManagerDashboard {...props} user={user} />

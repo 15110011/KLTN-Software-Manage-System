@@ -20,7 +20,7 @@ function LicenseDetail(props) {
             <th scope="col">Purchase Date</th>
             <th scope="col">Duration</th>
             <th scope="col">Code</th>
-            <th scope="col">Time Left</th>
+            <th scope="col">Remain Time</th>
           </tr>
         </thead>
         <tbody>

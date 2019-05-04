@@ -32,7 +32,7 @@ let activePage = 0
 
 function OrderTable(props) {
 
-  const { classes, forceActivities, tableRef } = props
+  const { classes, forceActivities, tableRef, history } = props
 
   // const [viewType, setViewType] = React.useState('campaign')
 
@@ -132,7 +132,7 @@ function OrderTable(props) {
                   <>
                     <Card plain>
                       <CardHeader color="rose">
-                        <h4 className={classes.cardTitleWhite}>Orders</h4>
+                      <h4 onClick={() => history.push('/dashboard/order-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Order</h4>
                       </CardHeader>
                     </Card>
                   </>
