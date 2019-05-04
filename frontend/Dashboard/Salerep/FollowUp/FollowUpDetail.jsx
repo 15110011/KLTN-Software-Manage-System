@@ -69,7 +69,8 @@ function FollowUpDetail(props) {
     followup,
     id,
     updateTable,
-    user
+    user,
+    onRemoveContact
   } = props
   const [selectTabActivity, setSelectTabActivity] = React.useState({
     type: 'history'
@@ -113,8 +114,6 @@ function FollowUpDetail(props) {
       }))
     }
   }, [followup, update])
-
-
 
   const handleChangeSelectTabActivity = e => {
     setSelectTabActivity({ [e.target.name]: e.target.value });

@@ -21,6 +21,7 @@ import CardBody from "../../../components/Card/CardBody";
 // import CustomFItlerRow from '../../../components/CustomFilterRow'
 
 import USERCONTEXT from '../../../components/UserContext'
+import FollowUpDetail from './FollowUpDetail'
 import { apiGet, apiPost, apiPatch } from '../../../common/Request'
 import useFetchData from '../../../CustomHook/useFetchData'
 import { spawn } from 'child_process';
@@ -39,13 +40,10 @@ function FollowUpTable(props) {
 
   // const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
-  const [openDialog, setOpenDialog] = React.useState(false)
 
   const [moreRow, setMoreRow] = React.useState(null)
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
-
-
 
   const [moreDialog, setMoreDialog] = React.useState(false)
 
@@ -53,16 +51,20 @@ function FollowUpTable(props) {
   // const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
 
-
   const flOrder = []
+  
   const onRemoveContact = () => {
     apiPatch(ORDER_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
-      // tableRef.current.onQueryChange()
       forceActivities()
       forceFollowUp()
       setDeletingRow({})
+      if (followUps.data.length == 1) {
+        setMoreRow(null)
+      }
     })
   }
+
+  console.log(moreRow)
 
   return (
 
@@ -88,10 +90,10 @@ function FollowUpTable(props) {
               <Button color='primary' onClick={() => { onRemoveContact() }}>Remove</Button>
             </DialogActions>
           </Dialog>
-          {openDialog && moreRow &&
+          {moreRow && moreDialog &&
             <Dialog
               open={true}
-              onClose={() => setOpenDialog(false)}
+              onClose={() => setMoreDialog(false)}
               maxWidth="lg"
               fullWidth
             >
@@ -101,18 +103,19 @@ function FollowUpTable(props) {
                 </h4>
               </DialogTitle>
               <DialogContent>
-                {/* <TicketDetail
-                  histories={moreRow.histories}
-                  allHistories={moreRow.histories}
-                  campaign={moreRow.campaign} contact={moreRow.contact}
+                <FollowUpDetail
+                  // histories={moreRow.histories}
+                  // allHistories={moreRow.histories}
+                  campaign={moreRow.campaignName}
+                  // contact={moreRow.contact}
                   id={moreRow.id}
-                  contact={moreRow.contact}
-                  updateTable={tableActivtyRef.current.onQueryChange}
+                  // updateTable={tableActivtyRef.current.onQueryChange}
                   updateActivities={forceActivities}
-                  marketing={moreRow.marketing}
                   user={user}
-                  getMoreRow={getMoreRow}
-                /> */}
+                  moreRow={moreRow}
+                  followup={moreRow.followup}
+                // getMoreRow={getMoreRow}
+                />
               </DialogContent>
             </Dialog>
           }
@@ -228,7 +231,8 @@ function FollowUpTable(props) {
                       campaignName: d.campaign.name,
                       noSteps,
                       progress,
-                      id: d.id
+                      id: d.id,
+                      followup: d
                     }
                   })
 
@@ -276,7 +280,7 @@ function FollowUpTable(props) {
           />
         </>
       }
-    </USERCONTEXT.Consumer>
+    </USERCONTEXT.Consumer >
   )
 
 }

@@ -54,6 +54,8 @@ function TicketsTable(props) {
     })
   }
 
+  console.log(moreRow)
+
   const onRemoveContact = () => {
     apiPatch(CONTACT_MARKETING_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
       forceMarketing()
