@@ -23,7 +23,7 @@ let order = []
 
 function TicketsTable(props) {
 
-  const { classes, tableMarketingRef, forceActivities, forceMarketing, history } = props
+  const { classes, tableMarketingRef, forceActivities, forceMarketing, history, forceFollowUp } = props
 
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
@@ -69,6 +69,7 @@ function TicketsTable(props) {
       { status: 'COMPLETED' }, false, true).then(res => {
         forceMarketing()
         forceActivities()
+        forceFollowUp()
         setMovingRow({})
       })
   }

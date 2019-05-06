@@ -63,6 +63,7 @@ function SalerepDashboard(props) {
             history={props.history}
             forceMarketing={forceMarketing}
             tableMarketingRef={tableMarketingRef}
+            forceFollowUp={forceFollowUp}
           />
         </Grid>
         <Grid item xs={12}>
@@ -70,6 +71,7 @@ function SalerepDashboard(props) {
             history={props.history}
             tableRef={tableFollowUpRef}
             forceFollowUp={forceFollowUp}
+            forceOrder={forceOrder}
           />
         </Grid>
         <Grid item xs={12}>

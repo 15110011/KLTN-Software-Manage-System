@@ -12,14 +12,14 @@ import django_rq
 from datetime import datetime, timedelta, timezone
 import calendar
 
+
 class OrderHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.OrderHistory
         fields = '__all__'
 
 
-class LicenseSerializer(serializers.ModelSerializer):
-    package = PackageSerializer()
+class CreateLicenseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.License
@@ -29,32 +29,46 @@ class LicenseSerializer(serializers.ModelSerializer):
         license = super().create(validated_data)
         scheduler = django_rq.get_scheduler('default')
         user = User.objects.get(username=self.context.get('request').user)
-        remind_date = license.start_date + timedelta(days=license.duration*30) - timedelta(days=10)
+        remind_date = license.start_date + \
+            timedelta(days=license.duration*30) - timedelta(days=10)
         timestamp1 = calendar.timegm((remind_date).timetuple())
         start_date = datetime.utcfromtimestamp(timestamp1)
-        scheduler.enqueue_at(start_date, send_email, user, 'License Reminder', 'Your license will be expired in 10 days')
+        scheduler.enqueue_at(start_date, send_email, user,
+                             'License Reminder', 'Your license will be expired in 10 days')
         return license
 
-class LifetimeLicenseSerializer(serializers.ModelSerializer):
+
+class LicenseSerializer(serializers.ModelSerializer):
+    package = PackageSerializer()
+
+    class Meta:
+        model = models.License
+        fields = '__all__'
+
+
+class CreateLifetimeLicenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LifetimeLicense
         fields = '__all__'
 
-class OrderPackageSerializer(serializers.ModelSerializer):
+
+class LifetimeLicenseSerializer(serializers.ModelSerializer):
     package = PackageSerializer()
 
     class Meta:
-        model = models.OrderPackages
+        model = models.LifetimeLicense
         fields = '__all__'
+
 
 class OrderSerializer(serializers.ModelSerializer):
     contacts = ContactSerializer()
     sale_rep = MeSerializer()
-    order_packages = OrderPackageSerializer(many=True)
+    packages = PackageSerializer(many=True)
     campaign = CampaignSerializer()
     step_details = StepDetailWithoutOrderSerializer(many=True)
     history = OrderHistorySerializer(many=True)
     licenses = LicenseSerializer(many=True)
+    lifetime_licenses = LifetimeLicenseSerializer(many=True)
     # order_packages = Order
 
     class Meta:
@@ -76,7 +90,3 @@ class CreateOrderSerialzier(serializers.ModelSerializer):
         #                 for item in step_details]
         # step_details = StepDetail.objects.bulk_create(step_details)
         return order
-
-
-
-

@@ -67,7 +67,7 @@ function OrderTable(props) {
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
-          {moreDialog && 
+          {moreDialog &&
             <Dialog
               open={true}
               onClose={() => setMoreDialog(false)}
@@ -80,7 +80,7 @@ function OrderTable(props) {
                 </h4>
               </DialogTitle>
               <DialogContent>
-              <OrderDetail
+                <OrderDetail
                   moreRow={moreRow}
                   setDeletingRow={setDeletingRow}
                   setMovingRow={setMovingRow}
@@ -132,7 +132,7 @@ function OrderTable(props) {
                   <>
                     <Card plain>
                       <CardHeader color="rose">
-                      <h4 onClick={() => history.push('/dashboard/order-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Order</h4>
+                        <h4 onClick={() => history.push('/dashboard/order-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Order</h4>
                       </CardHeader>
                     </Card>
                   </>
@@ -151,7 +151,7 @@ function OrderTable(props) {
             }
             columns={[
               { title: 'Order ID', field: '#', headerStyle: { maxWidth: '0px' }, filtering: false, sorting: false },
-              { title: 'Name', field: 'name' },
+              { title: 'Full Name', field: 'full_name' },
               {
                 title: 'Email', field: 'email'
               },
@@ -159,18 +159,24 @@ function OrderTable(props) {
                 title: 'Phone', field: 'phone', sorting: false
               },
               {
-                title: 'Packages', field: 'numberOfPackages',
+                title: 'No.packages', field: 'numberOfPackages',
               },
               {
                 title: 'Licenses Status', field: 'status',
                 render: rowData => {
-                  console.log(rowData)
-                  if (rowData.license[0].status === 'GOOD')
-                    return <div className="text-success">All licenses are working fine</div>
-                  if (rowData.license[0].status === 'EXPIRING')
-                    return <div className="text-warning">Some licenses are expiring soon</div>
-                  if (rowData.license[0].status === 'EXPIRED')
-                    return <div className="text-danger">Some licenses are expired</div>
+                  if (rowData.license.length > 0) {
+                    if (rowData.license[0].status === 'EXPIRING')
+                      return <div className="text-warning">Some licenses are expiring soon</div>
+                    if (rowData.license[0].status === 'EXPIRED')
+                      return <div className="text-danger">Some licenses are expired</div>
+                    if (rowData.license[0].status === 'GOOD')
+                      return <div className="text-success">All licenses are working fine</div>
+                  }
+                  else if(rowData.allLifetimeLicenses.length)
+                  {
+                      return <div className="text-success">All licenses are working fine</div>
+                  }
+                  return <div className="">Something wrong</div>
                 }
               },
             ]}
@@ -204,7 +210,7 @@ function OrderTable(props) {
                     })
                     return {
                       '#': query.pageSize * activePage + index + 1,
-                      name: d.name,
+                      full_name: d.contacts.first_name + ' '+ d.contacts.last_name,
                       phone: d.contacts.phone,
                       email: d.contacts.mail,
                       numberOfPackages: d.packages.length,
@@ -213,10 +219,10 @@ function OrderTable(props) {
                       license,
                       contacts: d.contacts,
                       allLicenses: d.licenses,
+                      allLifetimeLicenses: d.lifetime_licenses,
                       id: d.id
                     }
                   })
-
                   resolve({
                     data,
                     page: res.data.page,
@@ -227,13 +233,13 @@ function OrderTable(props) {
               })
             }}
             actions={[
-              {
-                icon: 'remove',
-                tooltip: 'Fail this Contact',
-                onClick: (event, row) => {
-                  setDeletingRow(row)
-                },
-              },
+              // {
+              //   icon: 'remove',
+              //   tooltip: 'Fail this Contact',
+              //   onClick: (event, row) => {
+              //     setDeletingRow(row)
+              //   },
+              // },
               {
                 icon: 'more_vert',
                 tooltip: 'More actions',

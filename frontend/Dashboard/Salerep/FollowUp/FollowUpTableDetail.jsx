@@ -75,7 +75,8 @@ function FollowUpTableDetail(props) {
             noSteps,
             progress,
             id: d.id,
-            followup: d
+            followup: d,
+            packages: d.campaign.packages
           })
         }
       }
@@ -110,7 +111,8 @@ function FollowUpTableDetail(props) {
         noSteps,
         progress,
         id: d.id,
-        followup: d
+        followup: d,
+        packages: d.campaign.packages
       })
     }
   }, [followUps.data.length])
@@ -131,7 +133,8 @@ function FollowUpTableDetail(props) {
       noSteps,
       progress,
       id: d.id,
-      followup: d
+      followup: d,
+      packages: d.campaign.packages
     })
     setIndexActive(index)
   }

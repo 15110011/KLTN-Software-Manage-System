@@ -56,12 +56,9 @@ function OrderTableDetail(props) {
   const [first, setFirst] = React.useState(true)
 
   const [order, setOrder, setUrl, forceUpdate] =
-    useFetchData(ORDER_URL, history, {
+    useFetchData(ORDER_URL + '?status=COMPLETED', history, {
       data: []
-    },
-    )
-  console.log(order)
-
+    })
   // React.useEffect(() => {
   //   if (!first) {
   //     handleViewDetail(indexActive)

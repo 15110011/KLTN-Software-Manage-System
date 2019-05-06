@@ -25,6 +25,10 @@ export const CONTACT_MARKETING_URL = `${API_URL}contact-marketings`
 export const ORDER_URL = `${API_URL}orders`
 export const STEP_DETAIL_URL = `${API_URL}step-detail`
 
+
+export const LICENSE_URL = `${API_URL}licenses`
+export const LIFETIME_LICENSE_URL = `${API_URL}lifetime-licenses`
+
 export const NOTES_URL = `${API_URL}notes`
 export const MARKETING_PLANS_URL = `${API_URL}marketing-plans`
 export const MARKETING_PLANS_CONDITIONS_URL = `${API_URL}marketing-plans-conditions`

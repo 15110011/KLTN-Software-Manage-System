@@ -13,6 +13,7 @@ import useFetchData from '../../CustomHook/useFetchData'
 import CreateCampaign from '../CreateCampaign'
 import styles from './CampaignListStyle'
 import CustomFilterRow from '../../components/CustomFilterRow'
+import TablePagination from '@material-ui/core/TablePagination'
 import CustomSnackbar from '../../components/CustomSnackbar'
 
 // API
@@ -66,6 +67,17 @@ function CampaignList(props) {
             //       }} />)
             //   }
             // }}
+            components={{
+                Pagination: props => <TablePagination {...props}
+                  page={activePage} rowsPerPageOptions={[5, 10, 20]}
+                  count={props.count}
+                  onChangePage={(e, nextPage) => {
+                    props.onChangePage(a, nextPage)
+                    // setActivePage(nextPage)
+                    activePage = nextPage
+                  }}
+                />
+            }}
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
@@ -93,7 +105,7 @@ function CampaignList(props) {
                     }))
                     resolve({
                       data,
-                      page: json.data.page,
+                      // page: json.data.page,
                       totalCount: json.data.total
                     })
                   })

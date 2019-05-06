@@ -506,7 +506,6 @@ class ContactMarketingView(ModelViewSet):
         phone = request.query_params.get('phone', None)
         campaign = request.query_params.get('campaign', None)
         if contact_name:
-            print(contact_name)
             filters.add(Q(contact__first_name__icontains=contact_name) | Q(
                 contact__last_name__icontains=contact_name) | Q(full_name__icontains=contact_name), Q.AND)
         if email:
@@ -515,6 +514,7 @@ class ContactMarketingView(ModelViewSet):
             filters.add(Q(contact__phone__icontains=phone), Q.AND)
         if campaign:
             filters.add(Q(campaign__name__icontains=campaign), Q.AND)
+        filters.add(Q(status='RUNNING'), Q.AND)
         queryset = queryset.annotate(full_name=Concat('contact__first_name', V(
             ' '), 'contact__last_name', output_field=CharField())).exclude(excludes).filter(filters)
         # Order
@@ -535,7 +535,6 @@ class ContactMarketingView(ModelViewSet):
             campaign_order = '-campaign__name' if email_order == 'desc' else 'campaign__name'
             queryset = queryset.order_by(campaign_order)
         if limit:
-            filters.add(Q(status='RUNNING'), Q.AND)
             query = queryset[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
             serializer = self.get_serializer(query, many=True)

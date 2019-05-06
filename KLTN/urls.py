@@ -40,7 +40,7 @@ router.register('orders', OrderView, base_name='orders')
 router.register('order-histories', OrderHistoryView,
                 base_name='order-histories')
 router.register('licenses', LicenseView, base_name='licenses')
-router.register('lifetime-license', LifetimeLicenseView, base_name='lifetime_licenses')
+router.register('lifetime-licenses', LifetimeLicenseView, base_name='lifetime_licenses')
 # contact app
 router.register('contacts', ContactView, base_name='contacts')
 router.register('contactgroups', ContactGroupView, base_name='contactgroups')

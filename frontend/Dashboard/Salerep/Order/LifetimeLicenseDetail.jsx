@@ -19,9 +19,7 @@ function LicenseDetail(props) {
             <th scope="col">#</th>
             <th scope="col">Package Name</th>
             <th scope="col">Purchase Date</th>
-            <th scope="col">Duration</th>
             <th scope="col">Code</th>
-            <th scope="col">Remain Time</th>
           </tr>
         </thead>
         <tbody>
@@ -31,14 +29,8 @@ function LicenseDetail(props) {
                 <tr key={index}>
                   <th scope="row">{index + 1}</th>
                   <td>{l.package.name}</td>
-                  <td>{l.start_date}</td>
-                  <td>{l.duration} month (s)</td>
+                  <td>{dateFns.format(dateFns.parseISO(l.start_date), 'dd-MM-yyyy')}</td>
                   <td>{l.code}</td>
-                  <td>
-                    {
-                      dateFns.formatDistanceStrict(dateFns.addMonths(new Date(l.start_date), l.duration), new Date(), { unit: 'day', addSuffix: true })
-                    }
-                  </td>
                 </tr>
               )
             }) :
