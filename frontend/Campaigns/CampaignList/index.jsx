@@ -33,8 +33,8 @@ function CampaignList(props) {
     setCreateCampaignDialog(false)
   }
 
-  const notification = () => {
-    setCompleteNotice('Successfully Created')
+  const notification = (m='Successfully Created') => {
+    setCompleteNotice(m)
     setTimeout(() => {
       setCompleteNotice(false)
     }, 2000);

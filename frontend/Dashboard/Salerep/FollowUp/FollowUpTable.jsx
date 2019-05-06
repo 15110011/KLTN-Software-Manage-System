@@ -40,7 +40,6 @@ function FollowUpTable(props) {
 
   // const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
-  const [openDialog, setOpenDialog] = React.useState(false)
   const [tableData, setTableData] = React.useState([])
 
 
@@ -53,10 +52,9 @@ function FollowUpTable(props) {
   // const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
   // const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
-  
+
   const flOrder = []
-  
-  console.log(deletingRow,'22222233')
+
   const onRemoveContact = () => {
     apiPatch(ORDER_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
       forceActivities()
@@ -97,7 +95,6 @@ function FollowUpTable(props) {
       }
     })
     Promise.all(promises).then(res => {
-      console.log('OKKK')
       forceFollowUp()
       forceOrder()
       setMovingRow({})
@@ -119,7 +116,7 @@ function FollowUpTable(props) {
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This contact <b>({deletingRow.fname})</b> will be failed and
+                  This contact <b>({deletingRow.full_name})</b> will be failed and
                   this action cannot be undone.
                    Are you sure?
                 </div>
@@ -150,7 +147,7 @@ function FollowUpTable(props) {
               </DialogActions>
             </Dialog>
           }
-          {openDialog && moreRow &&
+          {moreDialog &&
             <Dialog
               open={true}
               onClose={() => setMoreDialog(false)}
@@ -314,14 +311,14 @@ function FollowUpTable(props) {
             actions={[
               {
                 icon: 'remove',
-                tooltip: 'Fail this Contact',
+                tooltip: 'Mark this contact as failed',
                 onClick: (event, row) => {
                   setDeletingRow(row)
                 },
               },
               row => ({
                 icon: 'done',
-                tooltip: 'Confirm Deal',
+                tooltip: 'Confirm deal',
                 onClick: (event, row) => {
                   setMovingRow(row)
                 },
@@ -332,7 +329,7 @@ function FollowUpTable(props) {
                 tooltip: 'More actions',
                 onClick: (event, row) => {
                   setMoreRow(row)
-                  setOpenDialog(true)
+                  setMoreDialog(true)
                 },
               },
             ]}

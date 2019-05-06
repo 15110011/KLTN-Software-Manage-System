@@ -20,6 +20,8 @@ import FilledInput from '@material-ui/core/FilledInput';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import PhoneIcon from '@material-ui/icons/Phone'
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
 import SwapIcon from '@material-ui/icons/SwapHoriz'
 import RemoveIcon from '@material-ui/icons/Remove'
 import EmailIcon from '@material-ui/icons/Email'
@@ -299,36 +301,42 @@ function CampaignTableDetail(props) {
                           </Typography>
                           {
                             status == 'Active' &&
-                            <Button
-                              variant='contained'
-                              classes={{
-                                contained: classes.btnStatusActive
-                              }}
-                            >
-                              {status}
-                            </Button>
+                            <Tooltip title="Status">
+                              <Button
+                                variant='contained'
+                                classes={{
+                                  contained: classes.btnStatusActive
+                                }}
+                              >
+                                {status}
+                              </Button>
+                            </Tooltip>
                           }
                           {
                             status == 'Idle' &&
-                            <Button
-                              variant='contained'
-                              classes={{
-                                contained: classes.btnStatusIdle
-                              }}
-                            >
-                              {status}
-                            </Button>
+                            <Tooltip title="Status">
+                              <Button
+                                variant='contained'
+                                classes={{
+                                  contained: classes.btnStatusIdle
+                                }}
+                              >
+                                {status}
+                              </Button>
+                            </Tooltip>
                           }
                           {
                             status == 'Finished' &&
-                            <Button
-                              variant='contained'
-                              classes={{
-                                contained: classes.btnStatusFinished
-                              }}
-                            >
-                              {status}
-                            </Button>
+                            <Tooltip title="Status">
+                              <Button
+                                variant='contained'
+                                classes={{
+                                  contained: classes.btnStatusFinished
+                                }}
+                              >
+                                {status}
+                              </Button>
+                            </Tooltip>
                           }
                         </li>
                       )

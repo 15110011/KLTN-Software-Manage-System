@@ -179,7 +179,7 @@ function CampaignTable(props) {
               {
                 Toolbar: props =>
                   <Card plain>
-                    <CardHeader color="rose">
+                    <CardHeader color="danger">
                       <h4 onClick={() => history.push('/dashboard/campaign-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Campaigns</h4>
                     </CardHeader>
                   </Card>,
@@ -414,7 +414,7 @@ function CampaignTable(props) {
               },
               {
                 icon: 'play_circle_filled',
-                tooltip: 'Start Campaign',
+                tooltip: 'Start campaign',
                 onClick: (event, row) => {
                   setMovingRow(row)
                 },

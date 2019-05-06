@@ -56,13 +56,15 @@ function MarketingPlanDetails(props) {
     setIsCreateMarketingPlanDialog,
     addMarketingPlanToEdit,
     isEditMarketingPlan,
-    setIsEditMarketingPlan
+    setIsEditMarketingPlan,
+    notification
   } = props
 
   const [createMarketingPlanDialog, setCreateMarketingPlanDialog] = React.useState(false)
   const handleCloseCreateMarketingPlanDialog = e => {
     setCreateMarketingPlanDialog(false)
   }
+
   return (
     <Grid container spacing={24}>
       {/* <Grid item xs={12}>
@@ -83,19 +85,21 @@ function MarketingPlanDetails(props) {
                 <CreateMarketingPlan
                   marketingData={createCampaign.marketing_plan}
                   isEditMarketingPlan={isEditMarketingPlan}
-                  notification={addMarketingPlanToEdit}
+                  addMarketingPlanToEdit={addMarketingPlanToEdit}
                   isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
                   createMarketingPlanDialog={createMarketingPlanDialog}
                   handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
                   setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
                   setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
+                  notification={notification}
                 />
               </>
               :
               <>
                 <CreateMarketingPlan
+                  notification={notification}
                   isEditMarketingPlan={isEditMarketingPlan}
-                  notification={addMarketingPlanToEdit}
+                  addMarketingPlanToEdit={addMarketingPlanToEdit}
                   isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
                   createMarketingPlanDialog={createMarketingPlanDialog}
                   handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}

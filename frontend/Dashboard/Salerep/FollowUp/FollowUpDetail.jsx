@@ -287,68 +287,75 @@ function FollowUpDetail(props) {
               &nbsp;
               {
                 moreRow.progress >= 50 &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusActive
-                  }}
-                >
-                  {moreRow.progress.toFixed(2)}%
+                <Tooltip title="Progress">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusActive
+                    }}
+                  >
+                    {moreRow.progress.toFixed(2)}%
                 </Button>
+                </Tooltip>
               }
               {
                 moreRow.progress < 50 &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusFinished
-                  }}
-                >
-                  {moreRow.progress.toFixed(2)}%
+                <Tooltip title="Progress">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusFinished
+                    }}
+                  >
+                    {moreRow.progress.toFixed(2)}%
                 </Button>
+                </Tooltip>
               }
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnYellow
-              }}
-              onClick={() => {
-                setLaterDialog(!laterDialog)
-              }}
-            >
-              <TimerIcon fontSize="small" />
-            </Button>
-
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnPurple
-              }}
-              onClick={() => {
-                setMovingRow({ id: moreRow.id })
-              }}
-              disabled={moreRow.progress != 100}
-            >
-              <DoneIcon fontSize="small" />
-            </Button>
-            {
-              moreRow.progress >= 0 &&
+            <Tooltip title="Schedule">
               <Button
                 variant='contained'
                 classes={{
-                  contained: classes.btnRed
+                  contained: classes.btnYellow
                 }}
                 onClick={() => {
-                  console.log(123)
-                  setDeletingRow({ id: id, full_name: followup.contacts.full_name, campaignName: followup.campaign.name })
+                  setLaterDialog(!laterDialog)
                 }}
               >
-                <RemoveIcon fontSize="small" />
+                <TimerIcon fontSize="small" />
               </Button>
+            </Tooltip>
+            <Tooltip title="Confirm deal">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPurple
+                }}
+                onClick={() => {
+                  setMovingRow({ id: moreRow.id })
+                }}
+                disabled={moreRow.progress != 100}
+              >
+                <DoneIcon fontSize="small" />
+              </Button>
+            </Tooltip>
+            {
+              moreRow.progress >= 0 &&
+              <Tooltip title="Mark this contact as failed">
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnRed
+                  }}
+                  onClick={() => {
+                    setDeletingRow({ id: moreRow.id, full_name: moreRow.followup.contacts.first_name + ' ' + moreRow.followup.contacts.last_name, campaignName: moreRow.followup.campaign.name })
+                  }}
+                >
+                  <RemoveIcon fontSize="small" />
+                </Button>
+              </Tooltip>
             }
           </DialogActions>
         </Grid>
@@ -399,7 +406,7 @@ function FollowUpDetail(props) {
               placement='bottom-start'
               title={
                 <ul style={{ paddingInlineStart: '16px', fontSize: '12px', wordBreak: 'break-word' }}>
-                  {moreRow.packages.map(p =>
+                  {moreRow.packages && moreRow.packages.map(p =>
                     <li key={`package${p}`}>{p.name}</li>)
                   }
                 </ul>
@@ -407,7 +414,7 @@ function FollowUpDetail(props) {
               <Typography classes={{ root: classes.linkStyleCustom }}
                 onClick={() => handleOpenDialog(index)}
               >
-                {moreRow.packages.length}&nbsp;package(s)
+                {moreRow.packages && moreRow.packages.length}&nbsp;package(s)
               </Typography>
             </Tooltip>
           </DialogContentText>

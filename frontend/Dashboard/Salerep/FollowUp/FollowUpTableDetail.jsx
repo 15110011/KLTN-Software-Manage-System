@@ -48,6 +48,8 @@ function FollowUpTableDetail(props) {
     type: 'name'
   })
   const [moreRow, setMoreRow] = React.useState(null)
+  const [deletingRow, setDeletingRow] = React.useState({})
+  const [movingRow, setMovingRow] = React.useState({})
   const [indexActive, setIndexActive] = React.useState(0)
   const [update, setUpdate] = React.useState(0)
 
@@ -75,8 +77,7 @@ function FollowUpTableDetail(props) {
             noSteps,
             progress,
             id: d.id,
-            followup: d,
-            packages: d.campaign.packages
+            followup: d
           })
         }
       }
@@ -111,8 +112,7 @@ function FollowUpTableDetail(props) {
         noSteps,
         progress,
         id: d.id,
-        followup: d,
-        packages: d.campaign.packages
+        followup: d
       })
     }
   }, [followUps.data.length])
@@ -133,8 +133,7 @@ function FollowUpTableDetail(props) {
       noSteps,
       progress,
       id: d.id,
-      followup: d,
-      packages: d.campaign.packages
+      followup: d
     })
     setIndexActive(index)
   }

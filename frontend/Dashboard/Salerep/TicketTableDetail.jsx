@@ -38,7 +38,7 @@ import styles from './TicketTableDetailStyle.js'
 import NoteDetail from './NoteDetail'
 import TicketDetail from './TicketDetail'
 import ContactDetail from './ContactDetail'
-import { apiPost } from '../../common/Request'
+import { apiPost, apiPatch } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -51,6 +51,8 @@ function TicketTableDetail(props) {
   })
   const [moreRow, setMoreRow] = React.useState(null)
   const [indexActive, setIndexActive] = React.useState(0)
+  const [deletingRow, setDeletingRow] = React.useState({})
+  const [movingRow, setMovingRow] = React.useState({})
 
   const [contactHistories, setContactHistories] = React.useState({
     'Send Email ': 0,
@@ -92,6 +94,26 @@ function TicketTableDetail(props) {
     setSortOption({ [e.target.name]: e.target.value });
   }
 
+  const onRemoveContact = () => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
+      forceUpdate()
+      setDeletingRow({})
+      if (tickets.data.length == 1) {
+        setMoreRow(null)
+      }
+      else {
+        handleViewDetail(0)
+      }
+    })
+  }
+
+  const onMoveToFollowUp = () => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + movingRow.id,
+      { status: 'COMPLETED' }, false, true).then(res => {
+        setMovingRow({})
+      })
+  }
+
   const handleViewDetail = (index) => {
     let t = tickets.data[index]
     setMoreRow({
@@ -112,6 +134,46 @@ function TicketTableDetail(props) {
   return (
     <div className={classes.root}>
       <BreadcrumbsItem to={`/dashboard/`}>Tickets</BreadcrumbsItem>
+      <Dialog open={Object.keys(movingRow).length != 0}
+            onClose={() => { setMovingRow({}) }
+            }
+          >
+            <DialogTitle>
+              Confirm Action
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <div>
+                  Move contact <b>({movingRow.full_name})</b> to follow-up phase
+                  . This action cannot be undone. Are you sure?
+                </div>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setMovingRow({}) }}>Cancel</Button>
+              <Button color='primary' onClick={() => { onMoveToFollowUp() }}>Move</Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog open={Object.keys(deletingRow).length != 0}
+            onClose={() => { setDeletingRow({}) }
+            }
+          >
+            <DialogTitle>
+              Confirm Action
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <div>
+                  Remove contact <b>({deletingRow.full_name})</b> out of campaign <b>({deletingRow.campaignName})</b>
+                  . This action cannot be undone. Are you sure?
+            </div>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setDeletingRow({}) }}>Cancel</Button>
+              <Button color='primary' onClick={() => { onRemoveContact() }}>Remove</Button>
+            </DialogActions>
+          </Dialog>
       <Grid container spacing={8}>
         <Grid item xs={3}>
           <Paper className={classes.paper}>
@@ -189,6 +251,8 @@ function TicketTableDetail(props) {
                 contact={moreRow.contact}
                 marketing={moreRow.marketing}
                 updateTable={() => { forceUpdate() }}
+                setDeletingRow={setDeletingRow}
+                setMovingRow={setMovingRow}
               />
             }
           </Grid>

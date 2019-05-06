@@ -119,42 +119,49 @@ function CampaignDetail(props) {
               &nbsp;
               {
                 moreRow.status == 'Active' &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusActive
-                  }}
-                >
-                  {moreRow.status}
-                </Button>
+                <Tooltip title="Status">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusActive
+                    }}
+                  >
+                    {moreRow.status}
+                  </Button>
+                </Tooltip>
               }
               {
                 moreRow.status == 'Idle' &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusIdle
-                  }}
-                >
-                  {moreRow.status}
-                </Button>
+                <Tooltip title="Status">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusIdle
+                    }}
+                  >
+                    {moreRow.status}
+                  </Button>
+                </Tooltip>
               }
               {
                 moreRow.status == 'Finished' &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusFinished
-                  }}
-                >
-                  {moreRow.status}
-                </Button>
+                <Tooltip title="Status">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusFinished
+                    }}
+                  >
+                    {moreRow.status}
+                  </Button>
+                </Tooltip>
               }
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
             {
               moreRow.manager == userId && moreRow.status == 'Idle' &&
+              <Tooltip title="Start campaign">
               <Button
                 variant='contained'
                 classes={{
@@ -166,10 +173,12 @@ function CampaignDetail(props) {
               >
                 <PlayIcon fontSize="small" />
               </Button>
+              </Tooltip>
             }
             {
 
               moreRow.manager == userId && moreRow.status == 'Idle' &&
+              <Tooltip title="Delete campaign">
               <Button
                 variant='contained'
                 classes={{
@@ -181,6 +190,7 @@ function CampaignDetail(props) {
               >
                 <DeleteIcon fontSize="small" />
               </Button>
+              </Tooltip>
             }
           </DialogActions>
         </Grid>
