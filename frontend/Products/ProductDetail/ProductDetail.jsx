@@ -35,7 +35,7 @@ import { BAD_REQUEST } from "../../common/Code";
 // Components 
 import SelectCustom from '../../../components/SelectCustom'
 import FormLicensePrice from '../CreateProduct/FormLicensePrice/FormLicensePrice'
-
+import FormFeature from '../CreateProduct/FormFeature/FormFeature'
 
 import styles from './ProductDetailStyle'
 
@@ -62,6 +62,7 @@ function ProductDetail(props) {
     add: '',
     labelWidth: 0
   })
+  const [featureDialog, setFeatureDialog] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [search, setSearch] = React.useState('')
   const [month, setMonth] = React.useState('')
@@ -94,6 +95,7 @@ function ProductDetail(props) {
     number: ''
   })
 
+
   const toggleUpdateFeature = e => {
     setUpdateFeatureBtn(!updateFeatureBtn)
     setCreateFeature({
@@ -111,11 +113,20 @@ function ProductDetail(props) {
   }
 
   const onClickUpdateFeature = (e) => {
+    handleCloseFeatureDialog()
     const features = productDetailData.features.concat([])
     features[updatingUnit] = { ...features[updatingUnit], ...createFeature }
     setProductDetailData({ ...productDetailData, features })
     toggleUpdateFeature()
+    setCreateFeature({
+      name: '',
+      price: '',
+      desc: '',
+      number: ''
+    })
   }
+
+
 
   const handleCreateFeature = (e) => {
     const features = productDetailData.features.concat([])
@@ -228,6 +239,13 @@ function ProductDetail(props) {
       })
   }
 
+  const handleOpenFeatureDialog = () => {
+    setFeatureDialog(true)
+  }
+
+  const handleCloseFeatureDialog = e => {
+    setFeatureDialog(false)
+  }
   const handleProfileMenuOpen = e => {
     setAnchorEl(e.currentTarget);
   };
@@ -242,6 +260,7 @@ function ProductDetail(props) {
     setProductDetailData({ ...productDetailData, packages })
   }
   const handleUpdateFeature = (e, rowData) => {
+    setFeatureDialog(true)
     setUpdatingUnit(rowData.tableData.id)
     setCreateFeature({
       name: rowData.fname,
@@ -340,14 +359,14 @@ function ProductDetail(props) {
               >
 
                 <Tab label={<span><DetailIcon />&nbsp;Product Detail</span>} />
-                <Tab label={<span><ProductIcon /> Packages</span>} />
                 <Tab label={<span><ProductIcon /> Features</span>} />
+                <Tab label={<span><ProductIcon /> Packages</span>} />
               </Tabs>
             </AppBar>
             <div style={{ textAlign: 'left' }}>
               {value === 0 &&
                 <TabContainer>
-                <Grid item xs={12}>
+                  <Grid item xs={12}>
                     <Typography variant="h5" gutterBottom>
                       Product Info
                     </Typography>
@@ -499,9 +518,10 @@ function ProductDetail(props) {
                   </Grid>
                 </TabContainer>
               }
-              {value === 2 &&
+              {
+                value === 1 &&
                 <TabContainer>
-                  <Grid container spacing={40}>
+                  {/* <Grid container spacing={40}>
                     <Grid item xs={12}>
                       <Typography variant="h5" gutterBottom>
                         Feature Info
@@ -637,7 +657,19 @@ function ProductDetail(props) {
                         </>
                       }
                     </Grid>
-                  </Grid>
+                  </Grid> */}
+                  <FormFeature
+                    onChangeCreateFeature={onChangeCreateFeature}
+                    createFeature={createFeature}
+                    error={error}
+                    handleCloseFeatureDialog={handleCloseFeatureDialog}
+                    handleOpenFeatureDialog={handleOpenFeatureDialog}
+                    featureDialog={featureDialog}
+                    handleCreateFeature={handleCreateFeature}
+                    updateFeatureBtn={updateFeatureBtn}
+                    onClickUpdateFeature={onClickUpdateFeature}
+                    handleUpdateFeature={handleUpdateFeature}
+                  />
                   <Grid container spacing={40} className="mt-4">
                     <Grid item xs={12}>
                       <MaterialTable
@@ -682,17 +714,36 @@ function ProductDetail(props) {
                             }
                           })
                         }
-                        onRowClick={(e, rowData) => handleUpdateFeature(e, rowData)}
+                        actions={[
+                          {
+                            icon: 'add',
+                            tooltip: 'Add More Feature',
+                            onClick: (event, rows) => {
+                              setFeatureDialog(true)
+                              setCreateFeature({
+                                name: '',
+                                price: '',
+                                desc: '',
+                                number: ''
+                              })
+                            },
+                            isFreeAction: true
+                          }
+                        ]}
+                        onRowClick={(e, rowData) => {
+                          handleUpdateFeature(e, rowData)
+                        }}
                         // onSelectionChange={onSelectionChange}
                         title="Basic"
                         options={{
-                          toolbar: false,
+                          toolbar: true,
                           paging: false,
+                          search: false
                         }}
                       />
                     </Grid>
                   </Grid>
-                  <br />
+                  {/* <br />
 
                   <Grid container>
                     <Grid item xs={12} className="d-flex justify-content-center mt-3">
@@ -703,10 +754,10 @@ function ProductDetail(props) {
                         SAVE
                       </Button>
                     </Grid>
-                  </Grid>
-                </TabContainer>}
-              {
-                value === 1 &&
+                  </Grid> */}
+                </TabContainer>
+              }
+              {value === 2 &&
                 <TabContainer>
                   <Grid item xs={12}>
                     <Typography variant="h5" gutterBottom>
@@ -858,8 +909,7 @@ function ProductDetail(props) {
                       </Button>
                     </Grid>
                   </Grid>
-                </TabContainer>
-              }
+                </TabContainer>}
             </div>
           </div>
         </Grid>

@@ -21,6 +21,7 @@ import CardBody from "../../../components/Card/CardBody";
 // import CustomFItlerRow from '../../../components/CustomFilterRow'
 
 import USERCONTEXT from '../../../components/UserContext'
+import FollowUpDetail from './FollowUpDetail'
 import { apiGet, apiPost, apiPatch } from '../../../common/Request'
 import useFetchData from '../../../CustomHook/useFetchData'
 import FollowUpDetail from './FollowUpDetail';
@@ -47,22 +48,22 @@ function FollowUpTable(props) {
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
 
-
-
   const [moreDialog, setMoreDialog] = React.useState(false)
 
   // const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
   // const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
 
-
   const flOrder = []
+  
   const onRemoveContact = () => {
     apiPatch(ORDER_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
-      // tableRef.current.onQueryChange()
       forceActivities()
       forceFollowUp()
       setDeletingRow({})
+      if (followUps.data.length == 1) {
+        setMoreRow(null)
+      }
     })
   }
 
@@ -98,6 +99,7 @@ function FollowUpTable(props) {
       console.log('OKKK')
       forceFollowUp()
       forceOrder()
+      setMovingRow({})
     })
   }
 
@@ -148,7 +150,7 @@ function FollowUpTable(props) {
           {openDialog && moreRow &&
             <Dialog
               open={true}
-              onClose={() => setOpenDialog(false)}
+              onClose={() => setMoreDialog(false)}
               maxWidth="lg"
               fullWidth
             >
@@ -339,7 +341,7 @@ function FollowUpTable(props) {
           />
         </>
       }
-    </USERCONTEXT.Consumer>
+    </USERCONTEXT.Consumer >
   )
 
 }
