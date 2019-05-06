@@ -160,6 +160,7 @@ function TicketDetail(props) {
       ></ContactDetail>} */}
 
       {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
+        type_ = 'campaign'
         targets={[contact]} marketing={marketing}
         updateActivities={updateActivities}
         contactOptions={[contact]}

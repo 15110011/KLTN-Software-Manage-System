@@ -48,6 +48,7 @@ import { apiPost, apiPatch } from '../../../common/Request'
 import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL, STEP_DETAIL_URL } from '../../../common/urls';
 import styles from './FollowUpStyle.js'
 import StepFollowUpDetail from './StepFollowUpDetail'
+import CreateEventDialog from '../../../Events/CreateEventDialog'
 
 function TabContainer({ children, dir }) {
   return (
@@ -70,7 +71,8 @@ function FollowUpDetail(props) {
     id,
     updateTable,
     user,
-    onRemoveContact
+    updateActivities,
+    onRemoveContact,
   } = props
   const [selectTabActivity, setSelectTabActivity] = React.useState({
     type: 'history'
@@ -150,7 +152,7 @@ function FollowUpDetail(props) {
 
   const onCall = () => {
     if (!stepDetail[activeStep].id) {
-      apiPost(STEP_DETAIL_URL ,{ ...stepDetail[activeStep] }, false, true).then(res => {
+      apiPost(STEP_DETAIL_URL, { ...stepDetail[activeStep] }, false, true).then(res => {
         apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client', step_detail: res.data.id }, false, true).then(res => {
           updateTable()
           setSuccessNoti('Successfully Called')
@@ -168,9 +170,9 @@ function FollowUpDetail(props) {
         }, 2000);
       })
     }
-    
-  }
 
+  }
+  console.log(moreRow)
   const onSendEmail = () => {
     setMailDialog(true)
   }
@@ -192,6 +194,14 @@ function FollowUpDetail(props) {
   //     }, 2000);
   //   })
   // }
+
+  const notification = () => {
+    setSuccessNoti('Successfully Added')
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
+    updateActivities()
+  }
 
   const handleUpdateStepDetail = (e) => {
     e.preventDefault()
@@ -242,6 +252,14 @@ function FollowUpDetail(props) {
         <SendMailDialog user={user} contact={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
         />
       }
+      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
+        order={moreRow.id}
+        setLaterDialog={setLaterDialog}
+        type_='campaign'
+        notification={notification}
+        updateActivities={updateActivities}
+        contactOptions={[{ ...moreRow.followup.contacts, value: moreRow.followup.contacts.id, label: moreRow.followup.contacts.first_name + ' ' + moreRow.followup.contacts.last_name }]}
+      />}
       <Grid style={{ padding: '10px 40px' }} container spacing={24}>
         <Grid item xs={12}>
           <Grid container spacing={8}>
@@ -289,19 +307,19 @@ function FollowUpDetail(props) {
             >
               <TimerIcon fontSize="small" />
             </Button>
-              
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnPurple
-                }}
-                onClick={() => {
-                  setMovingRow({ id: moreRow.id })
-                }}
-                disabled={moreRow.progress != 100}
-              >
-                <DoneIcon fontSize="small" />
-              </Button>
+
+            <Button
+              variant='contained'
+              classes={{
+                contained: classes.btnPurple
+              }}
+              onClick={() => {
+                setMovingRow({ id: moreRow.id })
+              }}
+              disabled={moreRow.progress != 100}
+            >
+              <DoneIcon fontSize="small" />
+            </Button>
             {
               moreRow.progress >= 0 &&
               <Button
@@ -310,7 +328,8 @@ function FollowUpDetail(props) {
                   contained: classes.btnRed
                 }}
                 onClick={() => {
-                  setDeletingRow(moreRow)
+                  console.log(123)
+                  setDeletingRow({ id: id, full_name: followup.contacts.full_name, campaignName: followup.campaign.name })
                 }}
               >
                 <RemoveIcon fontSize="small" />
@@ -435,7 +454,7 @@ function FollowUpDetail(props) {
           </Stepper>
           <Paper className={classes.stepPaper}>
             <Grid className={classes.inputHeaderCustom} item xs={12}>
-              Step {activeStep +1}
+              Step {activeStep + 1}
             </Grid>
             <Grid item xs={12} className='my-2'>
               {followup.campaign.follow_up_plan.steps[activeStep].actions.includes('Call Client') &&

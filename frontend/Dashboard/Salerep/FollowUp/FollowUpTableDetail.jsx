@@ -48,8 +48,6 @@ function FollowUpTableDetail(props) {
     type: 'name'
   })
   const [moreRow, setMoreRow] = React.useState(null)
-  const [deletingRow, setDeletingRow] = React.useState({})
-  const [movingRow, setMovingRow] = React.useState({})
   const [indexActive, setIndexActive] = React.useState(0)
   const [update, setUpdate] = React.useState(0)
 
@@ -251,7 +249,6 @@ function FollowUpTableDetail(props) {
                   // contact={followUps.data.contacts}
                   updateTable={() => { forceUpdate() }}
                   user={user}
-                  setDeletingRow={setDeletingRow}
                 /> : 'No record to display'
             }
           </Grid>

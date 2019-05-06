@@ -40,7 +40,6 @@ function FollowUpTable(props) {
 
   // const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
-
   const [moreRow, setMoreRow] = React.useState(null)
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
@@ -50,9 +49,10 @@ function FollowUpTable(props) {
   // const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
   // const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
-
+  
   const flOrder = []
   
+  console.log(deletingRow,'22222233')
   const onRemoveContact = () => {
     apiPatch(ORDER_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
       forceActivities()
@@ -76,13 +76,15 @@ function FollowUpTable(props) {
             }
           >
             <DialogTitle>
-              FAIL CONTACT {deletingRow.fname} OUT OF CAMPAIGN {deletingRow.campaignName}
+              Confirm Action
             </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This action cannot be undone
-            </div>
+                  This contact <b>({deletingRow.fname})</b> will be failed and
+                  this action cannot be undone.
+                   Are you sure?
+                </div>
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -112,9 +114,10 @@ function FollowUpTable(props) {
                   // updateTable={tableActivtyRef.current.onQueryChange}
                   updateActivities={forceActivities}
                   user={user}
+                  setMovingRow={setMovingRow}
+                  setDeletingRow={setDeletingRow}
                   moreRow={moreRow}
                   followup={moreRow.followup}
-                // getMoreRow={getMoreRow}
                 />
               </DialogContent>
             </Dialog>

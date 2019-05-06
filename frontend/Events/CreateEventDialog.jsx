@@ -5,6 +5,8 @@ import Grid from '@material-ui/core/Grid'
 import { Input, InputLabel } from '@material-ui/core'
 import { IconButton, Tooltip } from "@material-ui/core";
 import CloseIcon from '@material-ui/icons/Close'
+import { MuiPickersUtilsProvider, TimePicker, DatePicker, DateTimePicker } from 'material-ui-pickers';
+import * as DateFnsUtils from '@date-io/date-fns';
 import Button from '@material-ui/core/Button'
 import { Input, InputLabel, Select, MenuItem } from '@material-ui/core'
 import { Editor } from "react-draft-wysiwyg";
@@ -25,12 +27,15 @@ import styles from './EventStyles'
 function CreateEventDialog(props) {
 
   const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal, user,
-    updateActivities, type_, contactOptions, mustBeCampaign, mustBePersonal
+    updateActivities, type_, contactOptions, mustBeCampaign, mustBePersonal,
+    setLaterDialog,
+    notification
   } = props
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
-
   const [completeNotice, setCompleteNotice] = React.useState(false)
+  const [startDate, setStartDate] = React.useState(new Date())
+  const [endDate, setEndDate] = React.useState(new Date())
 
 
   const [createEvent, setCreateEvent] = React.useState({
@@ -77,13 +82,13 @@ function CreateEventDialog(props) {
     setEditorState(editorState)
   };
 
-  const notification = () => {
-    setCompleteNotice('Successfully Added')
-    setTimeout(() => {
-      setCompleteNotice(false)
-    }, 2000);
-    updateActivities()
-  }
+  // const notification = () => {
+  //   setCompleteNotice('Successfully Added')
+  //   setTimeout(() => {
+  //     setCompleteNotice(false)
+  //   }, 2000);
+  //   updateActivities()
+  // }
 
   const handleChangeAssigneeSelect = (value, action) => {
     setCreateEvent({ ...createEvent, assigned_to: value })
@@ -103,8 +108,9 @@ function CreateEventDialog(props) {
       user: user.id,
       contacts: createEvent.contacts.map(t => t.id),
       assigned_to: createEvent.assigned_to.value,
-      campaign: createEvent.campaign.value
-
+      campaign: createEvent.campaign ? createEvent.campaign.value : '',
+      start_date: dateFns.format(startDate, 'yyyy-MM-dd hh:mm'),
+      end_date: dateFns.format(endDate, 'yyyy-MM-dd hh:mm'),
     }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
@@ -122,6 +128,7 @@ function CreateEventDialog(props) {
         }
         else {
           notification()
+          setLaterDialog(false)
           // setCreateCampaign({ ...createCampaign, contacts: res.data })
         }
       })
@@ -141,314 +148,310 @@ function CreateEventDialog(props) {
         </Tooltip>
       </DialogTitle>
       <DialogContent>
-        {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
-        <Grid container spacing={8}>
-          <Grid className={classes.inputCustom} item xs={2}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              Subject
-                    </InputLabel>
-          </Grid>
-          <Grid item xs={4} className='pr-5'>
-            <Input
-              onChange={onChangeInput}
-              name="name"
-              type="text"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={createEvent.name}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              Assigned to
-                    </InputLabel>
-          </Grid>
-          <Grid item xs={4}>
-            <SelectCustom
-              handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
-              name="assigned_to"
-              options={(user.sale_reps && user.profile.is_manager) ? user.sale_reps.reduce((acc, u) => {
-                acc.push(
-                  {
-                    label: `${u.user.username}`,
-                    value: u.user.id,
-                    ...u
-                  }
-                )
-                return acc
-              }, [])
-                : [{ label: user.username, value: user.id, ...user }]
-              }
-              data={{ label: `${createEvent.assigned_to.username}`, value: createEvent.assigned_to.id, ...createEvent.assigned_to }}
-              fullWidth
-              single
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              Start date
-                    </InputLabel>
-          </Grid>
-          <Grid item xs={4} className='pr-5'>
-            <Input
-              onChange={onChangeInput}
-              name="start_date"
-              type="date"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={createEvent.start_date}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              End date
-                    </InputLabel>
-          </Grid>
-          <Grid item xs={4}>
-            <Input
-              onChange={onChangeInput}
-              name="end_date"
-              type="date"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={createEvent.end_date}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Target
-          </InputLabel>
-          </Grid>
-          <Grid item xs={4} className='pr-5'>
-            {
-              createEvent.type_ == 'campaign' ?
-                <SelectCustom
-                  handleChange={(values, element) => handleChangeTargetSelect(values, element)}
-                  name="contacts"
-                  options={contactOptions && contactOptions.reduce((acc, u) => {
-                    acc.push(
-                      {
-                        label: `${u.full_name}`,
-                        value: u.id,
-                        ...u
-                      }
-                    )
-                    return acc
-                  }, [])}
-                  data={
-                    createEvent.contacts
-                      .reduce((acc, u) => {
-                        acc.push({ label: `${u.full_name}`, value: u.id, ...u })
-                        return acc
-                      }, [])
-                  }
-                  fullWidth
-                  multi
-                />
-                :
-                <Input disabled value="Me" fullWidth></Input>
-            }
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              Priority
-          </InputLabel>
-          </Grid>
-          <Grid item xs={4}>
-            <FormControl fullWidth className={classes.formControl} margin='dense'>
-              <Select
-                value={createEvent.priority}
-                onChange={onChangeInput}
-                name="priority"
+        <MuiPickersUtilsProvider utils={DateFnsUtils}>
+         
+          <Grid container spacing={8}>
+            <Grid className={classes.inputCustom} item xs={2}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
               >
-                <MenuItem value={0}>
-                  Low
-                </MenuItem>
-                <MenuItem value={1}>
-                  Medium
-                </MenuItem>
-                <MenuItem value={2}>
-                  High
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-
-          {!mustBeCampaign && !mustBePersonal &&
-            <>
-              <Grid className={classes.inputCustom} item xs={2}>
-                <InputLabel
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabel,
-                    focused: classes.cssFocused,
-                  }}
-                  required
-                >
-                  Event type
+                Subject
+                    </InputLabel>
+            </Grid>
+            <Grid item xs={4} className='pr-5'>
+              <Input
+                onChange={onChangeInput}
+                name="name"
+                type="text"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+                value={createEvent.name}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                Assigned to
+                    </InputLabel>
+            </Grid>
+            <Grid item xs={4}>
+              <SelectCustom
+                handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
+                name="assigned_to"
+                options={(user.sale_reps && user.profile.is_manager) ? user.sale_reps.reduce((acc, u) => {
+                  acc.push(
+                    {
+                      label: `${u.user.username}`,
+                      value: u.user.id,
+                      ...u
+                    }
+                  )
+                  return acc
+                }, [])
+                  : [{ label: user.username, value: user.id, ...user }]
+                }
+                data={{ label: `${createEvent.assigned_to.username}`, value: createEvent.assigned_to.id, ...createEvent.assigned_to }}
+                fullWidth
+                single
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                Start date
+                    </InputLabel>
+            </Grid>
+            <Grid item xs={4} className='pr-5'>
+              <DateTimePicker
+                onChange={setStartDate}
+                name="startDate"
+                minDate={new Date()}
+                format="MM/dd/yyyy hh:mm a" ƒ
+                value={startDate}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                End date
+                    </InputLabel>
+            </Grid>
+            <Grid item xs={4}>
+              <DateTimePicker
+                onChange={setEndDate}
+                name="endDate"
+                minDate={new Date()}
+                format="MM/dd/yyyy hh:mm a" ƒ
+                value={endDate}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+              >
+                Target
           </InputLabel>
-              </Grid>
-              <Grid item xs={4} className='pr-5'>
-                <FormControl fullWidth className={classes.formControl} margin='dense'>
-                  <Select
-                    value={createEvent.type_}
-                    onChange={onChangeInput}
-                    name="type_"
-                  >
-                    <MenuItem value='personal'>
-                      Personal
-                </MenuItem>
-                    <MenuItem value='campaign'>
-                      Campaign
-                </MenuItem>
-
-                  </Select>
-                </FormControl>
-              </Grid>
-            </>
-          }
-
-          {createEvent.type_ == 'campaign' ?
-            <>
-              {!mustBeCampaign ?
-                <>
-                  <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-                    <InputLabel
-                      htmlFor="custom-css-standard-input"
-                      classes={{
-                        root: classes.cssLabel,
-                        focused: classes.cssFocused,
-                      }}
-                      required
-                    >
-                      Campaign name
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={4}>
-
-                    <AsyncSelect
-                      handleChange={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
-                      onChangeSelect={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
-                      data={
-                        createEvent.campaign && { label: `${createEvent.campaign.name}`, value: createEvent.campaign.id, ...createEvent.campaign }
-                      }
-                      single
-                      placeholder=""
-                      label=""
-                      loadOptions={fetchAssignedCampaignSuggestion}
-                    />
-                  </Grid>
-                </>
-                :
-                <>
-                  <Grid className={classes.inputCustom} item xs={2}>
-                    <InputLabel
-                      htmlFor="custom-css-standard-input"
-                      classes={{
-                        root: classes.cssLabel,
-                        focused: classes.cssFocused,
-                      }}
-                      required
-                    >
-                      Campaign name
-                    </InputLabel>
-                  </Grid>
-                  <Grid item xs={4} className='pr-5'>
-                    <AsyncSelect
-                      handleChange={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
-                      onChangeSelect={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
-                      data={
-                        createEvent.campaign && { label: `${createEvent.campaign.name}`, value: createEvent.campaign.id, ...createEvent.campaign }
-                      }
-                      single
-                      placeholder=""
-                      label=""
-                      loadOptions={fetchAssignedCampaignSuggestion}
-                    />
-                  </Grid>
-                </>
+            </Grid>
+            <Grid item xs={4} className='pr-5'>
+              {
+                createEvent.type_ == 'campaign' ?
+                  <SelectCustom
+                    handleChange={(values, element) => handleChangeTargetSelect(values, element)}
+                    name="contacts"
+                    options={contactOptions && contactOptions.reduce((acc, u) => {
+                      acc.push(
+                        {
+                          label: `${u.full_name}`,
+                          value: u.id,
+                          ...u
+                        }
+                      )
+                      return acc
+                    }, [])}
+                    data={
+                      createEvent.contacts
+                        .reduce((acc, u) => {
+                          acc.push({ label: `${u.full_name}`, value: u.id, ...u })
+                          return acc
+                        }, [])
+                    }
+                    fullWidth
+                    multi
+                  />
+                  :
+                  <Input disabled value="Me" fullWidth></Input>
               }
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                Priority
+          </InputLabel>
+            </Grid>
+            <Grid item xs={4}>
+              <FormControl fullWidth className={classes.formControl} margin='dense'>
+                <Select
+                  value={createEvent.priority}
+                  onChange={onChangeInput}
+                  name="priority"
+                >
+                  <MenuItem value={0}>
+                    Low
+                </MenuItem>
+                  <MenuItem value={1}>
+                    Medium
+                </MenuItem>
+                  <MenuItem value={2}>
+                    High
+                </MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
 
-            </>
-            :
-            <Grid item xs={6}></Grid>
-          }
+            {!mustBeCampaign && !mustBePersonal &&
+              <>
+                <Grid className={classes.inputCustom} item xs={2}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabel,
+                      focused: classes.cssFocused,
+                    }}
+                    required
+                  >
+                    Event type
+          </InputLabel>
+                </Grid>
+                <Grid item xs={4} className='pr-5'>
+                  <FormControl fullWidth className={classes.formControl} margin='dense'>
+                    <Select
+                      value={createEvent.type_}
+                      onChange={onChangeInput}
+                      name="type_"
+                    >
+                      <MenuItem value='personal'>
+                        Personal
+                </MenuItem>
+                      <MenuItem value='campaign'>
+                        Campaign
+                </MenuItem>
 
-          {(mustBeCampaign || mustBePersonal) &&
-            <Grid item xs={6}></Grid>
-          }
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </>
+            }
 
-          <Grid className={classes.inputCustom} style={{ 'marginTop': '1%' }} item xs={2}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Description
+            {createEvent.type_ == 'campaign' ?
+              <>
+                {!mustBeCampaign ?
+                  <>
+                    <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+                      <InputLabel
+                        htmlFor="custom-css-standard-input"
+                        classes={{
+                          root: classes.cssLabel,
+                          focused: classes.cssFocused,
+                        }}
+                        required
+                      >
+                        Campaign name
+                    </InputLabel>
+                    </Grid>
+                    <Grid item xs={4}>
+
+                      <AsyncSelect
+                        handleChange={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
+                        onChangeSelect={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
+                        data={
+                          createEvent.campaign && { label: `${createEvent.campaign.name}`, value: createEvent.campaign.id, ...createEvent.campaign }
+                        }
+                        single
+                        placeholder=""
+                        label=""
+                        loadOptions={fetchAssignedCampaignSuggestion}
+                      />
+                    </Grid>
+                  </>
+                  :
+                  <>
+                    <Grid className={classes.inputCustom} item xs={2}>
+                      <InputLabel
+                        htmlFor="custom-css-standard-input"
+                        classes={{
+                          root: classes.cssLabel,
+                          focused: classes.cssFocused,
+                        }}
+                        required
+                      >
+                        Campaign name
+                    </InputLabel>
+                    </Grid>
+                    <Grid item xs={4} className='pr-5'>
+                      <AsyncSelect
+                        handleChange={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
+                        onChangeSelect={(values, element) => handleChangeAssignedCampaignSelect(values, element)}
+                        data={
+                          createEvent.campaign && { label: `${createEvent.campaign.name}`, value: createEvent.campaign.id, ...createEvent.campaign }
+                        }
+                        single
+                        placeholder=""
+                        label=""
+                        loadOptions={fetchAssignedCampaignSuggestion}
+                      />
+                    </Grid>
+                  </>
+                }
+
+              </>
+              :
+              <Grid item xs={6}></Grid>
+            }
+
+            {(mustBeCampaign || mustBePersonal) &&
+              <Grid item xs={6}></Grid>
+            }
+
+            <Grid className={classes.inputCustom} style={{ 'marginTop': '1%' }} item xs={2}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+              >
+                Description
                 </InputLabel>
+            </Grid>
+            <Grid item xs={10} style={{ 'marginTop': '2%' }}>
+              <Editor
+                editorState={editorState}
+                wrapperClassName="editor-wrapper"
+                editorClassName="editor"
+                onEditorStateChange={onEditorStateChange}
+              />
+            </Grid>
           </Grid>
-          <Grid item xs={10} style={{ 'marginTop': '2%' }}>
-            <Editor
-              editorState={editorState}
-              wrapperClassName="editor-wrapper"
-              editorClassName="editor"
-              onEditorStateChange={onEditorStateChange}
-            />
-          </Grid>
-
-
-        </Grid>
+        </MuiPickersUtilsProvider>
       </DialogContent>
       <DialogActions>
         <Button color="primary">
@@ -456,9 +459,9 @@ function CreateEventDialog(props) {
         </Button>
         <Button color="primary"
           variant='contained'
-          classes={{
-            contained: classes.btnBlue
-          }}
+          // classes={{
+          //   contained: classes.btnBlue
+          // }}
           onClick={handleCreateEvents}
         >
           Create

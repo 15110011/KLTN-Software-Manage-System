@@ -70,7 +70,6 @@ function TicketTableDetail(props) {
       handleViewDetail(indexActive)
     }
   })
-
   React.useEffect(() => {
     if (first && tickets.data.length > 0) {
       let t = tickets.data[0]

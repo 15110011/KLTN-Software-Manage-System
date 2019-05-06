@@ -113,13 +113,14 @@ function TicketsTable(props) {
             }
           >
             <DialogTitle>
-              MOVE CONTACT {movingRow.full_name} TO FOLLOW-UP
-        </DialogTitle>
+              Confirm Action
+            </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This action cannot be undone
-            </div>
+                  Move contact <b>({movingRow.full_name})</b> to follow-up phase
+                  . This action cannot be undone. Are you sure?
+                </div>
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -132,12 +133,13 @@ function TicketsTable(props) {
             }
           >
             <DialogTitle>
-              REMOVE CONTACT {deletingRow.full_name} OUT OF CAMPAIGN {deletingRow.campaignName}
+              Confirm Action
             </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This action cannot be undone
+                  Remove contact <b>({deletingRow.full_name})</b> out of campaign <b>({deletingRow.campaignName})</b>
+                  . This action cannot be undone. Are you sure?
             </div>
               </DialogContentText>
             </DialogContent>
@@ -214,7 +216,7 @@ function TicketsTable(props) {
                 searchString += `${order[1] ? '&contact_name_order=' + order[1] : ''}`
                 searchString += `${order[2] ? '&email_order=' + order[2] : ''}`
                 searchString += `${order[4] ? '&campaign_order=' + order[4] : ''}`
-                apiGet(CONTACT_MARKETING_URL + `?page=${activePage}&limit=${query.pageSize}`+searchString, true).then(res => {
+                apiGet(CONTACT_MARKETING_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
                   const data = []
                   res.data.data.forEach((c, index) => {
                     data.push({
