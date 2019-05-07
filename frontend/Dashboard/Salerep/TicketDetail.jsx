@@ -80,7 +80,7 @@ function TicketDetail(props) {
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [mailDialog, setMailDialog] = React.useState(false)
 
-
+  console.log(user)
 
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
@@ -124,8 +124,15 @@ function TicketDetail(props) {
       setTimeout(() => {
         setSuccessNoti(false)
       }, 2000);
-      getMoreRow(id)
+      // getMoreRow(id)
     })
+  }
+
+  const notification = (m='Successfully Added') => {
+    setSuccessNoti(m)
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
   }
 
   const onSendEmail = () => {
@@ -160,11 +167,15 @@ function TicketDetail(props) {
         contactHistories={histories}
       ></ContactDetail>} */}
 
-      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
+      {laterDialog && <CreateEventDialog
+        toggleDialog={() => { setLaterDialog(!laterDialog) }}
         type_='campaign'
         targets={[contact]} marketing={marketing}
         updateActivities={updateActivities}
         contactOptions={[contact]}
+        user={user}
+        notification={notification}
+        setLaterDialog={setLaterDialog}
       />}
       {/* {noteDialog && <NoteDialog toggleDialog={() => {
         setNoteDialog(false)

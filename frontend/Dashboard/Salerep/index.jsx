@@ -9,6 +9,8 @@ import ActivitiesTable from './ActivitiesTable'
 import CampaignsTable from './CampaignsTable'
 import FollowUpTable from './FollowUp/FollowUpTable'
 import OrderTable from './Order/OrderTable'
+
+import CustomSnackbar from '../../components/CustomSnackbar'
 import { apiGet, apiPost } from '../../common/Request.js';
 
 
@@ -35,10 +37,10 @@ function SalerepDashboard(props) {
     tableActivtyRef.current.onQueryChange()
   }
 
-  const forceFollowUp = ()=>{
+  const forceFollowUp = () => {
     tableFollowUpRef.current.onQueryChange()
   }
-  const forceOrder= ()=>{
+  const forceOrder = () => {
     tableOrderUpRef.current.onQueryChange()
   }
 

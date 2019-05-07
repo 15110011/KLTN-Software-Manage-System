@@ -25,6 +25,7 @@ import FollowUpDetail from './FollowUpDetail'
 import { apiGet, apiPost, apiPatch } from '../../../common/Request'
 import useFetchData from '../../../CustomHook/useFetchData'
 import FollowUpDetail from './FollowUpDetail';
+import CustomSnackbar from '../../../components/CustomSnackbar'
 // import TicketDetail from './TicketDetail'
 
 let flSearch = {
@@ -46,6 +47,7 @@ function FollowUpTable(props) {
   const [moreRow, setMoreRow] = React.useState(null)
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
+  const [successNoti, setSuccessNoti] = React.useState(false)
 
   const [moreDialog, setMoreDialog] = React.useState(false)
 
@@ -54,17 +56,26 @@ function FollowUpTable(props) {
   //Activity
 
   const flOrder = []
-
+  const notification = (m = 'Successfully Added') => {
+    setSuccessNoti(m)
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
+  }
   const onRemoveContact = () => {
     apiPatch(ORDER_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
       forceActivities()
       forceFollowUp()
       setDeletingRow({})
-      if (followUps.data.length == 1) {
-        setMoreRow(null)
-      }
+      setMoreDialog(false)
+      // if (followUps.data.length == 1) {
+      //   setMoreRow(null)
+      // }
+      notification('Successfully Removed')
     })
   }
+
+  console.log(deletingRow)
 
   const onConfirmDeal = e => {
     const promises = []
@@ -98,6 +109,7 @@ function FollowUpTable(props) {
       forceFollowUp()
       forceOrder()
       setMovingRow({})
+      notification('Successfully Created')
     })
   }
 
@@ -106,6 +118,7 @@ function FollowUpTable(props) {
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
+        {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
           <Dialog open={Object.keys(deletingRow).length != 0}
             onClose={() => { setDeletingRow({}) }
             }
@@ -116,7 +129,7 @@ function FollowUpTable(props) {
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This contact <b>({deletingRow.full_name})</b> will be failed and
+                  This contact <b>({deletingRow.fname})</b> will be failed and
                   this action cannot be undone.
                    Are you sure?
                 </div>
@@ -171,7 +184,6 @@ function FollowUpTable(props) {
                   followup={moreRow.followup}
                   updateTable={() => {
                     forceFollowUp()
-
                   }}
                 />
               </DialogContent>

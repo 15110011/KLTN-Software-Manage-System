@@ -37,7 +37,6 @@ function CreateEventDialog(props) {
   const [startDate, setStartDate] = React.useState(new Date())
   const [endDate, setEndDate] = React.useState(new Date())
 
-
   const [createEvent, setCreateEvent] = React.useState({
     name: '',
     assigned_to: assigned_to ? assigned_to : { label: '', value: '' },
@@ -100,6 +99,7 @@ function CreateEventDialog(props) {
 
   const handleCreateEvents = e => {
     apiCreateEvent()
+    setLaterDialog(false)
   }
 
   const apiCreateEvent = () => {
@@ -127,8 +127,7 @@ function CreateEventDialog(props) {
           // setError(res.data)
         }
         else {
-          notification()
-          setLaterDialog(false)
+          notification('Successfully Created')
           // setCreateCampaign({ ...createCampaign, contacts: res.data })
         }
       })

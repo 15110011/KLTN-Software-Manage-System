@@ -14,7 +14,7 @@ import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
 import TicketDetail from './TicketDetail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
-
+import CustomSnackbar from '../../components/CustomSnackbar'
 import USERCONTEXT from '../../components/UserContext'
 
 const search = {}
@@ -28,6 +28,7 @@ function TicketsTable(props) {
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
   const [moreRow, setMoreRow] = React.useState({})
+  const [successNoti, setSuccessNoti] = React.useState(false)
 
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [moreDialog, setMoreDialog] = React.useState(false)
@@ -59,6 +60,8 @@ function TicketsTable(props) {
       forceMarketing()
       forceActivities()
       setDeletingRow({})
+      setMoreDialog(null)
+      notification('Successfully Removed')
     })
   }
 
@@ -68,15 +71,24 @@ function TicketsTable(props) {
         forceMarketing()
         forceActivities()
         forceFollowUp()
+        setMoreDialog(null)
+        notification('Successfully Moved')
         setMovingRow({})
       })
   }
 
+  const notification = (m = 'Successfully Added') => {
+    setSuccessNoti(m)
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
+  }
 
   return (
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
+          {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
           {moreDialog &&
             <Dialog
               open={true}
@@ -154,7 +166,7 @@ function TicketsTable(props) {
                 Toolbar: props =>
                   <Card plain>
                     <CardHeader color="primary">
-                      <h4 onClick={() => history.push('/dashboard/ticket-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Tickets</h4>
+                      <h4 onClick={() => history.push('/dashboard/ticket-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Waiting List</h4>
                     </CardHeader>
                   </Card>,
                 Header: props => <MTableHeader {...props}
