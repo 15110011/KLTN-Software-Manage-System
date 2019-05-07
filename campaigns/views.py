@@ -264,7 +264,7 @@ class FollowUpPlanView(ModelViewSet):
 
 class CampaignView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
-    queryset = Campaign.objects
+    queryset = Campaign.objects.prefetch_related('packages', 'orders')
     serializer_class = CampaignSerializer
 
     def get_queryset(self):
@@ -425,7 +425,7 @@ class CampaignView(ModelViewSet):
 
 class CampaignExtraView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
-    queryset = Campaign.objects
+    queryset = Campaign.objects.prefetch_related('packages', 'orders')
     serializer_class = CampaignSerializer
 
     @action(detail=True, methods=['GET'])
@@ -448,7 +448,7 @@ class CampaignExtraView(ModelViewSet):
 
 class AssignedCampaigns(ModelViewSet):
     permission_classes = (IsAuthenticated,)
-    queryset = Campaign.objects
+    queryset = Campaign.objects.prefetch_related('packages', 'orders')
     serializer_class = CampaignSerializer
     http_method_names = ['get']
 
@@ -480,7 +480,7 @@ class NoteView(ModelViewSet):
 class ContactMarketingView(ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
-    queryset = ContactMarketing.objects
+    queryset = ContactMarketing.objects.select_related('campaign', 'contact', 'marketing_plan')
     serializer_class = ContactMarketingSerializer
 
     def list(self, request, *args, **kwargs):
