@@ -37,7 +37,8 @@ function CreateFollowUpPlan(props) {
     handleCloseCreateFollowUpPlan,
     setCreateFollowUpPlanDialog,
     followUpData,
-    isEditFollowUpPlan
+    isEditFollowUpPlan,
+    notification
   } = props
 
 
@@ -74,13 +75,13 @@ function CreateFollowUpPlan(props) {
     setActiveStep(activeStep - 1)
   }
 
-  const notification = () => {
-    setCompleteNotice('Successfully Added')
-    setTimeout(() => {
-      setCompleteNotice(false)
-    }, 2000);
+  // const notification = () => {
+  //   setCompleteNotice('Successfully Added')
+  //   setTimeout(() => {
+  //     setCompleteNotice(false)
+  //   }, 2000);
 
-  }
+  // }
 
   const addMoreSteps = () => {
     const steps = [...followUpPlan.steps]
@@ -140,7 +141,10 @@ function CreateFollowUpPlan(props) {
       const followUpPlanId = followUpData.id
       apiPatch(FOLLOW_UP_PLANS_URL + '/' + followUpPlanId, cloneFollowUpPlan, false, true)
         .then(res => {
-          if (res.data) return onCreateSuccess(res.data)
+          if (res.data) {
+            notification('Successfully Updated')
+            onCreateSuccess(res.data)
+          }
         })
       setCreateFollowUpPlanDialog(false)
     } else {
@@ -163,7 +167,7 @@ function CreateFollowUpPlan(props) {
             setError({ ...errors })
           }
           else {
-            notification()
+            notification('Successfully Created')
             onCreateSuccess(res.data)
             handleCloseCreateFollowUpPlan()
           }

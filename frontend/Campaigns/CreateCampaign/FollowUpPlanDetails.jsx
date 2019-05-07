@@ -52,7 +52,8 @@ function FollowUpPlanDetails(props) {
     onChangeViewingOrder,
     addFollowUpPlanToEdit,
     isEditFollowUpPlan,
-    setIsEditFollowUpPlan
+    setIsEditFollowUpPlan,
+    notification
   } = props
 
   const [createFollowUpPlanDialog, setCreateFollowUpPlanDialog] = React.useState(false)
@@ -82,6 +83,7 @@ function FollowUpPlanDetails(props) {
                 handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
                 onCreateSuccess={addFollowUpPlanToEdit}
                 isEditFollowUpPlan={isEditFollowUpPlan}
+                notification={notification}
               />
               :
               <CreateFollowUpPlan
@@ -89,6 +91,7 @@ function FollowUpPlanDetails(props) {
                 setCreateFollowUpPlanDialog={setCreateFollowUpPlanDialog}
                 handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
                 onCreateSuccess={addFollowUpPlanToEdit}
+                notification={notification}
                 isEditFollowUpPlan={isEditFollowUpPlan}
               />
           }

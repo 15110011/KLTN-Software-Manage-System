@@ -6,10 +6,12 @@ import Grid from '@material-ui/core/Grid';
 import MTableBody from 'material-table/dist/m-table-body'
 import useFetchData from '../../CustomHook/useFetchData'
 import { TablePagination } from '@material-ui/core';
+
+
 import { apiGet, apiDelete } from '../../common/Request';
 import { FOLLOW_UP_PLANS_URL } from "../../common/urls";
 import CreateFollowUpPlan from '../CreateFollowUpPlan'
-
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 const styles = theme => ({
   root: {
@@ -30,9 +32,18 @@ const styles = theme => ({
 function FollowUpPlanList(props) {
   const { classes } = props;
   const [createFollowUpPlanDialog, setCreateFollowUpPlanDialog] = React.useState(false)
+  const [completeNotice, setCompleteNotice] = React.useState(false)
 
   const handleCloseCreateFollowUpPlan = e => {
     setCreateFollowUpPlanDialog(false)
+  }
+
+  const notification = (m = 'Successfully Created') => {
+    setCompleteNotice(m)
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+    tableRef.current.onQueryChange()
   }
 
 
@@ -41,7 +52,9 @@ function FollowUpPlanList(props) {
   let activePage = 0
   return (
     <div className={classes.root}>
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       {createFollowUpPlanDialog && <CreateFollowUpPlan
+        notification={notification}
         createFollowUpPlanDialog={createFollowUpPlanDialog}
         handleCloseCreateFollowUpPlan={handleCloseCreateFollowUpPlan}
         onCreateSuccess={() => { tableRef.current.onQueryChange() }}
