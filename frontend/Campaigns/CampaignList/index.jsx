@@ -33,7 +33,7 @@ function CampaignList(props) {
     setCreateCampaignDialog(false)
   }
 
-  const notification = (m='Successfully Created') => {
+  const notification = (m = 'Successfully Created') => {
     setCompleteNotice(m)
     setTimeout(() => {
       setCompleteNotice(false)
@@ -68,20 +68,26 @@ function CampaignList(props) {
             //   }
             // }}
             components={{
-                Pagination: props => <TablePagination {...props}
-                  page={activePage} rowsPerPageOptions={[5, 10, 20]}
-                  count={props.count}
-                  onChangePage={(e, nextPage) => {
-                    props.onChangePage(a, nextPage)
-                    // setActivePage(nextPage)
-                    activePage = nextPage
-                  }}
-                />
+              Pagination: props => <TablePagination {...props}
+                page={activePage} rowsPerPageOptions={[5, 10, 20]}
+                count={props.count}
+                onChangePage={(e, nextPage) => {
+                  props.onChangePage(a, nextPage)
+                  // setActivePage(nextPage)
+                  activePage = nextPage
+                }}
+              />
             }}
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description', filtering: false },
+              {
+                title: 'Description', field: 'description', filtering: false, render: rowData => {
+                  return (
+                    <span dangerouslySetInnerHTML={{ __html: rowData.description }}></span>
+                  )
+                }
+              },
               {
                 title: 'Status',
                 field: 'status',
@@ -100,7 +106,7 @@ function CampaignList(props) {
                     const data = json.data.data.map((campaign, index) => ({
                       numeral: activePage * query.pageSize + index + 1,
                       name: campaign.name,
-                      description: campaign.description,
+                      description: campaign.desc,
                       status: campaign.status,
                     }))
                     resolve({

@@ -112,7 +112,11 @@ function getStepContent(props) {
     addFollowUpPlanToEdit,
     isEditFollowUpPlan,
     setIsEditFollowUpPlan,
-    notification
+    notification,
+    startDate,
+    setStartDate,
+    endDate,
+    setEndDate
   } = props
   switch (activeStep) {
     case 0:
@@ -132,6 +136,10 @@ function getStepContent(props) {
           user={user}
           handleChangePackageSelectCustom={handleChangePackageSelectCustom}
           notification={notification}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
         />
       )
     case 1:

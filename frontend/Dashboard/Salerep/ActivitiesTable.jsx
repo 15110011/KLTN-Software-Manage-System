@@ -7,8 +7,20 @@ import TablePagination from '@material-ui/core/TablePagination'
 import AddIcon from '@material-ui/icons/Add'
 import Tooltip from '@material-ui/core/Tooltip'
 import Button from '@material-ui/core/Button'
+import CardContent from '@material-ui/core/CardContent';
+import CardActions from '@material-ui/core/CardActions';
+import Collapse from '@material-ui/core/Collapse';
+import Avatar from '@material-ui/core/Avatar';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import red from '@material-ui/core/colors/red';
+import FavoriteIcon from '@material-ui/icons/Favorite';
+import ShareIcon from '@material-ui/icons/Share';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import MoreVertIcon from '@material-ui/icons/MoreVert';
 import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
 import * as dateFns from 'date-fns'
+import * as cn from 'classnames'
 
 import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -34,7 +46,14 @@ let activePageActivity = 0
 
 function ActivitiesTable(props) {
 
-  const { classes, tableActivtyRef, tableMarketingRef, forceActivities } = props
+  const {
+    classes,
+    tableActivtyRef,
+    tableMarketingRef,
+    forceActivities,
+    expanded,
+    handleExpandClick
+  } = props
 
   const [viewType, setViewType] = React.useState('campaign')
 
@@ -50,9 +69,6 @@ function ActivitiesTable(props) {
   const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
   const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
-
-  console.log(movingRow)
-  console.log(deletingRow)
 
   const notification = (m = 'Successfully Added') => {
     setSuccessNoti(m)
@@ -107,7 +123,7 @@ function ActivitiesTable(props) {
 
     <USERCONTEXT.Consumer>
       {({ user }) =>
-        <>
+        <div style={{ position: 'relative' }}>
           {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
           {createEventDialog && <CreateEventDialog
             toggleDialog={() => { setCreateEventDialog(!createEventDialog) }}
@@ -194,389 +210,404 @@ function ActivitiesTable(props) {
               </DialogContent>
             </Dialog>
           }
-          {viewType == 'campaign' && <MaterialTable
-            tableRef={tableActivtyRef}
-            components={
-              {
-                Header: props => <MTableHeader {...props}
-                  onOrderChange={(orderBy, dir) => {
-                    activityOrder.forEach((order, index) => {
-                      if (orderBy != index) {
-                        activityOrder[index] = null
-                      }
-                    })
-                    activityOrder[orderBy] = dir
-
-                    props.onOrderChange(orderBy, dir)
-                  }}
-                />,
-                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
-                  if (columnId == 1) {
-                    activitySearch.target = value
-                  }
-                  else if (columnId == 2) {
-                    activitySearch.campaign = value
-                  }
-                  else if (columnId == 3) {
-                    activitySearch.phase = value
-                  }
-                  else if (columnId == 4) {
-                    activitySearch.priority = value
-                  }
-                  else if (columnId == 5) {
-                    activitySearch.timeRanges[columnId][position] = value
-                    return
-                  }
-                  else if (columnId == 6) {
-                    activitySearch.remaining = value
-                  }
-                  activePageActivity = 0
-                  props.onFilterChanged(columnId, value);
-                }}
-                />,
-                Toolbar: props =>
-                  <>
-                    <Card plain>
-                      <CardHeader color="success">
-                        <h4 className={classes.cardTitleWhite}>Upcoming Activities</h4>
-                      </CardHeader>
-                    </Card>
-                    <div className='px-4 d-flex justify-content-between'>
-                      <Typography classes={{ root: classes.activityTagline }} component='span'>
-                        Events which start today will be displayed in this table
-                </Typography>
-                      <span>
-                        <Select
-                          value={viewType}
-                          onChange={
-                            (e) => {
-                              tableActivtyRef.current.onQueryChange({ search: `&view_type=${e.target.value}` })
-                              activitySearch.viewType = e.target.value
-                              setViewType(e.target.value)
-                            }
+          <IconButton
+            className={cn(classes.expand, {
+              [classes.expandOpen]: viewType == 'campaign' ? expanded['upcoming1'] : expanded['upcoming2'],
+            })}
+            onClick={() => handleExpandClick(viewType == 'campaign' ? 'upcoming1' : 'upcoming2')}
+            aria-label="Show more"
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+          {viewType == 'campaign' &&
+            <Collapse collapsedHeight="100px" in={expanded['upcoming1']}>
+              <MaterialTable
+                tableRef={tableActivtyRef}
+                components={
+                  {
+                    Header: props => <MTableHeader {...props}
+                      onOrderChange={(orderBy, dir) => {
+                        activityOrder.forEach((order, index) => {
+                          if (orderBy != index) {
+                            activityOrder[index] = null
                           }
-                        >
-                          <MenuItem value='campaign'>Campaign</MenuItem>
-                          <MenuItem value='personal'>Personal</MenuItem>
-                        </Select>
-                        <Tooltip title="Create new activity">
-                          <IconButton onClick={() => { setCreateEventDialog(true) }}>
-                            <AddIcon></AddIcon>
-                          </IconButton>
-                        </Tooltip>
-                      </span>
-                    </div>
-                  </>
-                ,
+                        })
+                        activityOrder[orderBy] = dir
 
-                Pagination: props => <TablePagination {...props}
-                  page={activePageActivity} rowsPerPageOptions={[5, 10, 20]}
-                  count={props.count}
-                  onChangePage={(e, nextPage) => {
-                    props.onChangePage(a, nextPage)
-                    // setActivePage(nextPage)
-                    activePageActivity = nextPage
-                  }}
-                />,
+                        props.onOrderChange(orderBy, dir)
+                      }}
+                    />,
+                    Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
+                      if (columnId == 1) {
+                        activitySearch.target = value
+                      }
+                      else if (columnId == 2) {
+                        activitySearch.campaign = value
+                      }
+                      else if (columnId == 3) {
+                        activitySearch.phase = value
+                      }
+                      else if (columnId == 4) {
+                        activitySearch.priority = value
+                      }
+                      else if (columnId == 5) {
+                        activitySearch.timeRanges[columnId][position] = value
+                        return
+                      }
+                      else if (columnId == 6) {
+                        activitySearch.remaining = value
+                      }
+                      activePageActivity = 0
+                      props.onFilterChanged(columnId, value);
+                    }}
+                    />,
+                    Toolbar: props =>
+                      <>
+                        <Card plain>
+                          <CardHeader color="success">
+                            <h4 className={classes.cardTitleWhite}>Upcoming Activities</h4>
+                          </CardHeader>
+                        </Card>
+                        <div className='px-4 d-flex justify-content-between'>
+                          <Typography classes={{ root: classes.activityTagline }} component='span'>
+                            Events which start today will be displayed in this table
+                      </Typography>
+                          <span>
+                            <Select
+                              value={viewType}
+                              onChange={
+                                (e) => {
+                                  tableActivtyRef.current.onQueryChange({ search: `&view_type=${e.target.value}` })
+                                  activitySearch.viewType = e.target.value
+                                  setViewType(e.target.value)
+                                }
+                              }
+                            >
+                              <MenuItem value='campaign'>Campaign</MenuItem>
+                              <MenuItem value='personal'>Personal</MenuItem>
+                            </Select>
+                            <Tooltip title="Create new activity">
+                              <IconButton onClick={() => { setCreateEventDialog(true) }}>
+                                <AddIcon></AddIcon>
+                              </IconButton>
+                            </Tooltip>
+                          </span>
+                        </div>
+                      </>
+                    ,
 
-                FilterRow: props =>
-                  <CustomFItlerRow {{
-                    ...props,
-                    onFilterDateRange: (position, date, colId) => {
-                      activitySearch.timeRanges[colId][position] = date
-                      const timeRangesClone = [...timeRanges]
-                      timeRangesClone[colId][position] = date
-                      setTimeRanges(timeRangesClone)
-                      // props.onFilterChanged(colId, date, position)
-                      tableActivtyRef.current.onQueryChange()
+                    Pagination: props => <TablePagination {...props}
+                      page={activePageActivity} rowsPerPageOptions={[5, 10, 20]}
+                      count={props.count}
+                      onChangePage={(e, nextPage) => {
+                        props.onChangePage(a, nextPage)
+                        // setActivePage(nextPage)
+                        activePageActivity = nextPage
+                      }}
+                    />,
+
+                    FilterRow: props =>
+                      <CustomFItlerRow {{
+                        ...props,
+                        onFilterDateRange: (position, date, colId) => {
+                          activitySearch.timeRanges[colId][position] = date
+                          const timeRangesClone = [...timeRanges]
+                          timeRangesClone[colId][position] = date
+                          setTimeRanges(timeRangesClone)
+                          // props.onFilterChanged(colId, date, position)
+                          tableActivtyRef.current.onQueryChange()
+                        },
+                        timeRanges: timeRanges
+                      }}
+                      />
+
+                  }
+                }
+                columns={[
+                  { title: 'Work', field: 'work', filtering: false, headerStyle: { minWidth: '350px' }, },
+                  {
+                    title: 'Target', field: 'target'
+                  },
+                  {
+                    title: 'Campaign', field: 'campaign'
+                  },
+                  {
+                    title: 'Phase', field: 'phase',
+                    lookup: {
+                      'Ticket': 'Ticket',
+                      'Follow-Up': 'Follow-Up',
+                      'Order': 'Order',
+                    }
+                  },
+                  {
+                    title: 'Priority', field: 'priority'
+                    ,
+                    render: rowData => {
+                      if (rowData.priority == 'Low') {
+                        return <div className="text-success">Low</div>
+                      }
+
+                      else if (rowData.priority == 'Medium') {
+                        return <div className="text-warning">Medium</div>
+                      }
+
+                      return <div className="text-danger">High</div>
                     },
-                    timeRanges: timeRanges
-                  }}
-                  />
-
-              }
-            }
-            columns={[
-              { title: 'Work', field: 'work', filtering: false, headerStyle: { minWidth: '350px' }, },
-              {
-                title: 'Target', field: 'target'
-              },
-              {
-                title: 'Campaign', field: 'campaign'
-              },
-              {
-                title: 'Phase', field: 'phase',
-                lookup: {
-                  'Ticket': 'Ticket',
-                  'Follow-Up': 'Follow-Up',
-                  'Order': 'Order',
-                }
-              },
-              {
-                title: 'Priority', field: 'priority'
-                ,
-                render: rowData => {
-                  if (rowData.priority == 'Low') {
-                    return <div className="text-success">Low</div>
-                  }
-
-                  else if (rowData.priority == 'Medium') {
-                    return <div className="text-warning">Medium</div>
-                  }
-
-                  return <div className="text-danger">High</div>
-                },
-                lookup: {
-                  0: 'Low',
-                  1: 'Medium',
-                  2: 'High',
-                }
-              },
-              {
-                title: 'Start', field: 'start',
-                render: (row) => {
-                  return dateFns.format(dateFns.parseISO(row.start), 'hh:mm:ss  dd-MM-yyyy')
-
-                },
-                type: 'dateRange'
-
-              },
-              {
-                title: 'Remaining', field: 'remaining', type: 'numeric'
-              },
-            ]}
-            data={(query) => {
-
-              return new Promise((resolve, reject) => {
-                let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
-                searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
-                searchString += `${activitySearch.target ? '&target=' + activitySearch.target : ''}`
-                searchString += `${activitySearch.campaign ? '&campaign=' + activitySearch.campaign : ''}`
-                searchString += `${activitySearch.phase ? '&phase=' + activitySearch.phase : ''}`
-                searchString += `${activitySearch.phaseId ? '&phaseId=' + activitySearch.phaseId : ''}`
-                searchString += `${activitySearch.timeRanges[5].from ? '&start_from=' + activitySearch.timeRanges[5].from : ''}`
-                searchString += `${activitySearch.timeRanges[5].to ? '&start_to=' + activitySearch.timeRanges[5].to : ''}`
-                searchString += `${activityOrder[6] ? '&remainingOrder=' + activityOrder[6] : ''}`
-                searchString += `${activityOrder[5] ? '&startOrder=' + activityOrder[5] : ''}`
-                searchString += `${activityOrder[4] ? '&priorityOrder=' + activityOrder[4] : ''}`
-                searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
-                searchString += `${activityOrder[2] ? '&campaignOrder=' + activityOrder[2] : ''}`
-                searchString += `${activityOrder[3] ? '&phaseOrder=' + activityOrder[3] : ''}`
-                searchString += `${query.search == '' ? '&view_type=' + viewType : ''}`
-
-
-                apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
-                  const data = res.data.data.reduce((acc, d, index) => {
-                    const priority = ['Low', 'Medium', 'High']
-                    let phase = ''
-                    let phaseId = ''
-                    if (d.order && d.order.status == 'COMPLETED') {
-                      phase = 'Order'
-                      phaseId = `O` + d.order.id
+                    lookup: {
+                      0: 'Low',
+                      1: 'Medium',
+                      2: 'High',
                     }
-                    else if (d.order) {
-                      phase = 'Follow-up'
-                      phaseId = `F` + d.order.id
-                    }
-                    else {
-                      phase = 'Ticket'
-                      phaseId = `T` + d.marketing.id
-                    }
-                    acc.push(...d.contacts.map(c => {
-                      return {
-                        work: d.name,
-                        target: c.first_name + ' ' + c.last_name,
-                        campaign: d.marketing.campaign.name,
-                        phase,
-                        priority: priority[d.priority],
-                        remaining: d.remaining + ' day(s)',
-                        id: d.id,
-                        marketing: d.marketing,
-                        start: d.start_date,
-                        phaseId
-                      }
-                    }))
-                    return acc
-                  }, [])
+                  },
+                  {
+                    title: 'Start', field: 'start',
+                    render: (row) => {
+                      return dateFns.format(dateFns.parseISO(row.start), 'hh:mm:ss  dd-MM-yyyy')
 
-                  resolve({
-                    data,
-                    page: res.data.page,
-                    totalCount: res.data.total
-                  })
-                })
-              })
-            }}
-            onRowClick={(e, rowData) => {
-              if (rowData.phase == 'Ticket') {
-                getMoreRow(rowData.marketing.id)
-              }
-            }}
-            title="Contacts List"
-            options={{
-              search: false,
-              filtering: true,
-              paging: true,
-              debounceInterval: 300,
+                    },
+                    type: 'dateRange'
 
-            }}
-          />}
+                  },
+                  {
+                    title: 'Remaining', field: 'remaining', type: 'numeric'
+                  },
+                ]}
+                data={(query) => {
 
-          {viewType == 'personal' && <MaterialTable
-            tableRef={tableActivtyRef}
-            components={
-              {
-                Header: props => <MTableHeader {...props}
-                  onOrderChange={(orderBy, dir) => {
-                    activityOrder.forEach((order, index) => {
-                      if (orderBy != index) {
-                        activityOrder[index] = null
-                      }
-                    })
-                    activityOrder[orderBy] = dir
+                  return new Promise((resolve, reject) => {
+                    let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
+                    searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
+                    searchString += `${activitySearch.target ? '&target=' + activitySearch.target : ''}`
+                    searchString += `${activitySearch.campaign ? '&campaign=' + activitySearch.campaign : ''}`
+                    searchString += `${activitySearch.phase ? '&phase=' + activitySearch.phase : ''}`
+                    searchString += `${activitySearch.phaseId ? '&phaseId=' + activitySearch.phaseId : ''}`
+                    searchString += `${activitySearch.timeRanges[5].from ? '&start_from=' + activitySearch.timeRanges[5].from : ''}`
+                    searchString += `${activitySearch.timeRanges[5].to ? '&start_to=' + activitySearch.timeRanges[5].to : ''}`
+                    searchString += `${activityOrder[6] ? '&remainingOrder=' + activityOrder[6] : ''}`
+                    searchString += `${activityOrder[5] ? '&startOrder=' + activityOrder[5] : ''}`
+                    searchString += `${activityOrder[4] ? '&priorityOrder=' + activityOrder[4] : ''}`
+                    searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
+                    searchString += `${activityOrder[2] ? '&campaignOrder=' + activityOrder[2] : ''}`
+                    searchString += `${activityOrder[3] ? '&phaseOrder=' + activityOrder[3] : ''}`
+                    searchString += `${query.search == '' ? '&view_type=' + viewType : ''}`
 
-                    props.onOrderChange(orderBy, dir)
-                  }}
-                />,
-                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
-                  if (columnId == 2) {
-                    // activitySearch.priority = value
-                    activitySearch.priority = value
-                  }
-                  else if (columnId == 3) {
-                    // activitySearch.remaining = value
-                    activitySearch.remaining = value
-                  }
-                  activePageActivity = 0
-                  props.onFilterChanged(columnId, value);
-                }}
-                />,
-                Toolbar: props =>
-                  <>
-                    <Card plain>
-                      <CardHeader color="success">
-                        <h4 className={classes.cardTitleWhite}>Upcoming Activities</h4>
-                      </CardHeader>
-                    </Card>
-                    <div className='px-4 d-flex justify-content-between'>
-                      <Typography classes={{ root: classes.activityTagline }} component='span'>
-                        Events which start today will be displayed in this table
-                </Typography>
-                      <span>
-                        <Select
-                          value={viewType}
-                          onChange={
-                            (e) => {
-                              tableActivtyRef.current.onQueryChange({ search: `&view_type=${e.target.value}` })
-                              activitySearch.viewType = e.target.value
-                              setViewType(e.target.value)
-                            }
+
+                    apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
+                      const data = res.data.data.reduce((acc, d, index) => {
+                        const priority = ['Low', 'Medium', 'High']
+                        let phase = ''
+                        let phaseId = ''
+                        if (d.order && d.order.status == 'COMPLETED') {
+                          phase = 'Order'
+                          phaseId = `O` + d.order.id
+                        }
+                        else if (d.order) {
+                          phase = 'Follow-up'
+                          phaseId = `F` + d.order.id
+                        }
+                        else {
+                          phase = 'Ticket'
+                          phaseId = `T` + d.marketing.id
+                        }
+                        acc.push(...d.contacts.map(c => {
+                          return {
+                            work: d.name,
+                            target: c.first_name + ' ' + c.last_name,
+                            campaign: d.marketing.campaign.name,
+                            phase,
+                            priority: priority[d.priority],
+                            remaining: d.remaining + ' day(s)',
+                            id: d.id,
+                            marketing: d.marketing,
+                            start: d.start_date,
+                            phaseId
                           }
-                        >
-                          <MenuItem value='campaign'>Campaign</MenuItem>
-                          <MenuItem value='personal'>Personal</MenuItem>
-                        </Select>
-                        <Tooltip title="Create new activity">
-                          <IconButton onClick={() => {
-                            setCreateEventDialog(true)
-                          }}>
-                            <AddIcon></AddIcon>
-                          </IconButton>
-                        </Tooltip>
-                      </span>
-                    </div>
-                  </>
-                ,
+                        }))
+                        return acc
+                      }, [])
 
-                Pagination: props => <TablePagination {...props}
-                  page={activePageActivity} rowsPerPageOptions={[5, 10, 20]}
-                  count={props.count}
-                  onChangePage={(e, nextPage) => {
-                    props.onChangePage(a, nextPage)
-                    // setActivePage(nextPage)
-                    activePageActivity = nextPage
-                  }}
-                />
-              }
-            }
-            columns={[
-              { title: 'Work', field: 'work', filtering: false, headerStyle: { minWidth: '350px' }, },
-              {
-                title: 'Target', field: 'target'
-              },
-              {
-                title: 'Priority', field: 'priority'
-                ,
-                render: rowData => {
-                  if (rowData.priority == 'Low') {
-                    return <div className="text-success">Low</div>
-                  }
-
-                  else if (rowData.priority == 'Medium') {
-                    return <div className="text-warning">Medium</div>
-                  }
-
-                  return <div className="text-danger">High</div>
-                },
-                lookup: {
-                  0: 'Low',
-                  1: 'Medium',
-                  2: 'High',
-                }
-              },
-              {
-                title: 'Remaining', field: 'remaining', type: 'numeric'
-              },
-            ]}
-            data={(query) => {
-
-              return new Promise((resolve, reject) => {
-                let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
-                searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
-                searchString += `${activitySearch.target ? '&target=' + activitySearch.target : ''}`
-                searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
-                searchString += `${activityOrder[3] ? '&remainingOrder=' + activityOrder[3] : ''}`
-                searchString += `${activityOrder[2] ? '&priorityOrder=' + activityOrder[2] : ''}`
-                searchString += `${query.search == '' ? '&view_type=' + viewType : ''}`
-
-                apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
-                  const data = res.data.data.reduce((acc, d, index) => {
-                    const priority = ['Low', 'Medium', 'High']
-                    acc.push(...d.contacts.map(c => {
-                      return {
-                        work: d.name,
-                        target: c.first_name + ' ' + c.last_name,
-                        priority: priority[d.priority],
-                        remaining: d.remaining + ' day(s)',
-                        id: d.id,
-                      }
-                    }))
-                    return acc
-                  }, [])
-
-                  resolve({
-                    data,
-                    page: res.data.page,
-                    totalCount: res.data.total
+                      resolve({
+                        data,
+                        page: res.data.page,
+                        totalCount: res.data.total
+                      })
+                    })
                   })
-                })
-              })
-            }
-            }
-            onRowClick={(e, rowData) => {
-            }}
+                }}
+                onRowClick={(e, rowData) => {
+                  if (rowData.phase == 'Ticket') {
+                    getMoreRow(rowData.marketing.id)
+                  }
+                }}
+                title="Contacts List"
+                options={{
+                  search: false,
+                  filtering: true,
+                  paging: true,
+                  debounceInterval: 300,
 
-            title="Contacts List"
-            options={{
-              search: false,
-              filtering: true,
-              paging: true,
-              debounceInterval: 300,
-
-            }}
-          />
+                }}
+              />
+            </Collapse>
           }
-        </>
+          {viewType == 'personal' &&
+            <Collapse collapsedHeight="100px" in={expanded['upcoming2']}>
+              <MaterialTable
+                tableRef={tableActivtyRef}
+                components={
+                  {
+                    Header: props => <MTableHeader {...props}
+                      onOrderChange={(orderBy, dir) => {
+                        activityOrder.forEach((order, index) => {
+                          if (orderBy != index) {
+                            activityOrder[index] = null
+                          }
+                        })
+                        activityOrder[orderBy] = dir
+
+                        props.onOrderChange(orderBy, dir)
+                      }}
+                    />,
+                    Body: props => <MTableBody {...props} onFilterChanged={(columnId, value) => {
+                      if (columnId == 2) {
+                        // activitySearch.priority = value
+                        activitySearch.priority = value
+                      }
+                      else if (columnId == 3) {
+                        // activitySearch.remaining = value
+                        activitySearch.remaining = value
+                      }
+                      activePageActivity = 0
+                      props.onFilterChanged(columnId, value);
+                    }}
+                    />,
+                    Toolbar: props =>
+                      <>
+                        <Card plain>
+                          <CardHeader color="success">
+                            <h4 className={classes.cardTitleWhite}>Upcoming Activities</h4>
+                          </CardHeader>
+                        </Card>
+                        <div className='px-4 d-flex justify-content-between'>
+                          <Typography classes={{ root: classes.activityTagline }} component='span'>
+                            Events which start today will be displayed in this table
+                </Typography>
+                          <span>
+                            <Select
+                              value={viewType}
+                              onChange={
+                                (e) => {
+                                  tableActivtyRef.current.onQueryChange({ search: `&view_type=${e.target.value}` })
+                                  activitySearch.viewType = e.target.value
+                                  setViewType(e.target.value)
+                                }
+                              }
+                            >
+                              <MenuItem value='campaign'>Campaign</MenuItem>
+                              <MenuItem value='personal'>Personal</MenuItem>
+                            </Select>
+                            <Tooltip title="Create new activity">
+                              <IconButton onClick={() => {
+                                setCreateEventDialog(true)
+                              }}>
+                                <AddIcon></AddIcon>
+                              </IconButton>
+                            </Tooltip>
+                          </span>
+                        </div>
+                      </>
+                    ,
+
+                    Pagination: props => <TablePagination {...props}
+                      page={activePageActivity} rowsPerPageOptions={[5, 10, 20]}
+                      count={props.count}
+                      onChangePage={(e, nextPage) => {
+                        props.onChangePage(a, nextPage)
+                        // setActivePage(nextPage)
+                        activePageActivity = nextPage
+                      }}
+                    />
+                  }
+                }
+                columns={[
+                  { title: 'Work', field: 'work', filtering: false, headerStyle: { minWidth: '350px' }, },
+                  {
+                    title: 'Target', field: 'target'
+                  },
+                  {
+                    title: 'Priority', field: 'priority'
+                    ,
+                    render: rowData => {
+                      if (rowData.priority == 'Low') {
+                        return <div className="text-success">Low</div>
+                      }
+
+                      else if (rowData.priority == 'Medium') {
+                        return <div className="text-warning">Medium</div>
+                      }
+
+                      return <div className="text-danger">High</div>
+                    },
+                    lookup: {
+                      0: 'Low',
+                      1: 'Medium',
+                      2: 'High',
+                    }
+                  },
+                  {
+                    title: 'Remaining', field: 'remaining', type: 'numeric'
+                  },
+                ]}
+                data={(query) => {
+
+                  return new Promise((resolve, reject) => {
+                    let searchString = `${activitySearch.priority ? '&priority=' + activitySearch.priority : ''}`
+                    searchString += `${activitySearch.remaining ? '&remaining=' + activitySearch.remaining : ''}`
+                    searchString += `${activitySearch.target ? '&target=' + activitySearch.target : ''}`
+                    searchString += `${activityOrder[1] ? '&targetOrder=' + activityOrder[1] : ''}`
+                    searchString += `${activityOrder[3] ? '&remainingOrder=' + activityOrder[3] : ''}`
+                    searchString += `${activityOrder[2] ? '&priorityOrder=' + activityOrder[2] : ''}`
+                    searchString += `${query.search == '' ? '&view_type=' + viewType : ''}`
+
+                    apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
+                      const data = res.data.data.reduce((acc, d, index) => {
+                        const priority = ['Low', 'Medium', 'High']
+                        acc.push(...d.contacts.map(c => {
+                          return {
+                            work: d.name,
+                            target: c.first_name + ' ' + c.last_name,
+                            priority: priority[d.priority],
+                            remaining: d.remaining + ' day(s)',
+                            id: d.id,
+                          }
+                        }))
+                        return acc
+                      }, [])
+
+                      resolve({
+                        data,
+                        page: res.data.page,
+                        totalCount: res.data.total
+                      })
+                    })
+                  })
+                }
+                }
+                onRowClick={(e, rowData) => {
+                }}
+
+                title="Contacts List"
+                options={{
+                  search: false,
+                  filtering: true,
+                  paging: true,
+                  debounceInterval: 300,
+
+                }}
+              />
+            </Collapse>
+          }
+        </div>
       }
     </USERCONTEXT.Consumer>
   )

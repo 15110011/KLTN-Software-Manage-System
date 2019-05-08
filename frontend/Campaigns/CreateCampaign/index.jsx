@@ -34,6 +34,7 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import CloseIcon from '@material-ui/icons/Close';
+import * as dateFns from 'date-fns'
 
 import { htmlToState, draftToRaw } from "../../common/utils";
 
@@ -82,6 +83,8 @@ function CreateCampaign(props) {
     contacts: [],
     groups: []
   })
+  const [startDate, setStartDate] = React.useState(new Date())
+  const [endDate, setEndDate] = React.useState(new Date())
 
   const [isCreateMarketingPlanDialog, setIsCreateMarketingPlanDialog] = React.useState(false)
 
@@ -166,8 +169,12 @@ function CreateCampaign(props) {
 
   const handleCreateCampaign = e => {
     if (isCreateMarketingPlanDialog == false && isEditMarketingPlan == false) {
-      e.preventDefault()
-      const data = { ...createCampaign, desc: draftToRaw(editorState) }
+      const data = { 
+        ...createCampaign, 
+        desc: draftToRaw(editorState),
+        start_date: dateFns.format(startDate, 'yyyy-MM-dd'),
+        end_date: dateFns.format(endDate, 'yyyy-MM-dd'),
+       }
       data.assigned_to = data.assigned_to.map(t => t.user.id)
       data.contacts = data.contacts.map(c => c.id)
       data.follow_up_plan = data.follow_up_plan.id
@@ -342,36 +349,37 @@ function CreateCampaign(props) {
   return (
     <div>
       <BreadcrumbsItem to='/campaigns/add'>ABC</BreadcrumbsItem>
-      <Dialog
-        open={true}
-        onClose={handleCloseCreateCampaignDialog}
-        classes={{ paper: classes.paperRoot }}
-        fullWidth
-        maxWidth="lg"
-      >
-        <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateCampaignDialog}>
-          CREATE CAMPAIGN
+      <form onSubmit={handleCreateCampaign}>
+
+        <Dialog
+          open={true}
+          onClose={handleCloseCreateCampaignDialog}
+          classes={{ paper: classes.paperRoot }}
+          fullWidth
+          maxWidth="lg"
+        >
+          <DialogTitle style={{ position: 'relative' }} id="customized-dialog-title" onClose={handleCloseCreateCampaignDialog}>
+            CREATE CAMPAIGN
           <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-            <IconButton aria-label="Close" onClick={handleCloseCreateCampaignDialog}>
-              <CloseIcon fontSize="small" />
-            </IconButton>
-          </div>
-        </DialogTitle>
-        <DialogContent>
-          <Stepper activeStep={activeStep} alternativeLabel>
-            {getSteps.map((label, index) => (
-              <Step key={label}>
-                <StepLabel
-                  onClick={() => { setActiveStep(index) }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  {label}
-                </StepLabel>
-              </Step>
-            ))}
-          </Stepper>
-          <div className={classes.paper}>
-            <form onSubmit={handleCreateCampaign}>
+              <IconButton aria-label="Close" onClick={handleCloseCreateCampaignDialog}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </div>
+          </DialogTitle>
+          <DialogContent>
+            <Stepper activeStep={activeStep} alternativeLabel>
+              {getSteps.map((label, index) => (
+                <Step key={label}>
+                  <StepLabel
+                    onClick={() => { setActiveStep(index) }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    {label}
+                  </StepLabel>
+                </Step>
+              ))}
+            </Stepper>
+            <div className={classes.paper}>
               <StepDetail
                 isEditFollowUpPlan={isEditFollowUpPlan}
                 setIsEditFollowUpPlan={setIsEditFollowUpPlan}
@@ -409,39 +417,35 @@ function CreateCampaign(props) {
                 onChangeViewingOrder={onChangeViewingOrder}
                 showEditIcon={showEditIcon}
                 notification={notification}
+                setStartDate={setStartDate}
+                startDate={startDate}
+                endDate={endDate}
+                setEndDate={setEndDate}
               />
-              <div style={{ float: 'right', marginTop: '50px' }}>
-                <Button
-                  disabled={activeStep === 0}
-                  onClick={handleBack}
-                  className={classes.backButton}
-                  variant="outlined"
-                >
-                  Back
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              disabled={activeStep === 0}
+              onClick={handleBack}
+              className={classes.backButton}
+              variant="outlined"
+            >
+              Back
                 </Button>
-                {' '}
-                <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
-                  Next
+            {' '}
+            <Button hidden={activeStep === 2} variant="contained" color="primary" onClick={handleNext}>
+              Next
                 </Button>
-                {
-                  activeStep === getSteps.length - 1 &&
-                  (
-                    <Button variant="contained" color="primary" type="submit">Create</Button>
-                  )
-                }
-              </div>
-            </form>
-          </div>
-        </DialogContent>
-        <DialogActions>
-          {/* <Button onClick={this.handleClose} color="primary">
-            Disagree
-            </Button>
-          <Button onClick={this.handleClose} color="primary" autoFocus>
-            Agree
-            </Button> */}
-        </DialogActions>
-      </Dialog>
+            {
+              activeStep === getSteps.length - 1 &&
+              (
+                <Button variant="contained" color="primary" type="button" onClick={() => handleCreateCampaign()}>Create</Button>
+              )
+            }
+          </DialogActions>
+        </Dialog>
+      </form>
     </div>
   )
 }

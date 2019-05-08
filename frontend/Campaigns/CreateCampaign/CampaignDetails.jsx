@@ -29,8 +29,10 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import styles from './CreateCampaignStyle'
+import * as DateFnsUtils from '@date-io/date-fns';
 import { Editor } from "react-draft-wysiwyg";
 import "../../common/react-draft-wysiwyg.css";
+import { MuiPickersUtilsProvider, TimePicker, DatePicker, DateTimePicker } from 'material-ui-pickers';
 
 // Components 
 import SelectCustom from '../../components/SelectCustom'
@@ -51,7 +53,11 @@ function CampaignDetails(props) {
     saleRep,
     handleChangeProductSelect,
     fetchProductSuggestion,
-    handleChangePackageSelectCustom
+    handleChangePackageSelectCustom,
+    startDate,
+    endDate,
+    setStartDate,
+    setEndDate
   } = props
   return (
     <form onSubmit={(e) => {
@@ -60,227 +66,224 @@ function CampaignDetails(props) {
     }>
       <div style={{ textAlign: 'left', padding: '40px' }}>
         <Grid container spacing={40}>
-          <Grid item xs={12}>
-            <Typography variant="h5">
-              Campaign Info
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <Grid item xs={12}>
+              <Typography variant="h5">
+                Campaign Info
                   </Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={2}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Name
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container spacing={40}>
+                <Grid className={classes.inputCustom} item xs={2}>
+                  <InputLabel
+                    required
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Name
                         </InputLabel>
-              </Grid>
-              <Grid item xs={10}>
-                <Input
-                  fullWidth
-                  required
-                  onChange={onChangeCreateCampaign}
-                  value={createCampaign.name}
-                  name="name"
-                  classes={{
-                    underline: classes.cssUnderline,
-                  }}
-                />
+                </Grid>
+                <Grid item xs={10}>
+                  <Input
+                    fullWidth
+                    required
+                    onChange={onChangeCreateCampaign}
+                    value={createCampaign.name}
+                    name="name"
+                    classes={{
+                      underline: classes.cssUnderline,
+                    }}
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Start Date
+            <Grid item xs={6}>
+              <Grid container spacing={40}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    required
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Start Date
                         </InputLabel>
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  type="date"
-                  fullWidth
-                  required
-                  onChange={onChangeCreateCampaign}
-                  value={createCampaign.start_date}
-                  name="start_date"
-                  classes={{
-                    underline: classes.cssUnderline,
-                  }}
-                />
+                </Grid>
+                <Grid item xs={8}>
+                  <DateTimePicker
+                    onChange={setStartDate}
+                    name="startDate"
+                    minDate={new Date()}
+                    format="MM/dd/yyyy hh:mm a" ƒ
+                    value={startDate}
+                    required
+                    fullWidth
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  End Date
+            <Grid item xs={6}>
+              <Grid container spacing={40}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    required
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    End Date
                         </InputLabel>
-              </Grid>
-              <Grid item xs={8}>
-                <Input
-                  type="date"
-                  fullWidth
-                  required
-                  onChange={onChangeCreateCampaign}
-                  value={createCampaign.end_date}
-                  name="end_date"
-                  classes={{
-                    underline: classes.cssUnderline,
-                  }}
-                />
+                </Grid>
+                <Grid item xs={8}>
+                  <DateTimePicker
+                    onChange={setEndDate}
+                    name="endDate"
+                    minDate={new Date()}
+                    format="MM/dd/yyyy hh:mm a" ƒ
+                    value={endDate}
+                    required
+                    fullWidth
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Product
+            <Grid item xs={6}>
+              <Grid container spacing={40}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    required
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Product
                         </InputLabel>
+                </Grid>
+                <Grid item xs={8}>
+                  <AsyncSelect
+                    handleChange={(values, element) => handleChangeProductSelect(values, element)}
+                    onChangeSelect={(values, element) => handleChangeProductSelect(values, element)}
+                    data={
+                      createCampaign.product.name && { label: `${createCampaign.product.name}`, value: createCampaign.product.id, ...createCampaign.product }
+                    }
+                    single
+                    placeholder=""
+                    label=""
+                    loadOptions={fetchProductSuggestion}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={8}>
-                <AsyncSelect
-                  handleChange={(values, element) => handleChangeProductSelect(values, element)}
-                  onChangeSelect={(values, element) => handleChangeProductSelect(values, element)}
-                  data={
-                    createCampaign.product.name && { label: `${createCampaign.product.name}`, value: createCampaign.product.id, ...createCampaign.product }
+            </Grid>
+            <Grid item xs={6}>
+              <Grid container spacing={40}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    required
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Packages
+                        </InputLabel>
+                </Grid>
+                <Grid item xs={8}>
+                  {
+                    !createCampaign.product.id ?
+                      <AsyncSelect
+                        handleChange={(values, element) => handleChangePackageSelect(values, element)}
+                        onChangeSelect={(values, element) => handleChangePackageSelect(values, element)}
+                        data={
+                          createCampaign.packages
+                            .reduce((acc, p) => {
+                              acc.push({ label: `${p.label}`, value: p.id, ...p })
+                              return acc
+                            }, [])
+                        }
+                        multi
+                        placeholder=""
+                        label=""
+                        loadOptions={fetchPackageSuggestion}
+                      /> :
+                      <SelectCustom
+                        handleChange={(values, element) => handleChangePackageSelectCustom(values, element)}
+                        name="packages"
+                        options={createCampaign.packagesOptions.reduce((acc, p) => {
+                          acc.push(
+                            {
+                              label: `${p.name}`,
+                              value: p.id
+                              ...p
+                            }
+                          )
+                          return acc
+                        }, [])}
+                        data={
+                          createCampaign.packages
+                            .reduce((acc, p) => {
+                              acc.push({ label: `${p.name}`, value: p.id, ...p })
+                              return acc
+                            }, [])
+                        }
+                        fullWidth
+                        multi
+                      />
                   }
-                  single
-                  placeholder=""
-                  label=""
-                  loadOptions={fetchProductSuggestion}
-                />
-              </Grid>
-            </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  required
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Packages
-                        </InputLabel>
-              </Grid>
-              <Grid item xs={8}>
-                {
-                  !createCampaign.product.id ?
-                    <AsyncSelect
-                      handleChange={(values, element) => handleChangePackageSelect(values, element)}
-                      onChangeSelect={(values, element) => handleChangePackageSelect(values, element)}
-                      data={
-                        createCampaign.packages
-                          .reduce((acc, p) => {
-                            acc.push({ label: `${p.label}`, value: p.id, ...p })
-                            return acc
-                          }, [])
-                      }
-                      multi
-                      placeholder=""
-                      label=""
-                      loadOptions={fetchPackageSuggestion}
-                    /> :
-                    <SelectCustom
-                      handleChange={(values, element) => handleChangePackageSelectCustom(values, element)}
-                      name="packages"
-                      options={createCampaign.packagesOptions.reduce((acc, p) => {
-                        acc.push(
-                          {
-                            label: `${p.name}`,
-                            value: p.id
-                            ...p
-                          }
-                        )
-                        return acc
-                      }, [])}
-                      data={
-                        createCampaign.packages
-                          .reduce((acc, p) => {
-                            acc.push({ label: `${p.name}`, value: p.id, ...p })
-                            return acc
-                          }, [])
-                      }
-                      fullWidth
-                      multi
-                    />
-                }
 
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          <Grid item xs={6}>
-            <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={4}>
-                <InputLabel
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Assigned to
+            <Grid item xs={6}>
+              <Grid container spacing={40}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Assigned to
                         </InputLabel>
-              </Grid>
-              <Grid item xs={8}>
-                <SelectCustom
-                  handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
-                  name="assigned_to"
-                  options={user.sale_reps && user.sale_reps.reduce((acc, u) => {
-                    acc.push(
-                      {
-                        label: `${u.user.username}`,
-                        value: u.user.id,
-                        ...u
-                      }
-                    )
-                    return acc
-                  }, [])}
-                  data={
-                    createCampaign.assigned_to
-                      .reduce((acc, u) => {
-                        acc.push({ label: `${u.user.username}`, value: u.user.id, ...u })
-                        return acc
-                      }, [])
-                  }
-                  fullWidth
-                  multi
-                />
+                </Grid>
+                <Grid item xs={8}>
+                  <SelectCustom
+                    handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
+                    name="assigned_to"
+                    options={user.sale_reps && user.sale_reps.reduce((acc, u) => {
+                      acc.push(
+                        {
+                          label: `${u.user.username}`,
+                          value: u.user.id,
+                          ...u
+                        }
+                      )
+                      return acc
+                    }, [])}
+                    data={
+                      createCampaign.assigned_to
+                        .reduce((acc, u) => {
+                          acc.push({ label: `${u.user.username}`, value: u.user.id, ...u })
+                          return acc
+                        }, [])
+                    }
+                    fullWidth
+                    multi
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
-          {/* <Grid item xs={6}>
+            {/* <Grid item xs={6}>
             <Grid container spacing={40}>
               <Grid className={classes.inputCustom} item xs={4}>
                 <InputLabel
@@ -308,29 +311,30 @@ function CampaignDetails(props) {
               </Grid>
             </Grid>
           </Grid> */}
-          <Grid item xs={12}>
-            <Grid container spacing={40}>
-              <Grid item xs={2}>
-                <InputLabel
-                  htmlFor="custom-css-standard-input"
-                  classes={{
-                    root: classes.cssLabelBot,
-                    focused: classes.cssFocused,
-                  }}
-                >
-                  Description
+            <Grid item xs={12}>
+              <Grid container spacing={40}>
+                <Grid item xs={2}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelBot,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Description
                         </InputLabel>
-              </Grid>
-              <Grid item xs={10}>
-                <Editor
-                  editorState={editorState}
-                  wrapperClassName="editor-wrapper"
-                  editorClassName="editor"
-                  onEditorStateChange={onEditorStateChange}
-                />
+                </Grid>
+                <Grid item xs={10}>
+                  <Editor
+                    editorState={editorState}
+                    wrapperClassName="editor-wrapper"
+                    editorClassName="editor"
+                    onEditorStateChange={onEditorStateChange}
+                  />
+                </Grid>
               </Grid>
             </Grid>
-          </Grid>
+          </MuiPickersUtilsProvider>
         </Grid>
       </div>
     </form>

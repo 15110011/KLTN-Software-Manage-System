@@ -169,7 +169,28 @@ const styles = (theme) => ({
   },
   inputCustom: {
     fontSize: '15px',
-  }
+  },
+  actions: {
+    display: 'flex',
+  },
+  expand: {
+    position:'absolute',
+    zIndex: '1000', 
+    right: '25px',
+    top: '16px',
+    color: '#fff',
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+    '&:focus': {
+      outline: 'none !important'
+    }
+  },
+  expandOpen: {
+    transform: 'rotate(180deg)',
+  },
 })
 
 

@@ -10,8 +10,11 @@ import PlayIcon from '@material-ui/icons/PlayCircleFilled'
 import MoreVert from '@material-ui/icons/MoreVert'
 import Tooltip from '@material-ui/core/Tooltip'
 import * as dateFns from 'date-fns'
-
-
+import * as cn from 'classnames'
+import Collapse from '@material-ui/core/Collapse';
+import IconButton from '@material-ui/core/IconButton';
+import Typography from '@material-ui/core/Typography';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import styles from './SalerepStyles.js'
 import { CAMPAIGNS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
@@ -30,7 +33,14 @@ let activePageCampaign = 0
 
 function CampaignTable(props) {
 
-  const { classes, forceActivities, history, tableRef } = props
+  const { 
+    classes, 
+    forceActivities, 
+    history, 
+    tableRef,
+    expanded,
+    handleExpandClick
+  } = props
 
   const [deletingRow, setDeletingRow] = React.useState({})
   const [campaignRow, setMovingRow] = React.useState({})
@@ -102,7 +112,7 @@ function CampaignTable(props) {
   return (
     <USERCONTEXT.Consumer>
       {({ user }) =>
-        <>
+        <div style={{ position: 'relative' }}>
           {
             notiSuccess &&
             <CustomSnackbar success msg={notiSuccess} />
@@ -175,271 +185,282 @@ function CampaignTable(props) {
               <Button color='primary' onClick={() => { onRemoveCampaign() }}>Remove</Button>
             </DialogActions>
           </Dialog>
-          <MaterialTable
-            tableRef={tableRef}
-            components={
-              {
-                Toolbar: props =>
-                  <Card plain>
-                    <CardHeader color="danger">
-                      <h4 onClick={() => history.push('/dashboard/campaign-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Campaigns</h4>
-                    </CardHeader>
-                  </Card>,
-                Header: props => <MTableHeader {...props}
-                  onOrderChange={(orderBy, dir) => {
-                    order.forEach((orderType, index) => {
-                      if (orderBy != index) {
-                        order[index] = null
+          <IconButton
+            className={cn(classes.expand, {
+              [classes.expandOpen]: expanded['campaign'],
+            })}
+            onClick={() => handleExpandClick('campaign')}
+            aria-label="Show more"
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+          <Collapse collapsedHeight="100px" in={expanded['campaign']}>
+            <MaterialTable
+              tableRef={tableRef}
+              components={
+                {
+                  Toolbar: props =>
+                    <Card plain>
+                      <CardHeader color="danger">
+                        <h4 onClick={() => history.push('/dashboard/campaign-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Campaigns</h4>
+                      </CardHeader>
+                    </Card>,
+                  Header: props => <MTableHeader {...props}
+                    onOrderChange={(orderBy, dir) => {
+                      order.forEach((orderType, index) => {
+                        if (orderBy != index) {
+                          order[index] = null
+                        }
+                      })
+                      order[orderBy] = dir
+
+                      props.onOrderChange(orderBy, dir)
+                    }}
+                  />,
+                  Pagination: props => <TablePagination {...props}
+                    page={activePageCampaign} rowsPerPageOptions={[5, 10, 20]}
+                    count={props.count}
+                    onChangePage={(e, nextPage) => {
+                      props.onChangePage(a, nextPage)
+                      // setActivePage(nextPage)
+                      activePageCampaign = nextPage
+                    }}
+                  />,
+                  Body: props => <MTableBody {...props} onFilterChanged={(columnId, value, position) => {
+                    if (columnId == 1) {
+                      search.name = value
+                    }
+                    else if (columnId == 2) {
+                      search.productName = value
+                    }
+                    else if (columnId == 3) {
+                      search.timeRanges[columnId][position] = value
+                      return
+                    }
+                    else if (columnId == 4) {
+                      search.timeRanges[columnId][position] = value
+
+                      return
+                    }
+                    else if (columnId == 5) {
+                      search.status = value
+                    }
+                    activePageCampaign = 0
+                    props.onFilterChanged(columnId, value);
+                  }}
+                  />,
+                  Row: props => {
+                    return <MTableBodyRow {...props}></MTableBodyRow>
+                  },
+                  Action: props => {
+                    if (props.action.icon == 'more_vert') {
+
+                      return (
+                        <Tooltip title={props.action.tooltip}>
+                          <IconButton
+                            onClick={(event) => props.action.onClick(event, props.data)}
+                          >
+                            <MoreVert></MoreVert>
+                          </IconButton>
+                        </Tooltip>
+                      )
+                    }
+                    if (props.action.icon == 'play_circle_filled' && props.data.status == 'Idle' && props.data.manager == user.id) {
+                      return (
+                        <Tooltip title={props.action.tooltip}>
+                          <IconButton
+                            onClick={(event) => props.action.onClick(event, props.data)}
+                          >
+                            <PlayIcon />
+                          </IconButton>
+                        </Tooltip>
+                      )
+                    }
+                    if (props.action.icon == 'delete' && props.data.status == 'Idle' && props.data.manager == user.id) {
+                      return (
+                        <Tooltip title={props.action.tooltip}>
+                          <IconButton
+                            onClick={(event) => props.action.onClick(event, props.data)}
+                          >
+                            <DeleteIcon></DeleteIcon>
+                          </IconButton>
+                        </Tooltip>)
+                    }
+                    return null
+                  },
+                  FilterRow: props =>
+                    <CustomFItlerRow {{
+                      ...props,
+                      onFilterDateRange: (position, date, colId) => {
+                        search.timeRanges[colId][position] = date
+                        const timeRangesClone = [...timeRanges]
+                        timeRangesClone[colId][position] = date
+                        setTimeRanges(timeRangesClone)
+                        // props.onFilterChanged(colId, date, position)
+                        tableRef.current.onQueryChange()
+                      },
+                      timeRanges: timeRanges
+
+                    }} />
+                }
+              }
+              columns={[
+                { title: '#', field: '#', filtering: false, headerStyle: { maxWidth: '0px' } },
+                {
+                  title: 'Name', field: 'name', headerStyle: { minWidth: '200px' },
+                  customSort: (a, b) => a.name.toString().toLowerCase() < b.name.toString().toLowerCase()
+                },
+                {
+                  title: 'Product', field: 'product',
+                  render: (rowData) => {
+                    if (!rowData.product) return <i>Undefined</i>
+                    return rowData.product
+                  },
+                  customSort: (a, b) => {
+
+                    if (!a.product) return 1
+                    if (!b.product) return -1
+                    return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
+
+                  }
+                },
+                {
+                  title: 'Start', field: 'start', type: 'dateRange',
+                  customSort: (a, b) => {
+                    if (dateFns.isBefore(dateFns.parseISO(a.start), dateFns.parseISO(b.start))) return -1
+                    return 1
+
+                  },
+                  render: row => {
+                    return dateFns.format(dateFns.parseISO(row.start), 'dd-MM-yyyy')
+                  }
+                },
+                {
+                  title: 'End', field: 'end', type: 'dateRange',
+                  customSort: (a, b) => {
+                    if (dateFns.isBefore(dateFns.parseISO(a.end), dateFns.parseISO(b.end))) return -1
+                    return 1
+                  },
+                  render: row => dateFns.format(dateFns.parseISO(row.end), 'dd-MM-yyyy')
+                },
+                {
+                  title: 'Status', field: 'status',
+                  customSort: (a, b) => {
+                    if (a.status == 'Idle' || b.status == 'Finished') return -1
+                    if (b.status == 'Idle' || a.status == 'Finished') return 1
+                    return 0
+                  },
+
+                  render: (data) => {
+                    if (data.status == 'Active') {
+                      return <div className="text-success">Active</div>
+                    }
+
+                    else if (data.status == 'Idle') {
+                      return <div className="text-warning">Idle</div>
+                    }
+
+                    return <div className="text-danger">Finished</div>
+                  },
+                  lookup: {
+                    'Idle': 'Idle',
+                    'Active': 'Active',
+                    'Finished': 'Finished'
+                  }
+                }
+              ]}
+              data={(query) =>
+                new Promise((resolve, reject) => {
+                  let searchString = `${search.name ? '&campaign_name=' + search.name : ''}`
+                  searchString += `${search.productName ? '&product_name=' + search.productName : ''}`
+                  searchString += `${search.timeRanges[3].from ? '&start_from=' + search.timeRanges[3].from : ''}`
+                  searchString += `${search.timeRanges[3].to ? '&start_to=' + search.timeRanges[3].to : ''}`
+                  searchString += `${search.timeRanges[4].from ? '&end_from=' + search.timeRanges[4].from : ''}`
+                  searchString += `${search.timeRanges[4].to ? '&end_to=' + search.timeRanges[4].to : ''}`
+                  searchString += `${search.status ? '&status=' + search.status : ''}`
+                  searchString += `${order[1] ? '&name_order=' + order[1] : ''}`
+                  searchString += `${order[2] ? '&product_order=' + order[2] : ''}`
+                  searchString += `${order[3] ? '&start_order=' + order[3] : ''}`
+                  searchString += `${order[4] ? '&end_order=' + order[4] : ''}`
+                  searchString += `${order[5] ? '&status_order=' + order[5] : ''}`
+                  apiGet(CAMPAIGNS_URL + `?type=both&page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
+                    const data = res.data.data.map((c, index) => {
+                      let status = 'Idle'
+                      let currentDate = dateFns.parseISO(new Date().toISOString())
+                      currentDate = dateFns.setHours(currentDate, 0)
+                      currentDate = dateFns.setMinutes(currentDate, 0)
+                      currentDate = dateFns.setSeconds(currentDate, 0)
+                      if (
+                        (!dateFns.isAfter(dateFns.parseISO(c.start_date), currentDate)
+                          && !dateFns.isBefore(dateFns.parseISO(c.end_date), currentDate)
+                        )
+                        || dateFns.isSameDay(dateFns.parseISO(c.end_date), currentDate)
+                      ) {
+                        status = 'Active'
+                      }
+                      else if (dateFns.isBefore(dateFns.parseISO(c.end_date), currentDate)) {
+                        status = 'Finished'
+                      }
+                      return {
+                        '#': (activePageCampaign * query.pageSize + index + 1),
+                        name: c.name,
+                        product: c.product ? c.product.name : null,
+                        start: c.start_date,
+                        end: c.end_date,
+                        id: c.id,
+                        packages: c.packages,
+                        follow_up_plan: c.follow_up_plan,
+                        marketing_plan: c.marketing_plan,
+                        status,
+                        manager: c.manager.id,
+                        allContacts: c.contacts
+
                       }
                     })
-                    order[orderBy] = dir
-
-                    props.onOrderChange(orderBy, dir)
-                  }}
-                />,
-                Pagination: props => <TablePagination {...props}
-                  page={activePageCampaign} rowsPerPageOptions={[5, 10, 20]}
-                  count={props.count}
-                  onChangePage={(e, nextPage) => {
-                    props.onChangePage(a, nextPage)
-                    // setActivePage(nextPage)
-                    activePageCampaign = nextPage
-                  }}
-                />,
-                Body: props => <MTableBody {...props} onFilterChanged={(columnId, value, position) => {
-                  if (columnId == 1) {
-                    search.name = value
-                  }
-                  else if (columnId == 2) {
-                    search.productName = value
-                  }
-                  else if (columnId == 3) {
-                    search.timeRanges[columnId][position] = value
-                    return
-                  }
-                  else if (columnId == 4) {
-                    search.timeRanges[columnId][position] = value
-
-                    return
-                  }
-                  else if (columnId == 5) {
-                    search.status = value
-                  }
-                  activePageCampaign = 0
-                  props.onFilterChanged(columnId, value);
-                }}
-                />,
-                Row: props => {
-                  return <MTableBodyRow {...props}></MTableBodyRow>
-                },
-                Action: props => {
-                  if (props.action.icon == 'more_vert') {
-
-                    return (
-                      <Tooltip title={props.action.tooltip}>
-                        <IconButton
-                          onClick={(event) => props.action.onClick(event, props.data)}
-                        >
-                          <MoreVert></MoreVert>
-                        </IconButton>
-                      </Tooltip>
-                    )
-                  }
-                  if (props.action.icon == 'play_circle_filled' && props.data.status == 'Idle' && props.data.manager == user.id) {
-                    return (
-                      <Tooltip title={props.action.tooltip}>
-                        <IconButton
-                          onClick={(event) => props.action.onClick(event, props.data)}
-                        >
-                          <PlayIcon />
-                        </IconButton>
-                      </Tooltip>
-                    )
-                  }
-                  if (props.action.icon == 'delete' && props.data.status == 'Idle' && props.data.manager == user.id) {
-                    return (
-                      <Tooltip title={props.action.tooltip}>
-                        <IconButton
-                          onClick={(event) => props.action.onClick(event, props.data)}
-                        >
-                          <DeleteIcon></DeleteIcon>
-                        </IconButton>
-                      </Tooltip>)
-                  }
-                  return null
-                },
-                FilterRow: props =>
-                  <CustomFItlerRow {{
-                    ...props,
-                    onFilterDateRange: (position, date, colId) => {
-                      search.timeRanges[colId][position] = date
-                      const timeRangesClone = [...timeRanges]
-                      timeRangesClone[colId][position] = date
-                      setTimeRanges(timeRangesClone)
-                      // props.onFilterChanged(colId, date, position)
-                      tableRef.current.onQueryChange()
-                    },
-                    timeRanges: timeRanges
-
-                  }} />
-              }
-            }
-            columns={[
-              { title: '#', field: '#', filtering: false, headerStyle: { maxWidth: '0px' } },
-              {
-                title: 'Name', field: 'name', headerStyle: { minWidth: '200px' },
-                customSort: (a, b) => a.name.toString().toLowerCase() < b.name.toString().toLowerCase()
-              },
-              {
-                title: 'Product', field: 'product',
-                render: (rowData) => {
-                  if (!rowData.product) return <i>Undefined</i>
-                  return rowData.product
-                },
-                customSort: (a, b) => {
-
-                  if (!a.product) return 1
-                  if (!b.product) return -1
-                  return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
-
-                }
-              },
-              {
-                title: 'Start', field: 'start', type: 'dateRange',
-                customSort: (a, b) => {
-                  if (dateFns.isBefore(dateFns.parseISO(a.start), dateFns.parseISO(b.start))) return -1
-                  return 1
-
-                },
-                render: row => {
-                  return dateFns.format(dateFns.parseISO(row.start), 'dd-MM-yyyy')
-                }
-              },
-              {
-                title: 'End', field: 'end', type: 'dateRange',
-                customSort: (a, b) => {
-                  if (dateFns.isBefore(dateFns.parseISO(a.end), dateFns.parseISO(b.end))) return -1
-                  return 1
-                },
-                render: row => dateFns.format(dateFns.parseISO(row.end), 'dd-MM-yyyy')
-              },
-              {
-                title: 'Status', field: 'status',
-                customSort: (a, b) => {
-                  if (a.status == 'Idle' || b.status == 'Finished') return -1
-                  if (b.status == 'Idle' || a.status == 'Finished') return 1
-                  return 0
-                },
-
-                render: (data) => {
-                  if (data.status == 'Active') {
-                    return <div className="text-success">Active</div>
-                  }
-
-                  else if (data.status == 'Idle') {
-                    return <div className="text-warning">Idle</div>
-                  }
-
-                  return <div className="text-danger">Finished</div>
-                },
-                lookup: {
-                  'Idle': 'Idle',
-                  'Active': 'Active',
-                  'Finished': 'Finished'
-                }
-              }
-            ]}
-            data={(query) =>
-              new Promise((resolve, reject) => {
-                let searchString = `${search.name ? '&campaign_name=' + search.name : ''}`
-                searchString += `${search.productName ? '&product_name=' + search.productName : ''}`
-                searchString += `${search.timeRanges[3].from ? '&start_from=' + search.timeRanges[3].from : ''}`
-                searchString += `${search.timeRanges[3].to ? '&start_to=' + search.timeRanges[3].to : ''}`
-                searchString += `${search.timeRanges[4].from ? '&end_from=' + search.timeRanges[4].from : ''}`
-                searchString += `${search.timeRanges[4].to ? '&end_to=' + search.timeRanges[4].to : ''}`
-                searchString += `${search.status ? '&status=' + search.status : ''}`
-                searchString += `${order[1] ? '&name_order=' + order[1] : ''}`
-                searchString += `${order[2] ? '&product_order=' + order[2] : ''}`
-                searchString += `${order[3] ? '&start_order=' + order[3] : ''}`
-                searchString += `${order[4] ? '&end_order=' + order[4] : ''}`
-                searchString += `${order[5] ? '&status_order=' + order[5] : ''}`
-                apiGet(CAMPAIGNS_URL + `?type=both&page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
-                  const data = res.data.data.map((c, index) => {
-                    let status = 'Idle'
-                    let currentDate = dateFns.parseISO(new Date().toISOString())
-                    currentDate = dateFns.setHours(currentDate, 0)
-                    currentDate = dateFns.setMinutes(currentDate, 0)
-                    currentDate = dateFns.setSeconds(currentDate, 0)
-                    if (
-                      (!dateFns.isAfter(dateFns.parseISO(c.start_date), currentDate)
-                        && !dateFns.isBefore(dateFns.parseISO(c.end_date), currentDate)
-                      )
-                      || dateFns.isSameDay(dateFns.parseISO(c.end_date), currentDate)
-                    ) {
-                      status = 'Active'
-                    }
-                    else if (dateFns.isBefore(dateFns.parseISO(c.end_date), currentDate)) {
-                      status = 'Finished'
-                    }
-                    return {
-                      '#': (activePageCampaign * query.pageSize + index + 1),
-                      name: c.name,
-                      product: c.product ? c.product.name : null,
-                      start: c.start_date,
-                      end: c.end_date,
-                      id: c.id,
-                      packages: c.packages,
-                      follow_up_plan: c.follow_up_plan,
-                      marketing_plan: c.marketing_plan,
-                      status,
-                      manager: c.manager.id,
-                      allContacts: c.contacts
-
-                    }
-                  })
-                  resolve({
-                    data,
-                    page: res.data.page,
-                    totalCount: res.data.total
+                    resolve({
+                      data,
+                      page: res.data.page,
+                      totalCount: res.data.total
+                    })
                   })
                 })
-              })
-            }
-            actions={[
-              {
-                icon: 'delete',
-                tooltip: 'Delete campaign',
-                onClick: (event, row) => {
-                  setDeletingRow(row)
-                  // forceActivities()
+              }
+              actions={[
+                {
+                  icon: 'delete',
+                  tooltip: 'Delete campaign',
+                  onClick: (event, row) => {
+                    setDeletingRow(row)
+                    // forceActivities()
+                  },
                 },
-              },
-              {
-                icon: 'play_circle_filled',
-                tooltip: 'Start campaign',
-                onClick: (event, row) => {
-                  setMovingRow(row)
+                {
+                  icon: 'play_circle_filled',
+                  tooltip: 'Start campaign',
+                  onClick: (event, row) => {
+                    setMovingRow(row)
+                  },
                 },
-              },
-              {
-                icon: 'more_vert',
-                tooltip: 'More actions',
-                onClick: (event, row) => {
-                  setMoreRow(row)
-                  setMoreDialog(true)
+                {
+                  icon: 'more_vert',
+                  tooltip: 'More actions',
+                  onClick: (event, row) => {
+                    setMoreRow(row)
+                    setMoreDialog(true)
+                  },
                 },
-              },
-            ]}
-            options={{
-              search: false,
-              filtering: true,
-              paging: true,
-              actionsColumnIndex: -1,
-              debounceInterval: 300,
-              sorting: true
-            }}
-          />
-        </>
+              ]}
+              options={{
+                search: false,
+                filtering: true,
+                paging: true,
+                actionsColumnIndex: -1,
+                debounceInterval: 300,
+                sorting: true
+              }}
+            />
+          </Collapse>
+        </div>
       }
     </USERCONTEXT.Consumer>
   )
