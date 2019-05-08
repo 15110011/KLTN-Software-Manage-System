@@ -220,7 +220,7 @@ function ActivitiesTable(props) {
             <ExpandMoreIcon />
           </IconButton>
           {viewType == 'campaign' &&
-            <Collapse collapsedHeight="100px" in={expanded['upcoming1']}>
+            <Collapse collapsedHeight="100px" timeout="auto" in={expanded['upcoming1']}>
               <MaterialTable
                 tableRef={tableActivtyRef}
                 components={

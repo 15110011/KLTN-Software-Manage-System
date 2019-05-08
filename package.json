@@ -20,7 +20,7 @@
     "fuse-box": "^3.7.1",
     "html-to-draftjs": "^1.4.0",
     "js-cookie": "^2.2.0",
-    "material-table": "latest",
+    "material-table": "^1.33.0",
     "material-ui-pickers": "^2.2.4",
     "npm": "^6.9.0",
     "numeral": "^2.0.6",
