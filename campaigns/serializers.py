@@ -156,6 +156,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
 
         return campaign
 
+
     def update(self, instance, validated_data):
         contacts = validated_data.pop('contacts', None)
         campaign = super().update(instance, validated_data)

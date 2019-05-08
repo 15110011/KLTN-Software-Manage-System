@@ -52,5 +52,46 @@ body {
 .active {
   color: #2196F3;
   background-color: #f4f5f7;
-  border-bottom-color: rgba(9,30,66,.25);
+  border-bottom-color: rgba(9, 30, 66, .25);
 }
+
+.rechart-wrapper {
+  pointer-events: none;
+  visibility: visible;
+  position: absolute;
+  top: 0px;
+  transform: translate(80px, 32px);
+  transition: -webkit-transform 400ms ease 0s;
+}
+
+.custom-tooltip {
+  margin: 0px;
+  padding: 10px;
+  background-color: rgb(255, 255, 255);
+  border: 1px solid rgb(204, 204, 204);
+  white-space: nowrap;
+}
+
+.custom-tooltip-label {
+  margin: 0
+}
+
+.custom-tooltip-item-list {
+  padding: 0px;
+  margin: 0px;
+}
+
+.tooltip-item {
+  display: block;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  color: rgb(255, 115, 0);
+}
+
+.tooltip-item-name {}
+
+.tooltip-item-separator {}
+
+.tooltip-item-value {}
+
+.tooltip-item-unit {}
