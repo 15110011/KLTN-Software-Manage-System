@@ -20,6 +20,8 @@ import FilledInput from '@material-ui/core/FilledInput';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import PhoneIcon from '@material-ui/icons/Phone'
+import Tooltip from '@material-ui/core/Tooltip';
+import IconButton from '@material-ui/core/IconButton';
 import SwapIcon from '@material-ui/icons/SwapHoriz'
 import RemoveIcon from '@material-ui/icons/Remove'
 import EmailIcon from '@material-ui/icons/Email'
@@ -40,7 +42,7 @@ import NoteDetail from './NoteDetail'
 import CampaignDetail from './CampaignDetail'
 import CustomSnackbar from '../../components/CustomSnackbar'
 import ContactDetail from './ContactDetail'
-import { apiPatch, apiPost } from '../../common/Request'
+import { apiPatch, apiPost, apiDelete } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import { CAMPAIGNS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -204,17 +206,18 @@ function CampaignTableDetail(props) {
           }
         >
           <DialogTitle>
-            Start campaign {campaignRow.name}
-          </DialogTitle>
+            Confirm Action
+              </DialogTitle>
           <DialogContent>
             <DialogContentText>
               <div>
-                The original start date is <i>{dateFns.format(dateFns.parseISO(campaignRow.start), 'dd-MM-yyyy')}</i>.
+                This campaign <b>({campaignRow.name})</b> will be started on <br />
+                <div>
+                  New start date: <b><i>{dateFns.format(dateFns.parseISO(new Date().toISOString()), 'dd-MM-yyyy')}</i></b>
+                </div>
+                Original start date: <b><i>{dateFns.format(dateFns.parseISO(campaignRow.start), 'dd-MM-yyyy')}</i></b>.
                   </div>
-              <div>
-                New start date will be <i>{dateFns.format(dateFns.parseISO(new Date()), 'dd-MM-yyyy')}</i>
-              </div>
-              <div>This action cannot be undone</div>
+              <div>This action cannot be undone. Are you sure?</div>
             </DialogContentText>
           </DialogContent>
           <DialogActions>
@@ -228,12 +231,13 @@ function CampaignTableDetail(props) {
         }
       >
         <DialogTitle>
-          REMOVE CAMPAIGN {deletingRow.name}
+          Confirm Action
         </DialogTitle>
         <DialogContent>
           <DialogContentText>
             <div>
-              This action cannot be undone
+              This campaign<b> ({deletingRow.name})</b> will be removed.
+              This action cannot be undone. Are you sure?
             </div>
           </DialogContentText>
         </DialogContent>
@@ -299,36 +303,42 @@ function CampaignTableDetail(props) {
                           </Typography>
                           {
                             status == 'Active' &&
-                            <Button
-                              variant='contained'
-                              classes={{
-                                contained: classes.btnStatusActive
-                              }}
-                            >
-                              {status}
-                            </Button>
+                            <Tooltip title="Status">
+                              <Button
+                                variant='contained'
+                                classes={{
+                                  contained: classes.btnStatusActive
+                                }}
+                              >
+                                {status}
+                              </Button>
+                            </Tooltip>
                           }
                           {
                             status == 'Idle' &&
-                            <Button
-                              variant='contained'
-                              classes={{
-                                contained: classes.btnStatusIdle
-                              }}
-                            >
-                              {status}
-                            </Button>
+                            <Tooltip title="Status">
+                              <Button
+                                variant='contained'
+                                classes={{
+                                  contained: classes.btnStatusIdle
+                                }}
+                              >
+                                {status}
+                              </Button>
+                            </Tooltip>
                           }
                           {
                             status == 'Finished' &&
-                            <Button
-                              variant='contained'
-                              classes={{
-                                contained: classes.btnStatusFinished
-                              }}
-                            >
-                              {status}
-                            </Button>
+                            <Tooltip title="Status">
+                              <Button
+                                variant='contained'
+                                classes={{
+                                  contained: classes.btnStatusFinished
+                                }}
+                              >
+                                {status}
+                              </Button>
+                            </Tooltip>
                           }
                         </li>
                       )

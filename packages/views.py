@@ -98,7 +98,7 @@ class ProductViewSet(ModelViewSet):
 class PackageViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = PackageSerializer
-    queryset = Package.objects
+    queryset = Package.objects.prefetch_related('features')
 
     def get_queryset(self):
         if not bool(self.request.query_params):

@@ -77,8 +77,7 @@ function FollowUpTableDetail(props) {
             noSteps,
             progress,
             id: d.id,
-            followup: d,
-            packages: d.campaign.packages
+            followup: d
           })
         }
       }
@@ -113,8 +112,7 @@ function FollowUpTableDetail(props) {
         noSteps,
         progress,
         id: d.id,
-        followup: d,
-        packages: d.campaign.packages
+        followup: d
       })
     }
   }, [followUps.data.length])
@@ -135,8 +133,7 @@ function FollowUpTableDetail(props) {
       noSteps,
       progress,
       id: d.id,
-      followup: d,
-      packages: d.campaign.packages
+      followup: d
     })
     setIndexActive(index)
   }
@@ -254,7 +251,6 @@ function FollowUpTableDetail(props) {
                   // contact={followUps.data.contacts}
                   updateTable={() => { forceUpdate() }}
                   user={user}
-                  setDeletingRow={setDeletingRow}
                 /> : 'No record to display'
             }
           </Grid>

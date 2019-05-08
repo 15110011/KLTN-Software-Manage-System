@@ -60,6 +60,7 @@ function CampaignTable(props) {
       setDeletingRow({})
       forceActivities()
       tableRef.current.onQueryChange()
+      setMoreDialog(false)
       onNotiSuccess('Successfully Removed')
     })
   }
@@ -70,7 +71,8 @@ function CampaignTable(props) {
         tableRef.current.onQueryChange()
         setMovingRow(false)
         forceActivities()
-        onNotiSuccess('Successfully Updated')
+        setMoreDialog(false)
+        onNotiSuccess('Successfully Started')
       })
   }
 
@@ -135,17 +137,18 @@ function CampaignTable(props) {
               }
             >
               <DialogTitle>
-                Start campaign {campaignRow.name}
+                Confirm Action
               </DialogTitle>
               <DialogContent>
                 <DialogContentText>
                   <div>
-                    The original start date is <i>{dateFns.format(dateFns.parseISO(campaignRow.start), 'dd-MM-yyyy')}</i>.
+                    This campaign <b>({campaignRow.name})</b> will be started on <br />
+                    <div>
+                      New start date: <b><i>{dateFns.format(dateFns.parseISO(new Date().toISOString()), 'dd-MM-yyyy')}</i></b>
+                    </div>
+                    Original start date: <b><i>{dateFns.format(dateFns.parseISO(campaignRow.start), 'dd-MM-yyyy')}</i></b>.
                   </div>
-                  <div>
-                    New start date will be <i>{dateFns.format(dateFns.parseISO(new Date().toISOString()), 'dd-MM-yyyy')}</i>
-                  </div>
-                  <div>This action cannot be undone</div>
+                  <div>This action cannot be undone. Are you sure?</div>
                 </DialogContentText>
               </DialogContent>
               <DialogActions>
@@ -159,13 +162,12 @@ function CampaignTable(props) {
             }
           >
             <DialogTitle>
-              REMOVE CAMPAIGN {deletingRow.name}
-            </DialogTitle>
+              Confirm Action
+        </DialogTitle>
             <DialogContent>
               <DialogContentText>
-                <div>
-                  This action cannot be undone
-            </div>
+                <div>This campaign<b> ({deletingRow.name})</b> will be removed.
+                  This action cannot be undone. Are you sure?</div>
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -179,7 +181,7 @@ function CampaignTable(props) {
               {
                 Toolbar: props =>
                   <Card plain>
-                    <CardHeader color="rose">
+                    <CardHeader color="danger">
                       <h4 onClick={() => history.push('/dashboard/campaign-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Campaigns</h4>
                     </CardHeader>
                   </Card>,
@@ -414,7 +416,7 @@ function CampaignTable(props) {
               },
               {
                 icon: 'play_circle_filled',
-                tooltip: 'Start Campaign',
+                tooltip: 'Start campaign',
                 onClick: (event, row) => {
                   setMovingRow(row)
                 },

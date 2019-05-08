@@ -14,7 +14,7 @@ import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
 import TicketDetail from './TicketDetail'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
-
+import CustomSnackbar from '../../components/CustomSnackbar'
 import USERCONTEXT from '../../components/UserContext'
 
 const search = {}
@@ -28,6 +28,7 @@ function TicketsTable(props) {
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
   const [moreRow, setMoreRow] = React.useState({})
+  const [successNoti, setSuccessNoti] = React.useState(false)
 
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [moreDialog, setMoreDialog] = React.useState(false)
@@ -54,13 +55,13 @@ function TicketsTable(props) {
     })
   }
 
-  console.log(moreRow)
-
   const onRemoveContact = () => {
     apiPatch(CONTACT_MARKETING_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
       forceMarketing()
       forceActivities()
       setDeletingRow({})
+      setMoreDialog(null)
+      notification('Successfully Removed')
     })
   }
 
@@ -70,15 +71,24 @@ function TicketsTable(props) {
         forceMarketing()
         forceActivities()
         forceFollowUp()
+        setMoreDialog(null)
+        notification('Successfully Moved')
         setMovingRow({})
       })
   }
 
+  const notification = (m = 'Successfully Added') => {
+    setSuccessNoti(m)
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
+  }
 
   return (
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
+          {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
           {moreDialog &&
             <Dialog
               open={true}
@@ -114,13 +124,14 @@ function TicketsTable(props) {
             }
           >
             <DialogTitle>
-              MOVE CONTACT {movingRow.full_name} TO FOLLOW-UP
-        </DialogTitle>
+              Confirm Action
+            </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This action cannot be undone
-            </div>
+                  Move contact <b>({movingRow.full_name})</b> to follow-up phase
+                  . This action cannot be undone. Are you sure?
+                </div>
               </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -133,12 +144,13 @@ function TicketsTable(props) {
             }
           >
             <DialogTitle>
-              REMOVE CONTACT {deletingRow.full_name} OUT OF CAMPAIGN {deletingRow.campaignName}
+              Confirm Action
             </DialogTitle>
             <DialogContent>
               <DialogContentText>
                 <div>
-                  This action cannot be undone
+                  Remove contact <b>({deletingRow.full_name})</b> out of campaign <b>({deletingRow.campaignName})</b>
+                  . This action cannot be undone. Are you sure?
             </div>
               </DialogContentText>
             </DialogContent>
@@ -154,7 +166,7 @@ function TicketsTable(props) {
                 Toolbar: props =>
                   <Card plain>
                     <CardHeader color="primary">
-                      <h4 onClick={() => history.push('/dashboard/ticket-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Tickets</h4>
+                      <h4 onClick={() => history.push('/dashboard/ticket-detail')} style={{ cursor: 'pointer' }} className={classes.cardTitleWhite}>Waiting List</h4>
                     </CardHeader>
                   </Card>,
                 Header: props => <MTableHeader {...props}
@@ -215,7 +227,7 @@ function TicketsTable(props) {
                 searchString += `${order[1] ? '&contact_name_order=' + order[1] : ''}`
                 searchString += `${order[2] ? '&email_order=' + order[2] : ''}`
                 searchString += `${order[4] ? '&campaign_order=' + order[4] : ''}`
-                apiGet(CONTACT_MARKETING_URL + `?page=${activePage}&limit=${query.pageSize}`+searchString, true).then(res => {
+                apiGet(CONTACT_MARKETING_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
                   const data = []
                   res.data.data.forEach((c, index) => {
                     data.push({

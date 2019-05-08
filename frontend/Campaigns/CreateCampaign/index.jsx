@@ -99,6 +99,7 @@ function CreateCampaign(props) {
   const [viewingOrder, setViewingOrder] = React.useState(0)
 
   const [showEditIcon, setShowEditIcon] = React.useState(false)
+  const [successNoti, setSuccessNoti] = React.useState(false)
 
   const { user, notification } = props;
 
@@ -132,7 +133,7 @@ function CreateCampaign(props) {
             }
             else {
               localStorage.setItem("token", res.data.access)
-              // notification()
+              notification()
             }
           })
         }
@@ -140,7 +141,7 @@ function CreateCampaign(props) {
           setError(res.data)
         }
         else {
-          // notification()
+          notification('Successfuly Filter')
           setCreateCampaign({ ...createCampaign, contacts: res.data })
         }
       })
@@ -296,7 +297,7 @@ function CreateCampaign(props) {
             else {
               localStorage.setItem("token", res.data.access)
               apiPostCampaign(data)
-              // notification()
+              notification()
             }
           })
         }
@@ -407,6 +408,7 @@ function CreateCampaign(props) {
                 viewingOrder={viewingOrder}
                 onChangeViewingOrder={onChangeViewingOrder}
                 showEditIcon={showEditIcon}
+                notification={notification}
               />
               <div style={{ float: 'right', marginTop: '50px' }}>
                 <Button

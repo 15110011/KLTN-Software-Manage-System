@@ -143,7 +143,8 @@ DATABASES = {
         'USER': os.getenv('PGUSER', 'postgres'),
         'PASSWORD': os.getenv('PGPASSWORD', 'postgres'),
         'HOST': os.getenv('PGHOST', 'localhost'),
-        'PORT': '5432'
+        'PORT': '5432',
+        'CONN_MAX_AGE': 60
     }
 }
 RQ_QUEUES = {

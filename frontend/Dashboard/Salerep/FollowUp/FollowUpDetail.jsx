@@ -48,6 +48,7 @@ import { apiPost, apiPatch } from '../../../common/Request'
 import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL, STEP_DETAIL_URL } from '../../../common/urls';
 import styles from './FollowUpStyle.js'
 import StepFollowUpDetail from './StepFollowUpDetail'
+import CreateEventDialog from '../../../Events/CreateEventDialog'
 
 function TabContainer({ children, dir }) {
   return (
@@ -70,7 +71,8 @@ function FollowUpDetail(props) {
     id,
     updateTable,
     user,
-    onRemoveContact
+    updateActivities,
+    onRemoveContact,
   } = props
   const [selectTabActivity, setSelectTabActivity] = React.useState({
     type: 'history'
@@ -185,7 +187,7 @@ function FollowUpDetail(props) {
       })
     }
   }
-
+  console.log(moreRow)
   const onSendEmail = () => {
     setMailDialog(true)
   }
@@ -207,6 +209,14 @@ function FollowUpDetail(props) {
   //     }, 2000);
   //   })
   // }
+
+  const notification = () => {
+    setSuccessNoti('Successfully Added')
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
+    updateActivities()
+  }
 
   const handleUpdateStepDetail = (e) => {
     e.preventDefault()
@@ -257,6 +267,14 @@ function FollowUpDetail(props) {
         <SendMailDialog user={user} contact={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
         />
       }
+      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
+        order={moreRow.id}
+        setLaterDialog={setLaterDialog}
+        type_='campaign'
+        notification={notification}
+        updateActivities={updateActivities}
+        contactOptions={[{ ...moreRow.followup.contacts, value: moreRow.followup.contacts.id, label: moreRow.followup.contacts.first_name + ' ' + moreRow.followup.contacts.last_name }]}
+      />}
       <Grid style={{ padding: '10px 40px' }} container spacing={24}>
         <Grid item xs={12}>
           <Grid container spacing={8}>
@@ -269,67 +287,75 @@ function FollowUpDetail(props) {
               &nbsp;
               {
                 moreRow.progress >= 50 &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusActive
-                  }}
-                >
-                  {moreRow.progress.toFixed(2)}%
+                <Tooltip title="Progress">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusActive
+                    }}
+                  >
+                    {moreRow.progress.toFixed(2)}%
                 </Button>
+                </Tooltip>
               }
               {
                 moreRow.progress < 50 &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnStatusFinished
-                  }}
-                >
-                  {moreRow.progress.toFixed(2)}%
+                <Tooltip title="Progress">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnStatusFinished
+                    }}
+                  >
+                    {moreRow.progress.toFixed(2)}%
                 </Button>
+                </Tooltip>
               }
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnYellow
-              }}
-              onClick={() => {
-                setLaterDialog(!laterDialog)
-              }}
-            >
-              <TimerIcon fontSize="small" />
-            </Button>
-
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnPurple
-              }}
-              onClick={() => {
-                setMovingRow({ id: moreRow.id })
-              }}
-              disabled={moreRow.progress != 100}
-            >
-              <DoneIcon fontSize="small" />
-            </Button>
-            {
-              moreRow.progress >= 0 &&
+            <Tooltip title="Schedule">
               <Button
                 variant='contained'
                 classes={{
-                  contained: classes.btnRed
+                  contained: classes.btnYellow
                 }}
                 onClick={() => {
-                  setDeletingRow(moreRow)
+                  setLaterDialog(!laterDialog)
                 }}
               >
-                <RemoveIcon fontSize="small" />
+                <TimerIcon fontSize="small" />
               </Button>
+            </Tooltip>
+            <Tooltip title="Confirm deal">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPurple
+                }}
+                onClick={() => {
+                  setMovingRow({ id: moreRow.id })
+                }}
+                disabled={moreRow.progress != 100}
+              >
+                <DoneIcon fontSize="small" />
+              </Button>
+            </Tooltip>
+            {
+              moreRow.progress >= 0 &&
+              <Tooltip title="Mark this contact as failed">
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnRed
+                  }}
+                  onClick={() => {
+                    setDeletingRow({ id: moreRow.id, full_name: moreRow.followup.contacts.first_name + ' ' + moreRow.followup.contacts.last_name, campaignName: moreRow.followup.campaign.name })
+                  }}
+                >
+                  <RemoveIcon fontSize="small" />
+                </Button>
+              </Tooltip>
             }
           </DialogActions>
         </Grid>
@@ -380,7 +406,7 @@ function FollowUpDetail(props) {
               placement='bottom-start'
               title={
                 <ul style={{ paddingInlineStart: '16px', fontSize: '12px', wordBreak: 'break-word' }}>
-                  {moreRow.packages.map(p =>
+                  {moreRow.packages && moreRow.packages.map(p =>
                     <li key={`package${p}`}>{p.name}</li>)
                   }
                 </ul>
@@ -388,7 +414,7 @@ function FollowUpDetail(props) {
               <Typography classes={{ root: classes.linkStyleCustom }}
                 onClick={() => handleOpenDialog(index)}
               >
-                {moreRow.packages.length}&nbsp;package(s)
+                {moreRow.packages && moreRow.packages.length}&nbsp;package(s)
               </Typography>
             </Tooltip>
           </DialogContentText>
@@ -597,7 +623,7 @@ function FollowUpDetail(props) {
 
                                   >
                                     {Object.keys(p.prices).map((k, index) => {
-                                      return <FormControlLabel value={parseInt(k)} control={<Radio color='primary' disabled={stepDetail[stepDetail.length -1].status == 'COMPLETED'} />} label={k != 999999 ? k + ` month(s) ($${p.prices[k]})` : `Lifetime ($${p.prices[k]})`} key={k + index}
+                                      return <FormControlLabel value={parseInt(k)} control={<Radio color='primary' disabled={stepDetail[stepDetail.length - 1].status == 'COMPLETED'} />} label={k != 999999 ? k + ` month(s) ($${p.prices[k]})` : `Lifetime ($${p.prices[k]})`} key={k + index}
                                         style={{ marginBottom: 0 }}
                                       />
                                     })}

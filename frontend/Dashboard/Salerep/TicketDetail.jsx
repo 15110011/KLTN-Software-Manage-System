@@ -22,6 +22,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
+import Tooltip from '@material-ui/core/Tooltip';
 import Select from '@material-ui/core/Select';
 import { apiPost } from '../../common/Request'
 import CustomSnackbar from '../../components/CustomSnackbar'
@@ -79,7 +80,7 @@ function TicketDetail(props) {
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [mailDialog, setMailDialog] = React.useState(false)
 
-
+  console.log(user)
 
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
@@ -123,8 +124,15 @@ function TicketDetail(props) {
       setTimeout(() => {
         setSuccessNoti(false)
       }, 2000);
-      getMoreRow(id)
+      // getMoreRow(id)
     })
+  }
+
+  const notification = (m='Successfully Added') => {
+    setSuccessNoti(m)
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
   }
 
   const onSendEmail = () => {
@@ -159,10 +167,15 @@ function TicketDetail(props) {
         contactHistories={histories}
       ></ContactDetail>} */}
 
-      {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
+      {laterDialog && <CreateEventDialog
+        toggleDialog={() => { setLaterDialog(!laterDialog) }}
+        type_='campaign'
         targets={[contact]} marketing={marketing}
         updateActivities={updateActivities}
         contactOptions={[contact]}
+        user={user}
+        notification={notification}
+        setLaterDialog={setLaterDialog}
       />}
       {/* {noteDialog && <NoteDialog toggleDialog={() => {
         setNoteDialog(false)
@@ -177,66 +190,75 @@ function TicketDetail(props) {
           </Typography>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
             {marketing.marketing_plan.actions.findIndex(a => a == 'Call Client') != -1 &&
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnGreen
-                }}
-                onClick={() => {
-                  onCall()
-                }}
-              >
-                <PhoneIcon fontSize="small" />
-              </Button>
+              <Tooltip title="Call client">
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnGreen
+                  }}
+                  onClick={() => {
+                    onCall()
+                  }}
+                >
+                  <PhoneIcon fontSize="small" />
+                </Button>
+              </Tooltip>
             }
 
             {marketing.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 &&
+              <Tooltip title="Send mail">
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnPink
+                  }}
+                  onClick={() => {
+                    onSendEmail()
+                  }}
+                >
+                  <EmailIcon fontSize="small" />
+                </Button>
+              </Tooltip>
+            }
+            <Tooltip title="Schedule">
               <Button
                 variant='contained'
                 classes={{
-                  contained: classes.btnPink
+                  contained: classes.btnYellow
                 }}
                 onClick={() => {
-                  onSendEmail()
+                  setLaterDialog(!laterDialog)
                 }}
               >
-                <EmailIcon fontSize="small" />
+                <TimerIcon fontSize="small" />
               </Button>
-            }
-
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnYellow
-              }}
-              onClick={() => {
-                setLaterDialog(!laterDialog)
-              }}
-            >
-              <TimerIcon fontSize="small" />
-            </Button>
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnPurple
-              }}
-              onClick={() => {
-                setMovingRow({ id: id, full_name: marketing.contact.full_name })
-              }}
-            >
-              <SwapIcon fontSize="small" />
-            </Button>
-            <Button
-              variant='contained'
-              classes={{
-                contained: classes.btnRed
-              }}
-              onClick={() => {
-                setDeletingRow({ id: id, full_name: marketing.contact.full_name, campaignName: marketing.campaign.name })
-              }}
-            >
-              <RemoveIcon fontSize="small" />
-            </Button>
+            </Tooltip>
+            <Tooltip title="Move to Follow-up">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPurple
+                }}
+                onClick={() => {
+                  setMovingRow({ id: id, full_name: marketing.contact.full_name })
+                }}
+              >
+                <SwapIcon fontSize="small" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="Remove contact out of this campaign">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnRed
+                }}
+                onClick={() => {
+                  setDeletingRow({ id: id, full_name: marketing.contact.full_name, campaignName: marketing.campaign.name })
+                }}
+              >
+                <RemoveIcon fontSize="small" />
+              </Button>
+            </Tooltip>
           </DialogActions>
         </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={12}>

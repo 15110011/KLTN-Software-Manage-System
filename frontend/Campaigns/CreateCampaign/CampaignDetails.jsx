@@ -72,7 +72,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -100,7 +100,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -129,11 +129,11 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
-                  Close Date
+                  End Date
                         </InputLabel>
               </Grid>
               <Grid item xs={8}>
@@ -158,7 +158,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -187,7 +187,7 @@ function CampaignDetails(props) {
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -246,7 +246,7 @@ function CampaignDetails(props) {
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -280,14 +280,14 @@ function CampaignDetails(props) {
               </Grid>
             </Grid>
           </Grid>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <Grid container spacing={40}>
               <Grid className={classes.inputCustom} item xs={4}>
                 <InputLabel
                   required
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -307,14 +307,14 @@ function CampaignDetails(props) {
                 </FormControl>
               </Grid>
             </Grid>
-          </Grid>
+          </Grid> */}
           <Grid item xs={12}>
             <Grid container spacing={40}>
-              <Grid className={classes.inputCustom} item xs={2}>
+              <Grid item xs={2}>
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabelBot20,
+                    root: classes.cssLabelBot,
                     focused: classes.cssFocused,
                   }}
                 >

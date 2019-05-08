@@ -111,7 +111,8 @@ function getStepContent(props) {
     setIsEditMarketingPlan,
     addFollowUpPlanToEdit,
     isEditFollowUpPlan,
-    setIsEditFollowUpPlan
+    setIsEditFollowUpPlan,
+    notification
   } = props
   switch (activeStep) {
     case 0:
@@ -130,6 +131,7 @@ function getStepContent(props) {
           handleChangeProductSelect={handleChangeProductSelect}
           user={user}
           handleChangePackageSelectCustom={handleChangePackageSelectCustom}
+          notification={notification}
         />
       )
     case 1:
@@ -148,10 +150,12 @@ function getStepContent(props) {
           createCampaign={createCampaign}
           handleChangeMarketingPlanSelect={handleChangeMarketingPlanSelect}
           fetchMarketingPlanSuggestion={fetchMarketingPlanSuggestion}
-          handleChangeLoadContactSelect={handleChangeLoadContactSelect},
-          fetchLoadContactSuggestion={fetchLoadContactSuggestion},
-          showEditIcon={showEditIcon},
+          handleChangeLoadContactSelect={handleChangeLoadContactSelect}
+          fetchLoadContactSuggestion={fetchLoadContactSuggestion}
+          showEditIcon={showEditIcon}
+          notification={notification}
           addMarketingPlanToEdit={addMarketingPlanToEdit}
+
         />
       )
     case 2:
@@ -171,6 +175,7 @@ function getStepContent(props) {
           onChangeViewingOrder={onChangeViewingOrder}
           isEditFollowUpPlan={isEditFollowUpPlan}
           setIsEditFollowUpPlan={setIsEditFollowUpPlan}
+          notification={notification}
         />
       )
     default:

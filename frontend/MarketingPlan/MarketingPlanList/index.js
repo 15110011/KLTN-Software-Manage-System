@@ -13,6 +13,8 @@ import { apiGet, apiDelete } from '../../common/Request';
 
 import styles from './MarketingPlanListStyle'
 import CreateMarketingPlan from '../CreateMarketingPlan'
+import CustomSnackbar from '../../components/CustomSnackbar'
+
 
 function MarketingPlanList(props) {
 
@@ -64,12 +66,23 @@ function MarketingPlanList(props) {
   const search = {}
   let activePage = 0
 
+  const notification = (m = 'Successfully Created') => {
+    setCompleteNotice(m)
+    setTimeout(() => {
+      setCompleteNotice(false)
+    }, 2000);
+    tableRef.current.onQueryChange()
+  }
+
   return (
     <div className={classes.root}>
-
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       {
         createMarketingPlanDialog &&
         <CreateMarketingPlan
+          notification={notification}
+          isEditMarketingPlan={false}
+          isCreateMarketingPlanDialog={true}
           createMarketingPlanDialog={createMarketingPlanDialog}
           handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
           setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}

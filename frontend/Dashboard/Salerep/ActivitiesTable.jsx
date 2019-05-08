@@ -6,6 +6,7 @@ import MTableHeader from 'material-table/dist/m-table-header'
 import TablePagination from '@material-ui/core/TablePagination'
 import AddIcon from '@material-ui/icons/Add'
 import Tooltip from '@material-ui/core/Tooltip'
+import Button from '@material-ui/core/Button'
 import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } from '@material-ui/core'
 import * as dateFns from 'date-fns'
 
@@ -20,9 +21,10 @@ import CreateEventDialog from '../../Events/CreateEventDialog'
 import CustomFItlerRow from '../../components/CustomFilterRow'
 
 import USERCONTEXT from '../../components/UserContext'
-import { apiGet, apiPost } from '../../common/Request'
+import { apiGet, apiPost, apiPatch } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import TicketDetail from './TicketDetail'
+import CustomSnackbar from '../../components/CustomSnackbar'
 
 let activitySearch = {
   viewType: 'campaign',
@@ -39,13 +41,48 @@ function ActivitiesTable(props) {
   const [createEventDialog, setCreateEventDialog] = React.useState(false)
 
   const [openDialog, setOpenDialog] = React.useState(false)
+  const [successNoti, setSuccessNoti] = React.useState(false)
 
   const [moreRow, setMoreRow] = React.useState(null)
 
+  const [deletingRow, setDeletingRow] = React.useState({})
+  const [movingRow, setMovingRow] = React.useState({})
   const [groups, setGroups, setUrl] = useFetchData(GROUP_URL, null, { data: [], total: 0 })
   const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
 
+  console.log(movingRow)
+  console.log(deletingRow)
+
+  const notification = (m = 'Successfully Added') => {
+    setSuccessNoti(m)
+    setTimeout(() => {
+      setSuccessNoti(false)
+    }, 2000);
+  }
+
+  const onRemoveContact = () => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + deletingRow.id, { status: 'FAILED' }, false, true).then(res => {
+      forceActivities()
+      setDeletingRow({})
+      setOpenDialog(false)
+      tableMarketingRef.current.onQueryChange()
+      tableActivtyRef.current.onQueryChange()
+      notification('Successfully Removed')
+    })
+  }
+
+  const onMoveToFollowUp = () => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + movingRow.id,
+      { status: 'COMPLETED' }, false, true).then(res => {
+        forceActivities()
+        tableMarketingRef.current.onQueryChange()
+        setOpenDialog(false)
+        tableActivtyRef.current.onQueryChange()
+        notification('Successfully Moved')
+        setMovingRow({})
+      })
+  }
 
   const activityOrder = []
   const getMoreRow = id => {
@@ -71,8 +108,12 @@ function ActivitiesTable(props) {
     <USERCONTEXT.Consumer>
       {({ user }) =>
         <>
-
-          {createEventDialog && <CreateEventDialog toggleDialog={() => { setCreateEventDialog(!createEventDialog) }} user={user}
+          {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
+          {createEventDialog && <CreateEventDialog
+            toggleDialog={() => { setCreateEventDialog(!createEventDialog) }}
+            user={user}
+            setLaterDialog={setCreateEventDialog}
+            notification={notification}
             mustBeCampaign={viewType == 'campaign'}
             mustBePersonal={viewType == 'personal'}
             type_={viewType}
@@ -83,6 +124,46 @@ function ActivitiesTable(props) {
             }, [])}
             updateActivities={forceActivities}
           />}
+          <Dialog open={Object.keys(movingRow).length != 0}
+            onClose={() => { setMovingRow({}) }
+            }
+          >
+            <DialogTitle>
+              Confirm Action
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <div>
+                  Move contact <b>({movingRow.full_name})</b> to follow-up phase
+                  . This action cannot be undone. Are you sure?
+                </div>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setMovingRow({}) }}>Cancel</Button>
+              <Button color='primary' onClick={() => { onMoveToFollowUp() }}>Move</Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog open={Object.keys(deletingRow).length != 0}
+            onClose={() => { setDeletingRow({}) }
+            }
+          >
+            <DialogTitle>
+              Confirm Action
+            </DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <div>
+                  Remove contact <b>({deletingRow.full_name})</b> out of campaign <b>({deletingRow.campaignName})</b>
+                  . This action cannot be undone. Are you sure?
+            </div>
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { setDeletingRow({}) }}>Cancel</Button>
+              <Button color='primary' onClick={() => { onRemoveContact() }}>Remove</Button>
+            </DialogActions>
+          </Dialog>
           {openDialog == 'marketing' && moreRow &&
             <Dialog
               open={true}
@@ -106,6 +187,8 @@ function ActivitiesTable(props) {
                   updateActivities={forceActivities}
                   marketing={moreRow.marketing}
                   user={user}
+                  setMovingRow={setMovingRow}
+                  setDeletingRow={setDeletingRow}
                   getMoreRow={getMoreRow}
                 />
               </DialogContent>
@@ -324,10 +407,8 @@ function ActivitiesTable(props) {
                 })
               })
             }}
-
             onRowClick={(e, rowData) => {
               if (rowData.phase == 'Ticket') {
-
                 getMoreRow(rowData.marketing.id)
               }
             }}

@@ -73,8 +73,8 @@ function getStepContent(
         <Grid container spacing={24}>
           <Grid item xs={12}>
             {
-              Object.keys(error[0]).map(k => (
-                <p className='text-danger'>
+              Object.keys(error[0]).map((k, i) => (
+                <p key={i} className='text-danger'>
                   {error[0][k]}
                 </p>
               ))
@@ -117,8 +117,8 @@ function getStepContent(
         <Grid container spacing={24}>
           <Grid item xs={12}>
             {
-              error[1].must && Object.keys(error[1].must).map(k => (
-                <p className='text-danger'>
+              error[1].must && Object.keys(error[1].must).map((k, i) => (
+                <p key={i} className='text-danger'>
                   {error[1].must[k]}
                 </p>
               ))
@@ -151,9 +151,9 @@ function getStepContent(
                           className={classes.selectEmpty}
                         >
                           {
-                            Object.values(marketingPlanConditions).map(c => {
+                            Object.values(marketingPlanConditions).map((c, i) => {
                               return (
-                                <MenuItem value={c.id}>
+                                <MenuItem key={i} value={c.id}>
                                   {c.name}
                                 </MenuItem>
                               )
@@ -173,9 +173,9 @@ function getStepContent(
                           className={classes.selectEmpty}
                         >
                           {
-                            marketingPlanConditions[m.operand] && marketingPlanConditions[m.operand].operators.map(o => {
+                            marketingPlanConditions[m.operand] && marketingPlanConditions[m.operand].operators.map((o, i) => {
                               return (
-                                <MenuItem value={o}>
+                                <MenuItem key={i} value={o}>
                                   {o}
                                 </MenuItem>
                               )
@@ -251,8 +251,8 @@ function getStepContent(
         <Grid container spacing={24}>
           <Grid item xs={12}>
             {
-              error[2].must && Object.keys(error[2].must).map(k => (
-                <p className='text-danger'>
+              error[2].must && Object.keys(error[2].must).map((k, i) => (
+                <p key={i} className='text-danger'>
                   {error[2].must[k]}
                 </p>
               ))
@@ -314,8 +314,10 @@ function CreateMarketingPlan(props) {
     setIsCreateMarketingPlanDialog,
     notification,
     isEditMarketingPlan,
-    marketingData
+    marketingData,
+    addMarketingPlanToEdit
   } = props;
+
 
   const [activeStep, setActiveStep] = React.useState(0)
   const [error, setError] = React.useState([{}, {}, {}])
@@ -328,10 +330,9 @@ function CreateMarketingPlan(props) {
     manager: ''
   })
 
-  console.log(isCreateMarketingPlanDialog)
-
   const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
   const [applyConditionTable, setApplyConditionTable] = React.useState(false)
+
 
   React.useEffect(() => {
     if (marketingData) {
@@ -414,6 +415,8 @@ function CreateMarketingPlan(props) {
     }
   }
 
+  console.log(isEditMarketingPlan)
+
 
   const handleCreateMarketingPlan = e => {
     e.preventDefault()
@@ -451,7 +454,12 @@ function CreateMarketingPlan(props) {
       const marketingId = marketingData.id
       apiPatch(MARKETING_PLANS_URL + '/' + marketingId, { ...createMarketingPlan }, false, true)
         .then(res => {
-          if (res.data) return notification(res.data)
+          if (res.data) {
+            notification('Successfully Updated')
+            if (addMarketingPlanToEdit) {
+              addMarketingPlanToEdit(res.data)
+            }
+          }
         })
       setCreateMarketingPlanDialog(false)
     }
@@ -468,7 +476,6 @@ function CreateMarketingPlan(props) {
             else {
               localStorage.setItem("token", res.data.access)
               apiPostMarketingPlan()
-              // notification()
             }
           })
         }
@@ -476,7 +483,10 @@ function CreateMarketingPlan(props) {
           setError(res.data)
         }
         else {
-          notification(res.data)
+          notification('Successfully Created')
+          if (addMarketingPlanToEdit) {
+            addMarketingPlanToEdit(res.data)
+          }
         }
       })
   }
