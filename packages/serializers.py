@@ -52,6 +52,7 @@ class PackageSerializer(serializers.ModelSerializer):
     numbers = serializers.SerializerMethodField()
     id = serializers.IntegerField(required=False)
     features = serializers.SerializerMethodField()
+    product_ = serializers.SerializerMethodField()
 
     class Meta:
         model = Package
@@ -71,6 +72,9 @@ class PackageSerializer(serializers.ModelSerializer):
             instance.features.all(), many=True)
         return features_serialized.data
 
+    def get_product_(self, instance):
+        for f in instance.features.all():
+            return model_to_dict(f.product)
 
 
 class PackageHistorySerializer(serializers.ModelSerializer):

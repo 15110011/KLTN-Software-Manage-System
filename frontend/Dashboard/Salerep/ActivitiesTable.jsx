@@ -28,8 +28,8 @@ import styles from './SalerepStyles.js'
 import { EVENTS_URL, GROUP_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
-import CreateEventDialog from '../../Events/CreateEventDialog'
 import CardBody from "../../components/Card/CardBody";
+import CreateEventDialog from '../../Events/CreateEventDialog'
 import CustomFItlerRow from '../../components/CustomFilterRow'
 
 import USERCONTEXT from '../../components/UserContext'
