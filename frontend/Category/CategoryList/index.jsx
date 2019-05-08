@@ -3,7 +3,6 @@ import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
-import MTableBody from 'material-table/dist/m-table-body'
 import { TablePagination } from '@material-ui/core';
 
 import CreateCategory from '../CreateCategory'
