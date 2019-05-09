@@ -174,8 +174,8 @@ const styles = (theme) => ({
     display: 'flex',
   },
   expand: {
-    position:'absolute',
-    zIndex: '1000', 
+    position: 'absolute',
+    zIndex: '1000',
     right: '25px',
     top: '16px',
     color: '#fff',

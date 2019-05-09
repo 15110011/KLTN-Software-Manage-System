@@ -100,7 +100,7 @@ function SalerepDashboard(props) {
             Expand All
       </Button>
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} className="pt-2">
           <ActivitiesTable tableActivtyRef={tableActivtyRef}
             tableMarketingRef={tableMarketingRef}
             forceActivities={forceActivities}

@@ -6,7 +6,9 @@ import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
 import SearchIcon from '@material-ui/icons/Search';
 import CloseIcon from '@material-ui/icons/Close';
-import SortIcon from '@material-ui/icons/ArrowUpward';
+import SortAscIcon from '@material-ui/icons/ArrowUpward';
+import SortDescIcon from '@material-ui/icons/ArrowDownward';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import InputLabel from '@material-ui/core/InputLabel';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControl from '@material-ui/core/FormControl';
@@ -42,7 +44,7 @@ import NoteDetail from './NoteDetail'
 import CampaignDetail from './CampaignDetail'
 import CustomSnackbar from '../../components/CustomSnackbar'
 import ContactDetail from './ContactDetail'
-import { apiPatch, apiPost, apiDelete } from '../../common/Request'
+import { apiPatch, apiPost, apiDelete, apiGet } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import { CAMPAIGNS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -52,9 +54,8 @@ function CampaignTableDetail(props) {
   const { classes,
     history,
   } = props;
-  const [sortOption, setSortOption] = React.useState({
-    type: 'name'
-  })
+  const [sortOption, setSortOption] = React.useState('asc')
+  const [isSort, setIsSort] = React.useState(false)
   const [moreRow, setMoreRow] = React.useState(null)
   const [campaignRow, setMovingRow] = React.useState(false)
   const [deletingRow, setDeletingRow] = React.useState(false)
@@ -63,6 +64,11 @@ function CampaignTableDetail(props) {
   const [indexActive, setIndexActive] = React.useState(0)
   const [update, setUpdate] = React.useState(0)
   const [notiSuccess, setNotiSuccess] = React.useState(false)
+  const [searchOptions, setSearchOptions] = React.useState({
+    type: 'name'
+  })
+
+  const [searchInput, setSearchInput] = React.useState('')
 
   // const [contactHistories, setContactHistories] = React.useState({
   //   'Send Email ': 0,
@@ -71,12 +77,15 @@ function CampaignTableDetail(props) {
   // })
 
   const [first, setFirst] = React.useState(true)
+  let order = []
+
+
 
   const [campaigns, setCampaigns, setUrl, forceUpdate] =
     useFetchData(CAMPAIGNS_URL, history, {
       data: []
     }, (data) => {
-      if (!first) {
+      if (!first && data.data.length > 0) {
         let c = data.data[indexActive]
         let status = 'Idle'
         if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
@@ -145,8 +154,37 @@ function CampaignTableDetail(props) {
       setNotiSuccess(false)
     }, 2000);
   }
-  const handleChangeSelectSortOption = e => {
-    setSortOption({ [e.target.name]: e.target.value });
+  const handleChangeSelectSearchOption = e => {
+    setSearchOptions({ [e.target.name]: e.target.value });
+  }
+
+  const handleChangeSearchInput = e => {
+    setSearchInput([e.target.name] = e.target.value)
+  }
+  const handleSearch = e => {
+    e.preventDefault()
+    let searchString = `${searchOptions.type == 'name' ? '&campaign_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'product' ? '&product_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'status' ? '&status=' + searchInput : ''}`
+    setUrl(CAMPAIGNS_URL + `?type=both` + searchString)
+  }
+
+  const handleSort = e => {
+    e.preventDefault()
+    if (sortOption == 'asc') {
+      setSortOption('desc')
+      setIsSort(!isSort)
+    } else {
+      setSortOption('asc')
+      setIsSort(!isSort)
+    }
+    let searchString = `${searchOptions.type == 'name' ? '&campaign_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'product' ? '&product_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'status' ? '&status=' + searchInput : ''}`
+    // searchString += `${searchOptions.type == 'product' ? '&product_order=' + sortOption : ''}`
+    searchString += `${searchOptions.type == 'name' ? '&name_order=' + sortOption : ''}`
+    searchString += `${searchOptions.type == 'product' ? '&product_order=' + sortOption : ''}`
+    setUrl(CAMPAIGNS_URL + `?type=both` + searchString)
   }
 
   const handleViewDetail = (index) => {
@@ -250,37 +288,58 @@ function CampaignTableDetail(props) {
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <Grid container style={{ height: '100%' }} spacing={8}>
-              <Grid item xs={6}>
-                <FormControl className={classes.formControl}>
-                  <Select
-                    value={sortOption.type}
-                    onChange={handleChangeSelectSortOption}
-                    inputProps={{
-                      name: 'type',
-                    }}
-                  >
-                    <MenuItem value="name">
-                      Name
-                  </MenuItem>
-                    <MenuItem value="campaign">
-                      Campaign
-                  </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid className="text-right" item xs={6}>
-                <SortIcon fontSize="small" />
-              </Grid>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="simple-start-adornment"
-                  className={cn(classes.margin, classes.textField)}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-                    endAdornment: <InputAdornment position="end"><CloseIcon fontSize="small" /></InputAdornment>
-                  }}
-                />
+                <form style={{ width: '100%' }} onSubmit={handleSearch}>
+                  <Grid container spacing={8}>
+                    <Grid item xs={6}>
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          value={searchOptions.type}
+                          onChange={handleChangeSelectSearchOption}
+                          inputProps={{
+                            name: 'type',
+                          }}
+                        >
+                          <MenuItem value="name">
+                            Name
+                  </MenuItem>
+                          <MenuItem value="product">
+                            Product
+                  </MenuItem>
+                          <MenuItem value="status">
+                            Status
+                  </MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid className="text-right" item xs={6}>
+                      <IconButton
+                        className={cn(classes.sort,
+                          {
+                            [classes.sortDesc]: isSort,
+                          }
+                        )}
+                        onClick={(e) => handleSort(e)}
+                      >
+                        <SortAscIcon fontSize="small" />
+                      </IconButton>
+
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        onChange={handleChangeSearchInput}
+                        value={searchInput}
+                        id="simple-start-adornment"
+                        className={cn(classes.margin, classes.textField)}
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
+                          endAdornment: <InputAdornment position="end"><CloseIcon fontSize="small" /></InputAdornment>
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </form>
               </Grid>
               <div className={classes.formContact}>
                 <ul>
@@ -347,7 +406,7 @@ function CampaignTableDetail(props) {
                 </ul>
               </div>
               <Grid className="pt-1" item xs={6}>
-                <SortIcon fontSize="small" />
+                <RefreshIcon fontSize="small" />
               </Grid>
               <Grid className="text-right" item xs={6}>
                 {campaigns.data.length} campaign(s)
