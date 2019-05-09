@@ -41,6 +41,7 @@ ASGI_APPLICATION = 'KLTN.routing.application'
 
 INSTALLED_APPS = [
     'jet',
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -51,7 +52,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'prettyjson',
     'rest_framework',
-    'channels',
     "django_rq",
     'account',
     'packages',

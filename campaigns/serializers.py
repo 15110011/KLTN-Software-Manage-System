@@ -1,19 +1,22 @@
 
 from django.forms.models import model_to_dict
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.fields import set_value
-
 from account.serializers import MeSerializer
 from steps.serializers import StepSerializer, StepWithOutFollowUpSerializer
 from packages.serializers import PackageSerializer, ProductSerializier
 # from contacts.serializers import ContactWithoutGroupSerializer
-
 from orders.models import Order
 from steps.models import Step
 from contacts.models import Contact
 from events.models import Event
-
 from . import models
+import django_rq
+from datetime import datetime, timedelta, timezone
+import calendar
+from KLTN.common import send_email
+
 
 
 class MailTemplateSerializer(serializers.ModelSerializer):
@@ -153,7 +156,17 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 )
                 event.save()
                 event.contacts.set([cur_contact])
-
+        scheduler = django_rq.get_scheduler('default')
+        timestamp1 = calendar.timegm((campaign.start_date + timedelta(days=1)).timetuple())
+        start_date= datetime.utcfromtimestamp(timestamp1)
+        scheduler.schedule(
+            scheduled_time=start_date,
+            func=send_email,
+            args=[self.context.get('request').user, 'abc', 'abc'],
+            interval=604800,
+            kwargs={},
+            repeat=10,
+        )
         return campaign
 
 

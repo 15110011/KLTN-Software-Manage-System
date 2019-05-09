@@ -386,7 +386,7 @@ class CampaignView(ModelViewSet):
                 output_field=DjangoModel.IntegerField()
             )).order_by(status_order)
         if limit is not None:
-            queryset = queryset[int(page)*int(limit)                                :int(page)*int(limit)+int(limit)]
+            queryset = queryset[int(page)*int(limit):int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data

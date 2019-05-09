@@ -109,7 +109,7 @@ class OrderChartView(ModelViewSet):
 
 
 class OrderView(ModelViewSet):
-    queryset = Order.objects.select_related('campaign')
+    queryset = Order.objects.prefetch_related('packages')
     serializer_class = OrderSerializer
     permission_classes = (IsAuthenticated,)
 
