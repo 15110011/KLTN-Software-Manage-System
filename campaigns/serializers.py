@@ -162,7 +162,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         scheduler.schedule(
             scheduled_time=start_date,
             func=send_email,
-            args=[self.context.get('request').user, 'abc', 'abc'],
+            args=[self.context.get('request').user, 'Campaign Start', 'Your Campaign started today'],
             interval=604800,
             kwargs={},
             repeat=10,
