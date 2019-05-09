@@ -39,7 +39,13 @@ const styles = theme => ({
   stateCustomInput: {
     position: 'absolute',
     bottom: 0
-  }
+  },
+
+  cssLabel: {
+    position: 'absolute',
+    top: 24,
+    marginBottom: '0'
+  },
 })
 
 export default styles;

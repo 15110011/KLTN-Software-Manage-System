@@ -88,7 +88,6 @@ function FollowUpTable(props) {
     })
   }
 
-  console.log(deletingRow)
 
   const onConfirmDeal = e => {
     const promises = []
@@ -123,8 +122,11 @@ function FollowUpTable(props) {
       forceOrder()
       setMovingRow({})
       notification('Successfully Created')
+      setMoreDialog(false)
+      setMoreRow(null)
     })
   }
+  console.log(moreRow)
 
   return (
     <USERCONTEXT.Consumer>

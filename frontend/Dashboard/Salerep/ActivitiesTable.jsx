@@ -269,9 +269,9 @@ function ActivitiesTable(props) {
                           </CardHeader>
                         </Card>
                         <div className='px-4 d-flex justify-content-between'>
-                          <Typography classes={{ root: classes.activityTagline }} component='span'>
+                          <Typography classes={{ root: classes.activitytTagline }} component='span'>
                             Events which start today will be displayed in this table
-                      </Typography>
+                          </Typography>
                           <span>
                             <Select
                               value={viewType}

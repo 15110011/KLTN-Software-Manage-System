@@ -25,7 +25,7 @@ now = datetime.now()
 
 # Create your views here.
 
-ACTIONS = ['Send Email', 'Call Client', 'Send Email Manually']
+ACTIONS = ['Send Email']
 
 
 @api_view(['GET'])
@@ -386,8 +386,7 @@ class CampaignView(ModelViewSet):
                 output_field=DjangoModel.IntegerField()
             )).order_by(status_order)
         if limit is not None:
-            queryset = queryset[int(page)*int(limit)
-                                    :int(page)*int(limit)+int(limit)]
+            queryset = queryset[int(page)*int(limit)                                :int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
@@ -480,7 +479,8 @@ class NoteView(ModelViewSet):
 class ContactMarketingView(ModelViewSet):
 
     permission_classes = (IsAuthenticated,)
-    queryset = ContactMarketing.objects.select_related('campaign', 'contact', 'marketing_plan')
+    queryset = ContactMarketing.objects.select_related(
+        'campaign', 'contact', 'marketing_plan')
     serializer_class = ContactMarketingSerializer
 
     def list(self, request, *args, **kwargs):
@@ -568,10 +568,18 @@ class MailTemplateView(ModelViewSet):
     def list(self, request, *args, **kwargs):
 
         filters = Q()
+
         filters.add(Q(user=request.user.id), Q.AND)
         filters.add(Q(is_public=True), Q.OR)
+        name = request.query_params.get('name', None)
+        if name:
+            filters.add(Q(name__icontains=name), Q.AND)
 
         query = self.get_queryset().filter(filters)
         serializer = self.get_serializer(query, many=True)
+        new_data ={
+            "data": serializer.data,
+            "total": len(serializer.data)
+        }
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(new_data, status=status.HTTP_200_OK)

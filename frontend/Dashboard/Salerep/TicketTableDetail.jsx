@@ -68,7 +68,7 @@ function TicketTableDetail(props) {
       data: []
     }, data => {
       if (data.data.length) {
-        let t = data.data[0]
+        let t = data.data[indexActive]
         setMoreRow({
           full_name: t.contact.full_name,
           mail: t.contact.mail,

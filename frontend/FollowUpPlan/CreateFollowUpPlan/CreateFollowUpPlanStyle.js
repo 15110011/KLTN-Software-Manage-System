@@ -84,6 +84,13 @@ const styles = theme => ({
       textDecoration: 'underline'
     }
   },
+  activityTagline: {
+    fontSize: '0.75rem',
+    fontStyle: 'italic',
+    color: '#707070',
+    display: 'inline',
+    alignSelf: 'center',
+  },
 })
 
 export default styles

@@ -10,10 +10,12 @@ STEP_STATUS_CHOICES = (('RUNNING', 'Running'), ('COMPLETED', 'Completed'),)
 class Step(BaseModel):
     follow_up = models.ForeignKey(
         FollowUpPlan, on_delete=models.CASCADE, related_name='steps')
-    nth = models.IntegerField()
+    # nth = models.IntegerField()
     actions = JSONField(default=list([]))
     duration = models.IntegerField()
     conditions = JSONField()
+    mail_template = models.ForeignKey(
+        'campaigns.MailTemplate', on_delete=models.CASCADE, null=True, blank=True)
 
 
 class StepDetail(BaseModel):
@@ -22,7 +24,8 @@ class StepDetail(BaseModel):
     order = models.ForeignKey(
         'orders.Order', on_delete=models.CASCADE, related_name='step_details')
     information = JSONField()
-    status = models.CharField(max_length=50, choices=STEP_STATUS_CHOICES, default='RUNNING')
+    status = models.CharField(
+        max_length=50, choices=STEP_STATUS_CHOICES, default='RUNNING')
 
     class Meta:
         ordering = ('id',)

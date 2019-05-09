@@ -24,6 +24,8 @@ class MarketingPlan(BaseModel):
                          size=8, default=list)
     manager = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='marketing_plan')
+    mail_template = models.ForeignKey(
+        MailTemplate, on_delete=models.SET_NULL, related_name="marketing_plans", blank=True, null=True)
     # contacts = models.ManyToManyField(
     #     Contact,
     #     related_name='marketing_plans',
@@ -59,8 +61,6 @@ class Campaign(BaseModel):
     assigned_to = models.ManyToManyField(
         User, related_name='sale_reps_campaign')
     desc = models.TextField()
-    mail_template = models.ForeignKey(
-        MailTemplate, on_delete=models.SET_NULL, related_name="campaigns", blank=True, null=True)
     packages = models.ManyToManyField(
         Package, related_name='campaigns', blank=True)
 
