@@ -314,6 +314,34 @@ function FollowUpDetail(props) {
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
+
+            <Tooltip title='Call customer'>
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnGreen
+                }}
+                onClick={() => {
+                  onCall()
+                }}
+              >
+                <PhoneIcon fontSize="small" />
+              </Button>
+            </Tooltip>
+            <Tooltip title='Send Email Manually'>
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPink
+                }}
+                onClick={() => {
+                  onSendEmail()
+                }}
+              >
+                <EmailIcon fontSize="small" />
+              </Button>
+            </Tooltip>
+
             <Tooltip title="Schedule">
               <Button
                 variant='contained'
@@ -334,7 +362,7 @@ function FollowUpDetail(props) {
                   contained: classes.btnPurple
                 }}
                 onClick={() => {
-                  setMovingRow({ id: moreRow.id })
+                  setMovingRow({ ...moreRow })
                 }}
                 disabled={moreRow.progress != 100}
               >
@@ -477,35 +505,9 @@ function FollowUpDetail(props) {
           <Paper className={classes.stepPaper}>
             <Grid className={classes.inputHeaderCustom} item xs={12}>
               Step {activeStep + 1}
-            </Grid>
-            <Grid item xs={12} className='my-2'>
-              {followup.campaign.follow_up_plan.steps[activeStep].actions.includes('Call Client') &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnGreen
-                  }}
-                  onClick={() => {
-                    onCall()
-                  }}
-                >
-                  <PhoneIcon fontSize="small" />
-                </Button>
-              }
-              &nbsp;
-              {followup.campaign.follow_up_plan.steps[activeStep].actions.includes('Send Email Manually') &&
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnPink
-                  }}
-                  onClick={() => {
-                    onSendEmail()
-                  }}
-                >
-                  <EmailIcon fontSize="small" />
-                </Button>
-              }
+              <i>
+                {/* {dateFns.format(dateFns.addDays(dateFns.parseISO(moreRow.followup.created), parseInt(step.duration)), 'MM-dd-yyyy')} */}
+              </i>
             </Grid>
             <form onSubmit={handleUpdateStepDetail}>
               {
@@ -647,14 +649,14 @@ function FollowUpDetail(props) {
                   disabled={(activeStep == 0 || (stepDetail[activeStep - 1].status == 'COMPLETED')) && stepDetail[activeStep] && stepDetail[activeStep].status == 'RUNNING' ? undefined : true}
                 >Reset</Button>
                 {' '}
-                <Button
+                {/* <Button
                   type="button"
                   variant='contained'
                   color='primary'
                   style={{ backgroundColor: '#2196F3', color: '#fff' }}
                   disabled={(activeStep == 0 || (stepDetail[activeStep - 1].status == 'COMPLETED')) && stepDetail[activeStep] && stepDetail[activeStep].status == 'RUNNING' ? undefined : true}
                   onClick={() => handleApplyStepDetail()}
-                >Apply</Button>
+                >Apply</Button> */}
                 {' '}
                 <Button type="submit" variant='contained' color='primary'
                   disabled={(activeStep == 0 || (stepDetail[activeStep - 1].status == 'COMPLETED')) && stepDetail[activeStep] && stepDetail[activeStep].status == 'RUNNING' ? undefined : true}

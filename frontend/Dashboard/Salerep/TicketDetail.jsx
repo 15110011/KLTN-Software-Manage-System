@@ -80,7 +80,6 @@ function TicketDetail(props) {
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [mailDialog, setMailDialog] = React.useState(false)
 
-  console.log(user)
 
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
@@ -128,7 +127,7 @@ function TicketDetail(props) {
     })
   }
 
-  const notification = (m='Successfully Added') => {
+  const notification = (m = 'Successfully Added') => {
     setSuccessNoti(m)
     setTimeout(() => {
       setSuccessNoti(false)
@@ -189,37 +188,33 @@ function TicketDetail(props) {
             {contact.first_name}
           </Typography>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-            {marketing.marketing_plan.actions.findIndex(a => a == 'Call Client') != -1 &&
-              <Tooltip title="Call client">
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnGreen
-                  }}
-                  onClick={() => {
-                    onCall()
-                  }}
-                >
-                  <PhoneIcon fontSize="small" />
-                </Button>
-              </Tooltip>
-            }
+            <Tooltip title="Call client">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnGreen
+                }}
+                onClick={() => {
+                  onCall()
+                }}
+              >
+                <PhoneIcon fontSize="small" />
+              </Button>
+            </Tooltip>
 
-            {marketing.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 &&
-              <Tooltip title="Send mail">
-                <Button
-                  variant='contained'
-                  classes={{
-                    contained: classes.btnPink
-                  }}
-                  onClick={() => {
-                    onSendEmail()
-                  }}
-                >
-                  <EmailIcon fontSize="small" />
-                </Button>
-              </Tooltip>
-            }
+            <Tooltip title="Send mail">
+              <Button
+                variant='contained'
+                classes={{
+                  contained: classes.btnPink
+                }}
+                onClick={() => {
+                  onSendEmail()
+                }}
+              >
+                <EmailIcon fontSize="small" />
+              </Button>
+            </Tooltip>
             <Tooltip title="Schedule">
               <Button
                 variant='contained'

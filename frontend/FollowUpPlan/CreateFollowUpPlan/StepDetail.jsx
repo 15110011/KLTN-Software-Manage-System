@@ -12,7 +12,12 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 import AddIcon from '@material-ui/icons/Add';
 import Fab from '@material-ui/core/Fab';
+import FormLabel from '@material-ui/core/FormLabel';
 import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Checkbox from '@material-ui/core/Checkbox';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import RemoveIcon from '@material-ui/icons/RemoveCircle'
@@ -20,7 +25,9 @@ import Tooltip from '@material-ui/core/Tooltip';
 import CloseIcon from '@material-ui/icons/Close';
 import { TextField, Typography, IconButton, Icon } from '@material-ui/core';
 import SelectCustom from '../../components/SelectCustom'
+import AsyncSelect from '../../components/AsyncSelectCustom'
 import styles from './CreateFollowUpPlanStyle'
+import { create } from 'jss';
 
 
 function StepDetail(props) {
@@ -41,13 +48,25 @@ function StepDetail(props) {
     newFields,
     onCloseField,
     onRemoveCondition,
-    disableApply
+    disableApply,
+    handleChangeAutoActions,
+    isFinalStep,
+    fetchEmailSuggestion,
+    handleChangeMailTemplate
   } = props
 
   return (
 
 
     <Grid container spacing={24}>
+      {
+        isFinalStep &&
+        <Grid item xs={12}>
+          <Typography classes={{ root: classes.activitytTgline }} component='span' style={{ fontStyle: 'italic' }}>
+            You have to choose packages which customer want to buy in this step
+          </Typography>
+        </Grid>
+      }
       <Grid className={classes.inputCustom} item xs={2}>
         <InputLabel
           required
@@ -56,37 +75,71 @@ function StepDetail(props) {
             root: classes.cssLabel,
             focused: classes.cssFocused,
           }}
+
           className={error.steps ? classes.danger : null}
+          style={{ top: '33px' }}
         >
-          Action
-            </InputLabel>
+          Auto
+        </InputLabel>
       </Grid>
       <Grid item xs={8}>
-        <FormControl fullWidth className={classes.formControl} fullWidth>
-          {
-            actions.actions && <SelectCustom
-              options={actions.actions.map((g, i) => ({
-                label: `${g}`,
-                value: `${g}`,
-              }))}
-              handleChange={(values, element) => handleChangeSelect(values, element)}
-              data={
-                createStep.actions &&
-                createStep.actions
-                  .reduce((acc, g) => {
-                    acc.push({ label: `${g}`, value: g })
-                    return acc
-                  }, [])
-              }
-              multi
-              placeholder=""
-              label=""
-              fullWidth
-            />
-          }
+        <FormControl component="fieldset" className={classes.formControl} >
+          <FormGroup>
+            {
+              actions.actions &&
+              actions.actions
+                .reduce((acc, g) => {
+                  acc.push(
+                    <FormControlLabel
+                      control={
+                        <Checkbox
+                          checked={createStep.actions.find(a => a == g)}
+                          onChange={(value, status) => {
+                            handleChangeAutoActions(g, status)
+                          }}
+                        />
+                      }
+                      value={g}
+                      label={g}
+                    />
+                  )
+                  return acc
+                }, [])
+            }
+          </FormGroup>
         </FormControl>
       </Grid>
       <Grid item xs={2}></Grid>
+      {createStep.actions.find(a => a == 'Send Email') &&
+        <>
+          <Grid item xs={2} style={{position:'relative'}}>
+            <InputLabel
+              htmlFor="custom-css-standard-input"
+              classes={{
+                root: classes.cssLabel,
+                focused: classes.cssFocused,
+              }}
+            >
+              Mail template
+            </InputLabel>
+          </Grid>
+          <Grid item xs={8}>
+            <AsyncSelect
+              handleChange={(values, element) => handleChangeMailTemplate(values, element)}
+              onChangeSelect={(values, element) => handleChangeMailTemplate(values, element)}
+              data={
+                { label: createStep.mail_template.name, value: createStep.mail_template.id }
+              }
+              // multi
+              single
+              placeholder=""
+              label=""
+              loadOptions={fetchEmailSuggestion}
+            />
+          </Grid>
+          <Grid item xs={2}></Grid>
+        </>
+      }
       <Grid className={classes.inputCustom} item xs={2}>
         <InputLabel
           htmlFor="custom-css-standard-input"
@@ -115,7 +168,7 @@ function StepDetail(props) {
         />
       </Grid>
       <Grid item xs={2}></Grid>
-      <Grid className={classes.inputCustom} item xs={2}>
+      {/* <Grid className={classes.inputCustom} item xs={2}>
         <InputLabel
           required
           htmlFor="custom-css-standard-input"
@@ -137,11 +190,11 @@ function StepDetail(props) {
           Add Field
           </Button>
 
-      </Grid>
+      </Grid> */}
       <Grid item xs={2}></Grid>
       <Grid item xs={2}></Grid>
       <Grid item xs={8}>
-        {createStep.conditions.map((c, index) => {
+        {/* {createStep.conditions.map((c, index) => {
           return (
             <Grid container spacing={40}>
               <Grid item xs={5}>
@@ -281,7 +334,7 @@ function StepDetail(props) {
           )
         })
 
-        }
+        } */}
 
       </Grid>
 

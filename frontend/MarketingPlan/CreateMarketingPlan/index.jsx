@@ -14,6 +14,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import FormControl from '@material-ui/core/FormControl';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Checkbox from '@material-ui/core/Checkbox';
 import Divider from '@material-ui/core/Divider'
 import cn from 'classnames'
 import TextField from '@material-ui/core/TextField';
@@ -30,6 +35,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import useFetchData from '../../CustomHook/useFetchData'
 import styles from './CreateMarketingPlanStyle'
 import stateHashes from '../../common/StateHash'
+import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // Components 
 
@@ -39,12 +45,13 @@ import SelectCustom from '../../components/SelectCustom'
 import {
   MARKETING_PLANS_URL,
   REFRESH_TOKEN_URL,
-  MARKETING_PLANS_CONDITIONS_URL
+  MARKETING_PLANS_CONDITIONS_URL,
+  MAIL_TEMPLATES_URL
 } from "../../common/urls";
-import { apiPost, apiPatch } from '../../common/Request'
+import { apiPost, apiPatch, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
-const stepName = ['Basic Infomation', 'Choose Search Conditions', 'Choose Actions'];
+const stepName = ['Basic Infomation', 'Choose Search Conditions', 'Choose Auto Actions'];
 
 function getStepContent(
   step,
@@ -62,10 +69,19 @@ function getStepContent(
   handleChangeActionTypeSelect,
   handleChangeSelectAddress,
   isCreateMarketingPlanDialog,
+  // fetchEmailSuggestion,
+  handleChangeMailTemplate
+
   // applyConditionTable
 ) {
 
   const { classes } = props;
+
+  const fetchEmailSuggestion = s => {
+    return apiGet(MAIL_TEMPLATES_URL + `?name=${s}`, true).then(res => {
+      return res.data.data.map(tp => ({ label: tp.name, value: tp.id, ...tp }))
+    })
+  }
 
   switch (step) {
     case 0:
@@ -123,17 +139,6 @@ function getStepContent(
                 </p>
               ))
             }
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={4}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              All Conditions(All conditions must be met)
-                    </InputLabel>
           </Grid>
           <Grid item xs={8}>
             {
@@ -260,7 +265,7 @@ function getStepContent(
           </Grid>
           <Grid item xs={8}>
             <Grid container spacing={24}>
-              <Grid className={classes.inputCustom} item xs={4}>
+              <Grid item xs={4} style={{ position: 'relative' }}>
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
@@ -268,33 +273,62 @@ function getStepContent(
                     focused: classes.cssFocused,
                   }}
                 >
-                  Types
-                    </InputLabel>
+                  Automatical actions
+            </InputLabel>
               </Grid>
               <Grid item xs={8}>
-                <SelectCustom
-                  handleChange={(values, element) => handleChangeActionTypeSelect(values, element)}
-                  name="actions"
-                  options={['Send Email', 'Call Client', 'Send Email Manually'].reduce((acc, a) => {
-                    acc.push(
-                      {
-                        label: a,
-                        value: a
-                      }
-                    )
-                    return acc
-                  }, [])}
-                  data={
-                    createMarketingPlan.actions
-                      .reduce((acc, a) => {
-                        acc.push({ label: a, value: a })
+                <FormControl component="fieldset" className={classes.formControl} >
+                  <FormGroup>
+                    {
+                      ['Send Email'].reduce((acc, g) => {
+                        acc.push(
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={createMarketingPlan.actions.find(a => a == g)}
+                                onChange={(value, status) => {
+                                  handleChangeActionTypeSelect(g, status)
+                                }}
+                              />
+                            }
+                            value={g}
+                            label={g}
+                          />
+                        )
                         return acc
                       }, [])
-                  }
-                  fullWidth
-                  multi
-                />
+                    }
+                  </FormGroup>
+                </FormControl>
               </Grid>
+
+              {createMarketingPlan.actions.find(a => a == 'Send Email') &&
+                <>
+                  <Grid item xs={4} style={{ position: 'relative' }}>
+                    <InputLabel
+                      htmlFor="custom-css-standard-input"
+                      classes={{
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused,
+                      }}
+                    >
+                      Mail template
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <AsyncSelect
+                      handleChange={(values, element) => handleChangeMailTemplate(values, element)}
+                      onChangeSelect={(values, element) => handleChangeMailTemplate(values, element)}
+                      data={{ label: createMarketingPlan.mail_template.name, value: createMarketingPlan.mail_template.id }}
+                      // multi
+                      single
+                      placeholder=""
+                      label=""
+                      loadOptions={fetchEmailSuggestion}
+                    />
+                  </Grid>
+                </>
+              }
             </Grid>
           </Grid>
         </Grid>
@@ -327,7 +361,8 @@ function CreateMarketingPlan(props) {
       must: [],
     },
     actions: [],
-    manager: ''
+    manager: '',
+    mail_template: {}
   })
 
   const [marketingPlanConditions, setMarketingPlanConditions] = useFetchData(MARKETING_PLANS_CONDITIONS_URL, props.history, {})
@@ -349,6 +384,19 @@ function CreateMarketingPlan(props) {
     setActiveStep(0)
   };
 
+  const handleChangeMailTemplate = (value, action) => {
+    let cloneCreateMarketingPlan = { ...createMarketingPlan }
+    if (action.action == 'select-option') {
+      cloneCreateMarketingPlan.mail_template = value
+      setCreateMarketingPlan(cloneCreateMarketingPlan)
+    }
+    else if (action.action == 'clear') {
+      cloneCreateMarketingPlan.mail_template = {}
+      console.log(cloneCreateMarketingPlan)
+      setCreateMarketingPlan(cloneCreateMarketingPlan)
+    }
+  }
+
   const handleChangeSelectAddress = (value, element, index) => {
     const cloneCreateMarketingPlan = { ...createMarketingPlan }
     if (value) {
@@ -360,8 +408,20 @@ function CreateMarketingPlan(props) {
     setCreateMarketingPlan({ ...cloneCreateMarketingPlan })
   }
 
-  const handleChangeActionTypeSelect = (value, action) => {
-    setCreateMarketingPlan({ ...createMarketingPlan, actions: value.map(v => v.value) })
+  const handleChangeActionTypeSelect = (action, status) => {
+
+    let actions = [...createMarketingPlan.actions]
+    if (status) {
+      actions.push(action)
+    }
+    else {
+      let curActionIndex = actions.indexOf(action)
+      if (curActionIndex != -1) {
+        actions = actions.slice(0, curActionIndex).concat(actions.slice(curActionIndex + 1))
+      }
+    }
+
+    setCreateMarketingPlan({ ...createMarketingPlan, actions })
   }
 
   const handleAddMustConditions = e => {
@@ -415,7 +475,6 @@ function CreateMarketingPlan(props) {
     }
   }
 
-  console.log(isEditMarketingPlan)
 
 
   const handleCreateMarketingPlan = e => {
@@ -466,7 +525,7 @@ function CreateMarketingPlan(props) {
   }
 
   const apiPostMarketingPlan = e => {
-    apiPost(MARKETING_PLANS_URL, { ...createMarketingPlan }, false, true)
+    apiPost(MARKETING_PLANS_URL, { ...createMarketingPlan, mail_template: createMarketingPlan.mail_template.id }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
@@ -491,6 +550,11 @@ function CreateMarketingPlan(props) {
       })
   }
 
+  const fetchEmailSuggestion = s => {
+    return apiGet(MAIL_TEMPLATES_URL + `?name=${s}`, true).then(res => {
+      return res.data.data.map(tp => ({ label: tp.name, value: tp.id, ...tp }))
+    })
+  }
 
   return (
     <div>
@@ -513,8 +577,8 @@ function CreateMarketingPlan(props) {
             </IconButton>
           </div>
         </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleCreateMarketingPlan}>
+        <form onSubmit={handleCreateMarketingPlan}>
+          <DialogContent>
             <Stepper nonLinear activeStep={activeStep} orientation="vertical">
               {stepName.map((label, index) => (
                 <Step key={label} >
@@ -541,7 +605,9 @@ function CreateMarketingPlan(props) {
                           marketingPlanConditions,
                           handleChangeActionTypeSelect,
                           handleChangeSelectAddress,
-                          isCreateMarketingPlanDialog
+                          isCreateMarketingPlanDialog,
+                          handleChangeMailTemplate,
+                          fetchEmailSuggestion
                           {/* applyConditionTable */ }
                         )}
                       </Grid>
@@ -551,34 +617,37 @@ function CreateMarketingPlan(props) {
               ))}
             </Stepper>
             <Paper square elevation={0} className={classes.resetContainer}>
-              <Typography variant="title2">All steps completed - you now can create plan or reset</Typography>
-              <Button variant="outlined" color="default" onClick={handleReset} className={classes.button}>
-                Reset
+              {/* <Typography variant="title2">All steps completed - you now can create plan or reset</Typography> */}
+            </Paper>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" color="default" onClick={handleReset} className={classes.button}>
+              Reset
             </Button>
-              {/* {
+            {/* {
                 isCreateMarketingPlanDialog == true &&
                 <Button type="submit" variant="contained" color="primary" className={classes.button}>
                   Create
                 </Button>
               } */}
-              {
-                isEditMarketingPlan ?
-                  <Button type="submit" variant="contained" color="primary" className={classes.button}>
-                    Update
+            {
+              isEditMarketingPlan ?
+                <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                  Update
                   </Button>
-                  :
-                  <>
-                    {
-                      isCreateMarketingPlanDialog == true &&
-                      <Button type="submit" variant="contained" color="primary" className={classes.button}>
-                        Create
+                :
+                <>
+                  {
+                    isCreateMarketingPlanDialog == true &&
+                    <Button type="submit" variant="contained" color="primary" className={classes.button}>
+                      Create
                     </Button>
-                    }
-                  </>
-              }
-            </Paper>
-          </form>
-        </DialogContent>
+                  }
+                </>
+            }
+
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   )

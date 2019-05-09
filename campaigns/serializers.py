@@ -175,7 +175,6 @@ class ContactMarketingHistorySerializer(serializers.ModelSerializer):
         model = models.ContactMarketingHistory
         fields = '__all__'
 
-
 class ContactInCampaignSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
 
@@ -203,5 +202,6 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
         if status == 'COMPLETED':
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
+            
 
         return instance
