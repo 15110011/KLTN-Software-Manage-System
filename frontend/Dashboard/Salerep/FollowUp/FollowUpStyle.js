@@ -182,6 +182,20 @@ const styles = (theme) => ({
     },
   },
   tabSelected: {},
+  sort: {
+    color: '#333333',
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+    '&:focus': {
+      outline: 'none !important'
+    }
+  },
+  sortDesc: {
+    transform: 'rotate(180deg)',
+  }
 })
 
 

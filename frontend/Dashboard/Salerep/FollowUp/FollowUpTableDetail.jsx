@@ -5,11 +5,15 @@ import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField';
 import Input from '@material-ui/core/Input';
 import SearchIcon from '@material-ui/icons/Search';
+import IconButton from '@material-ui/core/IconButton';
 import CloseIcon from '@material-ui/icons/Close';
 import SortIcon from '@material-ui/icons/ArrowUpward';
 import InputLabel from '@material-ui/core/InputLabel';
 import InputAdornment from '@material-ui/core/InputAdornment';
 import FormControl from '@material-ui/core/FormControl';
+import SortAscIcon from '@material-ui/icons/ArrowUpward';
+import SortDescIcon from '@material-ui/icons/ArrowDownward';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -28,7 +32,7 @@ import TimerIcon from '@material-ui/icons/AccessAlarm'
 import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
+import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText, Icon } from '@material-ui/core'
 import { Typography } from '@material-ui/core';
 import Paper from "@material-ui/core/Paper";
 
@@ -44,15 +48,18 @@ import FollowUpDetail from './FollowUpDetail'
 function FollowUpTableDetail(props) {
 
   const { classes, history, user } = props;
-  const [sortOption, setSortOption] = React.useState({
-    type: 'name'
-  })
   const [moreRow, setMoreRow] = React.useState(null)
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
   const [indexActive, setIndexActive] = React.useState(0)
   const [update, setUpdate] = React.useState(0)
+  const [sortOption, setSortOption] = React.useState('asc')
+  const [isSort, setIsSort] = React.useState(false)
+  const [searchOptions, setSearchOptions] = React.useState({
+    type: 'name'
+  })
 
+  const [searchInput, setSearchInput] = React.useState('')
 
   const [first, setFirst] = React.useState(true)
 
@@ -89,8 +96,38 @@ function FollowUpTableDetail(props) {
     }
   }, [update])
 
-  const handleChangeSelectSortOption = e => {
-    setSortOption({ [e.target.name]: e.target.value });
+  const handleRefreshFollowUp = e => {
+    e.preventDefault()
+    setUrl(ORDER_URL)
+    setSearchInput('')
+  }
+
+  const handleChangeSelectSearchOption = e => {
+    setSearchOptions({ [e.target.name]: e.target.value });
+  }
+
+  const handleChangeSearchInput = e => {
+    setSearchInput([e.target.name] = e.target.value)
+  }
+  const handleSearch = e => {
+    e.preventDefault()
+    let searchString = `${searchOptions.type == 'name' ? '&contact_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'campaign' ? '&campaign_name=' + searchInput : ''}`
+    setUrl(ORDER_URL + `?type=both` + searchString)
+  }
+
+  const handleSort = e => {
+    e.preventDefault()
+    if (sortOption == 'asc') {
+      setSortOption('desc')
+      setIsSort(!isSort)
+    } else {
+      setSortOption('asc')
+      setIsSort(!isSort)
+    }
+    let searchString = `${searchOptions.type == 'name' ? '&contact_order=' + sortOption : ''}`
+    searchString += `${searchOptions.type == 'campaign' ? '&campaign_order=' + sortOption : ''}`
+    setUrl(ORDER_URL + `?type=both` + searchString)
   }
 
   React.useEffect(() => {
@@ -177,37 +214,66 @@ function FollowUpTableDetail(props) {
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <Grid container style={{ height: '100%' }} spacing={8}>
-              <Grid item xs={6}>
-                <FormControl className={classes.formControl}>
-                  <Select
-                    value={sortOption.type}
-                    onChange={handleChangeSelectSortOption}
-                    inputProps={{
-                      name: 'type',
-                    }}
-                  >
-                    <MenuItem value="name">
-                      Name
-                  </MenuItem>
-                    <MenuItem value="campaign">
-                      Campaign
-                  </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid className="text-right" item xs={6}>
-                <SortIcon fontSize="small" />
-              </Grid>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="simple-start-adornment"
-                  className={cn(classes.margin, classes.textField)}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-                    endAdornment: <InputAdornment position="end"><CloseIcon fontSize="small" /></InputAdornment>
-                  }}
-                />
+                <form style={{ width: '100%' }} onSubmit={handleSearch}>
+                  <Grid container spacing={8}>
+                    <Grid item xs={6}>
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          value={searchOptions.type}
+                          onChange={handleChangeSelectSearchOption}
+                          inputProps={{
+                            name: 'type',
+                          }}
+                        >
+                          <MenuItem value="name">
+                            Name
+                  </MenuItem>
+                          <MenuItem value="campaign">
+                            Campaign
+                  </MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid className="text-right" item xs={6}>
+                      <IconButton
+                        className={cn(classes.sort,
+                          {
+                            [classes.sortDesc]: isSort,
+                          }
+                        )}
+                        onClick={(e) => handleSort(e)}
+                      >
+                        <SortAscIcon fontSize="small" />
+                      </IconButton>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        onChange={handleChangeSearchInput}
+                        value={searchInput}
+                        fullWidth
+                        id="simple-start-adornment"
+                        className={cn(classes.margin, classes.textField)}
+                        InputProps={{
+                          startAdornment:
+                            <InputAdornment position="start">
+                              <IconButton onClick={handleSearch}>
+                                <SearchIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>,
+                          endAdornment:
+                            <InputAdornment position="end">
+                              <IconButton onClick={e => {
+                                setSearchInput('')
+                              }}>
+                                <CloseIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </form>
               </Grid>
               <div className={classes.formContact}>
                 <ul>
@@ -230,7 +296,9 @@ function FollowUpTableDetail(props) {
                 </ul>
               </div>
               <Grid className="pt-1" item xs={6}>
-                <SortIcon fontSize="small" />
+                <IconButton type="button" onClick={(e) => handleRefreshFollowUp(e)}>
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
               </Grid>
               <Grid className="text-right" item xs={6}>
                 {followUps.data.length} contact(s)
