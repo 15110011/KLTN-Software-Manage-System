@@ -79,7 +79,11 @@ function CampaignTableDetail(props) {
   const [first, setFirst] = React.useState(true)
   let order = []
 
-
+  const handleRefreshCampaign = e => {
+    e.preventDefault()
+    setUrl(CAMPAIGNS_URL)
+    setSearchInput('')
+  }
 
   const [campaigns, setCampaigns, setUrl, forceUpdate] =
     useFetchData(CAMPAIGNS_URL, history, {
@@ -323,7 +327,6 @@ function CampaignTableDetail(props) {
                       >
                         <SortAscIcon fontSize="small" />
                       </IconButton>
-
                     </Grid>
                     <Grid item xs={12}>
                       <TextField
@@ -333,8 +336,20 @@ function CampaignTableDetail(props) {
                         id="simple-start-adornment"
                         className={cn(classes.margin, classes.textField)}
                         InputProps={{
-                          startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-                          endAdornment: <InputAdornment position="end"><CloseIcon fontSize="small" /></InputAdornment>
+                          startAdornment:
+                            <InputAdornment position="start">
+                              <IconButton onClick={handleSearch}>
+                                <SearchIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>,
+                          endAdornment:
+                            <InputAdornment position="end">
+                              <IconButton onClick={e => {
+                                setSearchInput('')
+                              }}>
+                                <CloseIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
                         }}
                       />
                     </Grid>
@@ -406,7 +421,9 @@ function CampaignTableDetail(props) {
                 </ul>
               </div>
               <Grid className="pt-1" item xs={6}>
-                <RefreshIcon fontSize="small" />
+                <IconButton onClick={e => handleRefreshCampaign(e)}>
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
               </Grid>
               <Grid className="text-right" item xs={6}>
                 {campaigns.data.length} campaign(s)
