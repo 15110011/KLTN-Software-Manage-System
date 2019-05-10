@@ -143,11 +143,22 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         campaign = super().create(validated_data)
         campaign.assigned_to.set(sale_reps)
         campaign.packages.set(packages)
+        scheduler = django_rq.get_scheduler('default')
+        timestamp1 = calendar.timegm((campaign.start_date + timedelta(days=1)).timetuple())
+        start_date= datetime.utcfromtimestamp(timestamp1)
+        job = scheduler.schedule(
+            scheduled_time=start_date,
+            func=send_email,
+            args=[self.context.get('request').user, 'Campaign Start', 'Your Campaign started today'],
+            interval=604800,
+            kwargs={},
+            repeat=10,
+        )
         if contacts is not None:
             for index, contact in enumerate(contacts):
                 cur_contact = Contact.objects.get(id=contact)
                 contact_marketing = models.ContactMarketing(
-                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign)
+                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, job_id=job.id)
                 contact_marketing.save()
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
@@ -156,17 +167,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 )
                 event.save()
                 event.contacts.set([cur_contact])
-        scheduler = django_rq.get_scheduler('default')
-        timestamp1 = calendar.timegm((campaign.start_date + timedelta(days=1)).timetuple())
-        start_date= datetime.utcfromtimestamp(timestamp1)
-        scheduler.schedule(
-            scheduled_time=start_date,
-            func=send_email,
-            args=[self.context.get('request').user, 'Campaign Start', 'Your Campaign started today'],
-            interval=604800,
-            kwargs={},
-            repeat=10,
-        )
+       
         return campaign
 
 
@@ -215,6 +216,7 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
         if status == 'COMPLETED':
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
-            
+            follow_up_plan = models.ContactMarketing.campaign.follow_up
+            print (follow_up_plan)
 
         return instance

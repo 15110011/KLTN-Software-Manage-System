@@ -67,7 +67,7 @@ urlpatterns = [
          name='token_obtain_pair'),
     path('api/v1/token/refresh',
          TokenRefreshView.as_view(), name='token_refresh'),
-
+    path('django-rq/', include('django_rq.urls')),
     # account views
     path('api/v1/me', MeView.as_view()),
     path('api/v1/login', LoginAndUpdateView.as_view()),
