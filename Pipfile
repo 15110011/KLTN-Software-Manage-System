@@ -1,38 +1,11 @@
 [[source]]
+name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-name = "pypi"
-
-[packages]
-django = "==2.2b1"
-djangorestframework = "*"
-django-cors-headers = "*"
-psycopg2-binary = "*"
-djangorestframework-simplejwt = "*"
-pyjwt = "*"
-djangocolorsformatter = {editable = true,git = "https://github.com/tiliv/django-colors-formatter.git"}
-django-admin-json-editor = "*"
-django-prettyjson = "*"
-django-model-utils = "*"
-requests = "*"
-redis = "*"
-rq = "*"
-django-redis = "*"
-django-elasticsearch-dsl = {git = "https://github.com/HansAdema/django-elasticsearch-dsl.git",ref = "elasticsearch-6"}
-elasticsearch-dsl = "==6.1.0"
-django-rq = "*"
-rq-scheduler = "*"
-django-jet = "*"
-google-api-python-client = "*"
-google-auth-httplib2 = "*"
-google-auth-oauthlib = "*"
-google-auth = "*"
-oauth2client = "*"
-channels = "*"
-channels-redis = "*"
 
 [dev-packages]
-"autopep8" = "*"
+
+[packages]
 
 [requires]
 python_version = "3.7"

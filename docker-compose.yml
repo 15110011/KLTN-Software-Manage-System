@@ -1,11 +1,11 @@
 version: '3'
 services:
   web:
-    build: .
+    build: ./api_service
     environment:
       - PGHOST=postgres
     volumes:
-      - .:/codebase
+      - ./api_service:/codebase
     ports:
       - "8000:8000"
     depends_on:
@@ -14,6 +14,17 @@ services:
       - elasticsearch
     restart: always
   
+  emails:
+    build: ./mail_box
+    volumes:
+    - ./mail_box:/codebase
+    ports:
+      - "8001:8001"
+    depends_on:
+      - redis
+      - elasticsearch
+    restart: always
+
   postgres:
     image: postgres:alpine
     environment:

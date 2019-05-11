@@ -208,7 +208,7 @@ CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_WHITELIST = [
-    'localhost:4444'
+    'http://localhost:4444'
 ]
 
 CORS_ALLOW_HEADERS = (
