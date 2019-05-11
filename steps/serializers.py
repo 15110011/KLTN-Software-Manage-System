@@ -13,21 +13,29 @@ class StepSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         steps = super().create(validated_data)
-        scheduler = django_rq.get_scheduler('default')
-        job = scheduler.schedule(
-            scheduled_time=datetime.utcnow(),
-            func=send_email,
-            args=[self.context.get('request').user, 'Step', 'Your Step started today'],
-            interval=604800,
-            kwargs={},
-            repeat=10,
-        )
         return steps
+
 
 class StepDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = StepDetail
         fields = '__all__'
+
+    def update(self, instance, validated_data):
+        step_detail = super().update(instance, validated_data)
+        status = validated_data.get('status', None)
+        if status is not None:
+            if status == 'COMPLETED':
+                steps = instance.order.campaign.follow_up_plan.steps.all()
+                for index, step in enumerate(steps):
+                    if step.id == instance.step.id:
+                        if index + 1 >= len(steps):
+                            break
+                        queue = django_rq.get_queue('default', is_async=True)
+                        queue.enqueue(send_email, self.context.get(
+                            'request').user, 'Step', step[index+1].mail_template)
+                        break
+        return step_detail
 
 
 class StepWithOutFollowUpSerializer(serializers.ModelSerializer):

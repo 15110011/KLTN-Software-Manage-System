@@ -27,3 +27,11 @@ class StepDetailView(ModelViewSet):
     queryset = StepDetail.objects
     serializer_class = StepDetailSerializer
     permission_classes = (IsAuthenticated,)
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = StepDetailSerializer(
+            instance, data=request.data, context={'request': request}, partial=True)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data, status=status.HTTP_200_OK)

@@ -216,7 +216,5 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
         if status == 'COMPLETED':
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
-            follow_up_plan = models.ContactMarketing.campaign.follow_up
-            print (follow_up_plan)
 
         return instance

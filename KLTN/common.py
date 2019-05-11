@@ -30,6 +30,5 @@ NOTE_CHOICES = (('DEFAULT', 'Default'), ('MARKETING', 'Marketing'), ('FOLLOWUP',
 
 
 def send_email(user, mail_subject, message):
-    print ('sdfjisdjfisdf', user.email)
     return send_mail(mail_subject, message,
               settings.EMAIL_HOST_USER, [user.email])
