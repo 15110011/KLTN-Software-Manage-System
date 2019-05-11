@@ -17,7 +17,6 @@ ORDER_CHOICES = (
 )
 
 
-
 class Order(BaseModel):
     contacts = models.ForeignKey(
         Contact, on_delete=models.CASCADE, related_name='orders')
@@ -34,10 +33,13 @@ class Order(BaseModel):
 class OrderHistory(BaseModel):
     order = models.ForeignKey(
         Order, on_delete=models.CASCADE, related_name='history')
-    step_detail = models.ForeignKey(
-        StepDetail, on_delete=models.CASCADE, related_name='order_history')
+    # step_detail = models.ForeignKey(
+    #     StepDetail, on_delete=models.CASCADE, related_name='order_history')
     date = models.DateField(auto_now_add=True)
     action = models.TextField()
+
+    class Meta:
+        ordering = ('-created',)
 
 
 class License(BaseModel):

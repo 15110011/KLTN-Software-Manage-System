@@ -43,9 +43,10 @@ import Checkbox from '@material-ui/core/Checkbox';
 import SendMailDialog from '../../../Mailbox/SendMailDialog'
 
 import ContactDetail from '../ContactDetail'
+import AllContactDetail from './AllContactDetail'
 import NoteDetail from '../NoteDetail'
 import { apiPost, apiPatch } from '../../../common/Request'
-import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL, STEP_DETAIL_URL } from '../../../common/urls';
+import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL, STEP_DETAIL_URL, ORDER_HISTORY_URL } from '../../../common/urls';
 import styles from './FollowUpStyle.js'
 import StepFollowUpDetail from './StepFollowUpDetail'
 import CreateEventDialog from '../../../Events/CreateEventDialog'
@@ -169,7 +170,7 @@ function FollowUpDetail(props) {
   const onCall = () => {
     if (!stepDetail[activeStep].id) {
       apiPost(STEP_DETAIL_URL, { ...stepDetail[activeStep] }, false, true).then(res => {
-        apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client', step_detail: res.data.id }, false, true).then(res => {
+        apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
           updateTable()
           setSuccessNoti('Successfully Called')
           setTimeout(() => {
@@ -178,7 +179,7 @@ function FollowUpDetail(props) {
         })
       })
     } else {
-      apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client', step_detail: stepDetail[activeStep].id }, false, true).then(res => {
+      apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
         updateTable()
         setSuccessNoti('Successfully Called')
         setTimeout(() => {
@@ -265,6 +266,16 @@ function FollowUpDetail(props) {
       {error.all && <CustomSnackbar isErr msg={error.all} />}
       {mailDialog &&
         <SendMailDialog user={user} contact={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
+          updateMailMetric={() => {
+
+            apiPost(ORDER_URL + '/' + id + '/history', { action: 'Send Email Manually' }, false, true).then(res => {
+              updateTable()
+              setSuccessNoti('Successfully Sent')
+              setTimeout(() => {
+                setSuccessNoti(false)
+              }, 2000);
+            })
+          }}
         />
       }
       {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
@@ -493,7 +504,9 @@ function FollowUpDetail(props) {
                     }}
                     style={{ cursor: 'pointer' }}
                   >
-                    Step {index + 1}
+                    {index != moreRow.followup.campaign.follow_up_plan.steps.length - 1 ?
+                      `Step ${index + 1}` : 'Choose Packages'
+                    }
                   </StepLabel>
                 </Step>
               )
@@ -504,7 +517,9 @@ function FollowUpDetail(props) {
           </Stepper>
           <Paper className={classes.stepPaper}>
             <Grid className={classes.inputHeaderCustom} item xs={12}>
-              Step {activeStep + 1}
+              {activeStep == moreRow.followup.campaign.follow_up_plan.steps.length - 1 ?
+                ''
+                : `Step ${activeStep + 1}`}
               <i>
                 {/* {dateFns.format(dateFns.addDays(dateFns.parseISO(moreRow.followup.created), parseInt(step.duration)), 'MM-dd-yyyy')} */}
               </i>
@@ -512,13 +527,11 @@ function FollowUpDetail(props) {
             <form onSubmit={handleUpdateStepDetail}>
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).map((iKey, index) => {
-                  console.log(stepDetail[activeStep].information)
-                  console.log(followup.campaign.follow_up_plan.steps[activeStep].conditions, index)
                   return (
                     <Grid item xs={12} key={`st${index}`}>
-                      <Grid container spacing={8}>
+                      <Grid container spacing={24} style={{ marginTop: '16px' }}>
 
-                        <Grid style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }} item xs={4}>
+                        {activeStep != moreRow.followup.campaign.follow_up_plan.steps.length - 1 && <Grid item xs={4}>
                           <InputLabel
                             required
                             htmlFor="custom-css-standard-input"
@@ -529,7 +542,7 @@ function FollowUpDetail(props) {
                           >
                             {iKey}
                           </InputLabel>
-                        </Grid>
+                        </Grid>}
                         {
                           stepDetail[activeStep].information[iKey].type == 'text' &&
                           <Grid item xs={8}>
@@ -713,18 +726,18 @@ function FollowUpDetail(props) {
               <>
                 {value === 0 &&
                   <TabContainer>
-                    {/* <ContactDetail
-                      contact={contact}
-                      contactHistories={allHistories}
-                    /> */}
+                    <AllContactDetail
+                      contact={moreRow.contact}
+                      contactHistories={moreRow.allHistories}
+                    />
                   </TabContainer>
                 }
                 {value === 1 &&
                   <TabContainer>
-                    {/* <ContactDetail
-                      contact={contact}
-                      contactHistories={histories}
-                    /> */}
+                    <ContactDetail
+                      contact={moreRow.contact}
+                      contactHistories={moreRow.histories}
+                    />
                   </TabContainer>
                 }
               </>

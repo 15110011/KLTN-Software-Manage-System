@@ -24,6 +24,7 @@ export const ASSIGNED_CAMPAIGNS_URL = `${API_URL}assigned-campaigns`
 export const CONTACT_MARKETING_URL = `${API_URL}contact-marketings`
 
 export const ORDER_URL = `${API_URL}orders`
+export const ORDER_HISTORY_URL = `${API_URL}orders-histories`
 export const ORDER_CHART_URL = `${API_URL}orders-chart`
 
 export const STEP_DETAIL_URL = `${API_URL}step-detail`

@@ -8,7 +8,7 @@ from steps.serializers import StepSerializer, StepWithOutFollowUpSerializer
 from packages.serializers import PackageSerializer, ProductSerializier
 # from contacts.serializers import ContactWithoutGroupSerializer
 from orders.models import Order
-from steps.models import Step
+from steps.models import Step, StepDetail
 from contacts.models import Contact
 from events.models import Event
 from . import models
@@ -112,14 +112,15 @@ class CampaignSerializer(serializers.ModelSerializer):
             return ProductSerializier(instance.packages.all()[0].features.all()[0].product).data
         except:
             return None
-    
+
     def get_contacts(self, instance):
         orders = Order.objects.filter(campaign=instance)
-        contacts= [model_to_dict(o.contacts) for o in orders.all()]
+        contacts = [model_to_dict(o.contacts) for o in orders.all()]
         contact_distinct = set([c['id'] for c in contacts])
 
         marketings = models.ContactMarketing.objects.filter(campaign=instance)
-        contacts+=[model_to_dict(m.contact) for m in marketings.all() if not m.contact.id in contact_distinct]
+        contacts += [model_to_dict(m.contact) for m in marketings.all()
+                     if not m.contact.id in contact_distinct]
         return contacts
 
 
@@ -170,7 +171,6 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
        
         return campaign
 
-
     def update(self, instance, validated_data):
         contacts = validated_data.pop('contacts', None)
         campaign = super().update(instance, validated_data)
@@ -188,6 +188,7 @@ class ContactMarketingHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.ContactMarketingHistory
         fields = '__all__'
+
 
 class ContactInCampaignSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
@@ -216,5 +217,8 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
         if status == 'COMPLETED':
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
+            step_details = [StepDetail(step=s, order=new_order)
+                            for s in new_order.campaign.follow_up_plan.steps.all()]
+            step_details = StepDetail.objects.bulk_create(step_details)
 
         return instance

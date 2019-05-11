@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.forms.models import model_to_dict
 from .models import Step, StepDetail
 import django_rq
 from datetime import datetime, timedelta, timezone
@@ -40,10 +41,16 @@ class StepDetailSerializer(serializers.ModelSerializer):
 
 class StepWithOutFollowUpSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
+    email_template_ = serializers.SerializerMethodField()
 
     class Meta:
         model = Step
         exclude = ['follow_up']
+
+    def get_email_template_(self, instance):
+        if instance.mail_template:
+            return model_to_dict(instance.mail_template)
+        return None
 
 
 class StepDetailWithoutOrderSerializer(serializers.ModelSerializer):

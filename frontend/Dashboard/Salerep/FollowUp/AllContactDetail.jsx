@@ -1,16 +1,17 @@
 import * as React from 'react'
 import { withStyles } from '@material-ui/core'
+import { Link } from 'react-router-dom'
 import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import * as dateFns from 'date-fns'
 
 import Button from '@material-ui/core/Button'
 import MaterialTable from 'material-table'
-import styles from './SalerepStyles.js'
+import styles from '../SalerepStyles.js'
 import { title } from '../../components/material-dashboard-react.jsx';
 
 
-function ContactDetail(props) {
+function AllContactDetail(props) {
 
   const { classes, contactHistories, contact, toggleDialog } = props
   return (
@@ -56,6 +57,8 @@ function ContactDetail(props) {
             <th scope="col">Date time</th>
             <th scope="col">Action</th>
             <th scope="col">Contact</th>
+            <th scope="col">Campaign</th>
+
             {/* <th scope="col">Direction</th> */}
           </tr>
         </thead>
@@ -67,6 +70,11 @@ function ContactDetail(props) {
                   <td>{dateFns.format(dateFns.parseISO(h.created), 'MM/dd/yyyy HH:mm')}</td>
                   <td>{h.action}</td>
                   <td>{contact.first_name + ' ' + contact.last_name}</td>
+                  <td>
+                    <Link to={`campaigns/${h.campaign.id}`}>
+                      {h.campaign.name}
+                    </Link>
+                  </td>
                   {/* <td>IN</td> */}
                 </tr>
               )
@@ -83,4 +91,4 @@ function ContactDetail(props) {
   )
 }
 
-export default withStyles(styles)(ContactDetail)
+export default withStyles(styles)(AllContactDetail)
