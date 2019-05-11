@@ -87,6 +87,7 @@ class ContactMarketing(BaseModel):
     status = models.TextField(
         choices=CONTACT_MARKETING_CHOICE, default="RUNNING")
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
+    job_id = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         unique_together = (('campaign', 'contact'),)

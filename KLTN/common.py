@@ -29,7 +29,7 @@ MARKETING_PLAN_CONDITIONS = {
 NOTE_CHOICES = (('DEFAULT', 'Default'), ('MARKETING', 'Marketing'), ('FOLLOWUP', 'Follow up'))
 
 
-
 def send_email(user, mail_subject, message):
-    send_mail(mail_subject, message,
+    print ('sdfjisdjfisdf', user.email)
+    return send_mail(mail_subject, message,
               settings.EMAIL_HOST_USER, [user.email])

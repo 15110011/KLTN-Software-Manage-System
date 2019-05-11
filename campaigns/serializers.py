@@ -1,19 +1,22 @@
 
 from django.forms.models import model_to_dict
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework.fields import set_value
-
 from account.serializers import MeSerializer
 from steps.serializers import StepSerializer, StepWithOutFollowUpSerializer
 from packages.serializers import PackageSerializer, ProductSerializier
 # from contacts.serializers import ContactWithoutGroupSerializer
-
 from orders.models import Order
 from steps.models import Step, StepDetail
 from contacts.models import Contact
 from events.models import Event
-
 from . import models
+import django_rq
+from datetime import datetime, timedelta, timezone
+import calendar
+from KLTN.common import send_email
+
 
 
 class MailTemplateSerializer(serializers.ModelSerializer):
@@ -141,11 +144,22 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         campaign = super().create(validated_data)
         campaign.assigned_to.set(sale_reps)
         campaign.packages.set(packages)
+        scheduler = django_rq.get_scheduler('default')
+        timestamp1 = calendar.timegm((campaign.start_date + timedelta(days=1)).timetuple())
+        start_date= datetime.utcfromtimestamp(timestamp1)
+        job = scheduler.schedule(
+            scheduled_time=start_date,
+            func=send_email,
+            args=[self.context.get('request').user, 'Campaign Start', 'Your Campaign started today'],
+            interval=604800,
+            kwargs={},
+            repeat=10,
+        )
         if contacts is not None:
             for index, contact in enumerate(contacts):
                 cur_contact = Contact.objects.get(id=contact)
                 contact_marketing = models.ContactMarketing(
-                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign)
+                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, job_id=job.id)
                 contact_marketing.save()
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
@@ -154,7 +168,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 )
                 event.save()
                 event.contacts.set([cur_contact])
-
+       
         return campaign
 
     def update(self, instance, validated_data):

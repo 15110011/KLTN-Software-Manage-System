@@ -14,6 +14,14 @@ class StepView(ModelViewSet):
     serializer_class = StepSerializer
     permission_classes = (IsAuthenticated,)
 
+    def create(self, request):
+        serializer_class = StepSerializer(
+            data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
 
 class StepDetailView(ModelViewSet):
     queryset = StepDetail.objects

@@ -41,8 +41,8 @@ class CreateLicenseSerializer(serializers.ModelSerializer):
             timedelta(days=license.duration*30) - timedelta(days=10)
         timestamp1 = calendar.timegm((remind_date).timetuple())
         start_date = datetime.utcfromtimestamp(timestamp1)
-        job = scheduler.enqueue_at(start_date, send_email, user,
-                                   'License Reminder', 'Your license will be expired in 10 days')
+        scheduler.enqueue_at(start_date, send_email, user,
+                             'License Reminder', 'Your license will be expired in 10 days')
         return license
 
 

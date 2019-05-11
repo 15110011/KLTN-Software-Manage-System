@@ -13,10 +13,14 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import RefreshIcon from '@material-ui/icons/Refresh';
 import Button from '@material-ui/core/Button'
 import Input from '@material-ui/core/Input';
 import OutlinedInput from '@material-ui/core/OutlinedInput';
 import FilledInput from '@material-ui/core/FilledInput';
+import IconButton from '@material-ui/core/IconButton';
+import SortAscIcon from '@material-ui/icons/ArrowUpward';
+import SortDescIcon from '@material-ui/icons/ArrowDownward';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import PhoneIcon from '@material-ui/icons/Phone'
@@ -38,7 +42,7 @@ import styles from './TicketTableDetailStyle.js'
 import NoteDetail from './NoteDetail'
 import TicketDetail from './TicketDetail'
 import ContactDetail from './ContactDetail'
-import { apiPost, apiPatch } from '../../common/Request'
+import { apiPost, apiPatch, apiGet } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
@@ -46,9 +50,6 @@ import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '..
 
 function TicketTableDetail(props) {
   const { classes, history, user } = props;
-  const [sortOption, setSortOption] = React.useState({
-    type: 'name'
-  })
   const [moreRow, setMoreRow] = React.useState(null)
   const [indexActive, setIndexActive] = React.useState(0)
   const [deletingRow, setDeletingRow] = React.useState({})
@@ -60,8 +61,44 @@ function TicketTableDetail(props) {
     'Send Email Manually': 0,
     'Call Client': 0
   })
+  const [sortOption, setSortOption] = React.useState('asc')
+  const [isSort, setIsSort] = React.useState(false)
+  const [searchOptions, setSearchOptions] = React.useState({
+    type: 'name'
+  })
+
+  const [searchInput, setSearchInput] = React.useState('')
 
   const [first, setFirst] = React.useState(true)
+
+  const handleSearch = e => {
+    e.preventDefault()
+    let searchString = `${searchOptions.type == 'name' ? '&contact_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'campaign' ? '&campaign=' + searchInput : ''}`
+    setUrl(CONTACT_MARKETING_URL + `?type=both` + searchString)
+  }
+
+  const handleChangeSelectSearchOption = e => {
+    setSearchOptions({ [e.target.name]: e.target.value });
+  }
+
+  const handleChangeSearchInput = e => {
+    setSearchInput([e.target.name] = e.target.value)
+  }
+
+  const handleSort = e => {
+    e.preventDefault()
+    if (sortOption == 'asc') {
+      setSortOption('desc')
+      setIsSort(!isSort)
+    } else {
+      setSortOption('asc')
+      setIsSort(!isSort)
+    }
+    let searchString = `${searchOptions.type == 'name' ? '&contact_name_order=' + sortOption : ''}`
+    searchString += `${searchOptions.type == 'product' ? '&campaign_order=' + sortOption : ''}`
+    setUrl(CONTACT_MARKETING_URL + `?type=both` + searchString)
+  }
 
   const [tickets, setTickets, setUrl, forceUpdate] =
     useFetchData(CONTACT_MARKETING_URL, history, {
@@ -82,6 +119,12 @@ function TicketTableDetail(props) {
         })
       }
     })
+
+  const handleRefreshTickets = e => {
+    e.preventDefault()
+    setUrl(CONTACT_MARKETING_URL)
+    setSearchInput('')
+  }
 
   // React.useEffect(() => {
   //   if (!first) {
@@ -205,37 +248,66 @@ function TicketTableDetail(props) {
         <Grid item xs={3}>
           <Paper className={classes.paper}>
             <Grid container style={{ height: '100%' }} spacing={8}>
-              <Grid item xs={6}>
-                <FormControl className={classes.formControl}>
-                  <Select
-                    value={sortOption.type}
-                    onChange={handleChangeSelectSortOption}
-                    inputProps={{
-                      name: 'type',
-                    }}
-                  >
-                    <MenuItem value="name">
-                      Name
-                  </MenuItem>
-                    <MenuItem value="campaign">
-                      Campaign
-                  </MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid className="text-right" item xs={6}>
-                <SortIcon fontSize="small" />
-              </Grid>
               <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  id="simple-start-adornment"
-                  className={cn(classes.margin, classes.textField)}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-                    endAdornment: <InputAdornment position="end"><CloseIcon fontSize="small" /></InputAdornment>
-                  }}
-                />
+                <form style={{ width: '100%' }} onSubmit={handleSearch}>
+                  <Grid container spacing={8}>
+                    <Grid item xs={6}>
+                      <FormControl className={classes.formControl}>
+                        <Select
+                          value={searchOptions.type}
+                          onChange={handleChangeSelectSearchOption}
+                          inputProps={{
+                            name: 'type',
+                          }}
+                        >
+                          <MenuItem value="name">
+                            Name
+                  </MenuItem>
+                          <MenuItem value="campaign">
+                            Campaign
+                  </MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                    <Grid className="text-right" item xs={6}>
+                      <IconButton
+                        className={cn(classes.sort,
+                          {
+                            [classes.sortDesc]: isSort,
+                          }
+                        )}
+                        onClick={(e) => handleSort(e)}
+                      >
+                        <SortAscIcon fontSize="small" />
+                      </IconButton>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        onChange={handleChangeSearchInput}
+                        value={searchInput}
+                        id="simple-start-adornment"
+                        className={cn(classes.margin, classes.textField)}
+                        InputProps={{
+                          startAdornment:
+                            <InputAdornment position="start">
+                              <IconButton onClick={handleSearch}>
+                                <SearchIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>,
+                          endAdornment:
+                            <InputAdornment position="end">
+                              <IconButton onClick={e => {
+                                setSearchInput('')
+                              }}>
+                                <CloseIcon fontSize="small" />
+                              </IconButton>
+                            </InputAdornment>
+                        }}
+                      />
+                    </Grid>
+                  </Grid>
+                </form>
               </Grid>
               <div className={classes.formContact}>
                 <ul>
@@ -258,7 +330,9 @@ function TicketTableDetail(props) {
                 </ul>
               </div>
               <Grid className="pt-1" item xs={6}>
-                <SortIcon fontSize="small" />
+                <IconButton onClick={e => handleRefreshTickets(e)}>
+                  <RefreshIcon fontSize="small" />
+                </IconButton>
               </Grid>
               <Grid className="text-right" item xs={6}>
                 {tickets.data.length} ticket(s)
@@ -287,7 +361,7 @@ function TicketTableDetail(props) {
           </Grid>
         </Grid>
       </Grid>
-    </div>
+    </div >
   )
 }
 
