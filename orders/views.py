@@ -214,9 +214,8 @@ class OrderView(ModelViewSet):
         instance = self.get_object()
         # instance.modified = datetime.datetime.now
         instance.save()
-        step_detail = StepDetail.objects.get(id=request.data['step_detail'])
         history = OrderHistory.objects.create(
-            action=request.data['action'], order=instance, step_detail=step_detail)
+            action=request.data['action'], order=instance)
         serializer = OrderHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

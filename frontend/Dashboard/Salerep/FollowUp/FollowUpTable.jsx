@@ -39,12 +39,12 @@ let activePage = 0
 
 function FollowUpTable(props) {
 
-  const { 
-    classes, 
-    forceActivities, 
-    tableRef, 
-    history, 
-    forceFollowUp, 
+  const {
+    classes,
+    forceActivities,
+    tableRef,
+    history,
+    forceFollowUp,
     forceOrder,
     expanded,
     handleExpandClick
@@ -327,7 +327,10 @@ function FollowUpTable(props) {
                         progress,
                         id: d.id,
                         packages: d.campaign.packages,
-                        followup: d
+                        followup: d,
+                        histories: d.history,
+                        allHistories: d.all_histories,
+                        contact: d.contacts
                       }
                     })
                     if (moreRow) {

@@ -26,8 +26,8 @@ import CardBody from "../../../components/Card/CardBody";
 import USERCONTEXT from '../../../components/UserContext'
 import { apiGet, apiPost } from '../../../common/Request'
 import useFetchData from '../../../CustomHook/useFetchData'
-import { spawn } from 'child_process';
 import OrderDetail from './OrderDetail'
+
 
 let flSearch = {
 }
@@ -185,18 +185,15 @@ function OrderTable(props) {
                 {
                   title: 'Licenses Status', field: 'status',
                   render: rowData => {
-                    if (rowData.license.length > 0) {
-                      if (rowData.license[0].status === 'EXPIRING')
-                        return <div className="text-warning">Some licenses are expiring soon</div>
-                      if (rowData.license[0].status === 'EXPIRED')
-                        return <div className="text-danger">Some licenses are expired</div>
-                      if (rowData.license[0].status === 'GOOD')
-                        return <div className="text-success">All licenses are working fine</div>
-                    }
+                    if (rowData.licenseStatus == 'EXPIRING')
+                      return <div className="text-warning">Some licenses are expiring soon</div>
+                    else if (rowData.licenseStatus == 'EXPIRED')
+                      return <div className="text-danger">Some licenses are expired</div>
+                    else if (rowData.licenseStatus == 'GOOD')
+                      return <div className="text-success">All licenses are working fine</div>
                     else if (rowData.allLifetimeLicenses.length) {
                       return <div className="text-success">All licenses are working fine</div>
                     }
-                    return <div className="">Something wrong</div>
                   }
                 },
               ]}
@@ -216,18 +213,30 @@ function OrderTable(props) {
 
                   apiGet(ORDER_URL + `?status=COMPLETED&page=${activePage}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
                     const data = res.data.data.map((d, index) => {
-                      const license = d.licenses.map((license) => {
+                      const data = { expiring: 0, expired: 0 }
+                      const licenseStatus = d.licenses.reduce((acc, license, licenseIndex) => {
                         const licenseTime = dateFns.addMonths(new Date(license.start_date), license.duration)
                         const timeLeft = licenseTime - dateFns.addDays(new Date(), 10)
                         const tenDays = 864000000
                         if (timeLeft < 0) {
-                          const data = {}
                           const time = -timeLeft
-                          if (time > tenDays) return { status: 'EXPIRED' }
-                          if (time > 0 && time < tenDays) return { status: 'EXPIRING' }
+                          if (time > tenDays) {
+                            data.expired += 1
+                          }
+                          if (time > 0 && time < tenDays && data.expired == 0) {
+                            data.expiring += 1
+                          }
                         }
-                        return { status: 'GOOD' }
-                      })
+                        if (data.expired) {
+                          return 'EXPIRED'
+                        }
+                        else if (data.expiring) {
+                          return 'EXPIRING'
+                        }
+
+                        return 'GOOD'
+                      }, '')
+                      // console.log(d.id, licenseStatus)
                       return {
                         '#': query.pageSize * activePage + index + 1,
                         full_name: d.contacts.first_name + ' ' + d.contacts.last_name,
@@ -236,7 +245,7 @@ function OrderTable(props) {
                         numberOfPackages: d.packages.length,
                         packages: d.packages,
                         status: d.status,
-                        license,
+                        licenseStatus,
                         contacts: d.contacts,
                         allLicenses: d.licenses,
                         allLifetimeLicenses: d.lifetime_licenses,

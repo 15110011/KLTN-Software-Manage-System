@@ -7,11 +7,8 @@ import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import TextField from '@material-ui/core/TextField';
 import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
-import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
 import InputBase from '@material-ui/core/InputBase';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -27,16 +24,27 @@ import MaterialTable from 'material-table'
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+import FormGroup from '@material-ui/core/FormGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormHelperText from '@material-ui/core/FormHelperText';
+import Checkbox from '@material-ui/core/Checkbox';
 import Tooltip from '@material-ui/core/Tooltip'
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
+import * as cn from 'classnames'
+import { withRouter } from 'react-router-dom'
+
+
 import styles from './CreateCampaignStyle'
+
+import useFetchData from '../../CustomHook/useFetchData'
+import { GET_ACTIONS_URL } from '../../common/urls'
 
 // Components 
 import CreateFollowUpPlan from '../../FollowUpPlan/CreateFollowUpPlan';
 import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
-import * as cn from 'classnames'
 
 
 function FollowUpPlanDetails(props) {
@@ -57,6 +65,7 @@ function FollowUpPlanDetails(props) {
   } = props
 
   const [createFollowUpPlanDialog, setCreateFollowUpPlanDialog] = React.useState(false)
+  const [actions, setActions] = useFetchData(GET_ACTIONS_URL, props.history, {})
 
   const handleCloseCreateFollowUpPlan = e => {
     setCreateFollowUpPlanDialog(false)
@@ -171,148 +180,89 @@ function FollowUpPlanDetails(props) {
               style={{ float: 'right' }}
             >
               {createCampaign.follow_up_plan.steps && createCampaign.follow_up_plan.steps.map((s, index) => {
-                return <MenuItem key={'ViewOrder' + index} value={index}>
-                  Step {index + 1} ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
-              </MenuItem>
+                if (index != createCampaign.follow_up_plan.steps.length - 1) {
+                  return (
+                    <MenuItem key={'ViewOrder' + index} value={index}>
+                      Step {index + 1} ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
+                    </MenuItem>)
+                }
+
+                return (
+                <MenuItem key={'ViewOrder' + index} value={index}>
+                    Choose Packages ({s.duration > 1 ? s.duration + ' days' : s.duration + ' day'})
+                </MenuItem>)
               })}
             </Select>
           </Grid>
         </>
       }
       <Grid item xs={2}></Grid>
-      <Grid item xs={2}></Grid>
+      <Grid item xs={2}>
+      </Grid>
       {createCampaign.follow_up_plan.steps &&
         <Grid item xs={8}>
           <Paper className='p-4'>
-            <Grid container spacing={8}>
+            <Grid container spacing={8} className='text-left'>
+              <Grid item xs={6}>
+                <FormControl >
+                  <FormLabel disabled component="legend">Automatical actions</FormLabel>
+                  <FormGroup>
+                    {
+                      actions.actions &&
+                      actions.actions
+                        .reduce((acc, g) => {
+                          acc.push(
+                            <FormControlLabel
+                              control={
+                                <Checkbox
+                                  checked={createCampaign.follow_up_plan.steps[viewingOrder].actions.find(a => a == g)}
+                                  disabled
+                                />
+                              }
+                              value={g}
+                              label={g}
+                            />
+                          )
+                          return acc
+                        }, [])
+                    }
+                  </FormGroup>
+                </FormControl>
+              </Grid>
               {
-                createCampaign.follow_up_plan.steps[viewingOrder] && createCampaign.follow_up_plan.steps[viewingOrder].conditions.map((c, index) => {
-                  return (
-                    <>
-                      {
-                        checkBoxOrRadio[viewingOrder] ?
-                          <>
-                            <Grid item xs={5}>
-                              <TextField
-                                fullWidth
-                                required
-                                value={
-                                  c['name']
-                                }
-                                name="name"
-                                classes={{
-                                  underline: classes.cssUnderline,
-                                }}
-                                label="Name"
-                                disabled
-                              />
-                            </Grid>
-                            <Grid item xs={4}>
-                              <FormControl fullWidth className={classes.formControl}>
-                                <InputLabel>
-                                  Type
-                       </InputLabel>
-                                <Select
-                                  value={
-                                    c['type']
-                                  }
-                                  disabled
-                                  displayEmpty
-                                  name="type"
-                                  className={classes.selectEmpty}
-                                  label="Type"
-                                >
-                                  <MenuItem value="text">
-                                    Text Field
-                          </MenuItem>
-                                  <MenuItem value="number">Number</MenuItem>
-                                  <MenuItem value="check_box">
-                                    Check Box
-                          </MenuItem>
-                                  <MenuItem value="radio">
-                                    Check Box (Multiple choices)
-                          </MenuItem>
-                                </Select>
-                              </FormControl>
-                            </Grid>
-                          </>
-                          :
-                          <>
-                            <Grid item xs={12}>
-                            <TextField
-                                fullWidth
-                                required
-                                value={createCampaign.follow_up_plan.steps[viewingOrder].actions.reduce((acc, a) => {
-                                  acc += a + ', '
-                                  return acc
-                                }, '').slice(0, -2)}
-                                classes={{
-                                  underline: classes.cssUnderline,
-                                }}
-                                label="Actions"
-                                disabled
-                              />
-                            </Grid>
-                            <Grid item xs={6}>
-                              <TextField
-                                fullWidth
-                                required
-                                value={
-                                  c['name']
-                                }
-                                name="name"
-                                classes={{
-                                  underline: classes.cssUnderline,
-                                }}
-                                label="Name"
-                                disabled
-                              />
-                            </Grid>
-                            <Grid item xs={6}>
-                              <FormControl fullWidth className={classes.formControl}>
-                                <InputLabel>
-                                  Type
-                                </InputLabel>
-                                <Select
-                                  value={
-                                    c['type']
-                                  }
-                                  disabled
-                                  displayEmpty
-                                  name="type"
-                                  className={classes.selectEmpty}
-                                  label="Type"
-                                >
-                                  <MenuItem value="text">
-                                    Text Field
-                                  </MenuItem>
-                                  <MenuItem value="number">Number</MenuItem>
-                                  <MenuItem value="check_box">
-                                    Check Box
-                                  </MenuItem>
-                                  <MenuItem value="radio">
-                                    Check Box (Multiple choices)
-                                  </MenuItem>
-                                </Select>
-                              </FormControl>
-                            </Grid>
-                          </>
-                      }
-                      {(c.type == 'check_box' || c.type == 'radio') &&
-                        <Grid item xs={3} style={{ position: 'relative' }}>
-                          <Tooltip
-                            title={<ul style={{ paddingInlineStart: '16px', fontSize: '12px', maxWidth: '150px', wordBreak: 'break-word' }}>
-                              {c.choices.map(c => <li key={`selection${c}`}>{c}</li>)}</ul>}>
-                            <Typography classes={{ root: classes.linkStyleCustom }}
-                              onClick={() => handleOpenDialog(index)}
-                            >{c.choices.length} selection(s)
-                            </Typography>
-                          </Tooltip>
-                        </Grid>
-                      }
-                    </>
-                  )
-                })
+                createCampaign.follow_up_plan.steps[viewingOrder].email_template_ &&
+                <Grid item xs={6}>
+
+                  <FormControl >
+                    <FormLabel disabled component="legend">Email Template</FormLabel>
+                    <FormGroup>
+                      <TextField
+                        value={createCampaign.follow_up_plan.steps[viewingOrder].email_template_.name}
+                        disabled
+                      >
+
+                      </TextField>
+
+
+                    </FormGroup>
+                  </FormControl>
+
+                  <FormControl >
+                    <FormLabel disabled component="legend">&nbsp;</FormLabel>
+                    <FormGroup>
+                      <Tooltip title='Preview'>
+                        <IconButton
+                          onClick={() => { props.history.push('/mail-templates' + createCampaign.follow_up_plan.steps[viewingOrder].email_template_.id) }}
+                        >
+                          <PreviewIcon></PreviewIcon>
+                        </IconButton>
+                      </Tooltip>
+
+
+                    </FormGroup>
+                  </FormControl>
+
+                </Grid>
               }
             </Grid>
           </Paper>
@@ -320,4 +270,4 @@ function FollowUpPlanDetails(props) {
     </Grid>
   )
 }
-export default withStyles(styles)(FollowUpPlanDetails)
+export default withStyles(styles)(withRouter(FollowUpPlanDetails))

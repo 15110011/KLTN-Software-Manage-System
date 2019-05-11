@@ -1,4 +1,6 @@
+from django.forms.models import model_to_dict
 from rest_framework import serializers
+
 from account.serializers import MeSerializer
 from contacts.serializers import ContactSerializer
 from packages.serializers import PackageSerializer
@@ -14,9 +16,15 @@ import calendar
 
 
 class OrderHistorySerializer(serializers.ModelSerializer):
+    campaign = serializers.SerializerMethodField()
+
     class Meta:
         model = models.OrderHistory
         fields = '__all__'
+
+    def get_campaign(self, instance):
+        cur_campaign = instance.order.campaign
+        return {"name": cur_campaign.name, "id": cur_campaign.id}
 
 
 class CreateLicenseSerializer(serializers.ModelSerializer):
@@ -34,7 +42,7 @@ class CreateLicenseSerializer(serializers.ModelSerializer):
         timestamp1 = calendar.timegm((remind_date).timetuple())
         start_date = datetime.utcfromtimestamp(timestamp1)
         job = scheduler.enqueue_at(start_date, send_email, user,
-                             'License Reminder', 'Your license will be expired in 10 days')
+                                   'License Reminder', 'Your license will be expired in 10 days')
         return license
 
 
@@ -80,6 +88,7 @@ class OrderChartSerializer(serializers.ModelSerializer):
     # def get_month_group(self, instance):
     #     return instance.created.month
 
+
 class OrderSerializer(serializers.ModelSerializer):
     contacts = ContactSerializer()
     sale_rep = MeSerializer()
@@ -87,6 +96,7 @@ class OrderSerializer(serializers.ModelSerializer):
     campaign = CampaignSerializer()
     step_details = StepDetailWithoutOrderSerializer(many=True)
     history = OrderHistorySerializer(many=True)
+    all_histories = serializers.SerializerMethodField()
     licenses = LicenseSerializer(many=True)
     lifetime_licenses = LifetimeLicenseSerializer(many=True)
 
@@ -95,6 +105,14 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Order
         fields = '__all__'
+
+    def get_all_histories(self, instance):
+        cur_contact = instance.contacts
+        histories = models.OrderHistory.objects.filter(
+            order__contacts=cur_contact)
+        serializer = OrderHistorySerializer(histories, many=True)
+
+        return serializer.data
 
 
 class CreateOrderSerialzier(serializers.ModelSerializer):
@@ -107,7 +125,7 @@ class CreateOrderSerialzier(serializers.ModelSerializer):
     def create(self, validated_data):
         # step_details = validated_data.pop('step_details')
         order = super().create(validated_data)
-        # step_details = [StepDetail(**item, order=order)
-        #                 for item in step_details]
-        # step_details = StepDetail.objects.bulk_create(step_details)
+        step_details = [StepDetail(step=s, order=order)
+                        for s in order.campaign.follow_up_plan.steps.all()]
+        step_details = StepDetail.objects.bulk_create(step_details)
         return order
