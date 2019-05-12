@@ -63,7 +63,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'mail_box.urls'
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -132,7 +132,7 @@ CACHES = {
         }
     }
 }
-WSGI_APPLICATION = 'mail_box.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
