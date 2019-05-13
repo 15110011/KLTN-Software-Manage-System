@@ -116,7 +116,7 @@ function CreateEventDialog(props) {
 
   const handleCreateEvents = e => {
     apiCreateEvent()
-    setLaterDialog(false)
+    if (setLaterDialog) { setLaterDialog(false) }
   }
 
   const apiCreateEvent = () => {
@@ -145,6 +145,9 @@ function CreateEventDialog(props) {
         }
         else {
           notification('Successfully Created')
+          if (updateActivities) {
+            updateActivities(res.data)
+          }
           // setCreateCampaign({ ...createCampaign, contacts: res.data })
         }
       })
