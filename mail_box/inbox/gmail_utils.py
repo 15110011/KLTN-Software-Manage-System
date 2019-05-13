@@ -37,12 +37,7 @@ class GmailService:
             'INBOX'], q=q, maxResults=maxResults, pageToken=pageToken).execute()
         messages = results.get('messages', [])
         nextPageToken = results.get('nextPageToken', None)
-        email_contents = []
-        for message in messages:
-            msg = self.get_message(message['id'])
-            email_contents.append(msg)
-        email_contents.append({"pageToken": nextPageToken})
-        return email_contents
+        return {"messages_id": messages, "nextPageToken": nextPageToken}
 
     def get_message(self, message_id):
         service = self.get_service()
@@ -60,4 +55,5 @@ class GmailService:
 
 
 gmail = GmailService()
-print(gmail.get_all_messages(None, 10))
+from pprint import pprint
+pprint(gmail.get_all_messages(None, 10))
