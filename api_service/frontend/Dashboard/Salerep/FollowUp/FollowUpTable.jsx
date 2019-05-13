@@ -126,7 +126,6 @@ function FollowUpTable(props) {
       setMoreRow(null)
     })
   }
-  console.log(moreRow)
 
   return (
     <USERCONTEXT.Consumer>

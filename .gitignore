@@ -1,0 +1,14 @@
+.DS_Store
+media
+
+__pycache__
+.fusebox
+node_modules/
+.vscode/
+.env
+*.swp
+*/migrations
+design
+
+public/*
+!public/index.html

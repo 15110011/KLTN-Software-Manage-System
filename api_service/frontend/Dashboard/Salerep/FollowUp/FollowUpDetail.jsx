@@ -188,7 +188,6 @@ function FollowUpDetail(props) {
       })
     }
   }
-  console.log(moreRow)
   const onSendEmail = () => {
     setMailDialog(true)
   }
@@ -259,6 +258,7 @@ function FollowUpDetail(props) {
       })
     }
   }
+  console.log(stepDetail, moreRow.packages)
 
   return (
     <>
@@ -527,6 +527,7 @@ function FollowUpDetail(props) {
             <form onSubmit={handleUpdateStepDetail}>
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).map((iKey, index) => {
+                  console.log(stepDetail[activeStep].information)
                   return (
                     <Grid item xs={12} key={`st${index}`}>
                       <Grid container spacing={24} style={{ marginTop: '16px' }}>
@@ -625,6 +626,7 @@ function FollowUpDetail(props) {
                           {
                             stepDetail[activeStep].information[iKey].type == 'final' &&
                             moreRow.packages.map((p, packageIndex) => {
+                              console.log(p)
                               return (
                                 <FormControl component="fieldset" className={classes.formControl} >
                                   <FormLabel component="legend">{p.name}</FormLabel>
@@ -632,7 +634,7 @@ function FollowUpDetail(props) {
                                     aria-label="Gender"
                                     name="result"
                                     className={classes.group}
-                                    value={stepDetail[activeStep].information[iKey].result[p.id].type}
+                                    value={stepDetail[activeStep].information[iKey].result[`${p.id}`].type}
                                     onChange={(value) => onChangePackages(value, iKey, packageIndex, p.id)}
                                     row
 

@@ -125,7 +125,7 @@ class CreateOrderSerialzier(serializers.ModelSerializer):
     def create(self, validated_data):
         # step_details = validated_data.pop('step_details')
         order = super().create(validated_data)
-        step_details = [StepDetail(step=s, order=order)
+        step_details = [StepDetail(step=s, order=order, information={})
                         for s in order.campaign.follow_up_plan.steps.all()]
         step_details = StepDetail.objects.bulk_create(step_details)
         return order
