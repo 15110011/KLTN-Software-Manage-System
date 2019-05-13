@@ -22,5 +22,5 @@ class Event(BaseModel):
     end_date = models.DateTimeField()
     name = models.CharField(max_length=255)
     # action = models.TextField(blank=True, null=True)
-    contacts = models.ManyToManyField(Contact, related_name='contact_events')
+    contacts = models.ManyToManyField(Contact, related_name='contact_events', blank=True)
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=0)

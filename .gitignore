@@ -7,8 +7,8 @@ node_modules/
 .vscode/
 .env
 *.swp
-*/migrations
+**/migrations
 design
 
-public/*
-!public/index.html
+
+**/public/

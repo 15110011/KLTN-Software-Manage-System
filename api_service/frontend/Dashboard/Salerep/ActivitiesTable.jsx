@@ -572,15 +572,14 @@ function ActivitiesTable(props) {
                     apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
                       const data = res.data.data.reduce((acc, d, index) => {
                         const priority = ['Low', 'Medium', 'High']
-                        acc.push(...d.contacts.map(c => {
-                          return {
-                            work: d.name,
-                            target: c.first_name + ' ' + c.last_name,
-                            priority: priority[d.priority],
-                            remaining: d.remaining + ' day(s)',
-                            id: d.id,
-                          }
-                        }))
+                        console.log(d)
+                        acc.push({
+                          work: d.name,
+                          target: 'Me',
+                          priority: priority[d.priority],
+                          remaining: d.remaining + ' day(s)',
+                          id: d.id,
+                        })
                         return acc
                       }, [])
 
