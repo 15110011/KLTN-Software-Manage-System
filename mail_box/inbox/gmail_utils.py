@@ -6,30 +6,49 @@ from httplib2 import Http
 import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CREDENTIALS_JSON_FILE = os.path.join(BASE_DIR, 'credentials.json')
-SCOPES = [
-    'https://mail.google.com/',
-    'https://www.googleapis.com/auth/gmail.modify',
-    'https://www.googleapis.com/auth/gmail.readonly',
-    # 'https://www.googleapis.com/auth/gmail.metadata'
-]
 
-# credentials = service_account.Credentials.from_service_account_file(
-#     CREDENTIALS_JSON_FILE, scopes=SCOPES)
-# service = build('gmail', 'v1', credentials=credentials)
 
-def get_service():
-  store = file.Storage('token.json')
-  creds = store.get()
-  if not creds or creds.invalid:
-    flow = client.flow_from_clientsecrets(CREDENTIALS_JSON_FILE, SCOPES)
-    creds = tools.run_flow(flow, store)
-  service = build('gmail', 'v1', http=creds.authorize(Http()))
-  results = service.users().messages().list(userId='me', labelIds = ['INBOX']).execute()
-  messages = results.get('messages', [])
-  for message in messages:
-    msg = service.users().messages().get(userId='me', id=message['id']).execute()
-    print (msg['snippet'])
-  return results
+class GmailService:
+    CREDENTIALS_JSON_FILE = os.path.join(BASE_DIR, 'credentials.json')
+    SCOPES = [
+        'https://mail.google.com/',
+        'https://www.googleapis.com/auth/gmail.modify',
+        'https://www.googleapis.com/auth/gmail.readonly',
+    ]
 
-get_service()
+    def __init__(self, credentials=CREDENTIALS_JSON_FILE, scopes=SCOPES):
+        self.credentials = credentials
+        self.scopes = scopes
+
+    def get_service(self):
+        store = file.Storage('token.json')
+        creds = store.get()
+        if not creds or creds.invalid:
+            flow = client.flow_from_clientsecrets(
+                self.credentials, self.scopes)
+            creds = tools.run_flow(flow, store)
+        service = build('gmail', 'v1', http=creds.authorize(Http()))
+        return service
+
+    def get_all_messages(self, q=None, maxResults=None, pageToken=None):
+        service = self.get_service()
+        results = service.users().messages().list(userId='me', labelIds=[
+            'INBOX'], q=q, maxResults=maxResults, pageToken=pageToken).execute()
+        messages = results.get('messages', [])
+        nextPageToken = results.get('nextPageToken', None)
+        email_contents = []
+        for message in messages:
+            msg = self.get_message(message['id'])
+            email_contents.append(msg)
+        email_contents.append({"pageToken": nextPageToken})
+        return email_contents
+    
+    def get_message(self, message_id):
+      service = self.get_service()
+      msg = service.users().messages().get(userId='me', id=message_id).execute()
+      print (msg['payload']['body'])
+      return msg['snippet']
+
+
+gmail = GmailService()
+print(gmail.get_all_messages())
