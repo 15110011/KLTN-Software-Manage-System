@@ -167,10 +167,7 @@ function CampaignTableDetail(props) {
   }
   const handleSearch = e => {
     e.preventDefault()
-    let searchString = `${searchOptions.type == 'name' ? '&campaign_name=' + searchInput : ''}`
-    searchString += `${searchOptions.type == 'product' ? '&product_name=' + searchInput : ''}`
-    searchString += `${searchOptions.type == 'status' ? '&status=' + searchInput : ''}`
-    setUrl(CAMPAIGNS_URL + `?type=both` + searchString)
+    searchStringFunc()
   }
 
   const handleSort = e => {
@@ -182,6 +179,9 @@ function CampaignTableDetail(props) {
       setSortOption('asc')
       setIsSort(!isSort)
     }
+  }
+  
+  const searchStringFunc = () => {
     let searchString = `${searchOptions.type == 'name' ? '&campaign_name=' + searchInput : ''}`
     searchString += `${searchOptions.type == 'product' ? '&product_name=' + searchInput : ''}`
     searchString += `${searchOptions.type == 'status' ? '&status=' + searchInput : ''}`
@@ -190,6 +190,10 @@ function CampaignTableDetail(props) {
     searchString += `${searchOptions.type == 'product' ? '&product_order=' + sortOption : ''}`
     setUrl(CAMPAIGNS_URL + `?type=both` + searchString)
   }
+
+  React.useEffect(() => {
+    searchStringFunc()
+  }, [sortOption])
 
   const handleViewDetail = (index) => {
     let c = campaigns.data[index]

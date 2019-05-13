@@ -111,9 +111,7 @@ function FollowUpTableDetail(props) {
   }
   const handleSearch = e => {
     e.preventDefault()
-    let searchString = `${searchOptions.type == 'name' ? '&contact_name=' + searchInput : ''}`
-    searchString += `${searchOptions.type == 'campaign' ? '&campaign_name=' + searchInput : ''}`
-    setUrl(ORDER_URL + `?type=both` + searchString)
+    searchStringFunc()
   }
 
   const handleSort = e => {
@@ -125,10 +123,18 @@ function FollowUpTableDetail(props) {
       setSortOption('asc')
       setIsSort(!isSort)
     }
-    let searchString = `${searchOptions.type == 'name' ? '&contact_order=' + sortOption : ''}`
+  }
+  const searchStringFunc = () => {
+    let searchString = `${searchOptions.type == 'name' ? '&contact_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'campaign' ? '&campaign_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'name' ? '&contact_order=' + sortOption : ''}`
     searchString += `${searchOptions.type == 'campaign' ? '&campaign_order=' + sortOption : ''}`
     setUrl(ORDER_URL + `?type=both` + searchString)
   }
+
+  React.useEffect(() => {
+    searchStringFunc()
+  }, [sortOption])
 
   React.useEffect(() => {
     if (first && followUps.data.length > 0) {

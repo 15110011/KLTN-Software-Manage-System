@@ -29,6 +29,7 @@ import { ObjectFlags } from 'typescript';
 import CampaignContainer from './Campaigns/CampaignsContainer';
 import MarketingPlanContainer from './MarketingPlan/MarketingPlanContainer';
 import FollowUpPlanContainer from './FollowUpPlan/FollowUpPlanContainer'
+import MailBoxContainer from './MailBox/MailBoxContainer'
 import SiteAdminContainer from './SiteAdmin/SiteAdminContainer';
 import CategoryContainer from './Category/CategoryContainer';
 
@@ -244,6 +245,10 @@ class Content extends React.Component {
                 <Route
                   path="/follow-up-plans"
                   component={props => <FollowUpPlanContainer {...props} user={user} />}
+                />
+                <Route
+                  path="/inbox"
+                  component={props => <MailBoxContainer {...props} user={user} />}
                 />
                 <Route
                   path="/settings"

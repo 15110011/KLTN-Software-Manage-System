@@ -73,9 +73,7 @@ function TicketTableDetail(props) {
 
   const handleSearch = e => {
     e.preventDefault()
-    let searchString = `${searchOptions.type == 'name' ? '&contact_name=' + searchInput : ''}`
-    searchString += `${searchOptions.type == 'campaign' ? '&campaign=' + searchInput : ''}`
-    setUrl(CONTACT_MARKETING_URL + `?type=both` + searchString)
+    searchStringFunc()
   }
 
   const handleChangeSelectSearchOption = e => {
@@ -86,6 +84,19 @@ function TicketTableDetail(props) {
     setSearchInput([e.target.name] = e.target.value)
   }
 
+
+  const searchStringFunc = () => {
+    let searchString = `${searchOptions.type == 'name' ? '&contact_name=' + searchInput : ''}`
+    searchString += `${searchOptions.type == 'campaign' ? '&campaign=' + searchInput : ''}`
+    searchString == `${searchOptions.type == 'name' ? '&contact_name_order=' + sortOption : ''}`
+    searchString += `${searchOptions.type == 'product' ? '&campaign_order=' + sortOption : ''}`
+    setUrl(CONTACT_MARKETING_URL + `?type=both` + searchString)
+  }
+
+  React.useEffect(() => {
+    searchStringFunc()
+  }, [sortOption])
+
   const handleSort = e => {
     e.preventDefault()
     if (sortOption == 'asc') {
@@ -95,9 +106,6 @@ function TicketTableDetail(props) {
       setSortOption('asc')
       setIsSort(!isSort)
     }
-    let searchString = `${searchOptions.type == 'name' ? '&contact_name_order=' + sortOption : ''}`
-    searchString += `${searchOptions.type == 'product' ? '&campaign_order=' + sortOption : ''}`
-    setUrl(CONTACT_MARKETING_URL + `?type=both` + searchString)
   }
 
   const [tickets, setTickets, setUrl, forceUpdate] =
