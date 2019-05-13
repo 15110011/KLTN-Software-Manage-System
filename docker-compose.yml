@@ -16,11 +16,14 @@ services:
   
   emails:
     build: ./mail_box
+    environment:
+      - PGHOST=postgres
     volumes:
     - ./mail_box:/codebase
     ports:
       - "8001:8001"
     depends_on:
+      - postgres
       - redis
       - elasticsearch
     restart: always

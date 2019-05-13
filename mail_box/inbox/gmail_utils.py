@@ -51,9 +51,5 @@ class GmailService:
           message = msg['payload']['parts'][0]['body']['data']
           message = base64.urlsafe_b64decode(message)
           message = str(message, 'utf-8')
-        return message
+        return {"message": message, "historyId": msg['historyId']}
 
-
-gmail = GmailService()
-from pprint import pprint
-pprint(gmail.get_all_messages(None, 10))
