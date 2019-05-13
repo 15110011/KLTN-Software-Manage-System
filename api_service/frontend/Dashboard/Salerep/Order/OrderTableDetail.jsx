@@ -142,7 +142,7 @@ function OrderTableDetail(props) {
                   {
                     order.data && order.data.map((order, index) => {
                       return (
-                        <li className={cn({ active: index == indexActive })} key={index} onClick={() => {
+                        <li className={cn({ activeElement: index == indexActive })} key={index} onClick={() => {
                           handleViewDetail(index)
                         }}>
                           <Typography variant="body2" style={{ paddingBottom: '10px' }}>

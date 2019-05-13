@@ -49,7 +49,7 @@ body {
   max-height: 600px
 }
 
-.active {
+.activeElement {
   color: #2196F3;
   background-color: #f4f5f7;
   border-bottom-color: rgba(9, 30, 66, .25);

@@ -373,7 +373,7 @@ function CampaignTableDetail(props) {
                         status = 'Finished'
                       }
                       return (
-                        <li className={cn({ active: index == indexActive })} key={index} onClick={() => {
+                        <li className={cn({ activeElement: index == indexActive })} key={index} onClick={() => {
                           handleViewDetail(index)
                         }}>
                           <Typography variant="body2" style={{ paddingBottom: '10px' }}>

@@ -84,7 +84,10 @@ function FollowUpTableDetail(props) {
             noSteps,
             progress,
             id: d.id,
-            followup: d
+            followup: d,
+            histories: d.history,
+            allHistories: d.all_histories,
+            packages: d.campaign.packages,
           })
         }
       }
@@ -155,7 +158,10 @@ function FollowUpTableDetail(props) {
         noSteps,
         progress,
         id: d.id,
-        followup: d
+        followup: d,
+        histories: d.history,
+        allHistories: d.all_histories,
+        packages: d.campaign.packages,
       })
     }
   }, [followUps.data.length])
@@ -176,7 +182,10 @@ function FollowUpTableDetail(props) {
       noSteps,
       progress,
       id: d.id,
-      followup: d
+      followup: d,
+      histories: d.history,
+      allHistories: d.all_histories,
+      packages: d.campaign.packages,
     })
     setIndexActive(index)
   }
@@ -286,7 +295,7 @@ function FollowUpTableDetail(props) {
                   {
                     followUps.data && followUps.data.map((f, index) => {
                       return (
-                        <li className={cn({ active: index == indexActive })} key={index} onClick={() => {
+                        <li className={cn({ activeElement: index == indexActive })} key={index} onClick={() => {
                           handleViewDetail(index)
                         }}>
                           <Typography variant="body2" style={{ paddingBottom: '10px' }}>
