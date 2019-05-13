@@ -4,6 +4,7 @@ from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 from httplib2 import Http
 import os
+import base64
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -36,19 +37,23 @@ class GmailService:
             'INBOX'], q=q, maxResults=maxResults, pageToken=pageToken).execute()
         messages = results.get('messages', [])
         nextPageToken = results.get('nextPageToken', None)
-        email_contents = []
-        for message in messages:
-            msg = self.get_message(message['id'])
-            email_contents.append(msg)
-        email_contents.append({"pageToken": nextPageToken})
-        return email_contents
-    
+        return {"messages_id": messages, "nextPageToken": nextPageToken}
+
     def get_message(self, message_id):
-      service = self.get_service()
-      msg = service.users().messages().get(userId='me', id=message_id).execute()
-      print (msg['payload']['body'])
-      return msg['snippet']
+        service = self.get_service()
+        msg = service.users().messages().get(userId='me', id=message_id).execute()
+        message = None
+        if 'data' in msg['payload']['body']:
+          message = msg['payload']['body']['data']
+          message = base64.urlsafe_b64decode(message)
+          message = str(message, 'utf-8')
+        elif 'data' in msg['payload']['parts'][0]['body']:
+          message = msg['payload']['parts'][0]['body']['data']
+          message = base64.urlsafe_b64decode(message)
+          message = str(message, 'utf-8')
+        return message
 
 
 gmail = GmailService()
-print(gmail.get_all_messages())
+from pprint import pprint
+pprint(gmail.get_all_messages(None, 10))
