@@ -10,7 +10,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class GmailService:
-    CREDENTIALS_JSON_FILE = os.path.join(BASE_DIR, 'credentials.json')
+    CREDENTIALS_JSON_FILE = os.path.join(
+        BASE_DIR, 'TheAQVTeam-8a742563d6db.json')
     SCOPES = [
         'https://mail.google.com/',
         'https://www.googleapis.com/auth/gmail.modify',
@@ -57,10 +58,10 @@ class GmailService:
     def watch_mail_box(self):
         service = self.get_service()
         request = {
-            'labelsIds': ['INBOX', 'SENT'],
+            'labelsIds': ['INBOX'],
             'topicName': 'projects/theaqvteam/topics/mail-box'
         }
-        service.users().watch(userId='me', body=request).execute()
+        return service.users().watch(userId='me', body=request).execute()
 
     def get_thread(self, thread_id):
         service = self.get_service()
@@ -68,5 +69,16 @@ class GmailService:
         messages_id = [msg['id'] for msg in thread['messages']]
         return {"messages_id": messages_id}
 
-gmail = GmailService()
-print (gmail.watch_mail_box())
+    def get_history(self, history_id, labelId=None, historyTypes=None, maxResults=None, pageToken=None):
+        service = self.get_service()
+        history = service.users().history().list(
+            userId='me', startHistoryId=history_id, historyTypes=historyTypes,
+            maxResults=maxResults, pageToken=pageToken, labelId=labelId).execute()
+        data = []
+        for messages in history['history']:
+            for msg in messages['messages']:
+                data.append(
+                    {"message_id": msg['id'], "thread_id": msg['threadId']})
+
+        return {"messages": data}
+
