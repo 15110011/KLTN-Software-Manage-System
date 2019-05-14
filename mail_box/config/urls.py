@@ -20,7 +20,6 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from inbox.views import MailBoxViewSet
 
 router = DefaultRouter(trailing_slash=False)
 
