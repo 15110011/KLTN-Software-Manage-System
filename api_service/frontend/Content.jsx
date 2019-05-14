@@ -32,6 +32,7 @@ import FollowUpPlanContainer from './FollowUpPlan/FollowUpPlanContainer'
 import MailBoxContainer from './MailBox/MailBoxContainer'
 import SiteAdminContainer from './SiteAdmin/SiteAdminContainer';
 import CategoryContainer from './Category/CategoryContainer';
+import Calendar from './Events';
 
 const styles = theme => ({
   root: {
@@ -253,6 +254,10 @@ class Content extends React.Component {
                 <Route
                   path="/settings"
                   component={SiteAdminContainer}
+                />
+                <Route
+                  path="/calendar"
+                  component={props => <Calendar user={user}/>}
                 />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />

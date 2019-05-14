@@ -45,11 +45,6 @@ def send_mail(request, ):
     raw = base64.urlsafe_b64encode(
         message.as_bytes()).decode()
 
-    test = requests.get(
-        'https://www.googleapis.com/gmail/v1/users/me/messages/labels'
-    )
-    print ('1234443534', test)
-
     res = requests.post(
         'https://www.googleapis.com/gmail/v1/users/me/messages/send', data=json.dumps({
             "raw": raw

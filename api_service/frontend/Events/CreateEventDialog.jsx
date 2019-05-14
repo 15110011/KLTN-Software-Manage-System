@@ -29,28 +29,45 @@ function CreateEventDialog(props) {
   const { classes, toggleDialog, assigned_to, targets, order, marketing, isNotOriginal, user,
     updateActivities, type_, contactOptions, mustBeCampaign, mustBePersonal,
     setLaterDialog,
-    notification
+    notification,
+    eventData,
+    preDefStartDate,
+    preDefEndDate
   } = props
 
   const [editorState, setEditorState] = React.useState(htmlToState(""))
   const [completeNotice, setCompleteNotice] = React.useState(false)
-  const [startDate, setStartDate] = React.useState(new Date())
-  const [endDate, setEndDate] = React.useState(new Date())
+  const [startDate, setStartDate] = React.useState(!preDefStartDate ? new Date() : preDefStartDate)
+  const [endDate, setEndDate] = React.useState(!preDefEndDate ? new Date() : preDefEndDate)
 
-  const [createEvent, setCreateEvent] = React.useState({
-    name: '',
-    assigned_to: assigned_to ? assigned_to : { label: '', value: '' },
-    start_date: dateFns.format(Date.now(), 'yyyy-MM-dd'),
-    end_date: dateFns.format(Date.now(), 'yyyy-MM-dd'),
-    order: order ? order.id : '',
-    marketing: marketing ? marketing.marketing_plan.id : '',
-    content: '',
-    contacts: targets ? targets.map(t => ({
-      label: t.first_name + ' ' + t.last_name, value: t.id, ...t
-    })) : [],
-    priority: 0,
-    type_: mustBeCampaign ? 'campaign' : type_
-  })
+  const [createEvent, setCreateEvent] = React.useState(
+    !eventData ?
+      {
+        name: '',
+        assigned_to: assigned_to ? assigned_to : { label: '', value: '' },
+        start_date: !preDefStartDate ? dateFns.format(Date.now(), 'yyyy-MM-dd HH:mm') : dateFns.format(preDefStartDate, 'yyyy-MM-dd HH:mm'),
+        end_date: !preDefEndDate ? dateFns.format(Date.now(), 'yyyy-MM-dd HH:mm') : dateFns.format(preDefEndDate, 'yyyy-MM-dd HH:mm'),
+        order: order ? order.id : '',
+        marketing: marketing ? marketing.marketing_plan.id : '',
+        content: '',
+        contacts: targets ? targets.map(t => ({
+          label: t.first_name + ' ' + t.last_name, value: t.id, ...t
+        })) : [],
+        priority: 0,
+        type_: mustBeCampaign ? 'campaign' : type_
+      } :
+      {
+        name: eventData.title,
+        assigned_to: eventData.assigned_to,
+        start_date: new Date(eventData.start),
+        end_date: new Date(eventData.end),
+        content: eventData.content,
+        contacts: eventData.contacts.map(c => ({ label: c.label, value: c.value })),
+        priority: eventData.priority,
+        type_: eventData.mustBeCampaign ? 'campaign' : eventData.type_,
+        campaign: eventData.campaign
+      }
+  )
 
   const fetchAssignedCampaignSuggestion = (input) => {
     if (input != '') {
@@ -99,7 +116,7 @@ function CreateEventDialog(props) {
 
   const handleCreateEvents = e => {
     apiCreateEvent()
-    setLaterDialog(false)
+    if (setLaterDialog) { setLaterDialog(false) }
   }
 
   const apiCreateEvent = () => {
@@ -109,8 +126,8 @@ function CreateEventDialog(props) {
       contacts: createEvent.contacts.map(t => t.id),
       assigned_to: createEvent.assigned_to.value,
       campaign: createEvent.campaign ? createEvent.campaign.value : '',
-      start_date: dateFns.format(startDate, 'yyyy-MM-dd hh:mm'),
-      end_date: dateFns.format(endDate, 'yyyy-MM-dd hh:mm'),
+      start_date: dateFns.format(startDate, 'yyyy-MM-dd HH:mm'),
+      end_date: dateFns.format(endDate, 'yyyy-MM-dd HH:mm'),
     }, false, true)
       .then(res => {
         if (res.data.code == "token_not_valid") {
@@ -128,6 +145,9 @@ function CreateEventDialog(props) {
         }
         else {
           notification('Successfully Created')
+          if (updateActivities) {
+            updateActivities(res.data)
+          }
           // setCreateCampaign({ ...createCampaign, contacts: res.data })
         }
       })
@@ -139,7 +159,7 @@ function CreateEventDialog(props) {
       onClose={toggleDialog}
       fullWidth maxWidth='md'
     >
-      <DialogTitle style={{ position: 'relative' }}>Create Event
+      <DialogTitle style={{ position: 'relative' }}>Event
         <Tooltip title="Close Dialog">
           <IconButton style={{ position: 'absolute', top: '12px', right: '12px' }} onClick={toggleDialog}>
             <CloseIcon></CloseIcon>
@@ -148,7 +168,7 @@ function CreateEventDialog(props) {
       </DialogTitle>
       <DialogContent>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
-         
+
           <Grid container spacing={8}>
             <Grid className={classes.inputCustom} item xs={2}>
               <InputLabel
@@ -173,6 +193,7 @@ function CreateEventDialog(props) {
                 value={createEvent.name}
                 required
                 fullWidth
+                disabled={eventData}
               />
             </Grid>
             <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
@@ -189,6 +210,7 @@ function CreateEventDialog(props) {
             </Grid>
             <Grid item xs={4}>
               <SelectCustom
+                disabled={eventData}
                 handleChange={(values, element) => handleChangeAssigneeSelect(values, element)}
                 name="assigned_to"
                 options={(user.sale_reps && user.profile.is_manager) ? user.sale_reps.reduce((acc, u) => {
@@ -225,10 +247,11 @@ function CreateEventDialog(props) {
                 onChange={setStartDate}
                 name="startDate"
                 minDate={new Date()}
-                format="MM/dd/yyyy hh:mm a" ƒ
+                format="MM/dd/yyyy HH:mm"
                 value={startDate}
                 required
                 fullWidth
+                disabled={eventData}
               />
             </Grid>
             <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
@@ -248,9 +271,10 @@ function CreateEventDialog(props) {
                 onChange={setEndDate}
                 name="endDate"
                 minDate={new Date()}
-                format="MM/dd/yyyy hh:mm a" ƒ
+                format="MM/dd/yyyy HH:mm"
                 value={endDate}
                 required
+                disabled={eventData}
                 fullWidth
               />
             </Grid>
@@ -290,6 +314,7 @@ function CreateEventDialog(props) {
                     }
                     fullWidth
                     multi
+                    disabled={eventData}
                   />
                   :
                   <Input disabled value="Me" fullWidth></Input>
@@ -307,7 +332,7 @@ function CreateEventDialog(props) {
           </InputLabel>
             </Grid>
             <Grid item xs={4}>
-              <FormControl fullWidth className={classes.formControl} margin='dense'>
+              <FormControl fullWidth disabled={eventData} className={classes.formControl} margin='dense'>
                 <Select
                   value={createEvent.priority}
                   onChange={onChangeInput}
@@ -341,7 +366,7 @@ function CreateEventDialog(props) {
           </InputLabel>
                 </Grid>
                 <Grid item xs={4} className='pr-5'>
-                  <FormControl fullWidth className={classes.formControl} margin='dense'>
+                  <FormControl disabled={eventData} fullWidth className={classes.formControl} margin='dense'>
                     <Select
                       value={createEvent.type_}
                       onChange={onChangeInput}
@@ -388,6 +413,7 @@ function CreateEventDialog(props) {
                         placeholder=""
                         label=""
                         loadOptions={fetchAssignedCampaignSuggestion}
+                        disabled={eventData}
                       />
                     </Grid>
                   </>
@@ -416,6 +442,7 @@ function CreateEventDialog(props) {
                         placeholder=""
                         label=""
                         loadOptions={fetchAssignedCampaignSuggestion}
+                        disabled={eventData}
                       />
                     </Grid>
                   </>
@@ -447,12 +474,13 @@ function CreateEventDialog(props) {
                 wrapperClassName="editor-wrapper"
                 editorClassName="editor"
                 onEditorStateChange={onEditorStateChange}
+                readOnly={eventData}
               />
             </Grid>
           </Grid>
         </MuiPickersUtilsProvider>
       </DialogContent>
-      <DialogActions>
+      {!eventData && <DialogActions>
         <Button color="primary">
           Cancel
         </Button>
@@ -465,7 +493,7 @@ function CreateEventDialog(props) {
         >
           Create
         </Button>
-      </DialogActions>
+      </DialogActions>}
     </Dialog>
   )
 }
