@@ -13,12 +13,15 @@ import {
 } from 'recharts';
 import * as NumberFormat from 'react-number-format';
 import Paper from '@material-ui/core/Paper'
-
+import * as cn from 'classnames'
 import Card from "../../../components/Card/Card";
 import CardHeader from "../../../components/Card/CardHeader";
 import CardBody from "../../../components/Card/CardBody";
 import CardIcon from '../../../components/Card/CardIcon'
 import SaleRepIcon from '@material-ui/icons/Group'
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
 
 
 import { apiGet } from '../../../common/Request'
@@ -99,9 +102,132 @@ class CustomizedAxisTick extends React.PureComponent {
   }
 }
 
+const months = [
+  {
+    name: 'January',
+    value: '1'
+  },
+  {
+    name: 'February',
+    value: '2'
+  },
+  {
+    name: 'March',
+    value: '3'
+  },
+  {
+    name: 'April ',
+    value: '4'
+  },
+  {
+    name: 'May',
+    value: '5'
+  },
+  {
+    name: 'June',
+    value: '6'
+  },
+  {
+    name: 'July ',
+    value: '7'
+  },
+  {
+    name: 'August',
+    value: '8'
+  },
+  {
+    name: 'September',
+    value: '9'
+  },
+  {
+    name: 'October',
+    value: '10'
+  },
+  {
+    name: 'November',
+    value: '11'
+  },
+  {
+    name: 'December',
+    value: '12'
+  }
+]
+
+const quarters = [
+  {
+    name: 'Q1',
+    value: '1'
+  },
+  {
+    name: 'Q2',
+    value: '2'
+  },
+  {
+    name: 'Q3',
+    value: '3'
+  },
+  {
+    name: 'Q4',
+    value: '4'
+  },
+]
+
+
 function SaleRepCharts(props) {
 
   const { classes } = props;
+
+  const [selectType, setSelectType] = React.useState(
+    'month'
+  )
+
+  const [selectTypePieChart, setSelectTypePieChart] = React.useState(
+    'month'
+  )
+
+  const [selectWhichType, setSelectWhichType] = React.useState(
+    new Date().getMonth() + 1
+  )
+
+  const [selectWhichTypePieChart, setSelectWhichTypePieChart] = React.useState(
+    new Date().getMonth() + 1
+  )
+
+  const years = []
+  const curYear = new Date().getFullYear()
+  for (let i = 0; i < 5; i += 1) {
+    years.push(curYear - i)
+  }
+
+  const onChangeSelectType = e => {
+    setSelectType(e.target.value)
+    if (e.target.value == "month") {
+      setSelectWhichType(new Date().getMonth() + 1)
+    } else if (e.target.value == 'quarter') {
+      setSelectWhichType(`${parseInt(12 / (new Date().getMonth() + 1))}`)
+    } else if (e.target.value == 'year') {
+      setSelectWhichType(new Date().getFullYear())
+    }
+  }
+
+  const onChangeSelectWhichType = e => {
+    setSelectWhichType(e.target.value)
+  }
+
+  const onChangeSelectTypePieChart = e => {
+    setSelectTypePieChart(e.target.value)
+    if (e.target.value == "month") {
+      setSelectWhichTypePieChart(new Date().getMonth() + 1)
+    } else if (e.target.value == 'quarter') {
+      setSelectWhichTypePieChart(`${parseInt(12 / (new Date().getMonth() + 1))}`)
+    } else if (e.target.value == 'year') {
+      setSelectWhichTypePieChart(new Date().getFullYear())
+    }
+  }
+
+  const onChangeSelectWhichTypePieChart = e => {
+    setSelectWhichTypePieChart(e.target.value)
+  }
 
   return (
     <Grid container spacing={8}>
@@ -112,12 +238,72 @@ function SaleRepCharts(props) {
               <CardIcon color="primary">
                 <SaleRepIcon />
               </CardIcon>
-              <h4 className={classes.cardChartTitle}>Sale Representative</h4>
+              <h4 style={{ paddingRight: '24px' }} className={classes.cardChartTitle}>Sale Representative
+                <TextField
+                  select
+                  style={{ float: 'right', width: '100px' }}
+                  onChange={onChangeSelectWhichType}
+                  value={selectWhichType}
+                  inputProps={{
+                    name: 'selectWhichType',
+                  }}
+                >
+                  {
+                    selectType == 'month' &&
+                    months.map((m, i) => {
+                      return (
+                        <MenuItem key={i} value={m.value}>
+                          {m.name}
+                        </MenuItem>
+                      )
+                    })
+                  }
+                  {
+                    selectType == 'quarter' &&
+                    quarters.map((q, i) => {
+                      return (
+                        <MenuItem key={i} value={q.value}>
+                          {q.name}
+                        </MenuItem>
+                      )
+                    })
+                  }
+                  {
+                    selectType == 'year' &&
+                    years.map((y, i) => {
+                      return (
+                        <MenuItem key={i} value={y}>
+                          {y}
+                        </MenuItem>
+                      )
+                    })
+                  }
+                </TextField>
+                <TextField
+                  select
+                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
+                  onChange={onChangeSelectType}
+                  value={selectType}
+                  inputProps={{
+                    name: 'selectType',
+                  }}
+                >
+                  <MenuItem value="month">
+                    Month
+                      </MenuItem>
+                  <MenuItem value="quarter">
+                    Quarter
+                      </MenuItem>
+                  <MenuItem value="year">
+                    Year
+                      </MenuItem>
+                </TextField>
+              </h4>
             </CardHeader>
             <CardBody>
               <Typography classes={{ root: classes.activitytTagline }} component='p'>
                 Top 10 sale representatives with quantity and income
-                          </Typography>
+                  </Typography>
               <div style={{ witdh: '100%', height: '400px' }}>
                 <ResponsiveContainer>
                   <ComposedChart width={600} height={300} data={data}
@@ -146,7 +332,67 @@ function SaleRepCharts(props) {
               <CardIcon color="primary">
                 <SaleRepIcon />
               </CardIcon>
-              <h4 className={classes.cardChartTitle}>Sale Representative</h4>
+              <h4 className={classes.cardChartTitle}>Sale Representative
+              <TextField
+                  select
+                  style={{ float: 'right', width: '100px' }}
+                  onChange={onChangeSelectWhichTypePieChart}
+                  value={selectWhichTypePieChart}
+                  inputProps={{
+                    name: 'selectWhichType',
+                  }}
+                >
+                  {
+                    selectTypePieChart == 'month' &&
+                    months.map((m, i) => {
+                      return (
+                        <MenuItem key={i} value={m.value}>
+                          {m.name}
+                        </MenuItem>
+                      )
+                    })
+                  }
+                  {
+                    selectTypePieChart == 'quarter' &&
+                    quarters.map((q, i) => {
+                      return (
+                        <MenuItem key={i} value={q.value}>
+                          {q.name}
+                        </MenuItem>
+                      )
+                    })
+                  }
+                  {
+                    selectTypePieChart == 'year' &&
+                    years.map((y, i) => {
+                      return (
+                        <MenuItem key={i} value={y}>
+                          {y}
+                        </MenuItem>
+                      )
+                    })
+                  }
+                </TextField>
+                <TextField
+                  select
+                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
+                  onChange={onChangeSelectTypePieChart}
+                  value={selectTypePieChart}
+                  inputProps={{
+                    name: 'selectTypePieChart',
+                  }}
+                >
+                  <MenuItem value="month">
+                    Month
+                      </MenuItem>
+                  <MenuItem value="quarter">
+                    Quarter
+                      </MenuItem>
+                  <MenuItem value="year">
+                    Year
+                      </MenuItem>
+                </TextField>
+              </h4>
             </CardHeader>
             <CardBody>
               <Typography classes={{ root: classes.activitytTagline }} component='p'>

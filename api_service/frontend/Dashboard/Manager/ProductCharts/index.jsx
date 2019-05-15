@@ -12,6 +12,11 @@ import CardHeader from "../../../components/Card/CardHeader";
 import CardBody from "../../../components/Card/CardBody";
 import CardIcon from '../../../components/Card/CardIcon'
 import CategoryIcon from '@material-ui/icons/Category'
+
+import IconButton from '@material-ui/core/IconButton';
+import TextField from '@material-ui/core/TextField';
+import MenuItem from '@material-ui/core/MenuItem';
+
 import { apiGet } from '../../../common/Request'
 import { ORDER_CHART_URL, LICENSE_CHART_URL } from '../../../common/urls'
 import useFetchData from '../../../CustomHook/useFetchData'
@@ -62,10 +67,21 @@ const ProductCharts = (props) => {
 
   const [productData, setProductData, setUrl, forceUpdate] = useFetchData(ORDER_CHART_URL + `?chart_type=${chartType}&duration=${duration}`, null, null)
   const [licenseData, setLicenseData, setUrlLicense, forceUpdateLicense] = useFetchData(LICENSE_CHART_URL + `?duration=${duration}`, null, null)
+  
+  const [selectTypeLineChart, setSelectTypeLineChart] = React.useState(
+    'month'
+  )
+  const onChangeSelectTypeLineChart = e => {
+    setSelectTypeLineChart(e.target.value)
+  }
 
+  const [selectTypeComposeChart, setSelectTypeComposeChart] = React.useState(
+    'month'
+  )
+  const onChangeSelectTypeComposeChart = e => {
+    setSelectTypeComposeChart(e.target.value)
+  }
   let vectorRef = React.useRef(null)
-
-  console.log(vectorRef)
 
   return (
     <Grid container spacing={8}>
@@ -76,7 +92,27 @@ const ProductCharts = (props) => {
               <CardIcon color="success">
                 <CategoryIcon />
               </CardIcon>
-              <h4 className={classes.cardChartTitle}>Products</h4>
+              <h4 className={classes.cardChartTitle}>Products
+              <TextField
+                  select
+                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
+                  onChange={onChangeSelectTypeComposeChart}
+                  value={selectTypeComposeChart}
+                  inputProps={{
+                    name: 'selectTypeComposeChart',
+                  }}
+                >
+                  <MenuItem value="month">
+                    Month
+                      </MenuItem>
+                  <MenuItem value="quarter">
+                    Quarter
+                      </MenuItem>
+                  <MenuItem value="year">
+                    Year
+                      </MenuItem>
+                </TextField>
+              </h4>
             </CardHeader>
             <CardBody>
               <div style={{ witdh: '50%', height: '300px' }}>
@@ -116,7 +152,27 @@ const ProductCharts = (props) => {
               <CardIcon color="info">
                 <CategoryIcon />
               </CardIcon>
-              <h4 className={classes.cardChartTitle}>License</h4>
+              <h4 className={classes.cardChartTitle}>License
+              <TextField
+                  select
+                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
+                  onChange={onChangeSelectTypeLineChart}
+                  value={selectTypeLineChart}
+                  inputProps={{
+                    name: 'selectTypeLineChart',
+                  }}
+                >
+                  <MenuItem value="month">
+                    Month
+                      </MenuItem>
+                  <MenuItem value="quarter">
+                    Quarter
+                      </MenuItem>
+                  <MenuItem value="year">
+                    Year
+                      </MenuItem>
+                </TextField>
+              </h4>
             </CardHeader>
             <CardBody>
               <div style={{ witdh: '50%', height: '300px' }}>

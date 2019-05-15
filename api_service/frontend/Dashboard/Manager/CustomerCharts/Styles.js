@@ -207,6 +207,9 @@ const styles = (theme) => ({
   },
   inputCustom: {
     fontSize: '15px',
+  },
+  activitytTagline: {
+    color: '#999'
   }
 })
 
