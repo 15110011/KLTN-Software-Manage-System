@@ -11,4 +11,4 @@ node_modules/
 design
 
 
-# **/public/
+/api_service/public/

@@ -104,7 +104,6 @@ const ProductCharts = (props) => {
           </Card>
         </Paper>
       </Grid>
-
     </Grid>
   )
 }
