@@ -1546,6 +1546,22 @@ button.rbc-input::-moz-focus-inner {
   height: unset !important;
   max-height: unset !important; }
 
+.jvectormap-legend-title {
+  font-size: 12px;
+}
+
+.jvectormap-legend .jvectormap-legend-tick-sample {
+  height: 26px;
+}
+
+.jvectormap-legend-icons {
+  background: white;
+  border: black 1px solid;
+}
+
+.jvectormap-legend-icons {
+  color: black;
+}
 .jvectormap-container {
   width: 100%;
   height: 100%;
