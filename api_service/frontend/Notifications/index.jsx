@@ -6,6 +6,8 @@ import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
+
 import styles from './NotificationStyles'
 
 function Notification(props) {
@@ -18,17 +20,17 @@ function Notification(props) {
           <List key={i} >
             <ListItem alignItems="flex-start">
               <ListItemAvatar>
-                <Avatar alt="Remy Sharp" src={`${notification.avatar}`} />
+                <Avatar className={classes.purpleAvatar}>S</Avatar>
               </ListItemAvatar>
               <ListItemText
-                primary="Duc Anh fix CSS"
-                secondary={
+                primary={
                   <React.Fragment >
                     <Typography style={{ display: 'inline-block', width: '230px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: "ellipsis" }} component="span" className={classes.inline} color="textPrimary">
                       {notification.content}
                     </Typography>
                   </React.Fragment>
                 }
+                secondary={"49 minutes ago"}
               />
             </ListItem>
           </List>

@@ -34,10 +34,11 @@ EMAIL_HOST_USER = 'theaqvteam@gmail.com'
 EMAIL_HOST_PASSWORD = 'aqvteam123'
 EMAIL_PORT = 587
 
-
+ASGI_APPLICATION = 'config.routing.application'
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -119,7 +120,7 @@ RQ_QUEUES = {
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': os.getenv('ELASTICSEARCH_URL', 'elasticsearch:9300')
+        'hosts': os.getenv('ELASTICSEARCH_URL', 'elasticsearch:9200')
     },
 }
 
@@ -140,8 +141,13 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('PGDATABASE', 'postgres'),
+        'USER': os.getenv('PGUSER', 'postgres'),
+        'PASSWORD': os.getenv('PGPASSWORD', 'postgres'),
+        'HOST': os.getenv('PGHOST', 'localhost'),
+        'PORT': '5432',
+        'CONN_MAX_AGE': 60
     }
 }
 

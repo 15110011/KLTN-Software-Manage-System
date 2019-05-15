@@ -20,9 +20,8 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
-from inbox.views import MailBoxViewSet
+
 router = DefaultRouter(trailing_slash=False)
-router.register('mail-box', MailBoxViewSet, base_name='mail-box')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

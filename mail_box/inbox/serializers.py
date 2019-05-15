@@ -3,5 +3,8 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from . import models
 
+
 class MailBoxSerializer(serializers.ModelSerializer):
-  pass
+    class Meta:
+        model = models.MailBox
+        fields = '__all__'

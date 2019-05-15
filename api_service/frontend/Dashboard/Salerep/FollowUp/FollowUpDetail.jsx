@@ -92,13 +92,13 @@ function FollowUpDetail(props) {
 
   React.useEffect(() => {
     if (followup) {
-
       setStepDetail(followup.campaign.follow_up_plan.steps.map((s, i) => {
         let information = s.conditions.reduce((acc, c) => {
           let result = ''
           if (c.type == 'check_box') { result = [] }
           if (c.type == 'final') {
             result = {}
+            console.log(moreRow)
             moreRow.packages.forEach(p => {
               result[p.id] = { type: '', price: '' }
             })
