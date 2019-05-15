@@ -168,6 +168,7 @@ function SaleRepCharts(props) {
                         data1.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
                       }
                     </Pie>
+                    <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
