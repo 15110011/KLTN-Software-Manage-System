@@ -83,11 +83,11 @@ class OrderChartView(ModelViewSet):
                                 'count': 0
                             }
                         order_data[d['month_group']
-                                   ]['income']['total'] += l['package']['prices'][str(l['duration'])]
+                                   ]['income']['total'] += int(l['package']['prices'][str(l['duration'])])
                         order_data[d['month_group']]['income']['products'][l['package']['product_']['id']] = {
                             'id': l['package']['product_']['id'],
                             'name': l['package']['product_']['name'],
-                            'count': order_data[d['month_group']]['income']['products'][l['package']['product_']['id']]['count'] + l['package']['prices'][str(l['duration'])]
+                            'count': order_data[d['month_group']]['income']['products'][l['package']['product_']['id']]['count'] + int(l['package']['prices'][str(l['duration'])])
                         }
                 for d in order_serializer.data:
                     for l in d['lifetime_licenses']:
@@ -224,6 +224,66 @@ class OrderHistoryView(ModelViewSet):
     queryset = OrderHistory.objects
     serializer_class = OrderHistorySerializer
     permission_classes = (IsAuthenticated,)
+
+
+class LicenseChartView(ModelViewSet):
+    queryset = License.objects.select_related('package')
+    serializer_class = LicenseSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def list(self, request, *args, **kwargs):
+        filters = Q()
+
+        queryset = self.get_queryset()
+        queryset_lifetime = LifetimeLicense.objects
+        result = {}
+
+        duration = request.query_params.get('duration', 'month')
+        if duration == 'month':
+            filters.add(Q(created__gte=start_date_of_year), Q.AND)
+            queryset = queryset.filter(filters)
+            result = {i+1: {
+                1: 0, 6: 0, 12: 0, 'lifetime': 0
+            } for i in range(12)}
+            queryset = queryset.annotate(month_group=Case(
+                When(created__month=1, then=V(1)),
+                When(created__month=2, then=V(2)),
+                When(created__month=3, then=V(3)),
+                When(created__month=4, then=V(4)),
+                When(created__month=5, then=V(5)),
+                When(created__month=6, then=V(6)),
+                When(created__month=7, then=V(7)),
+                When(created__month=8, then=V(8)),
+                When(created__month=9, then=V(9)),
+                When(created__month=10, then=V(10)),
+                When(created__month=11, then=V(11)),
+                When(created__month=12, then=V(12)),
+                output_field=IntegerField())).order_by('month_group')
+            serializer = self.get_serializer(queryset, many=True)
+            queryset_lifetime = queryset_lifetime.filter(filters)
+            queryset_lifetime = queryset_lifetime.annotate(month_group=Case(
+                When(created__month=1, then=V(1)),
+                When(created__month=2, then=V(2)),
+                When(created__month=3, then=V(3)),
+                When(created__month=4, then=V(4)),
+                When(created__month=5, then=V(5)),
+                When(created__month=6, then=V(6)),
+                When(created__month=7, then=V(7)),
+                When(created__month=8, then=V(8)),
+                When(created__month=9, then=V(9)),
+                When(created__month=10, then=V(10)),
+                When(created__month=11, then=V(11)),
+                When(created__month=12, then=V(12)),
+                output_field=IntegerField())).order_by('month_group')
+            life_time_serializer = LifetimeLicenseSerializer(
+                queryset_lifetime, many=True)
+            for l in serializer.data + life_time_serializer.data:
+                if 'duration' in l:
+                    result[l['month_group']][l['duration']] += 1
+                else:
+                    result[l['month_group']]['lifetime'] += 1
+
+        return Response(result)
 
 
 class LicenseView(ModelViewSet):

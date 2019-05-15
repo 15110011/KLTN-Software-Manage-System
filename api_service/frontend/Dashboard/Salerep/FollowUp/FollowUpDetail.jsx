@@ -626,9 +626,8 @@ function FollowUpDetail(props) {
                           {
                             stepDetail[activeStep].information[iKey].type == 'final' &&
                             moreRow.packages.map((p, packageIndex) => {
-                              console.log(p)
                               return (
-                                <FormControl component="fieldset" className={classes.formControl} >
+                                <FormControl component="fieldset" className={classes.formControl} required>
                                   <FormLabel component="legend">{p.name}</FormLabel>
                                   <RadioGroup
                                     aria-label="Gender"
@@ -637,7 +636,6 @@ function FollowUpDetail(props) {
                                     value={stepDetail[activeStep].information[iKey].result[`${p.id}`].type}
                                     onChange={(value) => onChangePackages(value, iKey, packageIndex, p.id)}
                                     row
-
                                   >
                                     {Object.keys(p.prices).map((k, index) => {
                                       return <FormControlLabel value={parseInt(k)} control={<Radio color='primary' disabled={stepDetail[stepDetail.length - 1].status == 'COMPLETED'} />} label={k != 999999 ? k + ` month(s) ($${p.prices[k]})` : `Lifetime ($${p.prices[k]})`} key={k + index}

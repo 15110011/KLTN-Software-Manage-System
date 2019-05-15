@@ -18,7 +18,6 @@ import calendar
 from KLTN.common import send_email
 
 
-
 class MailTemplateSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -145,12 +144,14 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         campaign.assigned_to.set(sale_reps)
         campaign.packages.set(packages)
         scheduler = django_rq.get_scheduler('default')
-        timestamp1 = calendar.timegm((campaign.start_date + timedelta(days=1)).timetuple())
-        start_date= datetime.utcfromtimestamp(timestamp1)
+        timestamp1 = calendar.timegm(
+            (campaign.start_date + timedelta(days=1)).timetuple())
+        start_date = datetime.utcfromtimestamp(timestamp1)
         job = scheduler.schedule(
             scheduled_time=start_date,
             func=send_email,
-            args=[self.context.get('request').user, 'Campaign Start', 'Your Campaign started today'],
+            args=[self.context.get(
+                'request').user, 'Campaign Start', 'Your Campaign started today'],
             interval=604800,
             kwargs={},
             repeat=10,
@@ -168,7 +169,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 )
                 event.save()
                 event.contacts.set([cur_contact])
-       
+
         return campaign
 
     def update(self, instance, validated_data):
@@ -217,8 +218,18 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
         if status == 'COMPLETED':
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
+
             step_details = [StepDetail(step=s, order=new_order)
                             for s in new_order.campaign.follow_up_plan.steps.all()]
+            step_details[len(step_details) - 1].information = {
+                "Choose Packages": {
+                    "type": 'final', "result": {}
+                }
+            }
+            step_details[len(step_details) - 1].information['Choose Packages']['result'] = {
+                f'{p.id}': {"type": '', "price": ''} for p in instance.campaign.packages.all()
+            }
+
             step_details = StepDetail.objects.bulk_create(step_details)
 
         return instance

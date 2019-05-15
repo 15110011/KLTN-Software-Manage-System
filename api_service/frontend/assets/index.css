@@ -60,7 +60,6 @@ body {
   visibility: visible;
   position: absolute;
   top: 0px;
-  transform: translate(80px, 32px);
   transition: -webkit-transform 400ms ease 0s;
 }
 

@@ -48,6 +48,7 @@ class CreateLicenseSerializer(serializers.ModelSerializer):
 
 class LicenseSerializer(serializers.ModelSerializer):
     package = PackageSerializer()
+    month_group = serializers.IntegerField(required=False)
 
     class Meta:
         model = models.License
@@ -62,6 +63,7 @@ class CreateLifetimeLicenseSerializer(serializers.ModelSerializer):
 
 class LifetimeLicenseSerializer(serializers.ModelSerializer):
     package = PackageSerializer()
+    month_group = serializers.IntegerField(required=False)
 
     class Meta:
         model = models.LifetimeLicense
