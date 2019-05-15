@@ -3,6 +3,7 @@ from oauth2client import file, client, tools
 from google.oauth2 import service_account
 from google_auth_oauthlib.flow import InstalledAppFlow
 from httplib2 import Http
+import argparse
 import os
 import base64
 
@@ -11,7 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 class GmailService:
     CREDENTIALS_JSON_FILE = os.path.join(
-        BASE_DIR, 'TheAQVTeam-8a742563d6db.json')
+        BASE_DIR, 'credentials.json')
     SCOPES = [
         'https://mail.google.com/',
         'https://www.googleapis.com/auth/gmail.modify',
@@ -24,7 +25,8 @@ class GmailService:
         self.scopes = scopes
 
     def get_service(self):
-        store = file.Storage('token.json')
+        store = file.Storage(os.path.join(
+        BASE_DIR, 'inbox/token.json'))
         creds = store.get()
         if not creds or creds.invalid:
             flow = client.flow_from_clientsecrets(
@@ -58,7 +60,7 @@ class GmailService:
     def watch_mail_box(self):
         service = self.get_service()
         request = {
-            'labelsIds': ['INBOX'],
+            'labelsIds': ['INBOX', 'SENT'],
             'topicName': 'projects/theaqvteam/topics/mail-box'
         }
         return service.users().watch(userId='me', body=request).execute()
@@ -81,4 +83,3 @@ class GmailService:
                     {"message_id": msg['id'], "thread_id": msg['threadId']})
 
         return {"messages": data}
-

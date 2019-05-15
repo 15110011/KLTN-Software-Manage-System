@@ -8,11 +8,11 @@ from .gmail_utils import GmailService
 
 
 class MailBoxConsumer(AsyncJsonWebsocketConsumer):
-    gmail = GmailService()
 
     async def connect(self):
         await self.accept()
         self.user_id = self.scope['url_route']['kwargs']['user_id']
+        gmail = GmailService()
         if cache.get(f'user_{self.user_id}') is not None:
             return await self.send_json({
                 "data": cache.get(f'user_{self.user_id}')
@@ -52,6 +52,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_email_db(self, user_id):
-        queryset = MailBox.objects.get(user_id=user_id)
+        queryset = MailBox.objects.filter(user_id=user_id)
         data = serializers.MailBoxSerializer(queryset, many=True).data
         return data
+

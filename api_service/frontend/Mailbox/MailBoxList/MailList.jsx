@@ -60,8 +60,10 @@ function MailList(props) {
     classes,
     value,
     handleChange,
-    history
+    history,
+    emails
   } = props;
+  console.log(emails)
 
   return (
     <div>
@@ -91,30 +93,35 @@ function MailList(props) {
         <TabContainer>
           <Table className={classes.table}>
             <TableBody>
-              {rows.map((row, i) => (
-                <TableRow
-                  key={i}
-                  onClick={() => history.push('/inbox/11')}
-                  className={classes.rowData}
-                >
-                  <TableCell className={classes.checkboxWidth} padding="checkbox">
-                    <Checkbox color="primary" />
-                  </TableCell>
-                  <TableCell className={classes.fromWidth} align="left">{row.from}</TableCell>
-                  <TableCell className={classes.etcDot} align="left">
-                    <div className={classes.titleContent}>
-                      <div>
-                        {row.title}
-                      </div>
-                      <div item xs={10}>
-                        &nbsp;-&nbsp;
-                              {row.content}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className={classes.dateWidth} align="right"><i>{row.date}</i></TableCell>
-                </TableRow>
-              ))}
+              {emails && emails.data.length > 0
+                ? emails.data.map((email, i) => {
+                  return (
+                    <TableRow
+                      key={i}
+                      onClick={() => history.push('/inbox/11')}
+                      className={classes.rowData}
+                    >
+                      <TableCell className={classes.checkboxWidth} padding="checkbox">
+                        <Checkbox color="primary" />
+                      </TableCell>
+                      <TableCell className={classes.fromWidth} align="left">{}</TableCell>
+                      <TableCell className={classes.etcDot} align="left">
+                        <div className={classes.titleContent}>
+                          <div>
+                            {}
+                          </div>
+                          <div item xs={10}>
+                            &nbsp;-&nbsp;
+                              {}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className={classes.dateWidth} align="right"><i>{}</i></TableCell>
+                    </TableRow>
+                  )
+                })
+                : <div className={classes.titleContent}>No emails in your mailbox</div>
+              }
             </TableBody>
           </Table>
         </TabContainer>}
