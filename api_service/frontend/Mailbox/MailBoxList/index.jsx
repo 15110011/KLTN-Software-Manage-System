@@ -32,17 +32,31 @@ import MailDetail from './MailDetail'
 import SideBarMailBox from './SideBarMailBox'
 import MailList from './MailList'
 import styles from './MailBoxListStyle.js'
+import { initMailWebsocket } from '../../common/Utils';
 
 
 
 
 function MailBoxList(props) {
 
-  const { classes, history } = props;
+  const { classes, history, user } = props;
 
   const [value, setValue] = React.useState(0)
   const [mailDetail, setMailDetail] = React.useState(false)
   const [open, setOpen] = React.useState(true)
+  const [socket, setSocket] = React.useState(null)
+  const [emails, setEmails] = React.useState(null)
+
+
+  React.useEffect(() => {
+    const ws = initMailWebsocket(user.id)
+    setSocket(ws)
+    ws.onmessage = event => {
+      setEmails(JSON.parse(event.data))
+    }
+  }, [])
+
+
 
   const handleChange = (event, value) => {
     setValue(value)
@@ -77,6 +91,7 @@ function MailBoxList(props) {
               handleViewDetail={handleViewDetail}
               handleChangeIndex={handleChangeIndex}
               handleChange={handleChange}
+              emails={emails}
               value={value}
               history={history}
             />
