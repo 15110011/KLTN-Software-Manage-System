@@ -1,3 +1,5 @@
+import deepOrange from '@material-ui/core/colors/deepOrange';
+import deepPurple from '@material-ui/core/colors/deepPurple';
 const styles = theme => ({
   root: {
     width: '100%',
@@ -6,6 +8,11 @@ const styles = theme => ({
   },
   inline: {
     display: 'inline',
+  },
+  purpleAvatar: {
+    margin: 10,
+    color: '#fff',
+    backgroundColor: deepPurple[500],
   },
 });
 

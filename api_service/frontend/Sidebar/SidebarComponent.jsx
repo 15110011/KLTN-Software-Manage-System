@@ -206,8 +206,6 @@ const SidebarComponent = props => {
         >
 
           <MenuItem onClick={() => props.history.push('/logout')}>Log out</MenuItem>
-          <MenuItem>A</MenuItem>
-          <MenuItem>A</MenuItem>
         </Menu>
       </AppBar>
       <Drawer
