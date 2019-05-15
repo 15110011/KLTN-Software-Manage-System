@@ -231,7 +231,7 @@ function SaleRepCharts(props) {
 
   return (
     <Grid container spacing={8}>
-      <Grid item xs={12}>
+      <Grid item xs={7}>
         <Paper>
           <Card plain >
             <CardHeader icon color="primary">
@@ -316,7 +316,7 @@ function SaleRepCharts(props) {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="Quantity" fill="#8884d8" label={{ position: 'top' }} />
+                    <Bar barSize={30} dataKey="Quantity" fill="#8884d8" label={{ position: 'top' }} />
                     <Line type="monotone" dataKey="Income" stroke="#ff7300" />
                   </ComposedChart>
                 </ResponsiveContainer>
@@ -325,7 +325,7 @@ function SaleRepCharts(props) {
           </Card>
         </Paper>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={5}>
         <Paper>
           <Card plain >
             <CardHeader icon color="primary">
@@ -398,7 +398,7 @@ function SaleRepCharts(props) {
               <Typography classes={{ root: classes.activitytTagline }} component='p'>
                 Top 10 sale representatives with successful deal
                           </Typography>
-              <div style={{ width: '100%', height: '300px' }}>
+              <div style={{ width: '100%', height: '400px' }}>
                 <ResponsiveContainer>
                   <PieChart width={500} height={500}>
                     <Tooltip />

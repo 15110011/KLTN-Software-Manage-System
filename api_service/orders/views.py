@@ -13,6 +13,7 @@ from .serializers import OrderSerializer, OrderHistorySerializer, CreateOrderSer
 from .models import Order, OrderHistory, License, LifetimeLicense
 from steps.models import StepDetail
 from datetime import datetime, date
+from . import chart_handler
 # Create your views here.
 now = datetime.now()
 cur_year = datetime.today().year
@@ -34,10 +35,21 @@ class OrderChartView(ModelViewSet):
         # Chart product
         chart_type = request.query_params.get('chart_type', 'product')
         duration = request.query_params.get('duration', 'month')
+        filter_cat = None
+        if duration == 'month':
+            filter_cat = request.query_params.get(
+                'filter_cat', datetime.today().month)
+        if duration == 'quarter':
+            filter_cat = request.query_params.get(
+                'filter_cat', int(datetime.today().month)/3)
+        if duration == 'year':
+            filter_cat = request.query_params.get(
+                'filter_cat', datetime.today().year)
 
         if chart_type == 'product':
             if duration == 'month':
                 filters.add(Q(created__gte=start_date_of_year), Q.AND)
+
                 queryset = queryset.filter(filters)
                 queryset = queryset.annotate(month_group=Case(
                     When(created__month=1, then=V(1)),
@@ -104,8 +116,9 @@ class OrderChartView(ModelViewSet):
                             'name': l['package']['product_']['name'],
                             'count': order_data[d['month_group']]['income']['products'][l['package']['product_']['id']]['count'] + l['package']['prices']['999999']
                         }
-
                 return Response(order_data)
+        if chart_type == 'state':
+            return Response(chart_handler.state_chart(duration, filter_cat, filters ))
 
 
 class OrderView(ModelViewSet):
