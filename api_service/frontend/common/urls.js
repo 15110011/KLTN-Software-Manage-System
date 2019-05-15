@@ -51,5 +51,6 @@ export const GMAIL_SEND_URL = `${API_URL}gmail\\send`
 export const MAIL_TEMPLATES_URL = `${API_URL}mail-templates`
 
 export const WS_NOFICATION_URL = 'ws://localhost:8000/ws/notifications'
+export const WS_MAIL_URL = 'ws://localhost:8001/ws/mail-box'
 
 export { serverUrl, API_URL }

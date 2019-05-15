@@ -1,7 +1,7 @@
 import * as draftToHtml from 'draftjs-to-html';
 import htmlToDraft from 'html-to-draftjs';
 import { EditorState, convertToRaw, ContentState } from 'draft-js'
-import { WS_NOFICATION_URL } from './urls'
+import { WS_NOFICATION_URL, WS_MAIL_URL } from './urls'
 
 
 const CLIENT_ID = '198687486620-j6arq60a9h0bd50jc41lg6g05c4r93n0.apps.googleusercontent.com';
@@ -42,4 +42,6 @@ const initWebsocket = userId => {
   return new WebSocket(WS_NOFICATION_URL + '/' + userId)
 }
 
-export { htmlToState, draftToRaw, flatObject, CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES, initWebsocket }
+const initMailWebsocket = userId => new WebSocket(WS_MAIL_URL + '/' + userId)
+
+export { htmlToState, draftToRaw, flatObject, CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES, initWebsocket, initMailWebsocket }
