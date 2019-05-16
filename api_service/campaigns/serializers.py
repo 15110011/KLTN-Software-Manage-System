@@ -221,7 +221,7 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
 
-            step_details = [StepDetail(step=s, order=new_order)
+            step_details = [StepDetail(step=s, order=new_order, information={})
                             for s in new_order.campaign.follow_up_plan.steps.all()]
             step_details[len(step_details) - 1].information = {
                 "Choose Packages": {

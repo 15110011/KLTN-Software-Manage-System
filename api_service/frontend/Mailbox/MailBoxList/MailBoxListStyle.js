@@ -3,7 +3,6 @@ import deepPurple from '@material-ui/core/colors/deepPurple';
 
 const styles = theme => ({
   root: {
-    backgroundColor: theme.palette.background.paper,
     padding: 12
   },
   nested: {

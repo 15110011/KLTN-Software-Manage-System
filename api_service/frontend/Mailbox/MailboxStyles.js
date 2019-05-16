@@ -1,6 +1,9 @@
 const styles = (theme) => (
   {
-
+    root: {
+      backgroundColor: theme.palette.background.paper,
+      padding: 12
+    },
     cssLabel: {
       position: 'absolute',
       top: 18,
@@ -12,6 +15,5 @@ const styles = (theme) => (
 
   }
 )
-
 
 export default styles

@@ -27,6 +27,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import SideBarMailBox from './SideBarMailBox'
 
 
 import styles from './MailBoxListStyle.js'
@@ -63,22 +64,30 @@ function MailList(props) {
     history,
     emails
   } = props;
+  const [open, setOpen] = React.useState(true)
+
   console.log(emails)
 
+  const handleClick = () => {
+    setOpen(!open);
+  };
+
   return (
-    <div>
-      <Tabs
-        value={value}
-        onChange={handleChange}
-        classes={{ root: classes.tabsRoot, indicator: classes.tabsIndicator }}
-      >
-        <Tab
-          disableRipple
-          classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
-          label="Primary"
-          icon={<InboxIcon />}
-        />
-        {/* <Tab
+    <div className={classes.root}>
+      <Grid container spacing={8}>
+        <Grid item xs={12}>
+          <Tabs
+            value={value}
+            onChange={handleChange}
+            classes={{ root: classes.tabsRoot, indicator: classes.tabsIndicator }}
+          >
+            <Tab
+              disableRipple
+              classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
+              label="Primary"
+              icon={<InboxIcon />}
+            />
+            {/* <Tab
                 disableRipple
                 classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
                 label="Tab 2"
@@ -88,45 +97,47 @@ function MailList(props) {
                 classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
                 label="Tab 3"
               /> */}
-      </Tabs>
-      {value === 0 &&
-        <TabContainer>
-          <Table className={classes.table}>
-            <TableBody>
-              {emails && emails.data.length > 0
-                ? emails.data.map((email, i) => {
-                  return (
-                    <TableRow
-                      key={i}
-                      onClick={() => history.push('/inbox/11')}
-                      className={classes.rowData}
-                    >
-                      <TableCell className={classes.checkboxWidth} padding="checkbox">
-                        <Checkbox color="primary" />
-                      </TableCell>
-                      <TableCell className={classes.fromWidth} align="left">{}</TableCell>
-                      <TableCell className={classes.etcDot} align="left">
-                        <div className={classes.titleContent}>
-                          <div>
-                            {}
-                          </div>
-                          <div item xs={10}>
-                            &nbsp;-&nbsp;
+          </Tabs>
+          {value === 0 &&
+            <TabContainer>
+              <Table className={classes.table}>
+                <TableBody>
+                  {emails && emails.data.length > 0
+                    ? emails.data.map((email, i) => {
+                      return (
+                        <TableRow
+                          key={i}
+                          onClick={() => history.push('/inbox/11')}
+                          className={classes.rowData}
+                        >
+                          <TableCell className={classes.checkboxWidth} padding="checkbox">
+                            <Checkbox color="primary" />
+                          </TableCell>
+                          <TableCell className={classes.fromWidth} align="left">{}</TableCell>
+                          <TableCell className={classes.etcDot} align="left">
+                            <div className={classes.titleContent}>
+                              <div>
+                                {}
+                              </div>
+                              <div item xs={10}>
+                                &nbsp;-&nbsp;
                               {}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className={classes.dateWidth} align="right"><i>{}</i></TableCell>
-                    </TableRow>
-                  )
-                })
-                : <div className={classes.titleContent}>No emails in your mailbox</div>
-              }
-            </TableBody>
-          </Table>
-        </TabContainer>}
-      {/* {value === 1 && <TabContainer>Item Two</TabContainer>}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className={classes.dateWidth} align="right"><i>{}</i></TableCell>
+                        </TableRow>
+                      )
+                    })
+                    : <div className={classes.titleContent}>No emails in your mailbox</div>
+                  }
+                </TableBody>
+              </Table>
+            </TabContainer>}
+          {/* {value === 1 && <TabContainer>Item Two</TabContainer>}
             {value === 2 && <TabContainer>Item Three</TabContainer>} */}
+        </Grid>
+      </Grid>
     </div>
   )
 }

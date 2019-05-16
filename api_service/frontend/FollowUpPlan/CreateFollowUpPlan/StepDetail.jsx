@@ -128,7 +128,7 @@ function StepDetail(props) {
               handleChange={(values, element) => handleChangeMailTemplate(values, element)}
               onChangeSelect={(values, element) => handleChangeMailTemplate(values, element)}
               data={
-                { label: createStep.mail_template.name, value: createStep.mail_template.id }
+                { label: createStep.mail_template && createStep.mail_template.name, value: createStep.mail_template && createStep.mail_template.id }
               }
               // multi
               single

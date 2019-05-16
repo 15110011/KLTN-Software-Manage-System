@@ -50,6 +50,7 @@ import { ORDER_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL, STEP_DETAI
 import styles from './FollowUpStyle.js'
 import StepFollowUpDetail from './StepFollowUpDetail'
 import CreateEventDialog from '../../../Events/CreateEventDialog'
+import MailDetail from '../../../Mailbox/MailBoxList/MailDetail';
 
 function TabContainer({ children, dir }) {
   return (
@@ -526,102 +527,15 @@ function FollowUpDetail(props) {
             </Grid>
             <form onSubmit={handleUpdateStepDetail}>
               {
+                stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).length == 0 &&
+                <MailDetail />
+              }
+              {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).map((iKey, index) => {
-                  console.log(stepDetail[activeStep].information)
                   return (
                     <Grid item xs={12} key={`st${index}`}>
                       <Grid container spacing={24} style={{ marginTop: '16px' }}>
 
-                        {activeStep != moreRow.followup.campaign.follow_up_plan.steps.length - 1 && <Grid item xs={4}>
-                          <InputLabel
-                            required
-                            htmlFor="custom-css-standard-input"
-                            classes={{
-                              focused: classes.cssFocused,
-                            }}
-                            style={{ marginBottom: 0 }}
-                          >
-                            {iKey}
-                          </InputLabel>
-                        </Grid>}
-                        {
-                          stepDetail[activeStep].information[iKey].type == 'text' &&
-                          <Grid item xs={8}>
-                            <Input
-                              fullWidth
-                              required
-                              onChange={(e) => onChangeUpdateStepDetail(e, iKey)}
-                              value={stepDetail[activeStep].information[iKey].result}
-                              name="result"
-                              classes={{
-                                underline: classes.cssUnderline,
-                              }}
-                            />
-                          </Grid>
-                        }
-                        {
-                          stepDetail[activeStep].information[iKey].type == 'number' &&
-                          <Grid item xs={8}>
-                            <Input
-                              fullWidth
-                              required
-                              onChange={(e) => onChangeUpdateStepDetail(e, iKey)}
-                              value={stepDetail[activeStep].information[iKey].result}
-                              type='number'
-                              name="result"
-                              classes={{
-                                underline: classes.cssUnderline,
-                              }}
-                            />
-                          </Grid>
-                        }
-                        {
-                          stepDetail[activeStep].information[iKey].type == 'check_box' &&
-                          <Grid item xs={8}>
-                            <FormControl component="fieldset" className={classes.formControl}>
-                              <FormGroup row>
-                                {followup.campaign.follow_up_plan.steps[activeStep].conditions[index].choices.map((c, index) => {
-                                  return (
-                                    <FormControlLabel
-                                      control={
-                                        <Checkbox checked={stepDetail[activeStep].information[iKey].result.includes(c)}
-                                          onChange={(e) => onChangeUpdateStepDetail(e, iKey)}
-                                          value={c}
-                                          color='primary'
-                                          style={{ marginBottom: 0 }}
-
-                                        />
-                                      }
-                                      key={c + index}
-                                      label={c}
-                                    />
-                                  )
-                                })}
-                              </FormGroup>
-                            </FormControl>
-                          </Grid>
-                        }
-                        {
-                          stepDetail[activeStep].information[iKey].type == 'radio' &&
-                          <Grid item xs={8}>
-                            <FormControl component="fieldset" className={classes.formControl} >
-                              <RadioGroup
-                                aria-label="Gender"
-                                name="result"
-                                className={classes.group}
-                                value={stepDetail[activeStep].information[iKey].result}
-                                onChange={(value) => onChangeUpdateStepDetail(value, iKey)}
-                                row
-                              >
-                                {followup.campaign.follow_up_plan.steps[activeStep].conditions[index].choices.map((c, index) => {
-                                  return <FormControlLabel value={c} control={<Radio color='primary' required />} label={c} key={c + index}
-                                    style={{ marginBottom: 0 }}
-                                  />
-                                })}
-                              </RadioGroup>
-                            </FormControl>
-                          </Grid>
-                        }
                         <Grid item xs={8}>
                           {
                             stepDetail[activeStep].information[iKey].type == 'final' &&
@@ -648,12 +562,10 @@ function FollowUpDetail(props) {
                             })
                           }
                         </Grid>
-
                       </Grid>
                     </Grid>
                   )
                 })
-
               }
               {' '}
               <Grid item xs={12} style={{ margin: '20px 0', textAlign: 'right' }}>

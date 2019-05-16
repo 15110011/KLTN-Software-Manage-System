@@ -77,15 +77,7 @@ function MailBoxList(props) {
   return (
     <Grid className={classes.root}>
       <Grid container spacing={8}>
-        <Grid item xs={3}>
-          <Paper>
-            <SideBarMailBox
-              handleClick={handleClick}
-              setOpen={setOpen}
-            />
-          </Paper>
-        </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={12}>
           <Paper>
             <MailList
               handleViewDetail={handleViewDetail}
