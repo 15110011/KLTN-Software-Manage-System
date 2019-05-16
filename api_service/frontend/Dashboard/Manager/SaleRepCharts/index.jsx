@@ -37,23 +37,20 @@ const CustomTooltip = ({ active, payload, label }) => {
         <p className="custom-tooltip-label">{`Sale-rep ${label}`}</p>
         <ul className="custom-tooltip-item-list">
           {payload.map(p => {
-
-            name = ''
-            if (p.name == 'Success rate') {
-              name += '%'
-            }
-            else if (p.name == 'Income') {
-              name = <NumberFormat value={p.value} displayType='text' thousandSeparator={true} prefix={'$'} />
-            }
-            else {
-              name = p.value
-            }
             return (
               <li className="tooltip-item" key={`payload${p.name}`} style={{ color: p.color }}>
                 <span className="tooltip-item-name">{p.name}</span>
                 <span className="tooltip-item-separator"> : </span>
                 <span className="tooltip-item-value">
-                  {name}
+                  {p.name == 'Success rate' &&
+                    `${p.value}%`
+                  }
+                  {p.name == 'Income' &&
+                    <NumberFormat value={p.value} displayType='text' thousandSeparator={true} prefix={'$'} />
+                  }
+                  {p.name != 'Success rate' && p.name != 'Income' &&
+                    p.value
+                  }
                 </span>
                 <span className="tooltip-item-unit"> </span>
               </li>
@@ -69,6 +66,12 @@ const CustomTooltip = ({ active, payload, label }) => {
 }
 
 
+const data1 = [
+  { name: 'Luccy Vo', value: 400 },
+  { name: 'Luccy Vo', value: 600 },
+  { name: 'Luccy Vo', value: 900 },
+  { name: 'Luccy Vo', value: 700 },
+];
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -240,7 +243,7 @@ function SaleRepCharts(props) {
 
   return (
     <Grid container spacing={8}>
-      <Grid item xs={7}>
+      <Grid item xs={12}>
         <Paper>
           <Card plain >
             <CardHeader icon color="primary">
@@ -248,7 +251,7 @@ function SaleRepCharts(props) {
                 <SaleRepIcon />
               </CardIcon>
               <h4 style={{ paddingRight: '24px' }} className={classes.cardChartTitle}>Sale Representative
-                <TextField
+                {/* <TextField
                   select
                   style={{ float: 'right', width: '100px' }}
                   onChange={onChangeSelectWhichType}
@@ -287,8 +290,8 @@ function SaleRepCharts(props) {
                       )
                     })
                   }
-                </TextField>
-                <TextField
+                </TextField> */}
+                {/* <TextField
                   select
                   style={{ float: 'right', width: '100px', marginRight: '15px' }}
                   onChange={onChangeSelectType}
@@ -306,7 +309,7 @@ function SaleRepCharts(props) {
                   <MenuItem value="year">
                     Year
                       </MenuItem>
-                </TextField>
+                </TextField> */}
               </h4>
             </CardHeader>
             <CardBody>

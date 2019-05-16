@@ -186,7 +186,7 @@ const CustomerCharts = (props) => {
                 <CategoryIcon />
               </CardIcon>
               <h4 className={classes.cardChartTitle}>Top 6 States
-              <TextField
+              {/* <TextField
                   select
                   style={{ float: 'right', width: '100px' }}
                   onChange={onChangeSelectWhichTypeMap}
@@ -225,8 +225,8 @@ const CustomerCharts = (props) => {
                       )
                     })
                   }
-                </TextField>
-                <TextField
+                </TextField> */}
+                {/* <TextField
                   select
                   style={{ float: 'right', width: '100px', marginRight: '15px' }}
                   onChange={onChangeSelectTypeMap}
@@ -244,7 +244,7 @@ const CustomerCharts = (props) => {
                   <MenuItem value="year">
                     Year
                       </MenuItem>
-                </TextField>
+                </TextField> */}
               </h4>
             </CardHeader>
             <CardBody>
