@@ -8,7 +8,7 @@ import Grid from '@material-ui/core/Grid'
 import ProductCharts from './ProductCharts'
 import CustomerCharts from './CustomerCharts'
 import SaleRepCharts from './SaleRepCharts'
-
+import Overview from './Overview'
 
 import styles from './ManagerStyles.js'
 function ManagerDashboard(props) {
@@ -16,6 +16,9 @@ function ManagerDashboard(props) {
   return (
     <div className='p-4'>
       <Grid container>
+        <Grid item xs={12}>
+          <Overview />
+        </Grid>
         <Grid item xs={12}>
           <ProductCharts />
         </Grid>
