@@ -27,12 +27,15 @@ import FollowUpPlanIcon from '@material-ui/icons/FindInPage';
 import MarketingListIcon from '@material-ui/icons/ListAlt';
 import SuccessIcon from '@material-ui/icons/DoneAll';
 import FailedIcon from '@material-ui/icons/HighlightOff';
+import { ORDER_CHART_URL } from '../../../common/urls'
+import useFetchData from '../../../CustomHook/useFetchData'
 
 import styles from './Styles'
 
 function Overview(props) {
 
   const { classes } = props;
+  const [data, setData, setUrl, forceUpdate] = useFetchData(ORDER_CHART_URL + `?chart_type=overview&duration=month`, null, null)
 
   return (
     <div>
@@ -42,7 +45,7 @@ function Overview(props) {
             icon={MarketingListIcon}
             iconColor="primary"
             title="Waiting List"
-            description="50"
+            description={data && data.data.waiting}
             small="Contacts"
             statIcon={MarketingListIcon}
             statIconColor="danger"
@@ -54,7 +57,7 @@ function Overview(props) {
             icon={FollowUpPlanIcon}
             iconColor="orange"
             title="Follow-up"
-            description="490"
+            description={ data && data.data.follow_up }
             small="Contacts"
             statIcon={FollowUpPlanIcon}
             statIconColor="danger"
@@ -66,7 +69,7 @@ function Overview(props) {
             icon={SuccessIcon}
             iconColor="green"
             title="Success"
-            description="40"
+            description={ data && data.data.success }
             small="Contacts"
             statIcon={SuccessIcon}
             statIconColor="danger"
@@ -78,7 +81,7 @@ function Overview(props) {
             icon={FailedIcon}
             iconColor="red"
             title="Failed"
-            description="5"
+            description={ data && data.data.failed }
             small="Contacts"
             statIcon={FailedIcon}
             statIconColor="danger"

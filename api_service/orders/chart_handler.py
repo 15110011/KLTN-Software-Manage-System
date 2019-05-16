@@ -8,6 +8,31 @@ cur_year = datetime.today().year
 start_date_of_year = date(cur_year, 1, 1)
 
 
+def overview_chart(duration, target, filters):
+    result = {}
+    if duration == 'month':
+        filters.add(Q(created__gte=start_date_of_year), Q.AND)
+        filters.add(Q(created__month=target), Q.AND)
+        # Success deal
+        success_deal = Order.objects.filter(
+            filters).filter(status='COMPLETED').count()
+        # Failed deal
+
+        failed_deal = Order.objects.filter(
+            filters).filter(status='FAILED').count()
+        failed_deal += ContactMarketing.objects.filter(status='FAILED').count()
+
+        # Waiting list
+        waiting_list = ContactMarketing.objects.filter(
+            status='RUNNING').count()
+        # Follow up
+        follow_up = Order.objects.filter(
+            filters).filter(status='RUNNING').count()
+        result = {'success': success_deal, 'failed': failed_deal,
+                  'waiting': waiting_list, 'follow_up': follow_up}
+    return {"data": result}
+
+
 def state_chart(duration, target, filters):
     result = []
     if duration == 'month':

@@ -93,7 +93,7 @@ const ProductCharts = (props) => {
                 <CategoryIcon />
               </CardIcon>
               <h4 className={classes.cardChartTitle}>Products
-              <TextField
+              {/* <TextField
                   select
                   style={{ float: 'right', width: '100px', marginRight: '15px' }}
                   onChange={onChangeSelectTypeComposeChart}
@@ -111,7 +111,7 @@ const ProductCharts = (props) => {
                   <MenuItem value="year">
                     Year
                       </MenuItem>
-                </TextField>
+                </TextField> */}
               </h4>
             </CardHeader>
             <CardBody>
@@ -153,7 +153,7 @@ const ProductCharts = (props) => {
                 <CategoryIcon />
               </CardIcon>
               <h4 className={classes.cardChartTitle}>License
-              <TextField
+              {/* <TextField
                   select
                   style={{ float: 'right', width: '100px', marginRight: '15px' }}
                   onChange={onChangeSelectTypeLineChart}
@@ -171,7 +171,7 @@ const ProductCharts = (props) => {
                   <MenuItem value="year">
                     Year
                       </MenuItem>
-                </TextField>
+                </TextField> */}
               </h4>
             </CardHeader>
             <CardBody>
