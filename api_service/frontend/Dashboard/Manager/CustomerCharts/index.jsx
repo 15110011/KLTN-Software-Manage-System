@@ -176,9 +176,6 @@ const CustomerCharts = (props) => {
     return acc
   }, {})
 
-  console.log(regionData)
-
-
   return (
     <Grid container spacing={8}>
       <Grid item xs={12}>
@@ -339,7 +336,7 @@ const CustomerCharts = (props) => {
                       }
                       containerClassName="map"
                       onRegionTipShow={(e, el, code) => {
-                        el.html(el.html() + ': ' + regionData[code]);
+                        el.html(el.html() + ': ' + (regionData[code] ? regionData[code] : 0))
                       }
                       }
                     />

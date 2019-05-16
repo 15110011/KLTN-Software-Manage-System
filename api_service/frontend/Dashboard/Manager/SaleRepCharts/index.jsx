@@ -2,7 +2,7 @@ import * as React from 'react'
 import { withStyles, Typography, MenuItem, Select, IconButton, Grid } from '@material-ui/core';
 import {
   BarChart,
-  Bar,
+  Bar, Area,
   Line,
   Cell,
   XAxis,
@@ -30,45 +30,45 @@ import useFetchData from '../../../CustomHook/useFetchData'
 
 import styles from './Styles.js'
 
-const data = [
-  {
-    name: 'Cristiano Ronaldo', Quantity: 9800, Income: 2600,
-  },
-  {
-    name: 'Luccy Wohn', Quantity: 5400, Income: 4000,
-  },
-  {
-    name: 'Nv 3', Quantity: 6400, Income: 3000,
-  },
-  {
-    name: 'Nv 4', Quantity: 3000, Income: 7000,
-  },
-  {
-    name: 'Nv 5', Quantity: 4000, Income: 4000,
-  },
-  {
-    name: 'Nv 6', Quantity: 5000, Income: 5000,
-  },
-  {
-    name: 'Nv 7', Quantity: 2000, Income: 4300,
-  },
-  {
-    name: 'Nv 8', Quantity: 7000, Income: 6400,
-  },
-  {
-    name: 'Nv 9', Quantity: 2600, Income: 8000,
-  },
-  {
-    name: 'Nv 10', Quantity: 8800, Income: 2400,
-  },
-];
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload) {
+    return (<div className="">
+      <div className="custom-tooltip">
+        <p className="custom-tooltip-label">{`Sale-rep ${label}`}</p>
+        <ul className="custom-tooltip-item-list">
+          {payload.map(p => {
 
-const data1 = [
-  { name: 'Luccy Vo', value: 400 },
-  { name: 'Luccy Vo', value: 600 },
-  { name: 'Luccy Vo', value: 900 },
-  { name: 'Luccy Vo', value: 700 },
-];
+            name = ''
+            if (p.name == 'Success rate') {
+              name += '%'
+            }
+            else if (p.name == 'Income') {
+              name = <NumberFormat value={p.value} displayType='text' thousandSeparator={true} prefix={'$'} />
+            }
+            else {
+              name = p.value
+            }
+            return (
+              <li className="tooltip-item" key={`payload${p.name}`} style={{ color: p.color }}>
+                <span className="tooltip-item-name">{p.name}</span>
+                <span className="tooltip-item-separator"> : </span>
+                <span className="tooltip-item-value">
+                  {name}
+                </span>
+                <span className="tooltip-item-unit"> </span>
+              </li>
+            )
+          })}
+        </ul>
+      </div>
+    </div>
+    )
+
+  }
+  return null
+}
+
+
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
@@ -96,7 +96,12 @@ class CustomizedAxisTick extends React.PureComponent {
     const names = payload.value.split(' ')
     return (
       <g transform={`translate(${x},${y})`}>
-        <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">{`${names[0][0].trim()}. ${names[1].trim()}`}</text>
+        {names.length > 1
+          ?
+          <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">{`${names[0][0].trim()}. ${names[1].trim()}`}</text>
+          :
+          <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">{`${names[0].trim()}`}</text>
+        }
       </g>
     );
   }
@@ -177,9 +182,13 @@ function SaleRepCharts(props) {
 
   const { classes } = props;
 
+
   const [selectType, setSelectType] = React.useState(
     'month'
   )
+
+  const [saleRepData, setSaleRepData, setUrlSale, forceUpdateSale] = useFetchData(ORDER_CHART_URL + `?chart_type=sale_rep&duration=${selectType}`, null, { data: [] })
+  // const [successData, setSuccessData, setUrlSuccess, forceUpdateSuccess] = useFetchData(ORDER_CHART_URL + `?chart_type=success&duration=${selectType}`, null, { data: [] })
 
   const [selectTypePieChart, setSelectTypePieChart] = React.useState(
     'month'
@@ -306,7 +315,15 @@ function SaleRepCharts(props) {
                   </Typography>
               <div style={{ witdh: '100%', height: '400px' }}>
                 <ResponsiveContainer>
-                  <ComposedChart width={600} height={300} data={data}
+                  <ComposedChart width={600} height={300} data={saleRepData.data.map(d => {
+                    return ({
+                      name: d.sale_rep_name,
+                      "Income/Sales": (d.income / d.amount).toFixed(2),
+                      "Success rate": (d.amount / d.total).toFixed(2) * 100,
+                      "Income": d.income,
+
+                    })
+                  })}
                     margin={{
                       top: 20, right: 20, bottom: 20, left: 20,
                     }}
@@ -314,108 +331,12 @@ function SaleRepCharts(props) {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" tick={<CustomizedAxisTick />} />
                     <YAxis />
-                    <Tooltip />
+                    <Tooltip content={<CustomTooltip />} />
                     <Legend />
-                    <Bar barSize={30} dataKey="Quantity" fill="#8884d8" label={{ position: 'top' }} />
-                    <Line type="monotone" dataKey="Income" stroke="#ff7300" />
+                    <Bar barSize={30} dataKey="Income" fill="#8884d8" label={{ position: 'top' }} />
+                    <Area dataKey="Success rate" type="monotone" fill="#ff8042" stroke="#ff8042" />
+                    <Line type="monotone" dataKey="Income/Sales" type="monotone" fill="#00c49f" stroke="#00c49f" />
                   </ComposedChart>
-                </ResponsiveContainer>
-              </div>
-            </CardBody>
-          </Card>
-        </Paper>
-      </Grid>
-      <Grid item xs={5}>
-        <Paper>
-          <Card plain >
-            <CardHeader icon color="primary">
-              <CardIcon color="primary">
-                <SaleRepIcon />
-              </CardIcon>
-              <h4 className={classes.cardChartTitle}>Sale Representative
-              <TextField
-                  select
-                  style={{ float: 'right', width: '100px' }}
-                  onChange={onChangeSelectWhichTypePieChart}
-                  value={selectWhichTypePieChart}
-                  inputProps={{
-                    name: 'selectWhichType',
-                  }}
-                >
-                  {
-                    selectTypePieChart == 'month' &&
-                    months.map((m, i) => {
-                      return (
-                        <MenuItem key={i} value={m.value}>
-                          {m.name}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                  {
-                    selectTypePieChart == 'quarter' &&
-                    quarters.map((q, i) => {
-                      return (
-                        <MenuItem key={i} value={q.value}>
-                          {q.name}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                  {
-                    selectTypePieChart == 'year' &&
-                    years.map((y, i) => {
-                      return (
-                        <MenuItem key={i} value={y}>
-                          {y}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                </TextField>
-                <TextField
-                  select
-                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
-                  onChange={onChangeSelectTypePieChart}
-                  value={selectTypePieChart}
-                  inputProps={{
-                    name: 'selectTypePieChart',
-                  }}
-                >
-                  <MenuItem value="month">
-                    Month
-                      </MenuItem>
-                  <MenuItem value="quarter">
-                    Quarter
-                      </MenuItem>
-                  <MenuItem value="year">
-                    Year
-                      </MenuItem>
-                </TextField>
-              </h4>
-            </CardHeader>
-            <CardBody>
-              <Typography classes={{ root: classes.activitytTagline }} component='p'>
-                Top 10 sale representatives with successful deal
-                          </Typography>
-              <div style={{ width: '100%', height: '400px' }}>
-                <ResponsiveContainer>
-                  <PieChart width={500} height={500}>
-                    <Tooltip />
-                    <Pie
-                      data={data1}
-                      labelLine={false}
-                      label={renderCustomizedLabel}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {
-                        data1.map((entry, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)
-                      }
-                    </Pie>
-                    <Legend />
-                  </PieChart>
                 </ResponsiveContainer>
               </div>
             </CardBody>

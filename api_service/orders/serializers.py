@@ -79,6 +79,7 @@ class OrderChartSerializer(serializers.ModelSerializer):
     history = OrderHistorySerializer(many=True)
     licenses = LicenseSerializer(many=True)
     lifetime_licenses = LifetimeLicenseSerializer(many=True)
+    amount = serializers.IntegerField(required=False)
     month_group = serializers.IntegerField()
 
     # order_packages = Order
@@ -89,6 +90,22 @@ class OrderChartSerializer(serializers.ModelSerializer):
 
     # def get_month_group(self, instance):
     #     return instance.created.month
+
+class OrderSaleRepChartSerializer(serializers.ModelSerializer):
+    contacts = ContactSerializer()
+    sale_rep = MeSerializer()
+    packages = PackageSerializer(many=True)
+    campaign = CampaignSerializer()
+    step_details = StepDetailWithoutOrderSerializer(many=True)
+    history = OrderHistorySerializer(many=True)
+    licenses = LicenseSerializer(many=True)
+    lifetime_licenses = LifetimeLicenseSerializer(many=True)
+
+    # order_packages = Order
+
+    class Meta:
+        model = models.Order
+        fields = '__all__'
 
 
 class OrderSerializer(serializers.ModelSerializer):

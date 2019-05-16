@@ -119,6 +119,10 @@ class OrderChartView(ModelViewSet):
                 return Response(order_data)
         if chart_type == 'state':
             return Response(chart_handler.state_chart(duration, filter_cat, filters ))
+        if chart_type == 'sale_rep':
+            return Response(chart_handler.sale_rep_chart(duration, filter_cat, filters ))
+        if chart_type == 'success':
+            return Response(chart_handler.success_deal_chart(duration, filter_cat, filters ))
 
 
 class OrderView(ModelViewSet):

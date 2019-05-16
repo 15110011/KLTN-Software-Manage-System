@@ -160,7 +160,9 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
             for index, contact in enumerate(contacts):
                 cur_contact = Contact.objects.get(id=contact)
                 contact_marketing = models.ContactMarketing(
-                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, job_id=job.id)
+                    marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, job_id=job.id,
+                    sale_rep=sale_reps[index % len(sale_reps)]
+                )
                 contact_marketing.save()
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(

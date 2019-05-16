@@ -61,7 +61,8 @@ INSTALLED_APPS = [
     'steps',
     'reports',
     'events',
-    'notifications'
+    'notifications',
+    'reset_migrations'
 ]
 
 MIDDLEWARE = [

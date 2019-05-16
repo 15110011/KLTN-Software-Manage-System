@@ -30,6 +30,7 @@ google-auth = "*"
 oauth2client = "*"
 channels = "*"
 channels-redis = "*"
+django-reset-migrations = "*"
 
 [dev-packages]
 "autopep8" = "*"

@@ -88,6 +88,8 @@ class ContactMarketing(BaseModel):
         choices=CONTACT_MARKETING_CHOICE, default="RUNNING")
     priority = models.IntegerField(choices=PRIORITY_CHOICES, default=2)
     job_id = models.CharField(max_length=255, null=True, blank=True)
+    sale_rep = models.ForeignKey(
+        User, related_name='contact_marketing_plans', on_delete=models.CASCADE, blank=True, null=True)
 
     class Meta:
         unique_together = (('campaign', 'contact'),)
