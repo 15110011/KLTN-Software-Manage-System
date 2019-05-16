@@ -153,6 +153,27 @@ const roseBoxShadow = {
     ",.4)"
 };
 
+const orangeCardHeader = {
+  background: "linear-gradient(60deg, #ffa726, #fb8c00)",
+  ...warningBoxShadow
+};
+const greenCardHeader = {
+  background: "linear-gradient(60deg, #66bb6a, #43a047)",
+  ...successBoxShadow
+};
+const redCardHeader = {
+  background: "linear-gradient(60deg, #ef5350, #e53935)",
+  ...dangerBoxShadow
+};
+const blueCardHeader = {
+  background: "linear-gradient(60deg, #26c6da, #00acc1)",
+  ...infoBoxShadow
+};
+const purpleCardHeader = {
+  background: "linear-gradient(60deg, #ab47bc, #8e24aa)",
+  ...primaryBoxShadow
+};
+
 const warningCardHeader = {
   background:
     "linear-gradient(60deg, " + warningColor[1] + ", " + warningColor[2] + ")",
@@ -276,6 +297,11 @@ export {
   dangerColor,
   successColor,
   infoColor,
+  orangeCardHeader,
+  greenCardHeader,
+  redCardHeader,
+  blueCardHeader,
+  purpleCardHeader,
   roseColor,
   grayColor,
   blackColor,
