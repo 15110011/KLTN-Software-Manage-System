@@ -25,13 +25,12 @@ import SideBarMailBox from './SideBarMailBox'
 
 function MailDetail(props) {
 
-  const { classes, history } = props
+  const { classes, history, backToInbox } = props
 
   const [expanded, setExpanded] = React.useState(false)
   const [noExpand, setNoExpand] = React.useState(true)
   const [open, setOpen] = React.useState(true)
   const [isReply, setIsReply] = React.useState(false)
-
   const handleReply = () => {
     setIsReply(true)
   }
@@ -50,11 +49,14 @@ function MailDetail(props) {
         <Grid item xs={12}>
           <Paper>
             <Grid container spacing={8}>
-              <Grid item xs={12}>
-                <IconButton onClick={() => history.push('/inbox')}>
-                  <BackIcon fontSize="small" />
-                </IconButton>
-              </Grid>
+              {
+                backToInbox &&
+                <Grid item xs={12}>
+                  <IconButton onClick={() => history.push('/inbox')}>
+                    <BackIcon fontSize="small" />
+                  </IconButton>
+                </Grid>
+              }
             </Grid>
             <List>
               <ListItem alignItems="flex-start">
@@ -91,13 +93,24 @@ function MailDetail(props) {
                   <Avatar className={classes.purpleAvatar}>T</Avatar>
                 </ListItemAvatar>
                 <ListItemText
-                  primary="Brunch this weekend?"
+                  primary="Thao Nguyen"
                   secondary={
                     <React.Fragment>
-                      <Typography component="span" className={classes.inline} color="textPrimary">
-                        Ali Connors
-              </Typography>
-                      {" — I'll be in your neighborhood doing errands this…"}
+                      {
+                        noExpand &&
+                        <>
+                          <Typography component="span" className={classes.inline} color="textPrimary">
+                            {'<'}thaocuvu@gmail.com{'>'}
+                          </Typography>
+                          <div onClick={handleExpandMore} className="my-3" style={{ color: 'black', cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: 'dasdasdasd...' }}>
+                          </div>
+                        </>
+                      }
+                      {
+                        expanded &&
+                        <div onClick={handleExpandMore} className="my-3" style={{ color: 'black', cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: '12asdasdasdasdasjasdhaskdhasdhk' }}>
+                        </div>
+                      }
                     </React.Fragment>
                   }
                 />

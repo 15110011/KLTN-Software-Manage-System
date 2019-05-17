@@ -61,6 +61,7 @@ function ProductList(props) {
       <CreateProduct
         handleCloseCreateProductDialog={handleCloseCreateProductDialog}
         createProductDialog={createProductDialog}
+        setCreateProductDialog={setCreateProductDialog}
       />
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
@@ -130,7 +131,7 @@ function ProductList(props) {
                 tooltip: 'Create Product',
                 onClick: (event, rows) => {
                   setCreateProductDialog(true)
-                  // setCreateProduct()
+                  setCreateProduct()
                 },
                 isFreeAction: true
               }

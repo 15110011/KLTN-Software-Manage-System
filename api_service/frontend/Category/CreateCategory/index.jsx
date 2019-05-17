@@ -25,7 +25,7 @@ import styles from './CreateCategoryStyle'
 
 function CreateCategory(props) {
 
-  const { classes, handleCloseCreateCategoryDialog, createCategoryDialog, setCreateCategoryDialog, forceUpdateCategory } = props;
+  const { classes, notification, handleCloseCreateCategoryDialog, createCategoryDialog, setCreateCategoryDialog, forceUpdateCategory } = props;
 
   const [createCategory, setCreateCategory] = React.useState({
     name: '',
@@ -47,7 +47,6 @@ function CreateCategory(props) {
           }
           else {
             localStorage.setItem("token", res.data.access)
-            // notification()
           }
         })
       }
@@ -56,7 +55,7 @@ function CreateCategory(props) {
       }
       else {
         forceUpdateCategory()
-        // notification()
+        notification('Successfully Created')
       }
     })
     setCreateCategoryDialog(false)

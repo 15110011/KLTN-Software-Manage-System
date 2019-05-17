@@ -62,18 +62,7 @@ function SideBarMailBox(props) {
             <MoveToInbox />
           </ListItemIcon>
           <ListItemText inset primary="Inbox" />
-          {open ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
-        <Collapse in={open} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItem button className={classes.nested}>
-              <ListItemIcon>
-                <StarBorder />
-              </ListItemIcon>
-              <ListItemText inset primary="Starred" />
-            </ListItem>
-          </List>
-        </Collapse>
       </List>
     </div>
   )

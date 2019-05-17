@@ -222,7 +222,7 @@ function CampaignDetails(props) {
                           acc.push(
                             {
                               label: `${p.name}`,
-                              value: p.id
+                              value: p.id,
                               ...p
                             }
                           )

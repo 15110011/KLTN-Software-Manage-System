@@ -73,7 +73,7 @@ function MailList(props) {
   };
 
   return (
-    <div className={classes.root}>
+    <div>
       <Grid container spacing={8}>
         <Grid item xs={12}>
           <Tabs

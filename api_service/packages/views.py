@@ -18,11 +18,28 @@ class ProductCategoryView(ModelViewSet):
     queryset = ProductCategory.objects
     permission_classes = (IsAuthenticated,)
 
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response({"data": serializer.data, "total": len(serializer.data)})
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"msg": "DEL OK"}, status=status.HTTP_200_OK)
 
 class ProductTypeView(ModelViewSet):
     serializer_class = ProductTypeSerializer
     queryset = ProductType.objects
     permission_classes = (IsAuthenticated,)
+    
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response({"data": serializer.data, "total": len(serializer.data)})
+    
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.delete()
+        return Response({"msg": "DEL OK"}, status=status.HTTP_200_OK)
 
 
 class ProductViewSet(ModelViewSet):

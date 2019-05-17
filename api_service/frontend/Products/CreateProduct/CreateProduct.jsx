@@ -32,7 +32,7 @@ import MuiDialogActions from '@material-ui/core/DialogActions';
 import CloseIcon from '@material-ui/icons/Close';
 import Typography from '@material-ui/core/Typography';
 import * as cn from 'classnames'
-
+import * as dateFns from 'date-fns'
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL, PRODUCT_TYPES_URL, PRODUCT_CATEGORIES_URL } from "../../common/urls";
 import { apiPost } from '../../common/Request'
@@ -43,6 +43,9 @@ import TableHeader from 'material-table/dist/m-table-header'
 // Components 
 import FormPackage from './FormPackage/FormPackage';
 import CustomSnackbar from '../../components/CustomSnackbar'
+import { Editor } from "react-draft-wysiwyg";
+import "../../common/react-draft-wysiwyg.css";
+import { htmlToState, draftToRaw } from "../../common/utils";
 
 
 import styles from './CreateProductStyle'
@@ -56,7 +59,7 @@ const MONTHS = [
 ]
 
 function CreateProduct(props) {
-  const { classes, createProductDialog, handleCloseCreateProductDialog } = props;
+  const { classes, createProductDialog, handleCloseCreateProductDialog, setCreateProductDialog } = props;
   const [createProductStep, setCreateProductStep] = React.useState(1)
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [updatingUnit, setUpdatingUnit] = React.useState(-1)
@@ -70,12 +73,13 @@ function CreateProduct(props) {
   const [error, setError] = React.useState({})
   const [categoryData, setCategoryData, setURLCategory, forceUpdateCategory] = useFetchData(PRODUCT_CATEGORIES_URL, props.history, {})
   const [productTypeData, setProductTypeData, setURLProductType, forceUpdateProductType] = useFetchData(PRODUCT_TYPES_URL, props.history, {})
+  const [editorState, setEditorState] = React.useState(htmlToState(""))
 
   const [createProduct, setCreateProduct] = React.useState({
     name: '',
     desc: '',
     status: '',
-    start_sale_date: '',
+    start_sale_date: dateFns.format(dateFns.parseISO(new Date().toISOString()), 'yyyy-MM-dd'),
     start_support_date: '',
     packages: [
       // {
@@ -107,6 +111,10 @@ function CreateProduct(props) {
     desc: '',
     number: ''
   })
+
+  const onEditorStateChange = editorState => {
+    setEditorState(editorState)
+  };
 
   const [checkedFeature, setCheckedFeature] = React.useState(false)
 
@@ -190,7 +198,7 @@ function CreateProduct(props) {
   const handleChangeCategoryAndType = (values, element) => {
     // const products = 
     createProduct[element.name] = values.value
-    setCreateProduct({...createProduct})
+    setCreateProduct({ ...createProduct })
   }
 
   const handleDeleteFeature = (e, unitIndex) => {
@@ -352,17 +360,18 @@ function CreateProduct(props) {
     // else {
     // }
     apiPostProduct()
+    setCreateProductDialog(false)
   }
 
   const apiPostProduct = () => {
     const cloneProduct = JSON.parse(JSON.stringify(createProduct))
+    cloneProduct.desc = draftToRaw(editorState)
     if (tabIndex == 0) {
       delete cloneProduct.features
       delete cloneProduct.packages
     } else if (tabIndex == 1) {
       delete cloneProduct.packages
     } else {
-     
     }
     apiPost(PRODUCTS_URL, cloneProduct, false, true)
       .then(res => {
@@ -488,30 +497,8 @@ function CreateProduct(props) {
                           />
                         </Grid>
                       </Grid>
-                      <Grid container spacing={40} >
-                        <Grid className={classes.inputCustom} item xs={4}>
-                          <InputLabel
-                            htmlFor="custom-css-standard-input"
-                            classes={{
-                              root: classes.cssLabel,
-                              focused: classes.cssFocused,
-                            }}
-                          >
-                            Description
-                            </InputLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Input
-                            fullWidth
-                            onChange={onChangeCreateProduct}
-                            value={createProduct.desc}
-                            name="desc"
-                            classes={{
-                              underline: classes.cssUnderline,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
+                    </Grid>
+                    <Grid item xs={6}>
                       <Grid container spacing={40}>
                         <Grid className={classes.inputCustom} item xs={4}>
                           <InputLabel
@@ -554,33 +541,6 @@ function CreateProduct(props) {
                               focused: classes.cssFocused,
                             }}
                           >
-                            Sales Start Date
-                        </InputLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Input
-                            fullWidth
-                            required
-                            onChange={onChangeCreateProduct}
-                            value={createProduct.start_sale_date}
-                            name="start_sale_date"
-                            type="date"
-                            classes={{
-                              underline: classes.cssUnderline,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-                      <Grid container spacing={40}>
-                        <Grid className={classes.inputCustom} item xs={4}>
-                          <InputLabel
-                            required
-                            htmlFor="custom-css-standard-input"
-                            classes={{
-                              root: classes.cssLabel,
-                              focused: classes.cssFocused,
-                            }}
-                          >
                             Type
                             </InputLabel>
                         </Grid>
@@ -591,20 +551,22 @@ function CreateProduct(props) {
                               value: `${g.id}`,
                             }))}
                             handleChange={(values, element) => handleChangeCategoryAndType(values, element)}
-                          // data={
-                          //   createProduct.actions
-                          //     .reduce((acc, g) => {
-                          //       acc.push({ label: `${g.label}`, value: g.value })
-                          //       return acc
-                          //     }, [])
-                          // }
-                          single
-                          placeholder=""
-                          label=""
-                          name="product_type"
+                            // data={
+                            //   createProduct.actions
+                            //     .reduce((acc, g) => {
+                            //       acc.push({ label: `${g.label}`, value: g.value })
+                            //       return acc
+                            //     }, [])
+                            // }
+                            single
+                            placeholder=""
+                            label=""
+                            name="product_type"
                           />
                         </Grid>
                       </Grid>
+                    </Grid>
+                    <Grid item xs={6}>
                       <Grid container spacing={40}>
                         <Grid className={classes.inputCustom} item xs={4}>
                           <InputLabel
@@ -636,6 +598,28 @@ function CreateProduct(props) {
                             name="category"
                             placeholder=""
                             label=""
+                          />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Grid container spacing={40}>
+                        <Grid className={classes.inputCustom} item xs={2}>
+                          <InputLabel
+                            htmlFor="custom-css-standard-input"
+                            classes={{
+                              focused: classes.cssFocused,
+                            }}
+                          >
+                            Description
+                            </InputLabel>
+                        </Grid>
+                        <Grid item xs={10}>
+                          <Editor
+                            editorState={editorState}
+                            wrapperClassName="editor-wrapper"
+                            editorClassName="editor"
+                            onEditorStateChange={onEditorStateChange}
                           />
                         </Grid>
                       </Grid>

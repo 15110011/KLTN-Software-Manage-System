@@ -25,7 +25,7 @@ import styles from './CreateProductTypeStyle'
 
 function CreateProductType(props) {
 
-  const { classes, handleCloseCreateProductTypeDialog, createProductTypeDialog, setCreateProductTypeDialog, forceUpdateProductType } = props;
+  const { classes, notification, handleCloseCreateProductTypeDialog, createProductTypeDialog, setCreateProductTypeDialog, forceUpdateProductType } = props;
 
   const [createProductType, setCreateProductType] = React.useState({
     name: '',
@@ -47,7 +47,6 @@ function CreateProductType(props) {
           }
           else {
             localStorage.setItem("token", res.data.access)
-            // notification()
           }
         })
       }
@@ -56,7 +55,7 @@ function CreateProductType(props) {
       }
       else {
         forceUpdateProductType()
-        // notification()
+        notification('Successfully Created')
       }
     })
     setCreateProductTypeDialog(false)

@@ -3,7 +3,7 @@ import deepPurple from '@material-ui/core/colors/deepPurple';
 
 const styles = theme => ({
   root: {
-    padding: 12
+    padding: 5
   },
   nested: {
     paddingLeft: theme.spacing.unit * 4,

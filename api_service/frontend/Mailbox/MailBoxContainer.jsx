@@ -15,10 +15,10 @@ import styles from './MailboxStyles.js'
 function MailBoxContainer(props) {
   const { classes, user } = props
   return (
-    <div className={classes.root}>
+    <div>
       <MailBoxBreadcrumb user={props.user} history={props.history} />
       <BreadcrumbsItem to='/inbox'>Inbox</BreadcrumbsItem>
-      <Grid container>
+      <Grid container className={classes.root}>
         <Grid item xs={3}>
           <Paper>
             <SideBarMailBox
@@ -30,7 +30,7 @@ function MailBoxContainer(props) {
         <Grid item xs={9}>
           <Switch>
             <Route exact path="/inbox" component={props => <MailBoxList {...props} user={user} />} />
-            <Route path="/inbox/:id" component={(props) => (<MailDetail {...props} user={user} />)} />
+            <Route path="/inbox/:id" component={(props) => (<MailDetail {...props} user={user} backToInbox={true} />)} />
           </Switch>
         </Grid>
       </Grid>

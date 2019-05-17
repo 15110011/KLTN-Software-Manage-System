@@ -90,6 +90,7 @@ function FollowUpDetail(props) {
   const [viewingOrder, setViewingOrder] = React.useState(0)
   const [stepDetail, setStepDetail] = React.useState([])
   const [update, setUpdate] = React.useState(0)
+  const [backToInbox, setBackToInbox] = React.useState(false)
 
   React.useEffect(() => {
     if (followup) {
@@ -528,7 +529,9 @@ function FollowUpDetail(props) {
             <form onSubmit={handleUpdateStepDetail}>
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).length == 0 &&
-                <MailDetail />
+                <Grid className="pt-3">
+                  <MailDetail backToInbox={backToInbox} />
+                </Grid>
               }
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).map((iKey, index) => {
