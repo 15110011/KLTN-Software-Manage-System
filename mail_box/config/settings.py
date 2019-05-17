@@ -50,7 +50,7 @@ INSTALLED_APPS = [
     'prettyjson',
     'rest_framework',
     "django_rq",
-    'inbox'
+    'inbox',
 ]
 
 MIDDLEWARE = [
@@ -121,6 +121,15 @@ RQ_QUEUES = {
 ELASTICSEARCH_DSL = {
     'default': {
         'hosts': os.getenv('ELASTICSEARCH_URL', 'elasticsearch:9200')
+    },
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [('redis', 6379)],
+        },
     },
 }
 

@@ -12,15 +12,19 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.user_id = self.scope['url_route']['kwargs']['user_id']
+        await self.channel_layer.group_add(
+            'mailbox',
+            self.channel_name
+        )
         gmail = GmailService()
         if cache.get(f'user_{self.user_id}') is not None:
-            return await self.send_json({
+            return self.send_json({
                 "data": cache.get(f'user_{self.user_id}')
             })
         user_email = await self.get_email_db(self.user_id)
         if len(user_email) == 0:
-            return await self.send_json({
-                "data": []
+            return self.send_json({
+                "data": user_email
             })
         else:
             data = []
@@ -28,15 +32,22 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
                 email_details = gmail.get_message(mail['message_id'])
                 data.append(email_details)
             cache.set(f'user_{self.user_id}', data, timeout=3600)
-            return await self.send_json({
+            return self.send_json({
                 "data": data
             })
 
     async def disconnect(self, close_code):
-        pass
+        await self.channel_layer.group_discard(
+            'mailbox',
+            self.channel_name
+        )
+        self.close()
 
     async def receive_json(self, content):
         pass
+
+    async def email_message(self, event):
+        print (event['message'])
 
     @database_sync_to_async
     def create_email_db(self, data):

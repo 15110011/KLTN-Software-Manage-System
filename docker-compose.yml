@@ -18,6 +18,7 @@ services:
     build: ./mail_box
     environment:
       - PGHOST=postgres
+      - GOOGLE_APPLICATION_CREDENTIALS="${GOOGLE_APPLICATION_CREDENTIALS}"
     volumes:
     - ./mail_box:/codebase
     ports:
