@@ -40,7 +40,7 @@ function Overview(props) {
   return (
     <div>
       <Grid container spacing={24}>
-        <Grid item xs={3}>
+        <Grid item xs={6} md={4} lg={3}>
           <StatsCard
             icon={MarketingListIcon}
             iconColor="primary"
@@ -52,7 +52,7 @@ function Overview(props) {
             statLink={{ text: "In this month" }}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={6} md={4} lg={3}>
           <StatsCard
             icon={FollowUpPlanIcon}
             iconColor="orange"
@@ -64,7 +64,7 @@ function Overview(props) {
             statLink={{ text: "In this month" }}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={6} md={4} lg={3}>
           <StatsCard
             icon={SuccessIcon}
             iconColor="green"
@@ -76,7 +76,7 @@ function Overview(props) {
             statLink={{ text: "In this month" }}
           />
         </Grid>
-        <Grid item xs={3}>
+        <Grid item xs={6} md={4} lg={3}>
           <StatsCard
             icon={FailedIcon}
             iconColor="red"

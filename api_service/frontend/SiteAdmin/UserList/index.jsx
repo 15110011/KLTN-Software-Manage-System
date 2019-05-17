@@ -8,13 +8,13 @@ import CreateUser from '../CreateUser';
 import useFetchData from '../../CustomHook/useFetchData'
 
 // API
-import { RegisterURL } from '../../common/urls';
+import { USER_URL } from '../../common/urls';
 import { apiPost, apiGet } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
 function UserList(props) {
   const [createUserDialog, setCreateUserDialog] = React.useState(false)
-  const [userData, setUserData] = useFetchData(RegisterURL, props.history, {
+  const [userData, setUserData] = useFetchData(USER_URL, props.history, {
     data: [],
     total: 0
   })
@@ -29,6 +29,9 @@ function UserList(props) {
     setCreateUserDialog(false)
   }
 
+  let activePage = 0
+
+  console.log(userData)
   return (
     <div className={classes.root}>
       <CreateUser createUserDialog={createUserDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />
@@ -40,32 +43,23 @@ function UserList(props) {
               { title: 'Username', field: 'username' },
               { title: 'Email', field: 'email' },
               { title: 'Phone', field: 'phone' },
-              { title: 'Role', field: 'role' },
+              {
+                title: 'Role', field: 'role', lookup: {
+                  "Manager": "Manager", "Sale": "Sale"
+                }
+              },
             ]}
-            // data={(query) =>
-            //   new Promise((resolve, reject) => {
-            //     let searchString = `${search.username ? '&username=' + search.username : ''}`
-            //     searchString += `${search.email ? '&email=' + search.email : ''}`
-            //     searchString += `${search.phone ? '&phone=' + search.phone : ''}`
-            //     apiGet(RegisterURL + '/' + `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
-            //       const data = res.data.data.map((u, index) => ({
-            //         'numeral': activePage * query.pageSize + index + 1,
-            //         username: u.username,
-            //         email: u.email,
-            //         role: u.role,
-            //         phone: u.phone
-            //       })
-            //       )
-            //       resolve({
-            //         data,
-            //         page: res.data.page,
-            //         totalCount: res.data.total
-            //       })
-            //     })
-            //   })}
+            data={userData.data.map((u, index) => ({
+              'numeral': activePage * 5 + index + 1,
+              username: u.username,
+              email: u.email,
+              role: u.profile.is_manager ? 'Manager' : 'Sale',
+              phone: u.profile.phone
+            })
+            )}
             title="Manage User"
             options={{
-              search: false
+              filtering: true
             }}
             actions={[
               {

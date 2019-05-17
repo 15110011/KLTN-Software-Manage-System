@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView, UserView
 from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView, AssignedCampaigns
@@ -55,6 +55,7 @@ router.register('events', EventView, base_name='events')
 router.register('reports', ReportView, base_name='reports')
 # account app
 router.register('sale-reps', SaleRepView, base_name='sale-reps')
+router.register('users', UserView, base_name='users')
 #------------------------------------------------------------------------------------#
 
 urlpatterns = []

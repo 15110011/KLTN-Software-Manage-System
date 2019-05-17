@@ -51,12 +51,12 @@ function CreateUser(props) {
     apiPost(RegisterURL, user)
       .then(res => {
         if (res.data.code == BAD_REQUEST) {
-          if (res.data.message) errors.message = res.data.message
+          if (res.data.message) error.message = res.data.message
         }
         else {
           setSuccess(true)
         }
-        setError(errors)
+        setError(error)
       })
   }
 
@@ -224,10 +224,10 @@ function CreateUser(props) {
           </Grid>
         </DialogContent>
         <DialogActions style={{ padding: '0 40px' }}>
-          <Button onClick={props.handleCloseDialog} color="default">
+          <Button variant="contained" onClick={props.handleCloseDialog} color="default">
             Cancel
             </Button>
-          <Button type="submit" color="primary">
+          <Button variant="contained" type="submit" color="primary">
             Create
             </Button>
         </DialogActions>

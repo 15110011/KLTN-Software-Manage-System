@@ -8,6 +8,7 @@ export const MeAPI = `${API_URL}me`
 export const LogoutURL = `${API_URL}logout`
 export const LoginURL = `${API_URL}login`
 export const RegisterURL = `${API_URL}register`
+export const USER_URL = `${API_URL}users`
 
 export const REFRESH_TOKEN_URL = `${API_URL}token/refresh`
 

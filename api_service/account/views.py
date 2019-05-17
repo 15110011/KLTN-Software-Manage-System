@@ -126,6 +126,18 @@ class RegisterView(generics.CreateAPIView):
 
         return Response(data, status=status.HTTP_200_OK, headers=headers)
 
+class UserView(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects
+    serializer_class = serializers.MeSerializer
+    http_method_names = ['get']
+
+    def list(self, request, *args, **kwargs):
+
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+
+        return Response({"data": serializer.data, "total": len(serializer.data)})
+
 
 class SaleRepView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)

@@ -85,7 +85,7 @@ const ProductCharts = (props) => {
 
   return (
     <Grid container spacing={8}>
-      <Grid item xs={6}>
+      <Grid item xs={6} md={12} lg={12}>
         <Paper>
           <Card plain >
             <CardHeader icon color="success">
@@ -145,7 +145,7 @@ const ProductCharts = (props) => {
           </Card>
         </Paper>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item item xs={6} md={12} lg={12}>
         <Paper>
           <Card plain >
             <CardHeader icon>
