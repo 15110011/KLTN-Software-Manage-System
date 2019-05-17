@@ -6,4 +6,5 @@ RUN mkdir /codebase
 ADD . /codebase/
 WORKDIR /codebase
 RUN pipenv install --skip-lock
+RUN pipenv install psycopg2-binary --skip-lock
 CMD pipenv run python manage.py runserver 0.0.0.0:8001

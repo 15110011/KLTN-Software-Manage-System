@@ -47,7 +47,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         pass
 
     async def email_message(self, event):
-        print (event['message'])
+        await self.send_json({"data": event['message']})
 
     @database_sync_to_async
     def create_email_db(self, data):
