@@ -305,7 +305,7 @@ function OrderDetail(props) {
               <Tab
                 disableRipple
                 classes={{ root: classes.tabRoot, selected: classes.tabSelected }}
-                label="Description"
+                label="Monthly"
               />
               <Tab
                 disableRipple
