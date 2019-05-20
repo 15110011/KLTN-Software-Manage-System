@@ -18,6 +18,9 @@ import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import MuiExpansionPanel from '@material-ui/core/ExpansionPanel';
+import MuiExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import MuiExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import { Editor } from "react-draft-wysiwyg";
 import "../../common/react-draft-wysiwyg.css";
 import styles from './MailBoxListStyle.js'
@@ -27,21 +30,34 @@ function MailDetail(props) {
 
   const { classes, history, backToInbox } = props
 
-  const [expanded, setExpanded] = React.useState(false)
+  const [expanded, setExpanded] = React.useState(null)
   const [noExpand, setNoExpand] = React.useState(true)
   const [open, setOpen] = React.useState(true)
-  const [isReply, setIsReply] = React.useState(false)
+  const [isReply, setIsReply] = React.useState([])
+  const [showReply, setShowReply] = React.useState(false)
+
+  // API FETCH MAILS
+  //res
+  //setIsReply(Array.of({length: res.data.length}, (v,i)=> false))
+
   const handleReply = () => {
-    setIsReply(true)
+    setIsReply(!isReply)
   }
   const handleExpandMore = () => {
     setExpanded(!expanded)
     setNoExpand(!noExpand)
   }
 
-  const handleClick = () => {
-    setOpen(!open);
+  const handleChange = panel => (event, expanded) => {
+    // setExpanded(expanded ? panel : false);
+    // setShowReply(!showReply)
+    setNoExpand(!noExpand)
   };
+
+  const handleShowReply = () => {
+    setShowReply(!showReply)
+  };
+
 
   return (
     <div className={classes.root}>
@@ -63,109 +79,207 @@ function MailDetail(props) {
                 <ListItemAvatar>
                   <Avatar className={classes.purpleAvatar}>T</Avatar>
                 </ListItemAvatar>
-                <ListItemText
-                  primary="Dang Van Minh"
-                  secondary={
-                    <React.Fragment>
-                      {
-                        noExpand &&
-                        <>
+                <ExpansionPanel
+                  style={{ margin: 'unset' }}
+                  classes={{ root: classes.expandCus }}
+                  // expanded={expanded === 'panel2'}
+                  onChange={handleChange()}
+                // onClick={handleShowReply}
+                >
+                  <ExpansionPanelSummary
+                    classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                  >
+                    <ListItemText
+                      primary="Dang Van Minh"
+                      secondary={
+                        <React.Fragment>
                           <Typography component="span" className={classes.inline} color="textPrimary">
                             {'<'}hepmy666@gmail.com{'>'}
                           </Typography>
-                          <div onClick={handleExpandMore} className="my-3" style={{ color: 'black', cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: 'dasdasdasd...' }}>
-
-                          </div>
-                        </>
+                          {noExpand &&
+                            <div className={classes.etcDot}>
+                              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                              Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                              when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                            </div>
+                          }
+                        </React.Fragment>
                       }
-                      {
-                        expanded &&
-                        <div onClick={handleExpandMore} className="my-3" style={{ color: 'black', cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: '12asdasdasdasdasjasdhaskdhasdhk' }}>
-                        </div>
-                      }
-                    </React.Fragment>
-                  }
-                />
+                    />
+                    <ListItemText
+                      secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                    />
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails>
+                    <Grid container spacing>
+                      <Grid item xs={11}>
+                        <Typography variant="span">
+                          Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                          Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                          when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                    </Typography>
+                      </Grid>
+                      <Grid item xs={1}>
+                        <IconButton
+                          onClick={() => { handleReply() }}
+                          style={{ outline: 'none', float: 'right' }}
+                        >
+                          <ReplyIcon fontSize="small" />
+                        </IconButton>
+                      </Grid>
+                      <Grid item xs={12}>
+                        {
+                          isReply &&
+                          <Paper style={{ padding: '15px', marginTop: '20px' }}>
+                            <Grid container>
+                              <Grid item xs={12} style={{ display: 'inline-flex' }}>
+                                <ReplyIcon fontSize="small" />
+                                &nbsp;
+                          <Typography variant="span">
+                                  Thao Nguyen
+                          </Typography>
+                              </Grid>
+                              &nbsp;
+                      <Editor
+                                // editorState={editorState}
+                                wrapperClassName="editor-wrapper"
+                                editorClassName="editor"
+                              // onEditorStateChange={onEditorStateChange}
+                              />
+                            </Grid>
+                            <Grid item xs={12} style={{ display: 'flex', paddingTop: '15px', justifyContent: 'flex-end' }}>
+                              <Button
+                                variant="contained" color="primary" className={classes.button}>
+                                Send
+                        </Button>
+                              &nbsp;
+                        <Button
+                                onClick={() => setIsReply(false)}
+                                variant="contained" color="default" className={classes.button}>
+                                Cancel
+                        </Button>
+                            </Grid>
+                          </Paper>
+                        }
+                      </Grid>
+                    </Grid>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
               </ListItem>
               <Divider />
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
                   <Avatar className={classes.purpleAvatar}>T</Avatar>
                 </ListItemAvatar>
-                <ListItemText
-                  primary="Thao Nguyen"
-                  secondary={
-                    <React.Fragment>
-                      {
-                        noExpand &&
-                        <>
+                <ExpansionPanel
+                  style={{ margin: 'unset' }}
+                  classes={{ root: classes.expandCus }}
+                  // expanded={expanded === 'panel2'}
+                  onChange={handleChange()}
+                // onChange={handleChange('panel2')}
+                // onClick={handleShowReply}
+                >
+                  <ExpansionPanelSummary
+                    classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                  >
+                    <ListItemText
+                      primary="Dang Van Minh"
+                      secondary={
+                        <React.Fragment>
                           <Typography component="span" className={classes.inline} color="textPrimary">
-                            {'<'}thaocuvu@gmail.com{'>'}
+                            {'<'}hepmy666@gmail.com{'>'}
                           </Typography>
-                          <div onClick={handleExpandMore} className="my-3" style={{ color: 'black', cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: 'dasdasdasd...' }}>
-                          </div>
-                        </>
+                          {noExpand &&
+                            <div className={classes.etcDot}>
+                              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                              Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                              when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                            </div>
+                          }
+                        </React.Fragment>
                       }
-                      {
-                        expanded &&
-                        <div onClick={handleExpandMore} className="my-3" style={{ color: 'black', cursor: 'pointer' }} dangerouslySetInnerHTML={{ __html: '12asdasdasdasdasjasdhaskdhasdhk' }}>
-                        </div>
-                      }
-                    </React.Fragment>
-                  }
-                />
-              </ListItem>
-              <Grid container spacing={8}>
-                <Grid item xs={12}>
-                  <Button
-                    onClick={() => { handleReply() }}
-                    style={{ margin: '15px 0 0 25px' }} variant="outlined" color="default" className={classes.button}>
-                    <ReplyIcon fontSize="small" />
-                    &nbsp;
-                    Reply
-                  </Button>
-                </Grid>
-                <Grid style={{ padding: '20px' }} item xs={12}>
-                  {
-                    isReply &&
-                    <Paper style={{ padding: '15px' }}>
-                      <Grid container>
-                        <Grid item xs={12} style={{ display: 'inline-flex' }}>
+                    />
+                    <ListItemText
+                      secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                    />
+                  </ExpansionPanelSummary>
+
+                  <ExpansionPanelDetails>
+                    <Grid container spacing>
+                      <Grid item xs={11}>
+                        <Typography variant="span">
+                          Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+                          Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
+                          when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                    </Typography>
+                      </Grid>
+                      <Grid item xs={1}>
+                        <IconButton
+                          onClick={() => { handleReply() }}
+                          style={{ outline: 'none', float: 'right' }}
+                        >
                           <ReplyIcon fontSize="small" />
-                          &nbsp;
+                        </IconButton>
+                      </Grid>
+                      <Grid item xs={12}>
+                        {
+                          isReply &&
+                          <Paper style={{ padding: '15px', marginTop: '20px' }}>
+                            <Grid container>
+                              <Grid item xs={12} style={{ display: 'inline-flex' }}>
+                                <ReplyIcon fontSize="small" />
+                                &nbsp;
                           <Typography variant="span">
-                            Thao Nguyen
+                                  Thao Nguyen
                           </Typography>
-                        </Grid>
-                        &nbsp;
+                              </Grid>
+                              &nbsp;
                       <Editor
-                          // editorState={editorState}
-                          wrapperClassName="editor-wrapper"
-                          editorClassName="editor"
-                        // onEditorStateChange={onEditorStateChange}
-                        />
-                      </Grid>
-                      <Grid item xs={12} style={{ display: 'flex', paddingTop: '15px', justifyContent: 'flex-end' }}>
-                        <Button
-                          variant="contained" color="primary" className={classes.button}>
-                          Send
+                                // editorState={editorState}
+                                wrapperClassName="editor-wrapper"
+                                editorClassName="editor"
+                              // onEditorStateChange={onEditorStateChange}
+                              />
+                            </Grid>
+                            <Grid item xs={12} style={{ display: 'flex', paddingTop: '15px', justifyContent: 'flex-end' }}>
+                              <Button
+                                variant="contained" color="primary" className={classes.button}>
+                                Send
                         </Button>
-                        &nbsp;
+                              &nbsp;
                         <Button
-                          onClick={() => setIsReply(false)}
-                          variant="contained" color="default" className={classes.button}>
-                          Cancel
+                                onClick={() => setIsReply(false)}
+                                variant="contained" color="default" className={classes.button}>
+                                Cancel
                         </Button>
+                            </Grid>
+                          </Paper>
+                        }
                       </Grid>
-                    </Paper>
-                  }
-                </Grid>
-              </Grid>
+                    </Grid>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              </ListItem>
             </List>
+            <Divider />
+            <Grid container spacing={8}>
+              <Grid item xs={12}>
+                <Button
+                  onClick={() => { handleReply() }}
+                  style={{ margin: '15px 0 0 25px' }} variant="outlined" color="default" className={classes.button}>
+                  <ReplyIcon fontSize="small" />
+                  &nbsp;
+                  Reply
+                  </Button>
+              </Grid>
+              <Grid style={{ padding: '20px' }} item xs={12}>
+
+              </Grid>
+            </Grid>
           </Paper>
         </Grid>
       </Grid>
-    </div>
+    </div >
   )
 }
 
