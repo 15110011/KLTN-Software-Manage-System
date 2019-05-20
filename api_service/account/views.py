@@ -31,7 +31,6 @@ import datetime
 
 log = logging.getLogger('account')
 
-now = datetime.datetime.now()
 # Create your views here.
 
 

@@ -55,7 +55,8 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
             MailBox(
                 user_id=d['user_id'],
                 message_id=d['message_id'],
-                message_history=d['message_history']
+                thread_id=d['thread_id'],
+                email_type=d['email_type']
             )
             for d in data
         ]
