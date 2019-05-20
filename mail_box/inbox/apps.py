@@ -28,17 +28,18 @@ class InboxConfig(AppConfig):
                 mail.save()
                 return
             history = gmail.get_history(mail[0]['history_id'], 'INBOX')
-            channel_layer = get_channel_layer()
-            if len(history['messages']) == 0:
-                return
-            for email in history['messages']:
-                new_msg = gmail.get_message(email['message_id'])
-                async_to_sync(channel_layer.group_send)('mailbox', {
-                    "type": "email.message",
-                    "message": new_msg
-                })
-            mail = MailHistory(history_id=history_id)
-            mail.save()
-            message.ack()
+            print (history)
+            if len(history['messages']) > 0:
+                channel_layer = get_channel_layer()
+                for email in history['messages']:
+                    new_msg = gmail.get_message(email['message_id'])
+                    print (new_msg)
+                    async_to_sync(channel_layer.group_send)('mailbox', {
+                        "type": "email.message",
+                        "message": new_msg
+                    })
+                mail = MailHistory(history_id=history_id)
+                mail.save()
+                message.ack()
         subscriber.subscribe(
             'projects/theaqvteam/subscriptions/mail-box', callback=callback)

@@ -108,3 +108,6 @@ class GmailService:
         email = service.users().messages().send(
             userId='me', body={'raw': raw}).execute()
         return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
+
+gmail = GmailService()
+gmail.get_service()
