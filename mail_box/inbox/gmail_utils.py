@@ -12,6 +12,7 @@ import os
 import time
 import email
 import base64
+import json
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -103,14 +104,7 @@ class GmailService:
         message['from'] = data['from']
         message['subject'] = data['subject']
         raw = base64.urlsafe_b64encode(
-            message.as_bytes())
+            message.as_bytes()).decode()
         email = service.users().messages().send(
-            userId='me', body=raw, threadId=threadId)
-        return {"message_id": email['id'], "thread_id": email['threadId']}
-
-data['to'] = 'vothanhtruongquang@gmail.com'
-data['from'] = 'theaqvteam@gmail.com'
-data['subject'] = 'Test gui email'
-data['message'] = 'Thu coi gui duoc ko'
-gmail = GmailService()
-gmail.send_message(data)
+            userId='me', body={'raw': raw}).execute()
+        return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
