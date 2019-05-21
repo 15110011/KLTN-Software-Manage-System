@@ -79,8 +79,22 @@ class GmailService:
     def get_thread(self, thread_id):
         service = self.get_service()
         thread = service.users().threads().get(userId='me', id=thread_id).execute()
-        messages_id = [msg['id'] for msg in thread['messages']]
-        return {"messages_id": messages_id}
+        data = []
+        for msg in thread['messages']:
+            subject = [s['value']
+                       for s in msg['payload']['headers'] if s['name'] == 'Subject']
+            from_email = [f['value']
+                          for f in msg['payload']['headers'] if f['name'] == 'From']
+            if 'data' in msg['payload']['body']:
+                message = msg['payload']['body']['data']
+                message = base64.urlsafe_b64decode(message)
+                message = str(message, 'utf-8')
+            elif 'data' in msg['payload']['parts'][1]['body']:
+                message = msg['payload']['parts'][1]['body']['data']
+                message = base64.urlsafe_b64decode(message)
+                message = str(message, 'utf-8')
+            data.append({"message": message, "history_id": msg['historyId'], "subject": subject, "from": from_email})
+        return {"messages": data}
 
     def get_history(self, history_id, labelId=None, historyTypes=None, maxResults=None, pageToken=None):
         service = self.get_service()

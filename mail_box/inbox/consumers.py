@@ -18,23 +18,21 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         )
         gmail = GmailService()
         if cache.get(f'user_{self.user_id}') is not None:
-            return self.send_json({
+            return await self.send_json({
                 "data": cache.get(f'user_{self.user_id}')
             })
-        user_email = await self.get_email_db(self.user_id)
-        if len(user_email) == 0:
-            return self.send_json({
-                "data": user_email
-            })
-        else:
-            data = []
-            for mail in user_email:
-                email_details = gmail.get_message(mail['message_id'])
-                data.append(email_details)
-            cache.set(f'user_{self.user_id}', data, timeout=3600)
-            return self.send_json({
-                "data": data
-            })
+        return await self.send_json({
+            "data": []
+        })
+        # else:
+        #     data = []
+        #     for mail in user_email:
+        #         email_details = gmail.get_message(mail['message_id'])
+        #         data.append(email_details)
+        #     cache.set(f'user_{self.user_id}', data, timeout=3600)
+        #     return self.send_json({
+        #         "data": data
+        #     })
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
@@ -47,7 +45,13 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         pass
 
     async def email_message(self, event):
-        await self.send_json({"data": event['message']})
+        gmail = GmailService()
+        user_email = await self.get_email_user_db(event['thread_id'])
+        if self.user_id == int(user_email[0]['user_id']):
+            cache.delete_pattern(f'user_{self.user_id}')
+            messages = gmail.get_thread(event['thread_id'])
+            cache.set(f'user_{self.user_id}', messages, timeout=None)
+            await self.send_json({"data": messages})
 
     @database_sync_to_async
     def create_email_db(self, data):
@@ -64,7 +68,13 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
 
     @database_sync_to_async
     def get_email_db(self, user_id):
-        queryset = MailBox.objects.filter(user_id=user_id)
-        data = serializers.MailBoxSerializer(queryset, many=True).data
+        queryset = MailBox.objects.filter(
+            user_id=user_id)
+        data = [model_to_dict(d) for d in queryset]
         return data
 
+    @database_sync_to_async
+    def get_email_user_db(self, thread_id):
+        queryset = MailBox.objects.filter(thread_id=thread_id)
+        data = [model_to_dict(d) for d in queryset]
+        return data

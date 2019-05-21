@@ -27,7 +27,7 @@ services:
       - postgres
       - redis
       - elasticsearch
-    restart: always
+    # restart: always
 
   postgres:
     image: postgres:alpine

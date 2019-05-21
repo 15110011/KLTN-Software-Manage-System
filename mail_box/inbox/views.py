@@ -11,11 +11,11 @@ from .gmail_utils import GmailService
 def send_email(request):
     data = request.data.get('data', None)
     gmail = GmailService()
-    mail = gmail.send_email(data)
+    mail = gmail.send_message(data)
     models.MailBox.objects.create(
         user_id=data['user_id'],
-        message_id=data['message_id'],
-        thread_id=data['thread_id'],
+        message_id=mail['message_id'],
+        thread_id=mail['thread_id'],
         email_type='SENT'
     )
     return Response({"message": "SEND_EMAIL_SUCCESSFULLY"})
