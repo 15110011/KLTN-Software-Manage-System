@@ -4,9 +4,18 @@ from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from . import serializers
 from . import models
+from .gmail_utils import GmailService
 # Create your views here.
 
-
-# class MailBoxViewSet(ModelViewSet):
-#     serializer_class = serializers.MailBoxSerializer
-#     queryset = models.MailBox.objects
+@api_view(['POST'])
+def send_email(request):
+    data = request.data.get('data', None)
+    gmail = GmailService()
+    mail = gmail.send_message(data)
+    models.MailBox.objects.create(
+        user_id=data['user_id'],
+        message_id=mail['message_id'],
+        thread_id=mail['thread_id'],
+        email_type='SENT'
+    )
+    return Response({"message": "SEND_EMAIL_SUCCESSFULLY"})
