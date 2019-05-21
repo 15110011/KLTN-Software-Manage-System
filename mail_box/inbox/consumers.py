@@ -16,6 +16,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
             'mailbox',
             self.channel_name
         )
+
         gmail = GmailService()
         if cache.get(f'user_{self.user_id}') is not None:
             return self.send_json({
@@ -47,7 +48,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         pass
 
     async def email_message(self, event):
-        await self.send_json({"data": event['message']})
+        await self.send_json({"type": 'single' ,"data": event['message']})
 
     @database_sync_to_async
     def create_email_db(self, data):
