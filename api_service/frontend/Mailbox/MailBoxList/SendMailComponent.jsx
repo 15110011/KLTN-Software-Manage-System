@@ -27,10 +27,61 @@ import { Editor } from "react-draft-wysiwyg";
 import "../../common/react-draft-wysiwyg.css";
 import styles from './MailBoxListStyle.js'
 import SideBarMailBox from './SideBarMailBox'
+// API
+import { apiGet, apiPost } from '../../common/Request';
+import { SEND_EMAIL, REFRESH_TOKEN_URL } from '../../common/urls'
+import { BAD_REQUEST, } from "../../common/Code";
+import { htmlToState, draftToRaw } from "../../common/utils";
+
 
 function SendMailComponent(props) {
 
-  const { classes } = props;
+  const { classes, handleCloseReply, user, setIsReply } = props;
+  const [sendEmail, setSendEmail] = React.useState({
+    user_id: user.id,
+    to: '',
+    from: '',
+    subject: '',
+    message: ''
+  })
+  const [editorState, setEditorState] = React.useState(htmlToState(""))
+
+
+  const handleSendEmail = () => {
+    const data = {
+      ...sendEmail,
+      message: draftToRaw(editorState),
+    }
+    apiPost(SEND_EMAIL, { data }, false, false)
+      .then(res => {
+        if (res.data.code == "token_not_valid") {
+          apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
+            if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
+              props.history.push('/logout')
+            }
+            else {
+              localStorage.setItem("token", res.data.access)
+              // notification()
+            }
+          })
+        }
+        else if (res.data.code == BAD_REQUEST) {
+          setError(res.data)
+        }
+        else {
+          // notification()
+          // setCreateCampaignDialog(false)
+        }
+      })
+  }
+
+  const onChangeSendMail = e => {
+    setSendEmail({ [e.target.name]: e.target.value })
+  }
+
+  const onEditorStateChange = editorState => {
+    setEditorState(editorState)
+  };
 
   return (
     <Paper style={{ padding: '15px', marginTop: '20px' }}>
@@ -44,20 +95,24 @@ function SendMailComponent(props) {
         </Grid>
         &nbsp;
            <Editor
-          // editorState={editorState}
+          editorState={editorState}
           wrapperClassName="editor-wrapper"
           editorClassName="editor"
-        // onEditorStateChange={onEditorStateChange}
+          onEditorStateChange={onEditorStateChange}
         />
       </Grid>
       <Grid item xs={12} style={{ display: 'flex', paddingTop: '15px', justifyContent: 'flex-end' }}>
         <Button
-          variant="contained" color="primary" className={classes.button}>
+          variant="contained"
+          color="primary"
+          className={classes.button}
+          onClick={() => handleSendEmail()}
+        >
           Send
           </Button>
         &nbsp;
           <Button
-          onClick={() => setIsReply(false)}
+          onClick={() => handleCloseReply(false)}
           variant="contained" color="default" className={classes.button}>
           Cancel
           </Button>

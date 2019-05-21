@@ -28,17 +28,32 @@ import "../../common/react-draft-wysiwyg.css";
 import styles from './MailBoxListStyle.js'
 import SideBarMailBox from './SideBarMailBox'
 import SendMailComponent from './SendMailComponent'
+import { initMailWebsocket } from '../../common/Utils';
 
 function MailDetail(props) {
 
-  const { classes, history, backToInbox } = props
+  const { classes, history, backToInbox, user } = props
 
   const [expanded, setExpanded] = React.useState(null)
-  const [noExpand, setNoExpand] = React.useState(true)
+  const [noExpand, setNoExpand] = React.useState([])
   const [open, setOpen] = React.useState(true)
   const [isReply, setIsReply] = React.useState([])
   const [showReply, setShowReply] = React.useState(false)
   const [anchorElAdd, setAnchorElAdd] = React.useState(null)
+  const [socket, setSocket] = React.useState(null)
+  const [emails, setEmails] = React.useState([])
+  
+
+  React.useEffect(() => {
+    const ws = initMailWebsocket(user.id)
+    setSocket(ws)
+    ws.onmessage = event => {
+      let response = JSON.parse(event.data)
+      setEmails(response)
+      setIsReply(Array.from({ length: response.data.messages.length }, (v, i) => false))
+      setNoExpand(Array.from({ length: response.data.messages.length }, (p, i) => true))
+    }
+  }, [])
 
   const handleClick = event => {
     setAnchorElAdd(event.currentTarget);
@@ -48,28 +63,35 @@ function MailDetail(props) {
     setAnchorElAdd(null);
   };
 
-
-  // API FETCH MAILS
-  //res
-  //setIsReply(Array.of({length: res.data.length}, (v,i)=> false))
-
-  const handleReply = () => {
-    setIsReply(true)
+  const handleCloseReply = (i) => {
+    let cloneIsReply = [...isReply]
+    cloneIsReply[i] = false
+    setIsReply(cloneIsReply)
   }
 
-  const handleSendEmail = () => {
-    setIsReply(false)
+  const handleReply = (i) => {
+    let cloneIsReply = [...isReply]
+    cloneIsReply[i] = !cloneIsReply[i]
+    setIsReply(cloneIsReply)
   }
-  const handleExpandMore = () => {
-    setExpanded(!expanded)
-    setNoExpand(!noExpand)
-  }
+
+  console.log(emails)
+
+
 
   const handleChange = panel => (event, expanded) => {
     // setExpanded(expanded ? panel : false);
     // setShowReply(!showReply)
-    setNoExpand(!noExpand)
+    // setNoExpand(!noExpand)
   };
+
+  const handleExpand = (i) => {
+    let cloneNoExpand = [...noExpand]
+    cloneNoExpand[i] = !cloneNoExpand[i]
+    setNoExpand(cloneNoExpand)
+  };
+  console.log(emails)
+  console.log(noExpand)
 
   const handleShowReply = () => {
     setShowReply(!showReply)
@@ -92,68 +114,150 @@ function MailDetail(props) {
               }
             </Grid>
             <List>
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar className={classes.pinkAvatar}>M</Avatar>
-                </ListItemAvatar>
-                <ExpansionPanel
-                  style={{ margin: 'unset' }}
-                  classes={{ root: classes.expandCus }}
-                  // expanded={expanded === 'panel2'}
-                  onChange={handleChange()}
-                // onClick={handleShowReply}
-                >
-                  <ExpansionPanelSummary
-                    classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
-                  >
-                    <ListItemText
-                      primary="Dang Van Minh"
-                      secondary={
-                        <React.Fragment>
-                          <Typography component="span" className={classes.inline} color="textPrimary">
-                            {'<'}hepmy666@gmail.com{'>'}
-                          </Typography>
-                          {noExpand &&
-                            <div className={classes.etcDot}>
-                              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                              Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                              when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                            </div>
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                    <ListItemText
-                      secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
-                    />
-                  </ExpansionPanelSummary>
-                  <ExpansionPanelDetails>
-                    <Grid container spacing>
-                      <Grid item xs={11}>
-                        <Typography variant="span">
-                          Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                          Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                          when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                    </Typography>
-                      </Grid>
-                      <Grid item xs={1}>
-                        <IconButton
-                          onClick={() => { handleReply() }}
-                          style={{ outline: 'none', float: 'right' }}
+              {
+                emails.data && emails.data.messages.map((e, i) => {
+                  if (e.from.length > 0) {
+                    let name = ''
+                    let mail = ''
+                    let fromName = e.from[0].match(/(.+) (<.+>)/)
+                    name = fromName[1]
+                    mail = fromName[2]
+                    return (
+                      <ListItem key={i} alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar className={classes.pinkAvatar}>M</Avatar>
+                        </ListItemAvatar>
+                        <ExpansionPanel
+                          style={{ margin: 'unset' }}
+                          classes={{ root: classes.expandCus }}
+                          // expanded={expanded === 'panel2'}
+                          onChange={(e) => handleChange(i)}
                         >
-                          <ReplyIcon fontSize="small" />
-                        </IconButton>
-                      </Grid>
-                      <Grid item xs={12}>
-                        {
-                          isReply &&
-                          <SendMailComponent />
-                        }
-                      </Grid>
-                    </Grid>
-                  </ExpansionPanelDetails>
-                </ExpansionPanel>
-              </ListItem>
+                          <ExpansionPanelSummary
+                            onClick={(e) => handleExpand(i)}
+                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                          >
+                            <ListItemText
+                              primary={
+                                name
+                              }
+                              secondary={
+                                <React.Fragment>
+                                  <Typography component="span" className={classes.inline} color="textPrimary">
+                                    {e.from ? 'to me' : mail}
+                                  </Typography>
+                                  {noExpand[i] &&
+                                    <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
+                                    </div>
+                                  }
+                                </React.Fragment>
+                              }
+                            />
+                            <ListItemText
+                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                            />
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Grid container spacing>
+                              <Grid item xs={11}>
+                                <Typography variant="span">
+                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={1}>
+                                <IconButton
+                                  onClick={(event) => {
+                                    handleReply(i)
+                                  }}
+                                  style={{ outline: 'none', float: 'right' }}
+                                >
+                                  <ReplyIcon fontSize="small" />
+                                </IconButton>
+                              </Grid>
+                              <Grid item xs={12}>
+                                {
+                                  isReply[i] &&
+                                  <SendMailComponent
+                                    handleCloseReply={() => handleCloseReply(i)}
+                                    user={user}
+                                    sendTo={}
+                                  />
+                                }
+                              </Grid>
+                            </Grid>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                      </ListItem>
+                    )
+                  } else {
+                    return (
+                      <ListItem key={i} alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar className={classes.pinkAvatar}>M</Avatar>
+                        </ListItemAvatar>
+                        <ExpansionPanel
+                          style={{ margin: 'unset' }}
+                          classes={{ root: classes.expandCus }}
+                          // expanded={expanded === 'panel2'}
+                          onChange={(e) => handleChange(i)}
+                        >
+                          <ExpansionPanelSummary
+                            onClick={(e) => handleExpand(i)}
+                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                          >
+                            <ListItemText
+                              primary={
+                                "theaqvteam@gmail.com"
+                              }
+                              secondary={
+                                <React.Fragment>
+                                  <Typography component="span" className={classes.inline} color="textPrimary">
+                                  </Typography>
+                                  {noExpand[i] &&
+                                    <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
+                                    </div>
+                                  }
+                                </React.Fragment>
+                              }
+                            />
+                            <ListItemText
+                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                            />
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Grid container spacing>
+                              <Grid item xs={11}>
+                                <Typography variant="span">
+                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
+                                </Typography>
+                              </Grid>
+                              <Grid item xs={1}>
+                                <IconButton
+                                  onClick={(event) => {
+                                    handleReply(i)
+                                  }}
+                                  style={{ outline: 'none', float: 'right' }}
+                                >
+                                  <ReplyIcon fontSize="small" />
+                                </IconButton>
+                              </Grid>
+                              <Grid item xs={12}>
+                                {
+                                  isReply[i] &&
+                                  <SendMailComponent
+                                    handleCloseReply={() => handleCloseReply(i)}
+                                    sendTo={}
+                                  />
+                                }
+                              </Grid>
+                            </Grid>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                      </ListItem>
+                    )
+                  }
+                })
+              }
               <Divider />
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
@@ -214,10 +318,10 @@ function MailDetail(props) {
                 }
               </Grid> */}
               <Grid item xs={12}>
-                {
+                {/* {
                   !isReply &&
                   <SendMailComponent />
-                }
+                } */}
                 <Button
                   onClick={handleClick}
                   style={{ margin: '15px 0 0 25px' }} variant="outlined" color="default" className={classes.button}>

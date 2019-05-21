@@ -2,7 +2,12 @@ const serverUrl = window.location.host.includes('localhost')
   ? 'http://localhost:8000'
   : `${window.location.protocol}//${window.location.host}`
 
+const serverUrl2 = window.location.host.includes('localhost')
+  ? 'http://localhost:8001'
+  : `${window.location.protocol}//${window.location.host}`
+
 const API_URL = `${serverUrl}/api/v1/`
+const API_URL2 = `${serverUrl2}/api/v1/`
 
 export const MeAPI = `${API_URL}me`
 export const LogoutURL = `${API_URL}logout`
@@ -48,10 +53,12 @@ export const GET_SALE_REPS_URL = `${API_URL}sale-reps`
 
 export const GMAIL_AUTH_URL = `${API_URL}gmail\\auth`
 export const GMAIL_SEND_URL = `${API_URL}gmail\\send`
+export const SEND_EMAIL = `${API_URL2}send-email`
 
 export const MAIL_TEMPLATES_URL = `${API_URL}mail-templates`
 
 export const WS_NOFICATION_URL = 'ws://localhost:8000/ws/notifications'
 export const WS_MAIL_URL = 'ws://localhost:8001/ws/mail-box'
+
 
 export { serverUrl, API_URL }

@@ -530,7 +530,10 @@ function FollowUpDetail(props) {
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).length == 0 &&
                 <Grid className="pt-3">
-                  <MailDetail backToInbox={backToInbox} />
+                  <MailDetail 
+                  backToInbox={backToInbox} 
+                  user={user} 
+                  />
                 </Grid>
               }
               {

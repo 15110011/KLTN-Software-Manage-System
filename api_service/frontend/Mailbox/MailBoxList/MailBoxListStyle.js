@@ -77,7 +77,8 @@ const styles = theme => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    width: '250px'
+    width: '250px',
+    height: '20px'
   },
   titleContent: {
     display: 'inline-flex'
@@ -95,8 +96,8 @@ const styles = theme => ({
   rowData: {
     '&:hover': {
       cursor: 'pointer',
-      boxShadow: 'inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15)';
-      zIndex: 1;
+      boxShadow: 'inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15)',
+      zIndex: 1,
       borderRadius: '3px'
     }
   },

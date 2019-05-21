@@ -66,7 +66,6 @@ function MailBoxList(props) {
     }
   }, [])
 
-  console.log(emails)
 
   const handleChange = (event, value) => {
     setValue(value)
