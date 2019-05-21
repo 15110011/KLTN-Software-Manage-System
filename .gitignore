@@ -7,7 +7,7 @@ node_modules/
 .vscode/
 .env
 *.swp
-# **/migrations
+**/migrations
 design
 
 

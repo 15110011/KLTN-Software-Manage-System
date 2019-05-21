@@ -1,5 +1,7 @@
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import deepPurple from '@material-ui/core/colors/deepPurple';
+import green from '@material-ui/core/colors/green';
+import pink from '@material-ui/core/colors/pink';
 
 const styles = theme => ({
   root: {
@@ -110,6 +112,16 @@ const styles = theme => ({
     margin: 10,
     color: '#fff',
     backgroundColor: deepPurple[500],
+  },
+  greenAvatar: {
+    margin: 10,
+    color: '#fff',
+    backgroundColor: green[500],
+  },
+  pinkAvatar: {
+    margin: 10,
+    color: '#fff',
+    backgroundColor: pink[500],
   },
 });
 

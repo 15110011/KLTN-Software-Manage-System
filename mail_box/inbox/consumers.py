@@ -16,6 +16,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
             'mailbox',
             self.channel_name
         )
+
         gmail = GmailService()
         if cache.get(f'user_{self.user_id}') is not None:
             return await self.send_json({

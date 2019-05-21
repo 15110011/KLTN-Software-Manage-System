@@ -13,6 +13,7 @@ class MailTemplate(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='mail_templates')
     name = models.CharField(max_length=255)
+    subject = models.CharField(max_length=255, default='Subject Template')
     template = models.TextField()
     is_public = models.BooleanField(default=False)
 

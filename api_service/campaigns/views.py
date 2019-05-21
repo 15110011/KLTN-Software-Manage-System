@@ -49,7 +49,7 @@ def ContactMatchConditions(request):
     for condition in conditions:
         if condition['operand'] == '1':
             if condition['operator'] == 'Equal to':
-                filters.add(Q(state=condition['data']), Q.AND)
+                filters.add(Q(state__in=condition['data']), Q.AND)
                 filters.add(Q(id__in=[c['id'] for c in contacts]), Q.AND)
                 queryset = Contact.objects.filter(filters)
                 queryset = ContactWithoutGroupSerializer(
@@ -57,7 +57,7 @@ def ContactMatchConditions(request):
                 return Response(queryset, status=status.HTTP_200_OK)
 
             if condition['operator'] == 'Not equal to':
-                excludes.add(Q(state=condition['data']), Q.AND)
+                excludes.add(Q(state__in=condition['data']), Q.AND)
                 filters.add(Q(id__in=[c['id'] for c in contacts]), Q.AND)
                 queryset = Contact.objects.exclude(excludes).filter(filters)
                 queryset = ContactWithoutGroupSerializer(

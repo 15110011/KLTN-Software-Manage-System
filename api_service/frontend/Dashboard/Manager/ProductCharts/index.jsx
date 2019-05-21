@@ -1,7 +1,7 @@
 import * as React from 'react'
 import { withStyles, Typography, MenuItem, Select, IconButton, Grid } from '@material-ui/core';
 import {
-  ComposedChart, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, LineChart
+  ComposedChart, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Line, LineChart, Label
 } from 'recharts'
 import * as NumberFormat from 'react-number-format';
 import Paper from '@material-ui/core/Paper'
@@ -67,7 +67,7 @@ const ProductCharts = (props) => {
 
   const [productData, setProductData, setUrl, forceUpdate] = useFetchData(ORDER_CHART_URL + `?chart_type=${chartType}&duration=${duration}`, null, null)
   const [licenseData, setLicenseData, setUrlLicense, forceUpdateLicense] = useFetchData(LICENSE_CHART_URL + `?duration=${duration}`, null, null)
-  
+
   const [selectTypeLineChart, setSelectTypeLineChart] = React.useState(
     'month'
   )
@@ -128,14 +128,18 @@ const ProductCharts = (props) => {
                       }
                     })}
                     margin={{
-                      top: 20, right: 20, bottom: 20, left: 20,
+                      top: 20, right: 20, bottom: 5, left: 20,
                     }}
                   >
                     <CartesianGrid stroke="#f5f5f5" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
+                    <XAxis dataKey="month" >
+                      <Label value="Month" offset={0} position="insideBottom" />
+                    </XAxis>
+                    <YAxis type="number">
+                      <Label value="Unit ($)" position="left" angle={-90} />
+                    </YAxis>
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Legend layout='vertical' align='right' verticalAlign='top' margin={{ left: 10 }} wrapperStyle={{ paddingLeft: '10px' }} />
                     <Bar dataKey="Income" barSize={20} fill="#413ea0" label={{ position: 'top' }} />
                     <Line type="monotone" dataKey="Income/Sales" stroke="#ff7300" />
                   </ComposedChart>
@@ -194,10 +198,14 @@ const ProductCharts = (props) => {
                     }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
+                    <XAxis dataKey="month">
+                      <Label value="Month" offset={0} position="insideBottom" />
+                    </XAxis>
+                    <YAxis>
+                      <Label value="Unit" position="left" angle={-90} />
+                    </YAxis>
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Legend layout='vertical' align='right' verticalAlign='top' wrapperStyle={{ paddingLeft: '10px' }} />
                     <Line type="monotone" dataKey="1 month" stroke="#8884d8" activeDot={{ r: 8 }} />
                     <Line type="monotone" dataKey="6 months" stroke="#82ca9d" />
                     <Line type="monotone" dataKey="12 months" stroke="#ffc658" />
