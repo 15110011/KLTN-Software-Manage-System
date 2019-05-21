@@ -56,76 +56,6 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null
 }
 
-const months = [
-  {
-    name: 'January',
-    value: '1'
-  },
-  {
-    name: 'February',
-    value: '2'
-  },
-  {
-    name: 'March',
-    value: '3'
-  },
-  {
-    name: 'April ',
-    value: '4'
-  },
-  {
-    name: 'May',
-    value: '5'
-  },
-  {
-    name: 'June',
-    value: '6'
-  },
-  {
-    name: 'July ',
-    value: '7'
-  },
-  {
-    name: 'August',
-    value: '8'
-  },
-  {
-    name: 'September',
-    value: '9'
-  },
-  {
-    name: 'October',
-    value: '10'
-  },
-  {
-    name: 'November',
-    value: '11'
-  },
-  {
-    name: 'December',
-    value: '12'
-  }
-]
-
-const quarters = [
-  {
-    name: 'Q1',
-    value: '1'
-  },
-  {
-    name: 'Q2',
-    value: '2'
-  },
-  {
-    name: 'Q3',
-    value: '3'
-  },
-  {
-    name: 'Q4',
-    value: '4'
-  },
-]
-
 const CustomerCharts = (props) => {
 
 
@@ -135,6 +65,8 @@ const CustomerCharts = (props) => {
   const [duration, setDuration] = React.useState('month')
 
   const [stateData, setStateData, setUrl, forceUpdate] = useFetchData(ORDER_CHART_URL + `?chart_type=state&duration=${duration}`, null, { data: [] })
+  const [activityData, setActivityData, setUrlActivity, forceUpdateActivity] = useFetchData(ORDER_CHART_URL + `?chart_type=active&duration=${duration}`, null, {})
+  console.log(activityData)
 
   const [selectTypeMap, setSelectTypeMap] = React.useState(
     'month'
@@ -170,9 +102,18 @@ const CustomerCharts = (props) => {
     acc += d.amount
     return acc
   }, 0)
+  let totalActive = Object.keys(activityData).reduce((acc, k) => {
+    acc += activityData[k]
+    return acc
+  }, 0)
 
   let regionData = stateData.data.reduce((acc, d) => {
     acc['US-' + d.code] = d.amount
+    return acc
+  }, {})
+
+  let activeRegionData = Object.keys(activityData).reduce((acc, k) => {
+    acc['US-' + k] = activityData[k]
     return acc
   }, {})
 
@@ -186,65 +127,6 @@ const CustomerCharts = (props) => {
                 <CategoryIcon />
               </CardIcon>
               <h4 className={classes.cardChartTitle}>Top 6 States
-              {/* <TextField
-                  select
-                  style={{ float: 'right', width: '100px' }}
-                  onChange={onChangeSelectWhichTypeMap}
-                  value={selectWhichTypeMap}
-                  inputProps={{
-                    name: 'selectWhichTypeMap',
-                  }}
-                >
-                  {
-                    selectTypeMap == 'month' &&
-                    months.map((m, i) => {
-                      return (
-                        <MenuItem key={i} value={m.value}>
-                          {m.name}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                  {
-                    selectTypeMap == 'quarter' &&
-                    quarters.map((q, i) => {
-                      return (
-                        <MenuItem key={i} value={q.value}>
-                          {q.name}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                  {
-                    selectTypeMap == 'year' &&
-                    years.map((y, i) => {
-                      return (
-                        <MenuItem key={i} value={y}>
-                          {y}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                </TextField> */}
-                {/* <TextField
-                  select
-                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
-                  onChange={onChangeSelectTypeMap}
-                  value={selectTypeMap}
-                  inputProps={{
-                    name: 'selectTypeMap',
-                  }}
-                >
-                  <MenuItem value="month">
-                    Month
-                      </MenuItem>
-                  <MenuItem value="quarter">
-                    Quarter
-                      </MenuItem>
-                  <MenuItem value="year">
-                    Year
-                      </MenuItem>
-                </TextField> */}
               </h4>
             </CardHeader>
             <CardBody>
@@ -324,7 +206,7 @@ const CustomerCharts = (props) => {
                         {
                           regions: [{
                             values: regionData,
-                            scale: ['#d3d3d3', '#424242'],
+                            scale: ['#01ff5b', '#ff0000'],
                             normalizeFunction: 'polynomial',
                             legend: {
                               // horizontal: true,
@@ -337,6 +219,117 @@ const CustomerCharts = (props) => {
                       containerClassName="map"
                       onRegionTipShow={(e, el, code) => {
                         el.html(el.html() + ': ' + (regionData[code] ? regionData[code] : 0))
+                      }
+                      }
+                    />
+
+                  </div>
+                </Grid>
+              </Grid>
+            </CardBody>
+          </Card>
+        </Paper>
+      </Grid>
+      <Grid item xs={12}>
+        <Paper>
+          <Card plain >
+            <CardHeader icon>
+              <CardIcon color="info">
+                <CategoryIcon />
+              </CardIcon>
+              <h4 className={classes.cardChartTitle}>Top 6 activities State
+              </h4>
+            </CardHeader>
+            <CardBody>
+              <Grid container>
+                <Grid item xs={5}>
+                  <Table>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Code</TableCell>
+                        <TableCell>State</TableCell>
+                        <TableCell style={{ textAlign: 'right' }}>No. Contacts</TableCell>
+                        <TableCell>Percentage</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {Object.keys(activityData).map((k, index) => {
+                        return (
+                          <TableRow>
+                            <TableCell>{k}</TableCell>
+                            <TableCell>{stateHashes[k]}</TableCell>
+                            <TableCell style={{ textAlign: 'right' }}>{activityData[k]}</TableCell>
+                            <TableCell>{(activityData[k] * 100 / totalActive).toFixed(2) + '%'}</TableCell>
+                          </TableRow>)
+                      })}
+                    </TableBody>
+                  </Table>
+                </Grid>
+                <Grid item xs={7}>
+                  <div style={{ witdh: '50%', height: '300px' }}>
+                    <VectorMap map={'us_aea'}
+                      backgroundColor="transparent"
+                      containerClassName="map"
+                      ref={vectorRef}
+                      containerStyle={{
+                        width: '100%',
+                        height: '100%'
+                      }}
+                      labels={
+                        {
+                          regions: {
+                            render: (code) => { return code.split('-')[1] },
+                            offsets: (code) => {
+                              return {
+                                'CA': [-10, 10],
+                                'ID': [0, 40],
+                                'OK': [25, 0],
+                                'LA': [-20, 0],
+                                'FL': [45, 0],
+                                'KY': [10, 5],
+                                'VA': [15, 5],
+                                'MI': [30, 30],
+                                'AK': [50, -25],
+                                'HI': [25, 50]
+                              }[code.split('-')[1]];
+                            }
+                          }
+                        }
+                      }
+                      regionStyle={{
+                        initial: {
+                          fill: "#e4e4e4",
+                          "fill-opacity": 0.9,
+                          stroke: "none",
+                          "stroke-width": 0,
+                          "stroke-opacity": 0
+                        }
+                      }}
+                      regionLabelStyle={{
+                        initial: {
+                          fill: '#fff'
+                        },
+                        hover: {
+                          fill: 'black'
+                        }
+                      }}
+                      series={
+                        {
+                          regions: [{
+                            values: activeRegionData,
+                            scale: ['#01ff5b', '#ff0000'],
+                            normalizeFunction: 'polynomial',
+                            legend: {
+                              // horizontal: true,
+                              // vertical: true,
+                              title: 'Amount Ranges',
+                            },
+                          }]
+                        }
+                      }
+                      containerClassName="map"
+                      onRegionTipShow={(e, el, code) => {
+                        el.html(el.html() + ': ' + (activeRegionData[code] ? activeRegionData[code] : 0))
                       }
                       }
                     />

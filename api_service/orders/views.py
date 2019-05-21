@@ -116,6 +116,8 @@ class OrderChartView(ModelViewSet):
                             'count': order_data[d['month_group']]['income']['products'][l['package']['product_']['id']]['count'] + l['package']['prices']['999999']
                         }
                 return Response(order_data)
+        if chart_type == 'active':
+            return Response(chart_handler.activity_chart(duration, filter_cat ))
         if chart_type == 'state':
             return Response(chart_handler.state_chart(duration, filter_cat, filters ))
         if chart_type == 'sale_rep':

@@ -85,6 +85,7 @@ class GmailService:
                        for s in msg['payload']['headers'] if s['name'] == 'Subject']
             from_email = [f['value']
                           for f in msg['payload']['headers'] if f['name'] == 'From']
+            date = [d['value'] for d in msg['payload']['headers'] if d['name'] == 'Date']
             if 'data' in msg['payload']['body']:
                 message = msg['payload']['body']['data']
                 message = base64.urlsafe_b64decode(message)
@@ -93,7 +94,7 @@ class GmailService:
                 message = msg['payload']['parts'][1]['body']['data']
                 message = base64.urlsafe_b64decode(message)
                 message = str(message, 'utf-8')
-            data.append({"message": message, "history_id": msg['historyId'], "subject": subject, "from": from_email})
+            data.append({"message": message, "history_id": msg['historyId'], "subject": subject, "from": from_email, "date_created": date})
         return {"messages": data}
 
     def get_history(self, history_id, labelId=None, historyTypes=None, maxResults=None, pageToken=None):

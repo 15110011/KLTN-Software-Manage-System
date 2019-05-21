@@ -18,4 +18,4 @@ def send_email(request):
         thread_id=mail['thread_id'],
         email_type='SENT'
     )
-    return Response({"message": "SEND_EMAIL_SUCCESSFULLY"})
+    return Response({"thread_id": mail['thread_id']})

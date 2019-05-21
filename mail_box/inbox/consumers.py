@@ -25,15 +25,6 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         return await self.send_json({
             "data": []
         })
-        # else:
-        #     data = []
-        #     for mail in user_email:
-        #         email_details = gmail.get_message(mail['message_id'])
-        #         data.append(email_details)
-        #     cache.set(f'user_{self.user_id}', data, timeout=3600)
-        #     return self.send_json({
-        #         "data": data
-        #     })
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
