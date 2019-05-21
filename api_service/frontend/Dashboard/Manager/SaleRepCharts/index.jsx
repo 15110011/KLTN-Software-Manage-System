@@ -8,7 +8,8 @@ import {
   XAxis,
   YAxis, CartesianGrid, Tooltip, Legend, PieChart, Pie, Legend, Tooltip,
   ResponsiveContainer,
-  ComposedChart
+  ComposedChart,
+  Label
 
 } from 'recharts';
 import * as NumberFormat from 'react-number-format';
@@ -101,9 +102,9 @@ class CustomizedAxisTick extends React.PureComponent {
       <g transform={`translate(${x},${y})`}>
         {names.length > 1
           ?
-          <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">{`${names[0][0].trim()}. ${names[1].trim()}`}</text>
+          <text x={0} y={0} dy={8} textAnchor="middle" fill="#666">{`${names[0][0].trim()}. ${names[1].trim()}`}</text>
           :
-          <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">{`${names[0].trim()}`}</text>
+          <text x={0} y={0} dy={8} textAnchor="middle" fill="#666">{`${names[0].trim()}`}</text>
         }
       </g>
     );
@@ -250,67 +251,7 @@ function SaleRepCharts(props) {
               <CardIcon color="primary">
                 <SaleRepIcon />
               </CardIcon>
-              <h4 style={{ paddingRight: '24px' }} className={classes.cardChartTitle}>Sale Representative
-                {/* <TextField
-                  select
-                  style={{ float: 'right', width: '100px' }}
-                  onChange={onChangeSelectWhichType}
-                  value={selectWhichType}
-                  inputProps={{
-                    name: 'selectWhichType',
-                  }}
-                >
-                  {
-                    selectType == 'month' &&
-                    months.map((m, i) => {
-                      return (
-                        <MenuItem key={i} value={m.value}>
-                          {m.name}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                  {
-                    selectType == 'quarter' &&
-                    quarters.map((q, i) => {
-                      return (
-                        <MenuItem key={i} value={q.value}>
-                          {q.name}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                  {
-                    selectType == 'year' &&
-                    years.map((y, i) => {
-                      return (
-                        <MenuItem key={i} value={y}>
-                          {y}
-                        </MenuItem>
-                      )
-                    })
-                  }
-                </TextField> */}
-                {/* <TextField
-                  select
-                  style={{ float: 'right', width: '100px', marginRight: '15px' }}
-                  onChange={onChangeSelectType}
-                  value={selectType}
-                  inputProps={{
-                    name: 'selectType',
-                  }}
-                >
-                  <MenuItem value="month">
-                    Month
-                      </MenuItem>
-                  <MenuItem value="quarter">
-                    Quarter
-                      </MenuItem>
-                  <MenuItem value="year">
-                    Year
-                      </MenuItem>
-                </TextField> */}
-              </h4>
+              <h4 style={{ paddingRight: '24px' }} className={classes.cardChartTitle}>Sale Representative </h4>
             </CardHeader>
             <CardBody>
               <Typography classes={{ root: classes.activitytTagline }} component='p'>
@@ -328,17 +269,23 @@ function SaleRepCharts(props) {
                     })
                   })}
                     margin={{
-                      top: 20, right: 20, bottom: 20, left: 20,
+                      top: 5, right: 20, bottom: 5, left: 20,
                     }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tick={<CustomizedAxisTick />} />
-                    <YAxis />
+                    <XAxis dataKey="name" tick={<CustomizedAxisTick />}>
+                      <Label value="SaleRep" offset={0} position="insideBottom" />
+                    </XAxis>
+                    <YAxis yAxisId={0}  dataKey="Income/Sales">
+                      <Label value="Unit ($)" position="left" angle={-90} />
+                    </YAxis>
+                    <YAxis yAxisId={1} unit='%' dataKey='Success rate' orientation="right">
+                    </YAxis>
                     <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Legend layout='vertical' align='right' verticalAlign='top' wrapperStyle={{ paddingLeft: '10px' }} />
                     <Bar barSize={30} dataKey="Income" fill="#8884d8" label={{ position: 'top' }} />
-                    <Area dataKey="Success rate" type="monotone" fill="#ff8042" stroke="#ff8042" />
-                    <Line type="monotone" dataKey="Income/Sales" type="monotone" fill="#00c49f" stroke="#00c49f" />
+                    <Area yAxisId={0} dataKey="Success rate" type="monotone" fill="#ff8042" stroke="#ff8042" />
+                    <Line yAxisId={1}  type="monotone" dataKey="Income/Sales" type="monotone" fill="#00c49f" stroke="#00c49f" />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>

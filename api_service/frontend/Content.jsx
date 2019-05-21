@@ -32,6 +32,7 @@ import FollowUpPlanContainer from './FollowUpPlan/FollowUpPlanContainer'
 import MailBoxContainer from './MailBox/MailBoxContainer'
 import SiteAdminContainer from './SiteAdmin/SiteAdminContainer';
 import CategoryContainer from './Category/CategoryContainer';
+import EmailTemplate from './EmailTemplate'
 import Calendar from './Events';
 
 const styles = theme => ({
@@ -238,6 +239,10 @@ class Content extends React.Component {
                 <Route
                   path="/campaigns"
                   component={props => <CampaignContainer {...props} user={user} />}
+                />
+                <Route
+                  path="/email-templates"
+                  component={props => <EmailTemplate {...props} user={user} />}
                 />
                 <Route
                   path="/marketing-plans"

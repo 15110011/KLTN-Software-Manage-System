@@ -2,7 +2,12 @@ from django.db.models import Q, Count
 from datetime import datetime, date
 from .models import Order, OrderHistory, License, LifetimeLicense
 from .serializers import OrderChartSerializer, OrderSaleRepChartSerializer
-from campaigns.models import ContactMarketing
+from campaigns.serializers import CampaignSerializer
+from campaigns.models import ContactMarketing, Campaign
+
+from operator import itemgetter
+from .state_hashes import statesHashes
+
 
 cur_year = datetime.today().year
 start_date_of_year = date(cur_year, 1, 1)
@@ -44,6 +49,38 @@ def state_chart(duration, target, filters):
             result.append(
                 {"code": r['contacts__state'], "amount": r['amount']})
     return {"data": result}
+
+
+def activity_chart(duration, target):
+    processing = {k: 0 for k in statesHashes}
+    result = {}
+    if duration == 'month':
+        filters = Q()
+        filters.add(Q(created__gte=start_date_of_year), Q.AND)
+        filters.add(Q(start_date__month=target) |
+                    Q(end_date__month=target), Q.AND)
+        # Campaing is running this month
+        queryset = Campaign.objects.filter(filters)
+        # serializer = CampaignSerializer(queryset, many=True)
+        for r in queryset:
+            for c in r.marketing_plan.condition['must']:
+                if c['operand'] == '1':
+                    for s in c['data']:
+                        for c in r.contact_marketing_plan.all():
+                            processing[c.contact.state] += 1
+                            # processing[s] +=
+                else:
+                    processing = {k: v+1 for k, v in processing.items()}
+        processing = dict(
+            sorted(processing.items(), key=itemgetter(1), reverse=True))
+        for i in range(6):
+            if processing[list(processing.keys())[i]] != 0:
+                result[list(processing.keys())[i]
+                       ] = processing[list(processing.keys())[i]]
+            else:
+                break
+
+    return result
 
 
 def sale_rep_chart(duration, target, filters):

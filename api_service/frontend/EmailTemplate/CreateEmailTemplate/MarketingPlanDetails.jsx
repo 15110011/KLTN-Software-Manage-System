@@ -36,8 +36,6 @@ import SelectCustom from '../../components/SelectCustom'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 import * as cn from 'classnames'
 
-import stateHashes from '../../common/StateHash'
-
 import CreateMarketingPlan from '../../MarketingPlan/CreateMarketingPlan';
 
 function MarketingPlanDetails(props) {
@@ -247,7 +245,7 @@ function MarketingPlanDetails(props) {
                             </FormControl>
                           </Tooltip>
                         </Grid>
-                        <Grid item xs={3}>
+                        <Grid item xs={5}>
                           <Tooltip title={m.operator} aria-label="Add">
                             <FormControl fullWidth className={classes.formControl}>
                               <InputLabel htmlFor="age-simple">Operators</InputLabel>
@@ -264,45 +262,21 @@ function MarketingPlanDetails(props) {
                             </FormControl>
                           </Tooltip>
                         </Grid>
-                        <Grid item xs={4}>
-                          {m.operand == '1' ?
-                            <Tooltip title={
-                              <ul>
-                                {m.data.map((m) => {
-                                  return (
-                                    <li>
-                                      {`${stateHashes[m]}`}
-                                    </li>
-                                  )
-                                })}
-                              </ul>
-                            }>
-                              <FormControl fullWidth className={classes.formControl}>
-                                <InputLabel htmlFor="age-simple">Data</InputLabel>
-                                <Input
-                                  value={m.data.reduce((acc, m) => {
-                                    acc += `${stateHashes[m]}, `
-                                    return acc
-                                  }, '').slice(0, -2)}
-                                  displayEmpty
-                                  disabled
-                                  className={classes.selectEmpty}
-                                >
-                                </Input>
-                              </FormControl>
-                            </Tooltip>
-                            :
-                            <FormControl fullWidth className={classes.formControl}>
-                              <InputLabel htmlFor="age-simple">Data</InputLabel>
-                              <Input
-                                value={m.data}
-                                displayEmpty
-                                disabled
-                                className={classes.selectEmpty}
-                              >
-                              </Input>
-                            </FormControl>
-                          }
+                        <Grid item xs={2}>
+                          <FormControl fullWidth className={classes.formControl}>
+                            <InputLabel htmlFor="age-simple">Data</InputLabel>
+                            <Select
+                              value={m.data}
+                              displayEmpty
+                              name="operator"
+                              disabled
+                              className={classes.selectEmpty}
+                            >
+                              <MenuItem value={m.data}>
+                                {m.data}
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
                         </Grid>
                       </Grid>
                     </Grid>

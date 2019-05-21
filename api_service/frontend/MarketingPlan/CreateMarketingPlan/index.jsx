@@ -140,7 +140,7 @@ function getStepContent(
               ))
             }
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={12}>
             {
               createMarketingPlan.condition.must.map((m, i) => {
                 return (
@@ -167,8 +167,8 @@ function getStepContent(
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={3}>
-                      <FormControl fullWidth className={classes.formControl}>
+                    {m.operand && <Grid item xs={3}>
+                      <FormControl fullWidth className={classes.formControl} required>
                         <InputLabel htmlFor="age-simple">Operators</InputLabel>
                         <Select
                           value={m.operator}
@@ -176,6 +176,7 @@ function getStepContent(
                           displayEmpty
                           name="operator"
                           className={classes.selectEmpty}
+                          required
                         >
                           {
                             marketingPlanConditions[m.operand] && marketingPlanConditions[m.operand].operators.map((o, i) => {
@@ -189,46 +190,51 @@ function getStepContent(
                         </Select>
                       </FormControl>
                     </Grid>
-                    <Grid item xs={4} style={{ position: 'relative' }}>
-                      {
-                        m.operand != '1' ?
-                          <FormControl fullWidth className={classes.formControl}>
-                            <TextField
-                              id="standard-name"
-                              label="Data"
-                              className={classes.textField}
-                              value={m.data}
-                              onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
-                              name="data"
-                              type="number"
-                            />
-                          </FormControl>
-                          :
-                          <FormControl fullWidth style={{ position: 'absolute', bottom: '13px' }} className={classes.formControl}>
-                            <SelectCustom
-                              className={classes.stateCustomInput}
-                              options={
-                                Object.keys(stateHashes).map(k => {
-                                  return {
-                                    label: stateHashes[k],
-                                    value: k
-                                  }
-                                })
-                              }
-                              handleChange={(v, a) => handleChangeSelectAddress(v, a, i)}
-                              value={m.data}
-                              name="data"
-                              fullWidth
-                              label="Data"
-                              single
-                              data={{
-                                label: stateHashes[m.data],
-                                value: m.data
-                              }}
-                            />
-                          </FormControl>
-                      }
-                    </Grid>
+                    }
+                    {m.operand &&
+                      <Grid item xs={4} style={{ position: 'relative' }}>
+                        {
+                          m.operand != '1' ?
+                            <FormControl fullWidth className={classes.formControl} required>
+                              <TextField
+                                id="standard-name"
+                                label="Data"
+                                className={classes.textField}
+                                value={m.data}
+                                onChange={(e) => onChangeCreateMarketingPlan(e, i, 'must')}
+                                name="data"
+                                type="number"
+                                required
+                              />
+                            </FormControl>
+                            :
+                            <FormControl fullWidth style={{ position: 'absolute', bottom: '13px' }} className={classes.formControl} required>
+                              <SelectCustom
+                                required
+                                className={classes.stateCustomInput}
+                                options={
+                                  Object.keys(stateHashes).map(k => {
+                                    return {
+                                      label: stateHashes[k],
+                                      value: k
+                                    }
+                                  })
+                                }
+                                handleChange={(v, a) => handleChangeSelectAddress(v, a, i)}
+                                name="data"
+                                fullWidth
+                                label="Data"
+                                multi
+                                data={
+                                  m.data.map((data, index) => ({
+                                    label: stateHashes[data],
+                                    value: data
+                                  }))}
+                              />
+                            </FormControl>
+                        }
+                      </Grid>
+                    }
                     <Grid item xs={1}>
                       <IconButton onClick={(e) => handleRemoveMustConditions(e, i)} aria-label="Remove" classes={{ root: classes.fixButton }}>
                         <RemoveIcon fontSize="small" />
@@ -239,7 +245,6 @@ function getStepContent(
               })
             }
           </Grid>
-          <Grid item xs={4}></Grid>
           <Grid item xs={8}>
             <Button
               onClick={() => { handleAddMustConditions() }}
@@ -399,12 +404,13 @@ function CreateMarketingPlan(props) {
 
   const handleChangeSelectAddress = (value, element, index) => {
     const cloneCreateMarketingPlan = { ...createMarketingPlan }
-    if (value) {
-      cloneCreateMarketingPlan.condition.must[index][element.name] = value.value
-    }
-    else {
-      cloneCreateMarketingPlan.condition.must[index][element.name] = ''
-    }
+    console.log(value)
+    // if (value) {
+    cloneCreateMarketingPlan.condition.must[index][element.name] = value.map(v => v.value)
+    // }
+    // else {
+    //   cloneCreateMarketingPlan.condition.must[index][element.name] = ''
+    // }
     setCreateMarketingPlan({ ...cloneCreateMarketingPlan })
   }
 
@@ -466,6 +472,12 @@ function CreateMarketingPlan(props) {
       if (conditionType == 'must') {
         const must = createMarketingPlan.condition.must.concat([])
         must[index][e.target.name] = e.target.value
+        if (must[index].operand == '1') {
+          must[index].data = []
+        }
+        else {
+          must[index].data = ''
+        }
         setCreateMarketingPlan({ ...createMarketingPlan, condition: { ...createMarketingPlan.condition, must } })
       } else {
         const at_least = createMarketingPlan.condition.at_least.concat([])
@@ -485,30 +497,34 @@ function CreateMarketingPlan(props) {
       if (createMarketingPlan.name == '') {
         err[0].name = "FILL YOUR PLAN NAME"
       }
-      // for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
-      //   if (!err[1].must) {
-      //     err[1].must = {}
-      //   }
-      //   if (createMarketingPlan.condition.must[i].operand == '') {
-      //     err[1].must.operand = 'FILL YOUR OPERAND'
-      //     break
-      //   }
-      //   if (createMarketingPlan.condition.must[i].operator == '') {
-      //     err[1].must.operator = 'FILL YOUR OPERATOR'
-      //     break
-      //   }
-      //   if (createMarketingPlan.condition.must[i].condition == '') {
-      //     err[1].must.condition = 'FILL YOUR CONDITION'
-      //     break
-      //   }
-      // }
-      if (Object.keys(err[0]).length === 0 && Object.keys(err[1]).length === 0 && Object.keys(err[2]).length === 0) {
+      for (let i = 0; i < createMarketingPlan.condition.must.length; i++) {
+        if (!err[1].must) {
+          err[1].must = {}
+        }
+        if (createMarketingPlan.condition.must[i].operand == '') {
+          err[1].must.operand = 'FILL YOUR OPERAND'
+          break
+        }
+        if (createMarketingPlan.condition.must[i].operator == '') {
+          err[1].must.operator = 'FILL YOUR OPERATOR'
+          break
+        }
+        if (createMarketingPlan.condition.must[i].operand != '1' && createMarketingPlan.condition.must[i].data == '') {
+          err[1].must.data = 'FILL YOUR CONDITION'
+          break
+        }
+        if (createMarketingPlan.condition.must[i].operand == '1' && createMarketingPlan.condition.must[i].data.length == 0) {
+          err[1].must.data = 'FILL YOUR CONDITION'
+          break
+        }
+      }
+      if (Object.keys(err[0]).length === 0 && Object.keys(err[1].must).length === 0 && Object.keys(err[2]).length === 0) {
+        setCreateMarketingPlanDialog(false)
         apiPostMarketingPlan()
       }
       else {
         setError(err)
       }
-      setCreateMarketingPlanDialog(false)
     } else {
       const marketingId = marketingData.id
       apiPatch(MARKETING_PLANS_URL + '/' + marketingId, { ...createMarketingPlan }, false, true)
