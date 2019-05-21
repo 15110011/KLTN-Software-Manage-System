@@ -45,18 +45,28 @@ function MailBoxList(props) {
   const [mailDetail, setMailDetail] = React.useState(false)
   const [open, setOpen] = React.useState(true)
   const [socket, setSocket] = React.useState(null)
-  const [emails, setEmails] = React.useState(null)
+  const [emails, setEmails] = React.useState({ data: [] })
 
 
   React.useEffect(() => {
     const ws = initMailWebsocket(user.id)
     setSocket(ws)
     ws.onmessage = event => {
-      setEmails(JSON.parse(event.data))
+      console.log(event)
+      let response = JSON.parse(event.data)
+      if (response.type == "single") {
+        setEmails({ data: [...emails.data, response.data] })
+
+      }
+      else {
+        // console.log(event)
+        setEmails({ data: response.data })
+
+      }
     }
   }, [])
 
-
+  console.log(emails)
 
   const handleChange = (event, value) => {
     setValue(value)

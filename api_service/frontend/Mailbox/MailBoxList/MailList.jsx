@@ -102,35 +102,42 @@ function MailList(props) {
             <TabContainer>
               <Table className={classes.table}>
                 <TableBody>
-                  {emails && emails.data.length > 0
+                  {/* {emails.data.length > 0
                     ? emails.data.map((email, i) => {
-                      return (
-                        <TableRow
-                          key={i}
-                          onClick={() => history.push('/inbox/11')}
-                          className={classes.rowData}
-                        >
-                          <TableCell className={classes.checkboxWidth} padding="checkbox">
-                            <Checkbox color="primary" />
-                          </TableCell>
-                          <TableCell className={classes.fromWidth} align="left">{}</TableCell>
-                          <TableCell className={classes.etcDot} align="left">
-                            <div className={classes.titleContent}>
-                              <div>
-                                {}
+                      return ( */}
+                  <TableRow
+                    // key={i}
+                    onClick={() => history.push('/inbox/11')}
+                    className={classes.rowData}
+                  >
+                    <TableCell className={classes.checkboxWidth} padding="checkbox">
+                      <Checkbox color="primary" />
+                    </TableCell>
+                    <TableCell className={classes.fromWidth} align="left">Dang Van Minh</TableCell>
+                    <TableCell align="left">
+                      <div className={classes.titleContent}>
+                        <div>
+                          {/* {email.subject.reduce((acc, c) => {
+                                  acc += ' '
+                                  return acc
+                                }).slice(0, -1)} */}
+                          ádsadasdsa
                               </div>
-                              <div item xs={10}>
-                                &nbsp;-&nbsp;
-                              {}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell className={classes.dateWidth} align="right"><i>{}</i></TableCell>
-                        </TableRow>
-                      )
+                        <div item xs={10} className={classes.etcDot}>
+                          &nbsp;-&nbsp;
+                                <span>12321312jsdsdssdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdsdjjdjdjdj3</span>
+                          {/* {
+                                dangerouslySetInnerHTML={{ __html: email.message }}>
+                              } */}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className={classes.dateWidth} align="right"><i>{}</i></TableCell>
+                  </TableRow>
+                  {/* )
                     })
                     : <div className={classes.titleContent}>No emails in your mailbox</div>
-                  }
+                  } */}
                 </TableBody>
               </Table>
             </TabContainer>}

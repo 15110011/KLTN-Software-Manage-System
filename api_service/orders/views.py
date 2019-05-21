@@ -15,7 +15,6 @@ from steps.models import StepDetail
 from datetime import datetime, date
 from . import chart_handler
 # Create your views here.
-now = datetime.now()
 cur_year = datetime.today().year
 start_date_of_year = date(cur_year, 1, 1)
 
@@ -136,7 +135,7 @@ class OrderView(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         filters = Q()
-
+        now = datetime.now()
         queryset = self.get_queryset()
         if not request.user.profile.is_manager:
             filters.add(Q(campaign__assigned_to=request.user), Q.AND)

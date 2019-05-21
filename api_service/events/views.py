@@ -14,7 +14,6 @@ from campaigns.models import ContactMarketingHistory
 from campaigns.serializers import ContactMarketingHistorySerializer
 
 
-now = datetime.datetime.now()
 
 
 # Create your views here.
@@ -27,6 +26,8 @@ class EventView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         filters = Q()
         excludes = Q()
+        now = datetime.datetime.now()
+
 
         queryset = self.get_queryset()
         filters.add(Q(assigned_to=request.user), Q.AND)

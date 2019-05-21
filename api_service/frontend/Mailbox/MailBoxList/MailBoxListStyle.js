@@ -1,15 +1,40 @@
 import deepOrange from '@material-ui/core/colors/deepOrange';
 import deepPurple from '@material-ui/core/colors/deepPurple';
+import green from '@material-ui/core/colors/green';
+import pink from '@material-ui/core/colors/pink';
 
 const styles = theme => ({
   root: {
+    width: '100%',
     padding: 5
   },
   nested: {
     paddingLeft: theme.spacing.unit * 4,
   },
+  heading: {
+    fontSize: theme.typography.pxToRem(15),
+    flexBasis: '33.33%',
+    flexShrink: 0,
+  },
+  secondaryHeading: {
+    fontSize: theme.typography.pxToRem(15),
+    color: theme.palette.text.secondary,
+  },
   tabsRoot: {
     borderBottom: '1px solid #e8e8e8',
+  },
+  expandSumCus: {
+    margin: 'unset !important',
+  },
+  expandSumRoot: {
+    minHeight: 'unset !important'
+  },
+  expandCus: {
+    width: '100%',
+    boxShadow: 'unset',
+    '&:before': {
+      content: 'none !important'
+    }
   },
   tabsIndicator: {
     backgroundColor: '#1890ff',
@@ -49,9 +74,10 @@ const styles = theme => ({
   },
   tabSelected: {},
   etcDot: {
-    whiteSpace: 'nowrap';
-    overflow: 'hidden';
-    textOverflow: 'ellipsis';
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: '250px'
   },
   titleContent: {
     display: 'inline-flex'
@@ -86,6 +112,16 @@ const styles = theme => ({
     margin: 10,
     color: '#fff',
     backgroundColor: deepPurple[500],
+  },
+  greenAvatar: {
+    margin: 10,
+    color: '#fff',
+    backgroundColor: green[500],
+  },
+  pinkAvatar: {
+    margin: 10,
+    color: '#fff',
+    backgroundColor: pink[500],
   },
 });
 

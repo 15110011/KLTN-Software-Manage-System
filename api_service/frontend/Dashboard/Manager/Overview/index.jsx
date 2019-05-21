@@ -46,7 +46,7 @@ function Overview(props) {
             iconColor="primary"
             title="Waiting List"
             description={data && data.data.waiting}
-            small="Contacts"
+            small="Contact(s)"
             statIcon={MarketingListIcon}
             statIconColor="danger"
             statLink={{ text: "In this month" }}
@@ -58,7 +58,7 @@ function Overview(props) {
             iconColor="orange"
             title="Follow-up"
             description={ data && data.data.follow_up }
-            small="Contacts"
+            small="Contact(s)"
             statIcon={FollowUpPlanIcon}
             statIconColor="danger"
             statLink={{ text: "In this month" }}
@@ -70,7 +70,7 @@ function Overview(props) {
             iconColor="green"
             title="Success"
             description={ data && data.data.success }
-            small="Contacts"
+            small="Contact(s)"
             statIcon={SuccessIcon}
             statIconColor="danger"
             statLink={{ text: "In this month" }}
@@ -82,7 +82,7 @@ function Overview(props) {
             iconColor="red"
             title="Failed"
             description={ data && data.data.failed }
-            small="Contacts"
+            small="Contact(s)"
             statIcon={FailedIcon}
             statIconColor="danger"
             statLink={{ text: "In this month" }}

@@ -20,7 +20,6 @@ from rest_framework.exceptions import MethodNotAllowed
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
 from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
 
-now = datetime.now()
 
 
 # Create your views here.
@@ -296,6 +295,7 @@ class CampaignView(ModelViewSet):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
             return Response(qs)
+        now = datetime.now()
 
         filters = Q()
         filters.add(Q(manager=request.user), Q.AND)
@@ -453,6 +453,8 @@ class AssignedCampaigns(ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         suggest = request.query_params.get('suggest', None)
+        now = datetime.now()
+
         if suggest:
             instance = request.user
             queryset = self.get_queryset().filter(start_date__lte=now).filter(
@@ -486,6 +488,7 @@ class ContactMarketingView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         filters = Q()
         excludes = Q()
+        now = datetime.now()
 
         queryset = self.get_queryset()
         if not request.user.profile.is_manager:
