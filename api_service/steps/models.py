@@ -16,6 +16,7 @@ class Step(BaseModel):
     conditions = JSONField(blank=True, null=True)
     mail_template = models.ForeignKey(
         'campaigns.MailTemplate', on_delete=models.CASCADE, null=True, blank=True)
+
     class Meta:
         ordering = ('id',)
 
@@ -28,6 +29,8 @@ class StepDetail(BaseModel):
     information = JSONField(blank=True, null=True)
     status = models.CharField(
         max_length=50, choices=STEP_STATUS_CHOICES, default='RUNNING')
+    thread_id = ArrayField(base_field=models.CharField(
+        max_length=255, null=True, blank=True), null=True, blank=True)
 
     class Meta:
         ordering = ('id',)
