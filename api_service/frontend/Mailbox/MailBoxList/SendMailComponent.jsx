@@ -39,10 +39,10 @@ function SendMailComponent(props) {
   const { classes, handleCloseReply, user, setIsReply, sendTo } = props;
   const [sendEmail, setSendEmail] = React.useState({
     user_id: user.id,
-    to: '',
+    to: 'hepmy666@gmail.com',
     from: 'theaqvteam@gmail.com',
-    subject: '',
-    message: ''
+    subject: 'ABCD',
+    message: 'vu ne'
   })
   const [editorState, setEditorState] = React.useState(htmlToState(""))
 
