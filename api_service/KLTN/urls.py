@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView, UserView
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, UserView
 from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView, AssignedCampaigns
@@ -83,8 +83,4 @@ urlpatterns = [
 
     path('api/v1/campaigns/<int:pk>/note',
          CampaignExtraView.as_view({'get': 'note'})),
-
-    path('api/v1/gmail/auth', GmailView),
-    path('api/v1/gmail/exchange', GmailExchangeCodeView),
-    path('api/v1/gmail/send', SendMessageView.as_view()),
 ]

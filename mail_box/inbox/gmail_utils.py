@@ -115,7 +115,7 @@ class GmailService:
 
     def send_message(self, data, threadId=None):
         service = self.get_service()
-        message = MIMEText(data['message'])
+        message = MIMEText(data['message'], 'html')
         message['to'] = data['to']
         message['from'] = data['from']
         message['subject'] = data['subject']
