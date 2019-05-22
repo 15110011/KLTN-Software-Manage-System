@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, GmailView, GmailExchangeCodeView, SendMessageView, UserView
+from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, UserView
 from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView, AssignedCampaigns

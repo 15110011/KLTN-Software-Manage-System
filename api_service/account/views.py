@@ -20,7 +20,6 @@ import google_auth_oauthlib.flow
 from . import serializers
 from . import models
 from KLTN import settings
-from KLTN.gmail_utils import send_mail, exchange_code
 from campaigns.models import Campaign
 from campaigns.serializers import CampaignSerializer
 import jwt
