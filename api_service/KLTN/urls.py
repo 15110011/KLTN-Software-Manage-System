@@ -83,8 +83,4 @@ urlpatterns = [
 
     path('api/v1/campaigns/<int:pk>/note',
          CampaignExtraView.as_view({'get': 'note'})),
-
-    path('api/v1/gmail/auth', GmailView),
-    path('api/v1/gmail/exchange', GmailExchangeCodeView),
-    path('api/v1/gmail/send', SendMessageView.as_view()),
 ]
