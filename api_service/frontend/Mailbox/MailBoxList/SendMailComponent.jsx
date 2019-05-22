@@ -36,11 +36,11 @@ import { htmlToState, draftToRaw } from "../../common/utils";
 
 function SendMailComponent(props) {
 
-  const { classes, handleCloseReply, user, setIsReply } = props;
+  const { classes, handleCloseReply, user, setIsReply, sendTo } = props;
   const [sendEmail, setSendEmail] = React.useState({
     user_id: user.id,
     to: '',
-    from: '',
+    from: 'theaqvteam@gmail.com',
     subject: '',
     message: ''
   })
@@ -83,6 +83,7 @@ function SendMailComponent(props) {
     setEditorState(editorState)
   };
 
+
   return (
     <Paper style={{ padding: '15px', marginTop: '20px' }}>
       <Grid container>
@@ -90,7 +91,7 @@ function SendMailComponent(props) {
           <ReplyIcon fontSize="small" />
           &nbsp;
           <Typography variant="span">
-            Thao Nguyen
+            {sendTo}
           </Typography>
         </Grid>
         &nbsp;

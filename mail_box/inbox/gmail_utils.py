@@ -52,6 +52,7 @@ class GmailService:
 
     def get_message(self, message_id):
         service = self.get_service()
+        print(message_id)
         msg = service.users().messages().get(userId='me', id=message_id).execute()
         message = None
         subject = [s['value']

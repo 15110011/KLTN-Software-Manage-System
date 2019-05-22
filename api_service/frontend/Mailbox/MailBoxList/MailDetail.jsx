@@ -14,6 +14,8 @@ import Button from '@material-ui/core/Button';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import BackIcon from '@material-ui/icons/ArrowBack';
+import EmailIcon from '@material-ui/icons/Email'
+import PhoneIcon from '@material-ui/icons/Phone'
 import ReplyIcon from '@material-ui/icons/Reply';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
@@ -42,7 +44,7 @@ function MailDetail(props) {
   const [anchorElAdd, setAnchorElAdd] = React.useState(null)
   const [socket, setSocket] = React.useState(null)
   const [emails, setEmails] = React.useState([])
-  
+
 
   React.useEffect(() => {
     const ws = initMailWebsocket(user.id)
@@ -115,153 +117,210 @@ function MailDetail(props) {
             </Grid>
             <List>
               {
-                emails.data && emails.data.messages.map((e, i) => {
-                  if (e.from.length > 0) {
-                    let name = ''
-                    let mail = ''
-                    let fromName = e.from[0].match(/(.+) (<.+>)/)
-                    name = fromName[1]
-                    mail = fromName[2]
-                    return (
-                      <ListItem key={i} alignItems="flex-start">
-                        <ListItemAvatar>
-                          <Avatar className={classes.pinkAvatar}>M</Avatar>
-                        </ListItemAvatar>
-                        <ExpansionPanel
-                          style={{ margin: 'unset' }}
-                          classes={{ root: classes.expandCus }}
-                          // expanded={expanded === 'panel2'}
-                          onChange={(e) => handleChange(i)}
-                        >
-                          <ExpansionPanelSummary
-                            onClick={(e) => handleExpand(i)}
-                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
-                          >
-                            <ListItemText
-                              primary={
-                                name
-                              }
-                              secondary={
-                                <React.Fragment>
-                                  <Typography component="span" className={classes.inline} color="textPrimary">
-                                    {e.from ? 'to me' : mail}
-                                  </Typography>
-                                  {noExpand[i] &&
-                                    <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
-                                    </div>
-                                  }
-                                </React.Fragment>
-                              }
-                            />
-                            <ListItemText
-                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
-                            />
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails>
-                            <Grid container spacing>
-                              <Grid item xs={11}>
-                                <Typography variant="span">
-                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={1}>
-                                <IconButton
-                                  onClick={(event) => {
-                                    handleReply(i)
-                                  }}
-                                  style={{ outline: 'none', float: 'right' }}
-                                >
-                                  <ReplyIcon fontSize="small" />
-                                </IconButton>
-                              </Grid>
-                              <Grid item xs={12}>
-                                {
-                                  isReply[i] &&
-                                  <SendMailComponent
-                                    handleCloseReply={() => handleCloseReply(i)}
-                                    user={user}
-                                    sendTo={}
-                                  />
-                                }
-                              </Grid>
-                            </Grid>
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                      </ListItem>
-                    )
-                  } else {
-                    return (
-                      <ListItem key={i} alignItems="flex-start">
-                        <ListItemAvatar>
-                          <Avatar className={classes.pinkAvatar}>M</Avatar>
-                        </ListItemAvatar>
-                        <ExpansionPanel
-                          style={{ margin: 'unset' }}
-                          classes={{ root: classes.expandCus }}
-                          // expanded={expanded === 'panel2'}
-                          onChange={(e) => handleChange(i)}
-                        >
-                          <ExpansionPanelSummary
-                            onClick={(e) => handleExpand(i)}
-                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
-                          >
-                            <ListItemText
-                              primary={
-                                "theaqvteam@gmail.com"
-                              }
-                              secondary={
-                                <React.Fragment>
-                                  <Typography component="span" className={classes.inline} color="textPrimary">
-                                  </Typography>
-                                  {noExpand[i] &&
-                                    <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
-                                    </div>
-                                  }
-                                </React.Fragment>
-                              }
-                            />
-                            <ListItemText
-                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
-                            />
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails>
-                            <Grid container spacing>
-                              <Grid item xs={11}>
-                                <Typography variant="span">
-                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={1}>
-                                <IconButton
-                                  onClick={(event) => {
-                                    handleReply(i)
-                                  }}
-                                  style={{ outline: 'none', float: 'right' }}
-                                >
-                                  <ReplyIcon fontSize="small" />
-                                </IconButton>
-                              </Grid>
-                              <Grid item xs={12}>
-                                {
-                                  isReply[i] &&
-                                  <SendMailComponent
-                                    handleCloseReply={() => handleCloseReply(i)}
-                                    sendTo={}
-                                  />
-                                }
-                              </Grid>
-                            </Grid>
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                      </ListItem>
-                    )
-                  }
-                })
+                emails.data && emails.data.messages[0] &&
+                <ListItem key={0} alignItems="flex-start">
+                  <ListItemAvatar>
+                    <Avatar className={classes.pinkAvatar}>
+                      <EmailIcon fontSize="small" />
+                    </Avatar>
+                  </ListItemAvatar>
+                  <ExpansionPanel
+                    style={{ margin: 'unset' }}
+                    classes={{ root: classes.expandCus }}
+                    // expanded={expanded === 'panel2'}
+                    onChange={(e) => handleChange(0)}
+                  >
+                    <ExpansionPanelSummary
+                      onClick={(e) => handleExpand(0)}
+                      classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                    >
+                      <ListItemText
+                        primary={
+                          "theaqvteam@gmail.com"
+                        }
+                        secondary={
+                          <React.Fragment>
+                            <Typography component="span" className={classes.inline} color="textPrimary">
+                            </Typography>
+                            {noExpand[0] &&
+                              <div dangerouslySetInnerHTML={{ __html: emails.data.messages[0].message }} className={classes.etcDot}>
+                              </div>
+                            }
+                          </React.Fragment>
+                        }
+                      />
+                      <ListItemText
+                        secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                      />
+                    </ExpansionPanelSummary>
+                    <ExpansionPanelDetails>
+                      <Grid container spacing>
+                        <Grid item xs={11}>
+                          <Typography variant="span">
+                            <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: emails.data.messages[0].message }}></span>
+                          </Typography>
+                        </Grid>
+                        {
+                          emails.data && emails.data.messages.slice(1).map((e, i) => {
+                            i+=1
+                            if (e.from.length > 0) {
+                              let name = ''
+                              let mail = ''
+                              let fromName = e.from[0].match(/(.+) (<.+>)/)
+                              name = fromName[1]
+                              mail = fromName[2]
+                              return (
+                                <ListItem key={i} alignItems="flex-start">
+                                  <ListItemAvatar>
+                                    <Avatar className={classes.pinkAvatar}>
+                                      <EmailIcon fontSize="small" />
+                                    </Avatar>
+                                  </ListItemAvatar>
+                                  <ExpansionPanel
+                                    style={{ margin: 'unset' }}
+                                    classes={{ root: classes.expandCus }}
+                                    // expanded={expanded === 'panel2'}
+                                    onChange={(e) => handleChange(i)}
+                                  >
+                                    <ExpansionPanelSummary
+                                      onClick={(e) => handleExpand(i)}
+                                      classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                                    >
+                                      <ListItemText
+                                        primary={
+                                          name
+                                        }
+                                        secondary={
+                                          <React.Fragment>
+                                            <Typography component="span" className={classes.inline} color="textPrimary">
+                                              {e.from ? 'to me' : mail}
+                                            </Typography>
+                                            {noExpand[i] &&
+                                              <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
+                                              </div>
+                                            }
+                                          </React.Fragment>
+                                        }
+                                      />
+                                      <ListItemText
+                                        secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                                      />
+                                    </ExpansionPanelSummary>
+                                    <ExpansionPanelDetails>
+                                      <Grid container spacing>
+                                        <Grid item xs={11}>
+                                          <Typography variant="span">
+                                            <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item xs={1}>
+                                          <IconButton
+                                            onClick={(event) => {
+                                              handleReply(i)
+                                            }}
+                                            style={{ outline: 'none', float: 'right' }}
+                                          >
+                                            <ReplyIcon fontSize="small" />
+                                          </IconButton>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                          {
+                                            isReply[i] &&
+                                            <SendMailComponent
+                                              handleCloseReply={() => handleCloseReply(i)}
+                                              user={user}
+                                              sendTo={mail}
+                                            />
+                                          }
+                                        </Grid>
+                                      </Grid>
+                                    </ExpansionPanelDetails>
+                                  </ExpansionPanel>
+                                </ListItem>
+                              )
+                            } else {
+                              return (
+                                <ListItem key={i} alignItems="flex-start">
+                                  <ListItemAvatar>
+                                    <Avatar className={classes.pinkAvatar}>
+                                      <EmailIcon fontSize="small" />
+                                    </Avatar>
+                                  </ListItemAvatar>
+                                  <ExpansionPanel
+                                    style={{ margin: 'unset' }}
+                                    classes={{ root: classes.expandCus }}
+                                    // expanded={expanded === 'panel2'}
+                                    onChange={(e) => handleChange(i)}
+                                  >
+                                    <ExpansionPanelSummary
+                                      onClick={(e) => handleExpand(i)}
+                                      classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                                    >
+                                      <ListItemText
+                                        primary={
+                                          "theaqvteam@gmail.com"
+                                        }
+                                        secondary={
+                                          <React.Fragment>
+                                            <Typography component="span" className={classes.inline} color="textPrimary">
+                                            </Typography>
+                                            {noExpand[i] &&
+                                              <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
+                                              </div>
+                                            }
+                                          </React.Fragment>
+                                        }
+                                      />
+                                      <ListItemText
+                                        secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                                      />
+                                    </ExpansionPanelSummary>
+                                    <ExpansionPanelDetails>
+                                      <Grid container spacing>
+                                        <Grid item xs={11}>
+                                          <Typography variant="span">
+                                            <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
+                                          </Typography>
+                                        </Grid>
+                                        <Grid item xs={1}>
+                                          <IconButton
+                                            onClick={(event) => {
+                                              handleReply(i)
+                                            }}
+                                            style={{ outline: 'none', float: 'right' }}
+                                          >
+                                            <ReplyIcon fontSize="small" />
+                                          </IconButton>
+                                        </Grid>
+                                        <Grid item xs={12}>
+                                          {
+                                            isReply[i] &&
+                                            <SendMailComponent
+                                              handleCloseReply={() => handleCloseReply(i)}
+                                              sendTo={"theaqvteam@gmail.com"}
+                                              user={user}
+                                            />
+                                          }
+                                        </Grid>
+                                      </Grid>
+                                    </ExpansionPanelDetails>
+                                  </ExpansionPanel>
+                                </ListItem>
+                              )
+                            }
+                          })
+                        }
+                      </Grid>
+                    </ExpansionPanelDetails>
+                  </ExpansionPanel>
+                </ListItem>
               }
               <Divider />
               <ListItem alignItems="flex-start">
                 <ListItemAvatar>
-                  <Avatar className={classes.greenAvatar}>C</Avatar>
+                  <Avatar className={classes.greenAvatar}>
+                    <PhoneIcon fontSize="small" />
+                  </Avatar>
                 </ListItemAvatar>
                 <ExpansionPanel
                   style={{ margin: 'unset' }}
