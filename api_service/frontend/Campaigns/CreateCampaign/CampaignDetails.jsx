@@ -119,7 +119,7 @@ function CampaignDetails(props) {
                     onChange={setStartDate}
                     name="startDate"
                     minDate={new Date()}
-                    format="MM/dd/yyyy hh:mm a" ƒ
+                    format="MM/dd/yyyy hh:mm a" 
                     value={startDate}
                     required
                     fullWidth
@@ -146,7 +146,7 @@ function CampaignDetails(props) {
                     onChange={setEndDate}
                     name="endDate"
                     minDate={new Date()}
-                    format="MM/dd/yyyy hh:mm a" ƒ
+                    format="MM/dd/yyyy hh:mm a" 
                     value={endDate}
                     required
                     fullWidth
