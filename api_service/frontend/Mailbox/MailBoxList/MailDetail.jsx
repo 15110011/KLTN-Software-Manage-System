@@ -42,7 +42,7 @@ function MailDetail(props) {
   const [anchorElAdd, setAnchorElAdd] = React.useState(null)
   const [socket, setSocket] = React.useState(null)
   const [emails, setEmails] = React.useState([])
-  
+
 
   React.useEffect(() => {
     const ws = initMailWebsocket(user.id)
@@ -52,6 +52,7 @@ function MailDetail(props) {
       setEmails(response)
       setIsReply(Array.from({ length: response.data.messages.length }, (v, i) => false))
       setNoExpand(Array.from({ length: response.data.messages.length }, (p, i) => true))
+     
     }
   }, [])
 
