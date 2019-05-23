@@ -113,7 +113,7 @@ function SendMailComponent(props) {
           </Button>
         &nbsp;
           <Button
-          onClick={() => handleCloseReply(false)}
+          onClick={() => handleCloseReply()}
           variant="contained" color="default" className={classes.button}>
           Cancel
           </Button>

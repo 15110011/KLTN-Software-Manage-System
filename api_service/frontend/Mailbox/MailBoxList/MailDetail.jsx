@@ -98,7 +98,7 @@ function MailDetail(props) {
       }))
     }
   }, [])
-  console.log(noExpand)
+  console.log(isReply)
 
   const handleClick = event => {
     setAnchorElAdd(event.currentTarget);
@@ -108,9 +108,9 @@ function MailDetail(props) {
     setAnchorElAdd(null);
   };
 
-  const handleCloseReply = (i) => {
+  const handleCloseReply = (i, insideIndex) => {
     let cloneIsReply = [...isReply]
-    cloneIsReply[i] = false
+    cloneIsReply[i][insideIndex] = false
     setIsReply(cloneIsReply)
   }
 
@@ -199,6 +199,26 @@ function MailDetail(props) {
                                   <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: t[0].message }}></span>
                                 </Typography>
                               </Grid>
+                              <Grid item xs={1}>
+                                <IconButton
+                                  onClick={(event) => {
+                                    handleReply(j, 0)
+                                  }}
+                                  style={{ outline: 'none', float: 'right' }}
+                                >
+                                  <ReplyIcon fontSize="small" />
+                                </IconButton>
+                              </Grid>
+                              <Grid item xs={12}>
+                                {
+                                  isReply[j][0] &&
+                                  <SendMailComponent
+                                    handleCloseReply={() => handleCloseReply(j, 0)}
+                                    user={user}
+                                    sendTo={'asdas'}
+                                  />
+                                }
+                              </Grid>
                               {
                                 t.slice(1).map((e, i) => {
                                   i += 1
@@ -243,7 +263,7 @@ function MailDetail(props) {
                                               }
                                             />
                                             <ListItemText
-                                              secondary={<div style={{ textAlign: 'right', fontSize: '12px' }}><i>{e.date_created[0]}</i></div>}
+                                              secondary={<div style={{ textAlign: 'right', fontSize: '12px' }}><i>{e.date_created}</i></div>}
                                             />
                                           </ExpansionPanelSummary>
                                           <ExpansionPanelDetails>
