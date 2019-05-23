@@ -47,7 +47,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
             messages = gmail.get_thread(event['thread_id'])
             cache.set(f'user_{self.user_id}_thread_{thread_id}', messages['messages'], timeout=None)
             data.append(messages['messages'])
-        await self.send_json({"data": data})
+        await self.send_json({"data": data, "type": "single"})
         
 
     # @database_sync_to_async

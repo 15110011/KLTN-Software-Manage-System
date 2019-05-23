@@ -21,6 +21,7 @@ def send_email(request):
         thread_id=mail['thread_id'],
         email_type='SENT'
     )
+    channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)('mailbox', {
         "type": "email.message",
         "thread_id": mail['thread_id']
