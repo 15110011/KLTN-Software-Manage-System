@@ -38,9 +38,7 @@ const CustomTooltip = ({ active, payload, label }) => {
                   <span className="tooltip-item-separator"> : </span>
                   <span className="tooltip-item-value">
                     {
-                      p.name == 'Income' ?
-                        <NumberFormat value={p.value} displayType='text' thousandSeparator={true} prefix={'$'} />
-                        : p.value
+                      <NumberFormat value={parseFloat(p.value).toFixed(3)} displayType='text' thousandSeparator={true} prefix={'$'} />
                     }
                   </span>
                   <span className="tooltip-item-unit"> </span>
@@ -56,6 +54,20 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null
 }
 
+const months = {
+  '1': 'January',
+  '2': 'February',
+  '3': 'March',
+  '4': 'April ',
+  '5': 'May',
+  '6': 'June',
+  '7': 'July',
+  '8': 'August',
+  '9': 'September',
+  '10': 'October',
+  '11': 'November',
+  '12': 'December'
+}
 const ProductCharts = (props) => {
 
 
@@ -122,7 +134,7 @@ const ProductCharts = (props) => {
                     height={400}
                     data={productData && Object.keys(productData).map((k) => {
                       return {
-                        month: k,
+                        month: months[k],
                         'Income/Sales': productData[k].income.total / productData[k].number.total,
                         Income: productData[k].income.total
                       }
@@ -186,7 +198,7 @@ const ProductCharts = (props) => {
                     height={300}
                     data={licenseData && Object.keys(licenseData).map(l => {
                       return {
-                        month: l,
+                        month: months[l],
                         "1 month": licenseData[l][1],
                         "6 months": licenseData[l][6],
                         "12 months": licenseData[l][12],

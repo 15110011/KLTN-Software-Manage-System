@@ -249,7 +249,11 @@ LOGGING = {
         'super_simple': {
             '()': 'djangocolors_formatter.DjangoColorsFormatter',
             'format': '[%(asctime)s] : %(message)s'
-        }
+        },
+        "rq_console": {
+            "format": "%(asctime)s %(message)s",
+            "datefmt": "%H:%M:%S",
+        },
     },
     'handlers': {
         'console': {
@@ -260,6 +264,12 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler',
             'formatter': 'verbose',
             'level': 'ERROR'
+        },
+        "rq_console": {
+            "level": "DEBUG",
+            "class": "rq.utils.ColorizingStreamHandler",
+            "formatter": "rq_console",
+            "exclude": ["%(asctime)s"],
         },
     },
     'loggers': {
@@ -283,6 +293,10 @@ LOGGING = {
         'account': {
             'handlers': ['console'],
             'level': 'ERROR',
+        },
+        "rq.worker": {
+            "handlers": ["rq_console"],
+            "level": "DEBUG"
         },
     },
 }

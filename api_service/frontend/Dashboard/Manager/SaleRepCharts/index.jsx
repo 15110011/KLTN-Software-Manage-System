@@ -46,10 +46,10 @@ const CustomTooltip = ({ active, payload, label }) => {
                   {p.name == 'Success rate' &&
                     `${p.value}%`
                   }
-                  {p.name == 'Income' &&
-                    <NumberFormat value={p.value} displayType='text' thousandSeparator={true} prefix={'$'} />
+                  {(p.name == 'Income' || p.name == 'Income/Sales') &&
+                    <NumberFormat value={parseFloat(p.value).toFixed(3)} displayType='text' thousandSeparator={true} prefix={'$'} />
                   }
-                  {p.name != 'Success rate' && p.name != 'Income' &&
+                  {p.name != 'Success rate' && p.name != 'Income' && p.name != 'Income/Sales' &&
                     p.value
                   }
                 </span>
@@ -276,16 +276,16 @@ function SaleRepCharts(props) {
                     <XAxis dataKey="name" tick={<CustomizedAxisTick />}>
                       <Label value="SaleRep" offset={0} position="insideBottom" />
                     </XAxis>
-                    <YAxis yAxisId={0}  dataKey="Income/Sales">
+                    <YAxis yAxisId={0} dataKey="Income">
                       <Label value="Unit ($)" position="left" angle={-90} />
                     </YAxis>
-                    <YAxis yAxisId={1} unit='%' dataKey='Success rate' orientation="right">
+                    <YAxis yAxisId={1} unit='%' dataKey='Success rate' orientation="right" stroke="#ff8042">
                     </YAxis>
                     <Tooltip content={<CustomTooltip />} />
                     <Legend layout='vertical' align='right' verticalAlign='top' wrapperStyle={{ paddingLeft: '10px' }} />
                     <Bar barSize={30} dataKey="Income" fill="#8884d8" label={{ position: 'top' }} />
-                    <Area yAxisId={0} dataKey="Success rate" type="monotone" fill="#ff8042" stroke="#ff8042" />
-                    <Line yAxisId={1}  type="monotone" dataKey="Income/Sales" type="monotone" fill="#00c49f" stroke="#00c49f" />
+                    <Area yAxisId={1} dataKey="Success rate" type="monotone" fill="#ff8042" stroke="#ff8042" />
+                    <Line yAxisId={0} type="monotone" dataKey="Income/Sales" type="monotone" fill="#00c49f" stroke="#00c49f" />
                   </ComposedChart>
                 </ResponsiveContainer>
               </div>
