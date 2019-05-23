@@ -85,7 +85,12 @@ class GmailService:
                        for s in msg['payload']['headers'] if s['name'] == 'Subject']
             from_email = [f['value']
                           for f in msg['payload']['headers'] if f['name'] == 'From']
-            date = [d['value'] for d in msg['payload']['headers'] if d['name'] == 'Date']
+            date = [d['value']
+                    for d in msg['payload']['headers'] if d['name'] == 'Date']
+            message_id = [m['value'] for m in msg['payload']
+                          ['headers'] if m['name'] == 'Message-Id']
+            references = [r['value'] for r in msg['payload']
+                          ['headers'] if r['name'] == 'References']
             if 'data' in msg['payload']['body']:
                 message = msg['payload']['body']['data']
                 message = base64.urlsafe_b64decode(message)
@@ -94,7 +99,8 @@ class GmailService:
                 message = msg['payload']['parts'][1]['body']['data']
                 message = base64.urlsafe_b64decode(message)
                 message = str(message, 'utf-8')
-            data.append({"message": message, "history_id": msg['historyId'], "subject": subject, "from": from_email, "date_created": date})
+            data.append({"message": message, "Message-Id": message_id, "References": references,
+                         "history_id": msg['historyId'], "subject": subject, "from": from_email, "date_created": date})
         return {"messages": data}
 
     def get_history(self, history_id, labelId=None, historyTypes=None, maxResults=None, pageToken=None):
@@ -118,11 +124,22 @@ class GmailService:
         message['to'] = data['to']
         message['from'] = data['from']
         message['subject'] = data['subject']
-        raw = base64.urlsafe_b64encode(
-            message.as_bytes()).decode()
-        email = service.users().messages().send(
-            userId='me', body={'raw': raw}).execute()
-        return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
+        if data.get('threadId', None) is None:
+            raw = base64.urlsafe_b64encode(
+                message.as_bytes()).decode()
+            email = service.users().messages().send(
+                userId='me', body={'raw': raw}).execute()
+            return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
+        else:
+            message['References'] = data['References']
+            message['In-Reply-To'] = data['In-Reply-To']
+            raw = base64.urlsafe_b64encode(
+                message.as_bytes()).decode()
+            email = service.users().messages().send(
+                userId='me', body={'raw': raw, 'threadId': data['threadId']}
+            ).execute()
+            return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
+
 
 gmail = GmailService()
 gmail.get_service()

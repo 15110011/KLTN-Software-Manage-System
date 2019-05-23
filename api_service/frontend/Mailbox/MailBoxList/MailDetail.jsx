@@ -85,16 +85,8 @@ function MailDetail(props) {
     ws.onopen = e => {
       ws.send(JSON.stringify({
         threads: [
-          { 'thread_id': '16ae36416cee4685' },
+          { 'thread_id': '16ae4426d208d752' },
           { 'thread_id': '16ae3762619e822e' },
-          { 'thread_id': '16ae37872a7cedcd' },
-          { 'thread_id': '16ae37d3a85dbcd0' },
-          { 'thread_id': '16ae384d7fd999d7' },
-          { 'thread_id': '16ae386f523c0a27' },
-          { 'thread_id': '16ae3895bec31b5d' },
-          { 'thread_id': '16ae38ee1fa2476c' },
-          { 'thread_id': '16ae391dcba7ab8d' },
-        ]
       }))
     }
   }, [])
