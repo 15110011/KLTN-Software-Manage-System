@@ -193,7 +193,7 @@ function MailDetail(props) {
                                         secondary={
                                           <React.Fragment>
                                             <Typography component="span" className={classes.inline} color="textPrimary">
-                                              {e.from ? 'to me' : mail}
+                                              {e.from && e.from != "The AQV Team <theaqvteam@gmail.com>" ? 'to me' : mail}
                                             </Typography>
                                             {noExpand[i] &&
                                               <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>

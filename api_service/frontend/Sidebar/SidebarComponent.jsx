@@ -407,9 +407,9 @@ const SidebarComponent = props => {
               <ListItem
                 button
                 className={classes.nested}
-                onClick={() => props.history.push('/reports')}
+                onClick={() => props.history.push('/report')}
                 classes={{ selected: classes.listItemSlected }}
-                selected={selecting == 'reports'}
+                selected={selecting == 'report'}
               >
                 <ListItemIcon>
                   <ReportIcon classes={{ root: classes.listItemIcon }} />

@@ -34,6 +34,7 @@ import SiteAdminContainer from './SiteAdmin/SiteAdminContainer';
 import CategoryContainer from './Category/CategoryContainer';
 import EmailTemplate from './EmailTemplate'
 import Calendar from './Events';
+import ReportContainer from './Report/ReportContainer';
 
 const styles = theme => ({
   root: {
@@ -263,6 +264,10 @@ class Content extends React.Component {
                 <Route
                   path="/calendar"
                   component={props => <Calendar user={user}/>}
+                />
+                <Route
+                  path="/report"
+                  component={props => <ReportContainer user={user}/>}
                 />
                 <Route path='/' component={props => {
                   return <Redirect to={'/dashboard'} />
