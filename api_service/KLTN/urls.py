@@ -14,7 +14,7 @@ from campaigns.views import ContactMarketingView, MailTemplateView
 from orders.views import OrderHistoryView, OrderView, LicenseView, LifetimeLicenseView, OrderChartView, LicenseChartView
 from steps.views import StepView, StepDetailView
 from events.views import EventView
-from reports.views import ReportView
+from reports.views import ReportView, Reports
 
 router = DefaultRouter(trailing_slash=False)
 # package app
@@ -51,8 +51,6 @@ router.register('steps', StepView, base_name='steps')
 router.register('step-detail', StepDetailView, base_name='step-detail')
 # events app
 router.register('events', EventView, base_name='events')
-# reports app
-router.register('reports', ReportView, base_name='reports')
 # account app
 router.register('sale-reps', SaleRepView, base_name='sale-reps')
 router.register('users', UserView, base_name='users')
@@ -80,6 +78,7 @@ urlpatterns = [
     path('api/v1/actions', GetPlanAction),
     path('api/v1/marketing-plans-conditions', GetMarketingPlanConditions),
     path('api/v1/contacts-match-conditions', ContactMatchConditions),
+    path('api/v1/reports', Reports),
 
     path('api/v1/campaigns/<int:pk>/note',
          CampaignExtraView.as_view({'get': 'note'})),
