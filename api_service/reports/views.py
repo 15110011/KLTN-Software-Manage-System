@@ -6,9 +6,11 @@ from . import models
 from . import serializers
 from rest_framework.decorators import api_view, permission_classes, action
 from campaigns.models import Campaign
-from campaigns.serializers import ReportCampaignSerializer
+from orders.models import Order
+from orders.serializers import ReportOrderSerializer
 from django.db.models import Q, Count, CharField, Value as V
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+import calendar
 from django.forms.models import model_to_dict
 
 
@@ -28,33 +30,42 @@ def Reports(request):
     from_date = data.get('from', None)
     to_date = data.get('to', None)
     user = request.user
-    filters = Q()
     result = None
     if from_date is None and to_date is None:
         result = filter_state(states)
+    if states is None:
+        result = filter_time(from_date, to_date)
+        print (result)
         
 
     return Response({"data": result})
 
 
 def filter_state(states):
-    campaigns = Campaign.objects.filter(end_date__gte=datetime.now())
+    orders = Order.objects.filter(Q(status='RUNNING') | Q(status='COMPLETED'))
     data = []
-    for campaign in campaigns:
-        conditions = campaign.marketing_plan.condition['must']
+    for order in orders:
+        conditions = order.campaign.marketing_plan.condition['must']
         is_all=True
         for condition in conditions:
             if condition['operand'] == '1':
                 if condition['operator'] == 'Equal to':
                     if set(condition['data']).intersection(set(states)):
-                        result = ReportCampaignSerializer(campaign).data
+                        result = ReportOrderSerializer(order).data
                         data.append(result)
                 elif condition['operator'] == 'Not equal to':
                     if not set(condition['data']).intersection(set(states)):
-                        result = ReportCampaignSerializer(campaign).data
+                        result = ReportOrderSerializer(order).data
                         data.append(result)
                 is_all=False
         if is_all:
-            result = ReportCampaignSerializer(campaign).data
+            result = ReportOrderSerializer(order).data
             data.append(result)
     return data
+
+def filter_time(from_date, to_date):
+    filters = Q()
+    filters.add(Q(created__gte=from_date) & Q(created__lte=to_date), Q.AND)
+    orders = Order.objects.filter(filters)
+    orders = [ReportOrderSerializer(order).data for order in orders]
+    return orders  
