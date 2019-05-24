@@ -28,13 +28,17 @@ import '../../node_modules/react-dates/lib/css/_datepicker.css'
 import { CheckBoxSelection, Inject, MultiSelectComponent } from '@syncfusion/ej2-react-dropdowns';
 import stateHashes from '../common/StateHash'
 import InputAdornment from '@material-ui/core/InputAdornment';
+import { apiPost } from '../common/Request.js';
+import { REPORT_URL } from '../common/urls'
+import { CalendarMonthGrid } from 'react-dates/lib';
 
 function Report(props) {
   const { classes } = props
   const [startDate, setStartDate] = React.useState(null)
   const [endDate, setEndDate] = React.useState(null)
   const [focusedInput, setFocusedInput] = React.useState(null)
-
+  // const [cloneState, setCloneState] = React.useState([])
+  let cloneState = []
   const sportsData = Object.keys(stateHashes).map((k) => {
     return {
       Id: k,
@@ -43,9 +47,20 @@ function Report(props) {
   })
   const inputLabel = React.useRef(null);
   const [labelWidth, setLabelWidth] = React.useState(0);
-  const fields = {
+  // const fields = {
+  //   text: 'Name',
+  //   value: 'Id'
+  // }
+
+  const [fields, setFields] = React.useState({
     text: 'Name',
     value: 'Id'
+  })
+
+  const handleFilter = e => {
+    apiPost(REPORT_URL, {data: cloneState}, false, true).then(res=>{
+
+    })
   }
 
   return (
@@ -62,6 +77,12 @@ function Report(props) {
                   {' '}
                   <Grid item xs={11}>
                     <MultiSelectComponent id="checkbox" dataSource={sportsData}
+                      removed={(e) => {
+                        cloneState = cloneState.filter(s => s != e.itemData.Id)
+                      }}
+                      select={(e) => {
+                        cloneState = ([...cloneState, e.itemData.Id])
+                      }}
                       cssClass={classes.removeBorder}
                       fields={fields} placeholder="Select States" mode="CheckBox" selectAllText="Select All" unSelectAllText="Unselect All" showSelectAll={true}>
                       <Inject services={[CheckBoxSelection]} />
@@ -111,7 +132,7 @@ function Report(props) {
                 </TextField>
               </Grid>
               <Grid item xs={2}>
-                <Button style={{ height: '48px', width: '50%' }} variant="contained" color="primary">
+                <Button onClick={() => handleFilter()} style={{ height: '48px', width: '50%' }} variant="contained" color="primary">
                   Filter
                 </Button>
               </Grid>

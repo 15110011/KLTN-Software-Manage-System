@@ -14,12 +14,12 @@ const styles = theme => ({
 },
   removeBorder: {
     color: 'red',
-    borderBottom: 'none !important'
+    borderBottom: 'none !important',
     //   '&> span:nth-child(3)': {
     //     '&> input:nth-child(1)': {
     //       fontSize: '12px'
     //     }
-    // }
+    // },
     borderWidth: '0',
   },
   textField: {
