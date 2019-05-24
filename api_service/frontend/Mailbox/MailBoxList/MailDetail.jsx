@@ -332,7 +332,7 @@ function MailDetail(props) {
                                               }
                                             />
                                             <ListItemText
-                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{e.date_created[0]}</i></div>}
                                             />
                                           </ExpansionPanelSummary>
                                           <ExpansionPanelDetails>

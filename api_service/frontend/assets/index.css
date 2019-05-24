@@ -2987,3 +2987,6 @@ img {
   .fixed-plugin {
     top: 80px; } }
 
+.e-location:before{
+  content:'\e7d0';
+}
