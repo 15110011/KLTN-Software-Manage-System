@@ -28,17 +28,22 @@ import '../../node_modules/react-dates/lib/css/_datepicker.css'
 import { CheckBoxSelection, Inject, MultiSelectComponent } from '@syncfusion/ej2-react-dropdowns';
 import stateHashes from '../common/StateHash'
 import InputAdornment from '@material-ui/core/InputAdornment';
-import { apiPost } from '../common/Request.js';
+import { apiPost, apiGet } from '../common/Request.js';
 import { REPORT_URL } from '../common/urls'
 import { CalendarMonthGrid } from 'react-dates/lib';
+import * as moment from 'moment'
 
 function Report(props) {
   const { classes } = props
-  const [startDate, setStartDate] = React.useState(null)
-  const [endDate, setEndDate] = React.useState(null)
+  const [startDate, setStartDate] = React.useState(moment().startOf('month'))
+  const [endDate, setEndDate] = React.useState(moment().endOf('month'))
   const [focusedInput, setFocusedInput] = React.useState(null)
-  // const [cloneState, setCloneState] = React.useState([])
-  let cloneState = []
+  const [dataSearch, setDataSearch] = React.useState([])
+  let data = {
+    from: moment().startOf('month').format('YYYY-MM-DD'),
+    to: moment().endOf('month').format('YYYY-MM-DD'),
+    states: []
+  }
   const sportsData = Object.keys(stateHashes).map((k) => {
     return {
       Id: k,
@@ -58,10 +63,12 @@ function Report(props) {
   })
 
   const handleFilter = e => {
-    apiPost(REPORT_URL, {data: cloneState}, false, true).then(res=>{
-
+    apiPost(REPORT_URL, { data: { state: data.states.length ? data.states : null, from: startDate.format('YYYY-MM-DD'), to: endDate.format('YYYY-MM-DD') } }, false, true).then(res => {
+      setDataSearch(res.data.data)
     })
   }
+
+  console.log(dataSearch)
 
   return (
     <div className={classes.root}>
@@ -78,10 +85,10 @@ function Report(props) {
                   <Grid item xs={11}>
                     <MultiSelectComponent id="checkbox" dataSource={sportsData}
                       removed={(e) => {
-                        cloneState = cloneState.filter(s => s != e.itemData.Id)
+                        data.states = data.states.filter(s => s != e.itemData.Id)
                       }}
                       select={(e) => {
-                        cloneState = ([...cloneState, e.itemData.Id])
+                        data.states = ([...data.states, e.itemData.Id])
                       }}
                       cssClass={classes.removeBorder}
                       fields={fields} placeholder="Select States" mode="CheckBox" selectAllText="Select All" unSelectAllText="Unselect All" showSelectAll={true}>
@@ -150,15 +157,15 @@ function Report(props) {
               { title: 'To', field: 'to', headerStyle: { zIndex: 0 } },
               { title: 'State', field: 'state', headerStyle: { zIndex: 0 } }
             ]}
-            data={[{
-              numeral: '12'
-            }]}
-            title="Product"
-            options={{
-              toolbar: true,
-              paging: true,
-              search: false
-            }}
+            data={dataSearch && dataSearch.map((s, i) => ({
+              'numeral': i + 1,
+              'order': s.name ? s.name : '',
+              'product': s.campaign.product != null ? s.campaign.product.name : 'asad',
+              'campaign': s.campaign.name ? s.campaign.name : '',
+              'from': moment().startOf('month').format('YYYY-MM-DD'),
+              'to': moment().endOf('month').format('YYYY-MM-DD'),
+              state: ''
+            }))}
           />
         </Grid>
       </Grid>
