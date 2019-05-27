@@ -1,3 +1,4 @@
+import 'react-dates/initialize';
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import { ThroughProvider } from 'react-through'

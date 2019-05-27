@@ -33,6 +33,7 @@ export const ORDER_URL = `${API_URL}orders`
 export const ORDER_HISTORY_URL = `${API_URL}orders-histories`
 export const ORDER_CHART_URL = `${API_URL}orders-chart`
 export const LICENSE_CHART_URL = `${API_URL}licenses-chart`
+export const REPORT_URL = `${API_URL}reports`
 
 export const STEP_DETAIL_URL = `${API_URL}step-detail`
 

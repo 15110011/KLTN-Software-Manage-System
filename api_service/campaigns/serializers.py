@@ -100,7 +100,21 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
                     step.save()
         return instance
 
+class ReportCampaignSerializer(serializers.ModelSerializer):
+    packages = PackageSerializer(many=True)
+    manager = MeSerializer()
+    product = serializers.SerializerMethodField()
 
+    class Meta:
+        model = models.Campaign
+        fields = '__all__'
+    
+    def get_product(self, instance):
+        try:
+            return ProductSerializier(instance.packages.all()[0].features.all()[0].product).data
+        except:
+            return None
+        
 class CampaignSerializer(serializers.ModelSerializer):
     follow_up_plan = FollowUpPlanSerializer()
     marketing_plan = MarketingPlanSerializer()

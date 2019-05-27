@@ -68,7 +68,6 @@ const SidebarComponent = props => {
   const [socket, setSocket] = React.useState(null)
 
   let anchorel1 = null;
-
   // let socket = null
   React.useEffect(() => {
     if (user.id) {

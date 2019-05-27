@@ -87,6 +87,7 @@ function MailDetail(props) {
         threads: [
           { 'thread_id': '16ae4426d208d752' },
           { 'thread_id': '16ae3762619e822e' },
+        ]
       }))
     }
   }, [])
@@ -324,7 +325,7 @@ function MailDetail(props) {
                                               }
                                             />
                                             <ListItemText
-                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
+                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{e.date_created[0]}</i></div>}
                                             />
                                           </ExpansionPanelSummary>
                                           <ExpansionPanelDetails>
