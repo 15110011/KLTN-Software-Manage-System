@@ -87,6 +87,7 @@ function MailDetail(props) {
         threads: [
           { 'thread_id': '16ae4426d208d752' },
           { 'thread_id': '16ae3762619e822e' },
+        ]
       }))
     }
   }, [])
