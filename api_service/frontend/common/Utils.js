@@ -34,6 +34,8 @@ const htmlToState = (html) => {
   }
 }
 
+console.log(htmlToState)
+
 const draftToRaw = (draft) => {
   return draftToHtml(convertToRaw(draft.getCurrentContent()))
 }

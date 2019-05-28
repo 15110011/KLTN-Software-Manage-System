@@ -45,7 +45,7 @@ import FormPackage from './FormPackage/FormPackage';
 import CustomSnackbar from '../../components/CustomSnackbar'
 import { Editor } from "react-draft-wysiwyg";
 import "../../common/react-draft-wysiwyg.css";
-import { htmlToState, draftToRaw } from "../../common/utils";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 
 
 import styles from './CreateProductStyle'

@@ -19,7 +19,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as dateFns from 'date-fns'
 
 import { Editor } from "react-draft-wysiwyg";
-import { htmlToState, draftToRaw } from "../../common/utils";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 import "../../common/react-draft-wysiwyg.css";
 
 import { apiPost, apiPatch } from '../../common/Request'

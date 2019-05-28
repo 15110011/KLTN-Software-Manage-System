@@ -12,7 +12,7 @@ import { Input, InputLabel, Select, MenuItem } from '@material-ui/core'
 import { Editor } from "react-draft-wysiwyg";
 import "../common/react-draft-wysiwyg.css";
 import SelectCustom from '../../components/SelectCustom'
-import { htmlToState, draftToRaw } from "../common/utils";
+import { htmlToState, draftToRaw } from "../common/Utils";
 import { EVENTS_URL, REFRESH_TOKEN_URL, GET_SALE_REPS_URL, ASSIGNED_CAMPAIGNS_URL } from '../common/urls';
 import useFetchData from '../../CustomHook/useFetchData'
 import FormControl from '@material-ui/core/FormControl';

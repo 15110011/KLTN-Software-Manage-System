@@ -2,8 +2,8 @@ import * as React from 'react'
 import { withStyles } from '@material-ui/core/styles';
 import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
-import StateIcon from '@material-ui/icons/flag';
-import TypeIcon from '@material-ui/icons/style';
+import StateIcon from '@material-ui/icons/Flag';
+import TypeIcon from '@material-ui/icons/Style';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
