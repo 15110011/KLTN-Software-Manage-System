@@ -203,7 +203,7 @@ function OrderTableDetail(props) {
               <Grid className="pt-1" item xs={6}>
                 <SortIcon fontSize="small" />
               </Grid>
-              <Grid className="text-right" item xs={6}>
+              <Grid className="text-right" style={{ padding: '12px' }} item xs={6}>
                 {order.data.length} order(s)
               </Grid>
             </Grid>

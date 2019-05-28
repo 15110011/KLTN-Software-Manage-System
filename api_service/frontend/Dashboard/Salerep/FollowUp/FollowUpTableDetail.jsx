@@ -315,7 +315,7 @@ function FollowUpTableDetail(props) {
                   <RefreshIcon fontSize="small" />
                 </IconButton>
               </Grid>
-              <Grid className="text-right" item xs={6}>
+              <Grid className="text-right" style={{ padding: '12px' }} item xs={6}>
                 {followUps.data.length} contact(s)
               </Grid>
             </Grid>

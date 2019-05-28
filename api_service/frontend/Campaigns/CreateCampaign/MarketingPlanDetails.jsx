@@ -208,6 +208,7 @@ function MarketingPlanDetails(props) {
           {
             createCampaign.marketing_plan.condition &&
             createCampaign.marketing_plan.condition.must.map((m, i) => {
+            console.log(m)
               return (
                 <>
                   <Grid container key={i} spacing={24}>

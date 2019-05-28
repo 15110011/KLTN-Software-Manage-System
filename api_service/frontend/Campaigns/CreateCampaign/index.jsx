@@ -41,7 +41,7 @@ import { htmlToState, draftToRaw } from "../../common/utils";
 import styles from './CreateCampaignStyle'
 
 // Components 
-import SelectCustom from '../../components/SelectCustom'
+import CustomSnackbar from '../../components/CustomSnackbar'
 import AsyncSelect from '../../components/AsyncSelectCustom'
 
 // API
@@ -104,7 +104,7 @@ function CreateCampaign(props) {
   const [showEditIcon, setShowEditIcon] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
 
-  const { user, notification } = props;
+  const { user, notification, notificationErr } = props;
 
   const [isEditMarketingPlan, setIsEditMarketingPlan] = React.useState(false)
   const [isEditFollowUpPlan, setIsEditFollowUpPlan] = React.useState(false)
@@ -185,7 +185,12 @@ function CreateCampaign(props) {
       }
       data.marketing_plan = data.marketing_plan.id
       data.packages = data.packages.map(p => p.id)
-      apiPostCampaign(data)
+      console.log(startDate, endDate)
+      if(endDate < startDate){
+        apiPostCampaign(data)
+      } else {
+        notificationErr("errr")
+      }
     }
   }
 

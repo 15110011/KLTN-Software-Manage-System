@@ -24,6 +24,7 @@ import { BAD_REQUEST } from "../../common/Code";
 function CampaignList(props) {
   const [createCampaignDialog, setCreateCampaignDialog] = React.useState(false)
   const [completeNotice, setCompleteNotice] = React.useState(false)
+  const [errNotice, setErrNotice] = React.useState('')
   const { classes, user } = props;
   const search = {}
   let activePage = 0
@@ -41,6 +42,14 @@ function CampaignList(props) {
     tableRef.current.onQueryChange()
   }
 
+  const notificationErr = (n = 'Failed') => {
+    setErrNotice(n)
+    setTimeout(() => {
+      setErrNotice(false)
+    }, 2000);
+    tableRef.current.onQueryChange()
+  }
+
   return (
     <div className={classes.root}>
       {createCampaignDialog && <CreateCampaign
@@ -49,9 +58,11 @@ function CampaignList(props) {
         setCreateCampaignDialog={setCreateCampaignDialog}
         user={user}
         notification={notification}
+        notificationErr={notificationErr}
       />}
 
-      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+      {/* {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />} */}
+      {errNotice && <CustomSnackbar isErr msg={errNotice} />}
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>
           <MaterialTable
