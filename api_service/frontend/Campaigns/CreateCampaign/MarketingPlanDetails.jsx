@@ -361,8 +361,6 @@ function MarketingPlanDetails(props) {
                   // value={this.state.age}
                   // onChange={this.handleChange}
                   inputProps={{
-                    name: 'age',
-                    id: 'age-simple',
                   }}
                 >
                   <MenuItem value="">

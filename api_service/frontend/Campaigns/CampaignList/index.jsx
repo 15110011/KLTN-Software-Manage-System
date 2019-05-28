@@ -61,7 +61,7 @@ function CampaignList(props) {
         notificationErr={notificationErr}
       />}
 
-      {/* {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />} */}
+      {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice && <CustomSnackbar isErr msg={errNotice} />}
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
         <Grid item xs={12}>

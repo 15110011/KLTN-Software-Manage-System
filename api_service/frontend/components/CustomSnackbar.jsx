@@ -21,7 +21,8 @@ function CustomSnackbar(props) {
 
   return (
     <>
-      {isErr && <Snackbar
+      {
+        isErr ? <Snackbar
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'right',
@@ -39,8 +40,7 @@ function CustomSnackbar(props) {
             {msg}
           </div>
         }
-      />
-      }
+      /> :
        <Snackbar
         anchorOrigin={{
           vertical: 'top',
@@ -59,7 +59,7 @@ function CustomSnackbar(props) {
           </div>
         }
       />
-
+      }
     </>
 
   )
