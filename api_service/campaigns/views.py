@@ -21,7 +21,6 @@ from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketin
 from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
 
 
-
 # Create your views here.
 
 ACTIONS = ['Send Email']
@@ -386,7 +385,8 @@ class CampaignView(ModelViewSet):
                 output_field=DjangoModel.IntegerField()
             )).order_by(status_order)
         if limit is not None:
-            queryset = queryset[int(page)*int(limit):int(page)*int(limit)+int(limit)]
+            queryset = queryset[int(page)*int(limit)
+                                    :int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
@@ -571,6 +571,12 @@ class MailTemplateView(ModelViewSet):
     def list(self, request, *args, **kwargs):
 
         filters = Q()
+        import django_rq
+        scheduler = django_rq.get_scheduler('default')
+        jobs_and_times = scheduler.get_jobs(with_times=True)
+        from pprint import pprint
+        for j in jobs_and_times:
+            pprint((j))
 
         filters.add(Q(user=request.user.id), Q.AND)
         filters.add(Q(is_public=True), Q.OR)
@@ -580,7 +586,7 @@ class MailTemplateView(ModelViewSet):
 
         query = self.get_queryset().filter(filters)
         serializer = self.get_serializer(query, many=True)
-        new_data ={
+        new_data = {
             "data": serializer.data,
             "total": len(serializer.data)
         }

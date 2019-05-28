@@ -12,7 +12,7 @@ const styles = theme => ({
   },
   cssLabel: {
     position: 'absolute',
-    bottom: 12,
+    top: 14,
     marginBottom: '0',
     textAlign: 'left'
   },

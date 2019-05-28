@@ -188,6 +188,21 @@ const styles = (theme) => ({
       outline: 'none !important'
     }
   },
+  expand_map: {
+    position: 'absolute',
+    zIndex: '1000',
+    right: '14px',
+    top: '7px',
+    color: '#fff',
+    transform: 'rotate(0deg)',
+    marginLeft: 'auto',
+    transition: theme.transitions.create('transform', {
+      duration: theme.transitions.duration.shortest,
+    }),
+    '&:focus': {
+      outline: 'none !important'
+    }
+  },
   expandOpen: {
     transform: 'rotate(180deg)',
   },

@@ -11,7 +11,9 @@ import SaleRepCharts from './SaleRepCharts'
 import Overview from './Overview'
 
 import styles from './ManagerStyles.js'
+
 function ManagerDashboard(props) {
+
 
   return (
     <div className='p-4'>
@@ -20,10 +22,10 @@ function ManagerDashboard(props) {
           <Overview />
         </Grid>
         <Grid item xs={12}>
-          <ProductCharts />
+          <CustomerCharts />
         </Grid>
         <Grid item xs={12}>
-          <CustomerCharts />
+          <ProductCharts />
         </Grid>
         <Grid item xs={12}>
           <SaleRepCharts />

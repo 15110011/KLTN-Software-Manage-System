@@ -24,7 +24,7 @@ import { DialogActions, Button, DialogContent } from '@material-ui/core'
 
 import { htmlToState, draftToRaw } from "../../common/utils";
 
-import styles from './CreateCampaignStyle'
+import styles from './Styles'
 
 // Components 
 import SelectCustom from '../../components/SelectCustom'
@@ -44,7 +44,7 @@ const getSteps = ['Campaign Information', 'Selecting Contacts', 'Deals']
 
 let lastSelectIndex = -1
 
-function CreateCampaign(props) {
+function CreateEmailTemplate(props) {
 
   const [createTemplate, setCreateTemplate] = React.useState({
     name: '',
@@ -64,8 +64,9 @@ function CreateCampaign(props) {
 
   const onPost = () => {
 
-    apiPost(MAIL_TEMPLATES_URL, createTemplate, false, true)
+    apiPost(MAIL_TEMPLATES_URL, { ...createTemplate, template: draftToRaw(editorState) }, false, true)
       .then(res => {
+        console.log(res)
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
             if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
@@ -99,12 +100,39 @@ function CreateCampaign(props) {
         <DialogContent>
           <Grid container spacing={40}>
             <Grid item xs={12}>
-              <Grid container spacing={40}>
-                <Grid item xs={2}>
+              <Grid container >
+                <Grid item xs={2} style={{ position: 'relative' }}>
                   <InputLabel
                     htmlFor="custom-css-standard-input"
                     classes={{
-                      root: classes.cssLabelBot,
+                      root: classes.cssLabel,
+                      focused: classes.cssFocused,
+                    }}
+                    required
+                  >
+                    Display name
+                    </InputLabel>
+                </Grid>
+                <Grid item xs={10}>
+                  <Input
+                    name='name'
+                    value={createTemplate.name}
+                    onChange={e => {
+                      setCreateTemplate({ ...createTemplate, name: e.target.value })
+                    }}
+                    required
+                    fullWidth
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container >
+                <Grid item xs={2} style={{ position: 'relative' }}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabel,
                       focused: classes.cssFocused,
                     }}
                     required
@@ -120,43 +148,22 @@ function CreateCampaign(props) {
                       setCreateTemplate({ ...createTemplate, subject: e.target.value })
                     }}
                     required
+                    fullWidth
                   />
                 </Grid>
               </Grid>
-              <Grid container spacing={40}>
-                <Grid item xs={2}>
-                  <InputLabel
-                    htmlFor="custom-css-standard-input"
-                    classes={{
-                      root: classes.cssLabelBot,
-                      focused: classes.cssFocused,
-                    }}
-                    required
-                  >
-                    Name
-                  </InputLabel>
-                </Grid>
-                <Grid item xs={10}>
-                  <Input
-                    name='name'
-                    value={createTemplate.name}
-                    onChange={e => {
-                      setCreateTemplate({ ...createTemplate, name: e.target.value })
-                    }}
-                    required
-                  />
-                </Grid>
-              </Grid>
+
             </Grid>
             <Grid item xs={12}>
-              <Grid container spacing={40}>
-                <Grid item xs={2}>
+              <Grid container >
+                <Grid item xs={2} style={{ position: 'relative' }}>
                   <InputLabel
                     htmlFor="custom-css-standard-input"
                     classes={{
-                      root: classes.cssLabelBot,
+                      root: classes.cssLabel,
                       focused: classes.cssFocused,
                     }}
+                    required
                   >
                     Template
                   </InputLabel>
@@ -170,6 +177,7 @@ function CreateCampaign(props) {
                     editorStyle={{
                       minHeight: '400px'
                     }}
+
                   >
                   </Editor>
                 </Grid>
@@ -186,4 +194,4 @@ function CreateCampaign(props) {
   )
 }
 
-export default withStyles(styles)(CreateCampaign);
+export default withStyles(styles)(CreateEmailTemplate);

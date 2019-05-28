@@ -66,7 +66,6 @@ const CustomerCharts = (props) => {
 
   const [stateData, setStateData, setUrl, forceUpdate] = useFetchData(ORDER_CHART_URL + `?chart_type=state&duration=${duration}`, null, { data: [] })
   const [activityData, setActivityData, setUrlActivity, forceUpdateActivity] = useFetchData(ORDER_CHART_URL + `?chart_type=active&duration=${duration}`, null, {})
-  console.log(activityData)
 
   const [selectTypeMap, setSelectTypeMap] = React.useState(
     'month'

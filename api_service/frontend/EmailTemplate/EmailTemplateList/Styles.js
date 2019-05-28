@@ -11,7 +11,16 @@ const styles = theme => ({
   },
   fixTable: {
     maxWidth: '90%',
-  }
+  },
+
+  editableContent: {
+    cursor: 'pointer',
+    '&:hover': {
+      borderRadius: '4px',
+      backgroundColor: '#f4f5f7',
+      borderBottomColor: 'rgba(9,30,66,.25)'
+    }
+  },
 })
 
 export default styles;
