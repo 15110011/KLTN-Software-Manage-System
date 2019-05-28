@@ -36,7 +36,7 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import CloseIcon from '@material-ui/icons/Close';
 import * as dateFns from 'date-fns'
 
-import { htmlToState, draftToRaw } from "../../common/utils";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 
 import styles from './CreateCampaignStyle'
 

@@ -22,7 +22,7 @@ import "../../common/react-draft-wysiwyg.css";
 import * as dateFns from 'date-fns'
 import { DialogActions, Button, DialogContent } from '@material-ui/core'
 
-import { htmlToState, draftToRaw } from "../../common/utils";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 
 import styles from './Styles'
 

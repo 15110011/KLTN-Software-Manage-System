@@ -31,7 +31,7 @@ import SideBarMailBox from './SideBarMailBox'
 import { apiGet, apiPost } from '../../common/Request';
 import { SEND_EMAIL, REFRESH_TOKEN_URL } from '../../common/urls'
 import { BAD_REQUEST, } from "../../common/Code";
-import { htmlToState, draftToRaw } from "../../common/utils";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 
 
 function SendMailComponent(props) {

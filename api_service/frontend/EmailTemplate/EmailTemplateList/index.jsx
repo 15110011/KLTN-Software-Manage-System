@@ -29,7 +29,7 @@ import * as dateFns from 'date-fns'
 
 // API
 import { MAIL_TEMPLATES_URL, REFRESH_TOKEN_URL, PACKAGES_URL } from "../../common/urls";
-import { htmlToState, draftToRaw } from "../../common/utils";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 import { apiPost, apiGet, apiPatch } from '../../common/Request'
 import { BAD_REQUEST } from "../../common/Code";
 
