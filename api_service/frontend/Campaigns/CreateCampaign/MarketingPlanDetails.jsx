@@ -342,6 +342,7 @@ function MarketingPlanDetails(props) {
               </Grid>
             </Grid>
           </Grid>
+<<<<<<< HEAD
         )}
         {createCampaign.marketing_plan.actions
           && createCampaign.marketing_plan.actions.findIndex(
@@ -378,6 +379,44 @@ function MarketingPlanDetails(props) {
                   </Tooltip>
                 </Grid>
               </Grid>
+=======
+        }
+        {createCampaign.marketing_plan.actions && createCampaign.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 && <Grid item xs={10}>
+          <Grid container spacing={24}>
+            <Grid className={classes.inputCustom} item xs={4}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+              >
+                Choose Email Template
+              </InputLabel>
+            </Grid>
+            <Grid item xs={7}>
+              <FormControl fullWidth className={classes.formControl}>
+                <InputLabel htmlFor="age-simple">Email Template</InputLabel>
+                <Select
+                  // value={this.state.age}
+                  // onChange={this.handleChange}
+                  inputProps={{
+                  }}
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  <MenuItem value={10}>Ten</MenuItem>
+                  <MenuItem value={20}>Twenty</MenuItem>
+                  <MenuItem value={30}>Thirty</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={1}>
+              <IconButton aria-label="Preview" classes={{ root: classes.fixButton }}>
+                <PreviewIcon fontSize="small" />
+              </IconButton>
+>>>>>>> a76239b0c1177ab3478cfd14ba35f47406dade9f
             </Grid>
         )}
 

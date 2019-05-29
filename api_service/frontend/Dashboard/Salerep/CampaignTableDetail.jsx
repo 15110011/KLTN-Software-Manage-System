@@ -429,7 +429,7 @@ function CampaignTableDetail(props) {
                   <RefreshIcon fontSize="small" />
                 </IconButton>
               </Grid>
-              <Grid className="text-right" item xs={6}>
+              <Grid className="text-right" style={{ padding: '12px' }}  item xs={6}>
                 {campaigns.data.length} campaign(s)
               </Grid>
             </Grid>
