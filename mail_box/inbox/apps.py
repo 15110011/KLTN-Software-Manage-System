@@ -6,7 +6,6 @@ from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
 
-
 class InboxConfig(AppConfig):
     name = 'inbox'
     verbose_name = "MailBox"

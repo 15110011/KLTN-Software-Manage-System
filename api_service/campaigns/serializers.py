@@ -16,13 +16,22 @@ import django_rq
 from datetime import datetime, timedelta, timezone
 import calendar
 from KLTN.common import send_email
-import requests
+import requests, json
+import logging
+logger = logging.getLogger(__name__)
 
-def send_email_api(user, to_address, from_address, subject, message):
-    request = requests.post('http://localhost:8001/api/v1/send-email',
-                            data={"user_id": user.id, "to": to_address, "from": from_address, "subject": subject, "message": message})
+def send_email_api(user, to_address, from_address, subject, message, contact_marketing_id):
+    data = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
+                    "subject": subject, "message": message}})
+    request = requests.post('http://emails:8001/api/v1/send-email',
+            data=data, headers={'Content-Type': 'application/json'})
     res = request.json()
-    print(res)
+    #try:
+    contact_marketing = models.ContactMarketing.objects.get(id=contact_marketing_id)
+    contact_marketing.thread_ids.append((res['thread_id']))
+    contact_marketing.save()
+    #except:
+    #    pass
 
 class MailTemplateSerializer(serializers.ModelSerializer):
 
@@ -173,32 +182,34 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         timestamp1 = calendar.timegm(
             (campaign.start_date + timedelta(days=1)).timetuple())
         start_date = datetime.utcfromtimestamp(timestamp1)
+        now = datetime.now()
 
         if contacts is not None:
             for index, contact in enumerate(contacts):
                 cur_contact = Contact.objects.get(id=contact)
 
                 if 'Send Email' in campaign.marketing_plan.actions:
+                    contact_marketing = models.ContactMarketing(
+                        marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, sale_rep=sale_reps[index % len(sale_reps)]
+                    )
+                    contact_marketing.save()
                     job = scheduler.schedule(
-                        scheduled_time=start_date,
+                        scheduled_time=now,
                         func=send_email_api,
                         args=[self.context.get(
-                            'request').user, cur_contact.mail, "theaqvteam@gmail.com", campaign.marketing_plan.mail_template.subject,
-                            handle_mail_template.manipulate_template(campaign.marketing_plan.mail_template.template, contact=cur_contact)],
+                            'request').user, cur_contact.mail, "theaqvteam@gmail.com", campaign.marketing_plan.mail_template.subject, handle_mail_template.manipulate_template(campaign.marketing_plan.mail_template.template, contact=cur_contact), contact_marketing.id],
                         interval=604800,
                         kwargs={},
                         repeat=10,
                     )
-                    contact_marketing = models.ContactMarketing(
-                        marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, job_id=job.id,
-                        sale_rep=sale_reps[index % len(sale_reps)]
-                    )
+                    contact_marketing.job_id = job.id
+                    contact_marketing.save()
                 else:
                     contact_marketing = models.ContactMarketing(
                         marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, sale_rep=sale_reps[index % len(
                             sale_reps)]
                     )
-                contact_marketing.save()
+                    contact_marketing.save()
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
                         cur_contact.first_name, cur_contact.last_name),

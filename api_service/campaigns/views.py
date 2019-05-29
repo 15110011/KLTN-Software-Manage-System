@@ -19,6 +19,7 @@ from rest_framework.exceptions import MethodNotAllowed
 
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
 from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
+import json
 
 
 # Create your views here.
@@ -162,9 +163,11 @@ class MarketingPlanView(ModelViewSet):
             qs = self.request.query_params.get('name')
             search = search.query('multi_match', query=qs, fields=['name^4']).filter(
                 'term', manager=self.request.user.id)
-
-            marketing_plans = [model_to_dict(marketing_plans)
-                               for marketing_plans in search.to_queryset()]
+            marketing_plans = []
+            for mp in search.to_queryset():
+                #cur_mail= MailTemplate.objects.get(id=mp.mail_template)
+                mp = {**model_to_dict(mp), "mail_template": model_to_dict(mp.mail_template)}
+                marketing_plans.append(mp)
             return {"marketing_plans": marketing_plans, "elastic_search": True}
 
         if 'marketing_plan_suggest' in self.request.query_params.keys():
@@ -561,7 +564,19 @@ class ContactMarketingView(ModelViewSet):
             action=request.data['action'], contact_marketing=instance)
         serializer = ContactMarketingHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
+import json, requests
 
+def send_email_api(user, to_address, from_address, subject, message):
+    data2 = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
+                    "subject": subject, "message": message}})
+    data = json.dumps({"data": {"user_id": 5, "to": 'dangvanminh09@gmail.com', "from": 'theaqvteam@gmail.com',
+                    "subject": 'From SEND EMAIL', "message":'lffffff' }})
+    request = requests.post('http://emails:8001/api/v1/send-email',
+            data=data, headers={'Content-Type': 'application/json'})
+
+    print(data2)
+    res = request.json()
+    print(res)
 
 class MailTemplateView(ModelViewSet):
 
@@ -569,15 +584,16 @@ class MailTemplateView(ModelViewSet):
     queryset = MailTemplate.objects
 
     def list(self, request, *args, **kwargs):
-
-        filters = Q()
         import django_rq
+
         scheduler = django_rq.get_scheduler('default')
         jobs_and_times = scheduler.get_jobs(with_times=True)
-        from pprint import pprint
         for j in jobs_and_times:
-            pprint((j))
+            print(j)
+        send_email_api(request.user, "dangvanminh09@gmail.com", "theaqvteam@gmail.com", "From SEND EMAIL", 'lffffff' )
 
+
+        filters = Q()
         filters.add(Q(user=request.user.id), Q.AND)
         filters.add(Q(is_public=True), Q.OR)
         name = request.query_params.get('name', None)
@@ -592,3 +608,4 @@ class MailTemplateView(ModelViewSet):
         }
 
         return Response(new_data, status=status.HTTP_200_OK)
+
