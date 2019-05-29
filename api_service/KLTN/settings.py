@@ -277,11 +277,11 @@ LOGGING = {
             'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG',
         },
-        'django': {
-            'handlers': ['mail_admins', 'console'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
+#        'django': {
+#            'handlers': ['mail_admins', 'console'],
+#            'level': 'DEBUG',
+#            'propagate': False,
+#        },
         'django.server': {
             'handlers': ['console'],
             'level': 'WARN',
@@ -293,6 +293,10 @@ LOGGING = {
         'account': {
             'handlers': ['console'],
             'level': 'ERROR',
+        },
+        'campaigns': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
         },
         "rq.worker": {
             "handlers": ["rq_console"],

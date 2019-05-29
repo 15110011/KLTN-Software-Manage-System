@@ -1,42 +1,24 @@
-import * as React from 'react'
-import { withStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
+import * as React from 'react';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
-import TextField from '@material-ui/core/TextField';
-import { Breadcrumbs, BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import InputBase from '@material-ui/core/InputBase';
-import Stepper from '@material-ui/core/Stepper';
-import Step from '@material-ui/core/Step';
-import StepLabel from '@material-ui/core/StepLabel';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
-import Divider from '@material-ui/core/Divider'
+import Divider from '@material-ui/core/Divider';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import PreviewIcon from '@material-ui/icons/RemoveRedEye';
-import MaterialTable from 'material-table'
-import InputLabel from '@material-ui/core/InputLabel';
-import MenuItem from '@material-ui/core/MenuItem';
-import FormControl from '@material-ui/core/FormControl';
+import MaterialTable from 'material-table';
 import Tooltip from '@material-ui/core/Tooltip';
-import styles from './CreateCampaignStyle'
+// import * as cn from 'classnames';
 
-// Components 
-import SelectCustom from '../../components/SelectCustom'
-import AsyncSelect from '../../components/AsyncSelectCustom'
-import * as cn from 'classnames'
+// Components
+import AsyncSelect from '../../components/AsyncSelectCustom';
 
-import stateHashes from '../../common/StateHash'
+import stateHashes from '../../common/StateHash';
 
 import CreateMarketingPlan from '../../MarketingPlan/CreateMarketingPlan';
 
@@ -59,13 +41,16 @@ function MarketingPlanDetails(props) {
     addMarketingPlanToEdit,
     isEditMarketingPlan,
     setIsEditMarketingPlan,
-    notification
-  } = props
+    notification,
+  } = props;
 
-  const [createMarketingPlanDialog, setCreateMarketingPlanDialog] = React.useState(false)
-  const handleCloseCreateMarketingPlanDialog = e => {
-    setCreateMarketingPlanDialog(false)
-  }
+  const [
+    createMarketingPlanDialog,
+    setCreateMarketingPlanDialog,
+  ] = React.useState(false);
+  const handleCloseCreateMarketingPlanDialog = () => {
+    setCreateMarketingPlanDialog(false);
+  };
 
   return (
     <Grid container spacing={24}>
@@ -78,40 +63,42 @@ function MarketingPlanDetails(props) {
               ))
             }
       </Grid> */}
-      {
-        createMarketingPlanDialog &&
-        <>
-          {
-            isEditMarketingPlan ?
-              <>
-                <CreateMarketingPlan
-                  marketingData={createCampaign.marketing_plan}
-                  isEditMarketingPlan={isEditMarketingPlan}
-                  addMarketingPlanToEdit={addMarketingPlanToEdit}
-                  isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
-                  createMarketingPlanDialog={createMarketingPlanDialog}
-                  handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
-                  setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
-                  setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
-                  notification={notification}
-                />
-              </>
-              :
-              <>
-                <CreateMarketingPlan
-                  notification={notification}
-                  isEditMarketingPlan={isEditMarketingPlan}
-                  addMarketingPlanToEdit={addMarketingPlanToEdit}
-                  isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
-                  createMarketingPlanDialog={createMarketingPlanDialog}
-                  handleCloseCreateMarketingPlanDialog={handleCloseCreateMarketingPlanDialog}
-                  setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
-                  setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
-                />
-              </>
-          }
-        </>
-      }
+      {createMarketingPlanDialog && (
+        <React.Fragment>
+          {isEditMarketingPlan ? (
+            <>
+              <CreateMarketingPlan
+                marketingData={createCampaign.marketing_plan}
+                isEditMarketingPlan={isEditMarketingPlan}
+                addMarketingPlanToEdit={addMarketingPlanToEdit}
+                isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
+                createMarketingPlanDialog={createMarketingPlanDialog}
+                handleCloseCreateMarketingPlanDialog={
+                  handleCloseCreateMarketingPlanDialog
+                }
+                setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
+                setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
+                notification={notification}
+              />
+            </>
+          ) : (
+            <>
+              <CreateMarketingPlan
+                notification={notification}
+                isEditMarketingPlan={isEditMarketingPlan}
+                addMarketingPlanToEdit={addMarketingPlanToEdit}
+                isCreateMarketingPlanDialog={isCreateMarketingPlanDialog}
+                createMarketingPlanDialog={createMarketingPlanDialog}
+                handleCloseCreateMarketingPlanDialog={
+                  handleCloseCreateMarketingPlanDialog
+                }
+                setCreateMarketingPlanDialog={setCreateMarketingPlanDialog}
+                setIsCreateMarketingPlanDialog={setIsCreateMarketingPlanDialog}
+              />
+            </>
+          )}
+        </React.Fragment>
+      )}
       <Grid container spacing={24}>
         <Grid item xs={10}>
           <Grid container spacing={24}>
@@ -119,21 +106,26 @@ function MarketingPlanDetails(props) {
               <InputLabel
                 htmlFor="custom-css-standard-input"
                 classes={{
-                  root: classes.cssLabel,
+                  root: classes.cssLabelMarketing,
                   focused: classes.cssFocused,
                 }}
               >
                 Marketing plan name
-                    </InputLabel>
+              </InputLabel>
             </Grid>
             <Grid item xs={7}>
               <AsyncSelect
-                handleChange={(values, element) => handleChangeMarketingPlanSelect(values, element)}
-                onChangeSelect={(values, element) => handleChangeMarketingPlanSelect(values, element)}
+                handleChange={(values, element) => handleChangeMarketingPlanSelect(values, element)
+                }
+                onChangeSelect={(values, element) => handleChangeMarketingPlanSelect(values, element)
+                }
                 data={
-                  Object.keys(createCampaign.marketing_plan).length === 0 ? '' :
-                    {
-                      label: `${createCampaign.marketing_plan.name}`, value: createCampaign.marketing_plan.id, ...createCampaign.marketing_plan
+                  Object.keys(createCampaign.marketing_plan).length === 0
+                    ? ''
+                    : {
+                      label: `${createCampaign.marketing_plan.name}`,
+                      value: createCampaign.marketing_plan.id,
+                      ...createCampaign.marketing_plan,
                     }
                 }
                 single
@@ -143,27 +135,27 @@ function MarketingPlanDetails(props) {
               />
             </Grid>
             <Grid item xs={1} style={{ display: 'inline-flex' }}>
-              {
-                createCampaign.marketing_plan.name &&
+              {createCampaign.marketing_plan.name && (
                 <IconButton
                   onClick={() => {
-                    setCreateMarketingPlanDialog(true)
-                    setIsEditMarketingPlan(true)
+                    setCreateMarketingPlanDialog(true);
+                    setIsEditMarketingPlan(true);
                   }}
                   aria-label="Edit"
-                  classes={{ root: classes.fixButton }}>
+                  classes={{ root: classes.fixButton }}
+                >
                   <EditIcon style={{ fontSize: '16px' }} />
                 </IconButton>
-              }
+              )}
               <IconButton
                 onClick={() => {
-                  setCreateMarketingPlanDialog(true)
-                  setIsCreateMarketingPlanDialog(true)
-                  setIsEditMarketingPlan(false)
-                }
-                }
+                  setCreateMarketingPlanDialog(true);
+                  setIsCreateMarketingPlanDialog(true);
+                  setIsEditMarketingPlan(false);
+                }}
                 aria-label="Add"
-                classes={{ root: classes.fixButton }}>
+                classes={{ root: classes.fixButton }}
+              >
                 <AddIcon style={{ fontSize: '16px' }} />
               </IconButton>
             </Grid>
@@ -175,24 +167,24 @@ function MarketingPlanDetails(props) {
               <InputLabel
                 htmlFor="custom-css-standard-input"
                 classes={{
-                  root: classes.cssLabel,
+                  root: classes.cssLabelMarketing,
                   focused: classes.cssFocused,
                 }}
               >
                 Contacts from groups
-                    </InputLabel>
+              </InputLabel>
             </Grid>
             <Grid item xs={7}>
               <FormControl fullWidth className={classes.formControl}>
                 <AsyncSelect
-                  handleChange={(values, element) => handleChangeLoadContactSelect(values, element)}
-                  onChangeSelect={(values, element) => handleChangeLoadContactSelect(values, element)}
-                  data={
-                    createCampaign.groups.reduce((acc, g) => {
-                      acc.push({ label: g.name, value: g.id, ...g })
-                      return acc
-                    }, [])
+                  handleChange={(values, element) => handleChangeLoadContactSelect(values, element)
                   }
+                  onChangeSelect={(values, element) => handleChangeLoadContactSelect(values, element)
+                  }
+                  data={createCampaign.groups.reduce((acc, g) => {
+                    acc.push({ label: g.name, value: g.id, ...g });
+                    return acc;
+                  }, [])}
                   multi
                   placeholder=""
                   label=""
@@ -200,129 +192,135 @@ function MarketingPlanDetails(props) {
                 />
               </FormControl>
             </Grid>
-            <Grid item xs={1}>
-            </Grid>
+            <Grid item xs={1} />
           </Grid>
         </Grid>
         <Grid item xs={10}>
-          {
-            createCampaign.marketing_plan.condition &&
-            createCampaign.marketing_plan.condition.must.map((m, i) => {
-              return (
-                <>
-                  <Grid container key={i} spacing={24}>
-                    <Grid className={classes.inputCustom} item xs={4}>
-                      <InputLabel
-                        htmlFor="custom-css-standard-input"
-                        classes={{
-                          root: classes.cssLabel,
-                          focused: classes.cssFocused,
-                        }}
-                      >
-                        All Conditions(All conditions must be met)
+          {createCampaign.marketing_plan.condition
+            && createCampaign.marketing_plan.condition.must.map((m, i) => (
+              <>
+                <Grid container key={i} spacing={24}>
+                  <Grid className={classes.inputCustom} item xs={4}>
+                    <InputLabel
+                      htmlFor="custom-css-standard-input"
+                      classes={{
+                        root: classes.cssLabelMarketing,
+                        focused: classes.cssFocused,
+                      }}
+                    >
+                      All Conditions(All conditions must be met)
                     </InputLabel>
-                    </Grid>
-                    <Grid item xs={7}>
-                      <Grid container spacing={24}>
-                        <Grid item xs={5}>
-                          <Tooltip title={marketingPlanConditions[m.operand].name} aria-label="Add">
-                            <FormControl fullWidth className={classes.formControl}>
-                              <InputLabel htmlFor="age-simple">Operands</InputLabel>
-                              <Select
-                                value={m.operand}
-                                name="operand"
-                                className={classes.selectEmpty}
-                                disabled
-                              >
-                                {
-                                  Object.values(marketingPlanConditions).map(c => {
-                                    return (
-                                      <MenuItem key={c.name} value={c.id}>
-                                        {c.name}
-                                      </MenuItem>
-                                    )
-                                  })
-                                }
-                              </Select>
-                            </FormControl>
-                          </Tooltip>
-                        </Grid>
-                        <Grid item xs={3}>
-                          <Tooltip title={m.operator} aria-label="Add">
-                            <FormControl fullWidth className={classes.formControl}>
-                              <InputLabel htmlFor="age-simple">Operators</InputLabel>
-                              <Select
-                                value={m.operator}
-                                disabled
-                                name="operator"
-                                className={classes.selectEmpty}
-                              >
-                                <MenuItem value={m.operator}>
-                                  {m.operator}
+                  </Grid>
+                  <Grid item xs={7}>
+                    <Grid container spacing={24}>
+                      <Grid item xs={5}>
+                        <Tooltip
+                          title={marketingPlanConditions[m.operand].name}
+                          aria-label="Add"
+                        >
+                          <FormControl
+                            fullWidth
+                            className={classes.formControl}
+                          >
+                            <InputLabel htmlFor="age-simple">
+                              Operands
+                            </InputLabel>
+                            <Select
+                              value={m.operand}
+                              name="operand"
+                              className={classes.selectEmpty}
+                              disabled
+                            >
+                              {Object.values(marketingPlanConditions).map(c => (
+                                <MenuItem key={c.name} value={c.id}>
+                                  {c.name}
                                 </MenuItem>
-                              </Select>
-                            </FormControl>
-                          </Tooltip>
-                        </Grid>
-                        <Grid item xs={4}>
-                          {m.operand == '1' ?
-                            <Tooltip title={
+                              ))}
+                            </Select>
+                          </FormControl>
+                        </Tooltip>
+                      </Grid>
+                      <Grid item xs={3}>
+                        <Tooltip title={m.operator} aria-label="Add">
+                          <FormControl
+                            fullWidth
+                            className={classes.formControl}
+                          >
+                            <InputLabel htmlFor="age-simple">
+                              Operators
+                            </InputLabel>
+                            <Select
+                              value={m.operator}
+                              disabled
+                              name="operator"
+                              className={classes.selectEmpty}
+                            >
+                              <MenuItem value={m.operator}>
+                                {m.operator}
+                              </MenuItem>
+                            </Select>
+                          </FormControl>
+                        </Tooltip>
+                      </Grid>
+                      <Grid item xs={4}>
+                        {m.operand == '1' ? (
+                          <Tooltip
+                            title={(
                               <ul>
-                                {m.data.map((m) => {
-                                  return (
-                                    <li>
-                                      {`${stateHashes[m]}`}
-                                    </li>
-                                  )
-                                })}
+                                {m.data.map(m => (
+                                  <li>{`${stateHashes[m]}`}</li>
+                                ))}
                               </ul>
-                            }>
-                              <FormControl fullWidth className={classes.formControl}>
-                                <InputLabel htmlFor="age-simple">Data</InputLabel>
-                                <Input
-                                  value={m.data.reduce((acc, m) => {
-                                    acc += `${stateHashes[m]}, `
-                                    return acc
-                                  }, '').slice(0, -2)}
-                                  displayEmpty
-                                  disabled
-                                  className={classes.selectEmpty}
-                                >
-                                </Input>
-                              </FormControl>
-                            </Tooltip>
-                            :
-                            <FormControl fullWidth className={classes.formControl}>
+)}
+                          >
+                            <FormControl
+                              fullWidth
+                              className={classes.formControl}
+                            >
                               <InputLabel htmlFor="age-simple">Data</InputLabel>
                               <Input
-                                value={m.data}
+                                value={m.data
+                                  .reduce((acc, m) => {
+                                    acc += `${stateHashes[m]}, `;
+                                    return acc;
+                                  }, '')
+                                  .slice(0, -2)}
                                 displayEmpty
                                 disabled
                                 className={classes.selectEmpty}
-                              >
-                              </Input>
+                              />
                             </FormControl>
-                          }
-                        </Grid>
+                          </Tooltip>
+                        ) : (
+                          <FormControl
+                            fullWidth
+                            className={classes.formControl}
+                          >
+                            <InputLabel htmlFor="age-simple">Data</InputLabel>
+                            <Input
+                              value={m.data}
+                              displayEmpty
+                              disabled
+                              className={classes.selectEmpty}
+                            />
+                          </FormControl>
+                        )}
                       </Grid>
                     </Grid>
-                    <Grid item xs={1}>
-                    </Grid>
                   </Grid>
-                </>
-              )
-            })
-          }
+                  <Grid item xs={1} />
+                </Grid>
+              </>
+            ))}
         </Grid>
-        {
-          createCampaign.marketing_plan.actions &&
+        {createCampaign.marketing_plan.actions && (
           <Grid item xs={10}>
             <Grid container spacing={24}>
               <Grid className={classes.inputCustom} item xs={4}>
                 <InputLabel
                   htmlFor="custom-css-standard-input"
                   classes={{
-                    root: classes.cssLabel,
+                    root: classes.cssLabelMarketing,
                     focused: classes.cssFocused,
                   }}
                 >
@@ -330,117 +328,137 @@ function MarketingPlanDetails(props) {
                 </InputLabel>
               </Grid>
               <Grid item xs={7}>
-                <Input value={createCampaign.marketing_plan.actions.reduce((acc, a) => {
-                  acc += a + ', '
-                  return acc
-                }, '').slice(0, -2)} fullWidth
+                <Input
+                  value={createCampaign.marketing_plan.actions
+                    .reduce((acc, a) => {
+                      let res = acc;
+                      res += `${a}, `;
+                      return res;
+                    }, '')
+                    .slice(0, -2)}
+                  fullWidth
                   disabled
-                ></Input>
+                />
               </Grid>
             </Grid>
           </Grid>
-        }
-        {createCampaign.marketing_plan.actions && createCampaign.marketing_plan.actions.findIndex(a => a == 'Send Email') != -1 && <Grid item xs={10}>
-          <Grid container spacing={24}>
-            <Grid className={classes.inputCustom} item xs={4}>
-              <InputLabel
-                htmlFor="custom-css-standard-input"
-                classes={{
-                  root: classes.cssLabel,
-                  focused: classes.cssFocused,
-                }}
-              >
-                Choose Email Template
-              </InputLabel>
+        )}
+        {createCampaign.marketing_plan.actions
+          && createCampaign.marketing_plan.actions.findIndex(
+            a => a === 'Send Email',
+          ) !== -1 && (
+            <Grid item xs={10}>
+              <Grid container spacing={24}>
+                <Grid className={classes.inputCustom} item xs={4}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabelMarketing,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Email Template
+                  </InputLabel>
+                </Grid>
+                <Grid item xs={7}>
+                  <Input
+                    value={createCampaign.marketing_plan.mail_template.name}
+                    fullWidth
+                    disabled
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <Tooltip title="Preview email">
+                    <IconButton
+                      aria-label="Preview"
+                      classes={{ root: classes.fixButton }}
+                    >
+                      <PreviewIcon style={{ fontSize: '16px' }} />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
+              </Grid>
             </Grid>
-            <Grid item xs={7}>
-              <FormControl fullWidth className={classes.formControl}>
-                <InputLabel htmlFor="age-simple">Email Template</InputLabel>
-                <Select
-                  // value={this.state.age}
-                  // onChange={this.handleChange}
-                  inputProps={{
-                    name: 'age',
-                    id: 'age-simple',
-                  }}
-                >
-                  <MenuItem value="">
-                    <em>None</em>
-                  </MenuItem>
-                  <MenuItem value={10}>Ten</MenuItem>
-                  <MenuItem value={20}>Twenty</MenuItem>
-                  <MenuItem value={30}>Thirty</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={1}>
-              <IconButton aria-label="Preview" classes={{ root: classes.fixButton }}>
-                <PreviewIcon fontSize="small" />
-              </IconButton>
-            </Grid>
-          </Grid>
-        </Grid>}
+        )}
 
         <Grid item xs={12}>
           <Grid container spacing={24}>
             <Grid item xs={12} style={{ marginTop: '20px' }}>
-              <Button onClick={(e) => handleApplyConditionTable(e)} variant="contained" color="primary">Filter</Button>
+              <Button
+                onClick={e => handleApplyConditionTable(e)}
+                variant="contained"
+                color="primary"
+              >
+                Filter
+              </Button>
             </Grid>
           </Grid>
         </Grid>
-        {
-          applyConditionTable == true &&
-          <Grid classes={{ container: classes.fixTable }} container spacing={24} className="mt-4">
+        {applyConditionTable === true && (
+          <Grid
+            classes={{ container: classes.fixTable }}
+            container
+            spacing={24}
+            className="mt-4"
+          >
             <Divider />
             <Grid item xs={12}>
               <MaterialTable
                 columns={[
-                  { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
+                  {
+                    title: '#',
+                    field: 'numeral',
+                    type: 'numeric',
+                    cellStyle: { width: '50px' },
+                    filtering: false,
+                  },
                   { title: 'First Name', field: 'fname' },
                   { title: 'Last Name', field: 'lname' },
                   { title: 'Email', field: 'email' },
                   { title: 'Phone', field: 'phone' },
                   { title: 'Orgnization', field: 'org' },
                 ]}
-                data={createCampaign.contacts.map(
-                  (c, index) => ({
-                    numeral: index + 1,
-                    fname: c.first_name,
-                    lname: c.last_name,
-                    email: c.mail,
-                    phone: c.phone,
-                    org: c.org,
-                    id: c.id
-                  })
-                )}
+                data={createCampaign.contacts.map((c, index) => ({
+                  numeral: index + 1,
+                  fname: c.first_name,
+                  lname: c.last_name,
+                  email: c.mail,
+                  phone: c.phone,
+                  org: c.org,
+                  id: c.id,
+                }))}
                 title="Contacts List"
                 actions={[
                   {
                     icon: 'delete',
                     tooltip: 'Do',
                     onClick: (event, rows) => {
-                      rows.forEach(r => {
-                        let index = createCampaign.contacts.findIndex(c => c.id == r.id)
-                        let cloneContact = createCampaign.contacts.concat([])
-                        if (index != -1) {
-                          cloneContact = cloneContact.slice(0, index).concat(cloneContact.slice(index + 1))
+                      rows.forEach((r) => {
+                        const index = createCampaign.contacts.findIndex(
+                          c => c.id === r.id,
+                        );
+                        let cloneContact = createCampaign.contacts.concat([]);
+                        if (index !== -1) {
+                          cloneContact = cloneContact
+                            .slice(0, index)
+                            .concat(cloneContact.slice(index + 1));
                         }
-                        deleteExceptionContacts(cloneContact)
-                      })
+                        deleteExceptionContacts(cloneContact);
+                      });
                     },
                   },
                 ]}
                 options={{
                   selection: true,
                   filtering: true,
-                  paging: true
+                  paging: true,
                 }}
               />
             </Grid>
           </Grid>
-        }
+        )}
       </Grid>
-    </Grid >
-  )
+    </Grid>
+  );
 }
-export default MarketingPlanDetails
+export default MarketingPlanDetails;

@@ -15,6 +15,7 @@ def send_email(request):
     data = request.data.get('data', None)
     gmail = GmailService()
     mail = gmail.send_message(data)
+
     models.MailBox.objects.create(
         user_id=data['user_id'],
         message_id=mail['message_id'],

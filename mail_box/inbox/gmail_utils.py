@@ -39,7 +39,7 @@ class GmailService:
             flow = client.flow_from_clientsecrets(
                 self.credentials, self.scopes)
             creds = tools.run_flow(flow, store)
-        service = build('gmail', 'v1', http=creds.authorize(Http()))
+        service = build('gmail', 'v1', http=creds.authorize(Http()), cache_discovery=False)
         return service
 
     def get_all_messages(self, labelIds=None, query=None, maxResults=None, pageToken=None):
@@ -141,5 +141,5 @@ class GmailService:
             return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
 
 
-gmail = GmailService()
-gmail.get_service()
+#gmail = GmailService()
+#gmail.get_service()

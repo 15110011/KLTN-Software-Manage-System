@@ -40,4 +40,3 @@ def send_email_api(user, to_address, from_address, subject, message):
     request = requests.post('http://localhost:8001/api/v1/send-email',
                             data={"user_id": user.id, "to": to_address, "from": from_address, "subject": subject, "message": message})
     res = request.json()
-    print(res)
