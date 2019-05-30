@@ -15,19 +15,26 @@ import Divider from '@material-ui/core/Divider'
 import Button from '@material-ui/core/Button'
 
 import styles from './MailboxStyles'
-import { apiPost } from '../../common/Request'
+import { apiPost } from '../common/Request'
 import CustomSnackbar from '../../components/CustomSnackbar'
-import { GMAIL_SEND_URL, CONTACT_MARKETING_URL } from '../../common/urls';
-
+import { SEND_EMAIL, CONTACT_MARKETING_URL, REFRESH_TOKEN_URL } from '../common/urls';
+import { BAD_REQUEST, } from "../common/Code";
+import { htmlToState, draftToRaw } from "../common/Utils";
+import { Editor } from "react-draft-wysiwyg";
+import "../common/react-draft-wysiwyg.css";
+import { apiPatch } from '../common/Request';
 
 function SendMailDialog(props) {
 
-  const { classes, contact, toggleDialog, user, updateMailMetric } = props
+  const { classes, sendTo, toggleDialog, user, onComplete} = props
   const [mail, setMail] = React.useState({
+    user_id: user.id,
+    to: sendTo.mail,
+    from: 'theaqvteam@gmail.com',
     subject: '',
-    to: contact ? contact.mail : '',
-    text: ''
+    message: ''
   })
+  const [editorState, setEditorState] = React.useState(htmlToState(""))
 
   const [error, setError] = React.useState({})
 
@@ -36,16 +43,29 @@ function SendMailDialog(props) {
   }
 
   const onSendMail = () => {
-
-    apiPost(GMAIL_SEND_URL, mail, false, true).then(res => {
-    })
-    if (updateMailMetric) {
-      updateMailMetric()
+    const data = {
+      ...mail,
+      message: draftToRaw(editorState),
     }
+    apiPost(SEND_EMAIL, { data }, false, false)
+      .then(res => {
+          // notification()
+          // setCreateCampaignDialog(false)
+          onComplete(res.data)
+      })
   }
 
+  const onEditorStateChange = editorState => {
+    setEditorState(editorState)
+  };
+
   return (
-    <Dialog open={true} onClose={toggleDialog}>
+    <Dialog
+      open={true}
+      onClose={toggleDialog}
+      maxWidth="md"
+      fullWidth
+    >
       <DialogTitle>Send Email</DialogTitle>
       <DialogContent>
         <Grid container spacing={8}>
@@ -117,7 +137,7 @@ function SendMailDialog(props) {
               classes={{
                 underline: classes.cssUnderline,
               }}
-              value={user.email}
+              value={mail.from}
               fullWidth
               disabled
             />
@@ -134,8 +154,8 @@ function SendMailDialog(props) {
               Content
             </InputLabel>
           </Grid>
-          <Grid item xs={10}>
-            <Input
+          <Grid item xs={10} className="pt-3">
+            {/* <Input
               onChange={onChangeInput}
               name="text"
               type="text"
@@ -144,12 +164,18 @@ function SendMailDialog(props) {
               }}
               value={user.text}
               fullWidth
+            /> */}
+            <Editor
+              editorState={editorState}
+              wrapperClassName="editor-wrapper"
+              editorClassName="editor"
+              onEditorStateChange={onEditorStateChange}
             />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onSendMail}>SEND</Button>
+        <Button style={{ marginRight: '20px' }} variant="contained" color="primary" onClick={onSendMail}>SEND</Button>
       </DialogActions>
     </Dialog>
   )

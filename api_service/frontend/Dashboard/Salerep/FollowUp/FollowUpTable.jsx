@@ -329,7 +329,7 @@ function FollowUpTable(props) {
                         followup: d,
                         histories: d.history,
                         allHistories: d.all_histories,
-                        contact: d.contacts
+                        contact: d.contacts,
                       }
                     })
                     if (moreRow) {

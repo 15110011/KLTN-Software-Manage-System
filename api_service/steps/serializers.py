@@ -32,10 +32,11 @@ class StepDetailSerializer(serializers.ModelSerializer):
                     if step.id == instance.step.id:
                         if index + 1 >= len(steps):
                             break
-                        queue = django_rq.get_queue('default', is_async=True)
-                        queue.enqueue(send_email, self.context.get(
-                            'request').user, 'Step', step[index+1].mail_template)
-                        break
+                        if "Send Email" in steps[index+1].actions:
+                            queue = django_rq.get_queue('default', is_async=True)
+                            queue.enqueue(send_email, self.context.get(
+                                'request').user, 'Step', steps[index+1].mail_template)
+                            break
         return step_detail
 
 

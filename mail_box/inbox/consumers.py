@@ -28,10 +28,14 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         threads = content['threads']
         data = []
         for thread in threads:
-            thread_id = thread['thread_id']
-            if cache.get(f'user_{self.user_id}_thread_{thread_id}') is not None:
-                data.append(
-                    cache.get(f'user_{self.user_id}_thread_{thread_id}'))
+            action_type = thread['type']
+            if action_type == 'Call Clients':
+                data.append(thread)
+            else: 
+                thread_id = thread['thread_id']
+                if cache.get(f'user_{self.user_id}_thread_{thread_id}') is not None:
+                    data.append(
+                        cache.get(f'user_{self.user_id}_thread_{thread_id}'))
         await self.send_json({"data": data})
 
     async def email_message(self, event):

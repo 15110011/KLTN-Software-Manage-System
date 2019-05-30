@@ -34,7 +34,7 @@ import { CalendarMonthGrid } from 'react-dates/lib';
 import * as moment from 'moment'
 
 function Report(props) {
-  const { classes } = props
+  const { classes, user } = props
   const [startDate, setStartDate] = React.useState(moment().startOf('month'))
   const [endDate, setEndDate] = React.useState(moment().endOf('month'))
   const [focusedInput, setFocusedInput] = React.useState(null)
@@ -110,10 +110,13 @@ function Report(props) {
                   }} // PropTypes.func.isRequired,
                   onFocusChange={setFocusedInput} // PropTypes.func.isRequired,
                   showDefaultInputIcon={true}
+                  // minDate={null}
                   inputIconPosition={ICON_BEFORE_POSITION}
                 />
               </Grid>
-              <Grid item xs={3} style={{ marginLeft: '-85px' }}>
+              {
+                user.profile.is_manager &&
+                <Grid item xs={3} style={{ marginLeft: '-85px' }}>
                 <TextField
                   style={{ marginTop: '0', height: '48px' }}
                   InputProps={{
@@ -134,10 +137,13 @@ function Report(props) {
                   variant="outlined"
                 >
                   <MenuItem>
-                    asd
-          </MenuItem>
+                    Product
+                  </MenuItem>
+                  <MenuItem>
+                    Sale Rep
+                  </MenuItem>
                 </TextField>
-              </Grid>
+              </Grid>}
               <Grid item xs={2}>
                 <Button onClick={() => handleFilter()} style={{ height: '48px', width: '50%' }} variant="contained" color="primary">
                   Filter
@@ -148,24 +154,41 @@ function Report(props) {
         </Grid>
         <Grid item xs={12} className="pt-3">
           <MaterialTable
+            title="Report"
             columns={[
-              { title: '#', field: 'numeral', headerStyle: { zIndex: 0 } },
+              { title: '#', field: 'numeral', headerStyle: { zIndex: 0 }, filtering: false, sorting: false },
               { title: 'Order', field: 'order', headerStyle: { zIndex: 0 } },
-              { title: 'Product', field: 'product', headerStyle: { zIndex: 0 } },
-              { title: 'Campaign', field: 'campaign', headerStyle: { zIndex: 0 } },
-              { title: 'From', field: 'from', headerStyle: { zIndex: 0 } },
-              { title: 'To', field: 'to', headerStyle: { zIndex: 0 } },
+              { title: 'Product', field: 'product', headerStyle: { zIndex: 0 },
+              customSort: (a, b) => {
+                  if (!a.product) return 1
+                  if (!b.product) return -1
+                  return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
+                }
+               },
+              {
+                title: 'Campaign', field: 'campaign', headerStyle: { zIndex: 0 },
+                customSort: (a, b) => {
+                  if (!a.campaign) return 1
+                  if (!b.campaign) return -1
+                  return a.campaign.toString().toLowerCase() < b.campaign.toString().toLowerCase() ? -1 : 1
+                }
+              },
               { title: 'State', field: 'state', headerStyle: { zIndex: 0 } }
             ]}
+
+            options={{
+              search: false,
+              filtering: true
+            }}
             data={dataSearch && dataSearch.map((s, i) => ({
               'numeral': i + 1,
               'order': s.name ? s.name : '',
               'product': s.campaign.product != null ? s.campaign.product.name : 'asad',
               'campaign': s.campaign.name ? s.campaign.name : '',
-              'from': moment().startOf('month').format('YYYY-MM-DD'),
-              'to': moment().endOf('month').format('YYYY-MM-DD'),
               state: ''
-            }))}
+            }))
+
+            }
           />
         </Grid>
       </Grid>

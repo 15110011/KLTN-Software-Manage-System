@@ -31,11 +31,12 @@ import styles from './MailBoxListStyle.js'
 import SideBarMailBox from './SideBarMailBox'
 import SendMailComponent from './SendMailComponent'
 import { initMailWebsocket } from '../../common/Utils';
+import * as dateFns from 'date-fns'
 
 
 function MailDetail(props) {
 
-  const { classes, history, backToInbox, user } = props
+  const { classes, history, backToInbox, user, thread_ids, sendTo } = props
 
   const [expanded, setExpanded] = React.useState(null)
   const [noExpand, setNoExpand] = React.useState([])
@@ -48,6 +49,7 @@ function MailDetail(props) {
     data: [
     ]
   })
+  const [mailDialog, setMailDialog] = React.useState(false)
 
 
   React.useEffect(() => {
@@ -62,7 +64,7 @@ function MailDetail(props) {
         oldMails = { data: [response.data[0], ...oldMails.data] }
         setEmails(oldMails)
         setIsReply(oldMails.data.map(d => {
-          return d.map(_ => false)
+          return d.map(_ => ({ stt: false }))
         }
         ))
         setNoExpand(oldMails.data.map(d => {
@@ -73,7 +75,7 @@ function MailDetail(props) {
         setEmails(response)
         oldMails = response
         setIsReply(response.data.map(d => {
-          return d.map(_ => false)
+          return d.map(_ => ({ stt: false }))
         }
         ))
         setNoExpand(response.data.map(d => {
@@ -84,10 +86,7 @@ function MailDetail(props) {
     }
     ws.onopen = e => {
       ws.send(JSON.stringify({
-        threads: [
-          { 'thread_id': '16ae4426d208d752' },
-          { 'thread_id': '16ae3762619e822e' },
-        ]
+        threads: thread_ids
       }))
     }
   }, [])
@@ -103,13 +102,27 @@ function MailDetail(props) {
 
   const handleCloseReply = (i, insideIndex) => {
     let cloneIsReply = [...isReply]
-    cloneIsReply[i][insideIndex] = false
+    cloneIsReply[i][insideIndex] = { stt: false }
     setIsReply(cloneIsReply)
   }
 
   const handleReply = (i, insideIndex) => {
     let cloneIsReply = [...isReply]
-    cloneIsReply[i][insideIndex] = !cloneIsReply[i][insideIndex]
+    cloneIsReply[i][insideIndex].stt = !cloneIsReply[i][insideIndex].stt
+    if (cloneIsReply[i][insideIndex].stt) {
+      let replyingEmail = emails.data[i][insideIndex]
+      cloneIsReply[i][insideIndex].threadId = thread_ids[i]
+      cloneIsReply[i][insideIndex]['In-Reply-To'] = replyingEmail['Message-Id'][0]
+      cloneIsReply[i][insideIndex]['References'] = `${replyingEmail['References'].length ? replyingEmail['References'][0] + ' ' : ''}${replyingEmail['Message-Id'][0]}`
+      cloneIsReply[i][insideIndex]['subject'] = emails.data[i][0].subject.reduce((acc, s)=>{
+        let res = acc
+        res +=s
+        return res
+
+      }, '')
+
+    }
+
     setIsReply(cloneIsReply)
   }
 
@@ -129,8 +142,16 @@ function MailDetail(props) {
     setShowReply(!showReply)
   };
 
+  const handleSendEmail = () => {
+    setMailDialog(true)
+  }
   return (
     <div className={classes.root}>
+      {mailDialog &&
+        <SendMailDialog user={user} toggleDialog={() => { setMailDialog(!mailDialog) }}
+
+        />
+      }
       <Grid container spacing={8}>
         <Grid item xs={12}>
           <Paper>
@@ -147,6 +168,17 @@ function MailDetail(props) {
             <List>
               {
                 noExpand[0] && emails.data && emails.data.map((t, j) => {
+                  console.log(emails.data)
+                  var result = dateFns.differenceInDays(
+                    new Date(),
+                    new Date(t[0].date_created[0])
+                  )
+                  let dateValue = ''
+                  if (result == 0) {
+                    dateValue = dateFns.format(new Date(t[0].date_created[0]), 'HH:mm')
+                  } else {
+                    dateValue = dateFns.formatDistance(new Date(t[0].date_created[0]), new Date())
+                  }
                   return (
                     <>
                       <ListItem key={j} alignItems="flex-start">
@@ -182,7 +214,7 @@ function MailDetail(props) {
                               }
                             />
                             <ListItemText
-                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{t[0].date_created[0]}</i></div>}
+                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{dateValue}</i></div>}
                             />
                           </ExpansionPanelSummary>
                           <ExpansionPanelDetails>
@@ -204,11 +236,12 @@ function MailDetail(props) {
                               </Grid>
                               <Grid item xs={12}>
                                 {
-                                  isReply[j][0] &&
+                                  isReply[j][0] && isReply[j][0].stt &&
                                   <SendMailComponent
                                     handleCloseReply={() => handleCloseReply(j, 0)}
                                     user={user}
-                                    sendTo={'asdas'}
+                                    sendTo={sendTo}
+                                    data={isReply[j][0]}
                                   />
                                 }
                               </Grid>
@@ -216,6 +249,16 @@ function MailDetail(props) {
                                 t.slice(1).map((e, i) => {
                                   i += 1
                                   if (e.from.length > 0) {
+                                    var result = dateFns.differenceInDays(
+                                      new Date(),
+                                      new Date(e.date_created)
+                                    )
+                                    let dateValue = ''
+                                    if (result == 0) {
+                                      dateValue = dateFns.format(new Date(e.date_created), 'HH:mm')
+                                    } else {
+                                      dateValue = dateFns.formatDistance(new Date(e.date_created), new Date())
+                                    }
                                     let name = ''
                                     let mail = ''
                                     let fromName = e.from[0].match(/(.+) (<.+>)/)
@@ -256,7 +299,7 @@ function MailDetail(props) {
                                               }
                                             />
                                             <ListItemText
-                                              secondary={<div style={{ textAlign: 'right', fontSize: '12px' }}><i>{e.date_created}</i></div>}
+                                              secondary={<div style={{ textAlign: 'right', fontSize: '12px' }}><i>{dateValue}</i></div>}
                                             />
                                           </ExpansionPanelSummary>
                                           <ExpansionPanelDetails>
@@ -278,11 +321,12 @@ function MailDetail(props) {
                                               </Grid>
                                               <Grid item xs={12}>
                                                 {
-                                                  isReply[j][i] &&
+                                                  isReply[j][i].stt &&
                                                   <SendMailComponent
                                                     handleCloseReply={() => handleCloseReply(j, i)}
                                                     user={user}
-                                                    sendTo={mail}
+                                                    sendTo={sendTo}
+                                                    data={isReply[j][i]}
                                                   />
                                                 }
                                               </Grid>
@@ -292,6 +336,16 @@ function MailDetail(props) {
                                       </ListItem>
                                     )
                                   } else {
+                                    var result = dateFns.differenceInDays(
+                                      new Date(),
+                                      new Date(e.date_created[0])
+                                    )
+                                    let dateValue = ''
+                                    if (result == 0) {
+                                      dateValue = dateFns.format(new Date(e.date_created[0]), 'HH:mm')
+                                    } else {
+                                      dateValue = dateFns.formatDistance(new Date(e.date_created[0]), new Date())
+                                    }
                                     return (
                                       <ListItem key={j} alignItems="flex-start">
                                         <ListItemAvatar>
@@ -325,7 +379,7 @@ function MailDetail(props) {
                                               }
                                             />
                                             <ListItemText
-                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{e.date_created[0]}</i></div>}
+                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i> {dateValue}</i></div>}
                                             />
                                           </ExpansionPanelSummary>
                                           <ExpansionPanelDetails>
@@ -347,11 +401,12 @@ function MailDetail(props) {
                                               </Grid>
                                               <Grid item xs={12}>
                                                 {
-                                                  isReply[j][i] &&
+                                                  isReply[j][i].stt &&
                                                   <SendMailComponent
                                                     handleCloseReply={() => handleCloseReply(j, i)}
-                                                    sendTo={"theaqvteam@gmail.com"}
+                                                    sendTo={sendTo}
                                                     user={user}
+                                                    data={isReply[j][i]}
                                                   />
                                                 }
                                               </Grid>

@@ -33,6 +33,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import { EVENTS_URL, CONTACT_URL, PACKAGES_URL, CONTACT_MARKETING_URL } from '../../common/urls';
+import MailDetail from '../../Mailbox/MailBoxList/MailDetail';
 
 
 
@@ -79,6 +80,7 @@ function TicketDetail(props) {
   const [noteDialog, setNoteDialog] = React.useState(false)
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [mailDialog, setMailDialog] = React.useState(false)
+  const [backToInbox, setBackToInbox] = React.useState(false)
 
 
   const [contactDetail, setContactDetail] = React.useState(false)
@@ -314,9 +316,17 @@ function TicketDetail(props) {
             }
           </Grid>
         </Grid>
+        <Grid item xs={12} className="pt-3">
+          <Paper style={{ padding: '20px' }}>
+            <MailDetail
+              backToInbox={backToInbox}
+              user={user}
+            />
+          </Paper>
+        </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={9}>
           Activity
-          </Grid>
+        </Grid>
         <Grid className="d-flex justify-content-end" item xs={3}>
           <FormControl className={classes.formControl}>
             <Select
