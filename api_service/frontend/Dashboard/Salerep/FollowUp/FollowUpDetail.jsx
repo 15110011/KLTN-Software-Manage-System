@@ -122,7 +122,8 @@ function FollowUpDetail(props) {
           order: followup.id,
           information,
           status,
-          id: followup.step_details[i] ? followup.step_details[i].id : null
+          id: followup.step_details[i] ? followup.step_details[i].id : null,
+          thread: followup.step_details[i].thread
         }
       }))
     }
@@ -260,24 +261,26 @@ function FollowUpDetail(props) {
       })
     }
   }
-  console.log(stepDetail, moreRow.packages)
+  if(stepDetail[activeStep])
+  console.log(stepDetail[activeStep].thread)
 
+  const updateData = (newThreadId) => {
+
+    apiPatch(STEP_DETAIL_URL + '/' + stepDetail[activeStep].id, { ...stepDetail[activeStep], thread: [...stepDetail[activeStep].thread, { type: "Send Email Manually", "thread_id": newThreadId['thread_id'], note: '' }] }, false, true).then(res => {
+      setSuccessNoti(`Send email successfully`)
+      updateTable()
+      setTimeout(() => {
+        setSuccessNoti(false)
+      }, 2000);
+    })
+  }
   return (
     <>
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
       {error.all && <CustomSnackbar isErr msg={error.all} />}
       {mailDialog &&
-        <SendMailDialog user={user} contact={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
-          updateMailMetric={() => {
-
-            apiPost(ORDER_URL + '/' + id + '/history', { action: 'Send Email Manually' }, false, true).then(res => {
-              updateTable()
-              setSuccessNoti('Successfully Sent')
-              setTimeout(() => {
-                setSuccessNoti(false)
-              }, 2000);
-            })
-          }}
+        <SendMailDialog user={user} sendTo={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
+          onComplete={updateData}
         />
       }
       {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
@@ -530,9 +533,11 @@ function FollowUpDetail(props) {
               {
                 stepDetail[activeStep] && Object.keys(stepDetail[activeStep].information).length == 0 &&
                 <Grid className="pt-3">
-                  <MailDetail 
-                  backToInbox={backToInbox} 
-                  user={user} 
+                  <MailDetail
+                    backToInbox={backToInbox}
+                    user={user} 
+                    thread_ids={stepDetail[activeStep].thread}
+                    sendTo={moreRow.contact}
                   />
                 </Grid>
               }
@@ -666,19 +671,19 @@ function FollowUpDetail(props) {
                 {
                   value === 0 &&
                   <TabContainer>
-                    {/* <NoteDetail
+                    <NoteDetail
                       type="all"
                       campaign={campaign}
                       contact={contact}
-                    /> */}
+                    />
                   </TabContainer>
                 }
                 {value === 1 &&
                   <TabContainer>
-                    {/* <NoteDetail
+                    <NoteDetail
                       campaign={campaign}
                       contact={contact}
-                    /> */}
+                    />
                   </TabContainer>
                 }
               </>

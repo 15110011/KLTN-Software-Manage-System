@@ -55,7 +55,7 @@ class GmailService:
         msg = service.users().messages().get(userId='me', id=message_id).execute()
         message = None
         subject = [s['value']
-                   for s in msg['payload']['headers'] if s['name'] == 'Subject']
+                   for s in msg['payload']['headers'] if s['name'] == 'subject']
         from_email = [f['value']
                       for f in msg['payload']['headers'] if f['name'] == 'From']
         if 'data' in msg['payload']['body']:
@@ -81,14 +81,16 @@ class GmailService:
         thread = service.users().threads().get(userId='me', id=thread_id).execute()
         data = []
         for msg in thread['messages']:
+            print(msg)
             subject = [s['value']
-                       for s in msg['payload']['headers'] if s['name'] == 'Subject']
+                       for s in msg['payload']['headers'] if s['name'] == 'subject']
             from_email = [f['value']
                           for f in msg['payload']['headers'] if f['name'] == 'From']
             date = [d['value']
                     for d in msg['payload']['headers'] if d['name'] == 'Date']
             message_id = [m['value'] for m in msg['payload']
                           ['headers'] if m['name'] == 'Message-Id']
+            print(msg['payload'])
             references = [r['value'] for r in msg['payload']
                           ['headers'] if r['name'] == 'References']
             if 'data' in msg['payload']['body']:
@@ -131,10 +133,13 @@ class GmailService:
                 userId='me', body={'raw': raw}).execute()
             return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
         else:
+            print('CAI NAY Nay',data)
             message['References'] = data['References']
             message['In-Reply-To'] = data['In-Reply-To']
             raw = base64.urlsafe_b64encode(
                 message.as_bytes()).decode()
+            print('CAI NAY Nay2 :',raw)
+
             email = service.users().messages().send(
                 userId='me', body={'raw': raw, 'threadId': data['threadId']}
             ).execute()
