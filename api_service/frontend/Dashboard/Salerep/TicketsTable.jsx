@@ -26,16 +26,16 @@ let order = []
 
 function TicketsTable(props) {
 
-  const { 
-    classes, 
-    tableMarketingRef, 
-    forceActivities, 
-    forceMarketing, 
-    history, 
+  const {
+    classes,
+    tableMarketingRef,
+    forceActivities,
+    forceMarketing,
+    history,
     forceFollowUp,
     expanded,
     handleExpandClick
-   } = props
+  } = props
 
   const [deletingRow, setDeletingRow] = React.useState({})
   const [movingRow, setMovingRow] = React.useState({})
@@ -120,13 +120,32 @@ function TicketsTable(props) {
                   campaign={moreRow.campaign}
                   id={moreRow.id}
                   contact={moreRow.contact}
-                  updateTable={tableMarketingRef.current.onQueryChange}
+                  updateTable={
+                    (contact) => {
+                      tableMarketingRef.current.onQueryChange()
+                      // let cloneMoreRow = { ...moreRow }
+                      // cloneMoreRow.histories.unshift(contact)
+                      let c = contact
+                      setMoreRow({
+                        full_name: c.contact.full_name,
+                        mail: c.contact.mail,
+                        phone: c.contact.phone,
+                        campaignName: c.campaign.name,
+                        id: c.id,
+                        contact: c.contact,
+                        campaign: c.campaign,
+                        histories: c.histories,
+                        marketing: c,
+                        thread_ids: c.thread_ids
+                      })
+                    }}
                   updateActivities={forceActivities}
                   marketing={moreRow.marketing}
                   user={user}
                   setMovingRow={setMovingRow}
                   setDeletingRow={setDeletingRow}
                   getMoreRow={getMoreRow}
+                  moreRow={moreRow}
                 />
               </DialogContent>
             </Dialog>
@@ -262,7 +281,8 @@ function TicketsTable(props) {
                         contact: c.contact,
                         campaign: c.campaign,
                         histories: c.histories,
-                        marketing: c
+                        marketing: c,
+                        thread_ids: c.thread_ids
                       })
                     })
                     resolve({

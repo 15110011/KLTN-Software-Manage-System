@@ -29,7 +29,8 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         data = []
         for thread in threads:
             action_type = thread['type']
-            if action_type == 'Call Clients':
+            print(thread)
+            if action_type == 'Call Client':
                 data.append(thread)
             else: 
                 thread_id = thread['thread_id']

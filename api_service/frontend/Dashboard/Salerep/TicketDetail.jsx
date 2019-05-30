@@ -24,7 +24,7 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Tooltip from '@material-ui/core/Tooltip';
 import Select from '@material-ui/core/Select';
-import { apiPost } from '../../common/Request'
+import { apiPost, apiPatch } from '../../common/Request'
 import CustomSnackbar from '../../components/CustomSnackbar'
 import CreateEventDialog from '../../Events/CreateEventDialog'
 import SwipeableViews from 'react-swipeable-views';
@@ -66,7 +66,13 @@ function TicketDetail(props) {
     setMovingRow,
     updateActivities,
     getMoreRow,
+    moreRow
   } = props
+
+  // React.useEffect(() => {
+  //   setForceUpdateData(forceUpdateData + 1)
+  // }
+  //   , [moreRow])
 
   const [contactHistories, setContactHistories] = React.useState({
     'Send Email ': 0,
@@ -81,7 +87,7 @@ function TicketDetail(props) {
   const [laterDialog, setLaterDialog] = React.useState(false)
   const [mailDialog, setMailDialog] = React.useState(false)
   const [backToInbox, setBackToInbox] = React.useState(false)
-
+  const [forceUpdateData, setForceUpdateData] = React.useState(0)
 
   const [contactDetail, setContactDetail] = React.useState(false)
   const [successNoti, setSuccessNoti] = React.useState(false)
@@ -119,14 +125,18 @@ function TicketDetail(props) {
 
   const onCall = () => {
     apiPost(CONTACT_MARKETING_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
-      updateTable()
-      setContactHistories({ ...contactHistories, 'Call Client': contactHistories['Call Client'] + 1 })
+      // updateTable(res.data)
+      // setContactHistories({ ...contactHistories, 'Call Client': contactHistories['Call Client'] + 1 })
       setSuccessNoti('Successfully Called')
       setTimeout(() => {
         setSuccessNoti(false)
       }, 2000);
       // getMoreRow(id)
     })
+    apiPatch(CONTACT_MARKETING_URL + '/' + id, { thread_ids: [...moreRow.thread_ids, { type: 'Call Client', note: '', date_created: dateFns.format(new Date(), 'yyyy-MM-dd HH:mm') }] }, false, true)
+      .then(res => {
+        updateTable(res.data)
+      })
   }
 
   const notification = (m = 'Successfully Added') => {
@@ -152,11 +162,28 @@ function TicketDetail(props) {
   }
 
 
+  const updateData = (newThreadId) => {
+    apiPatch(CONTACT_MARKETING_URL + '/' + id, { thread_ids: [...moreRow.thread_ids, { thread_id: newThreadId['thread_id'], type: 'Send Email Manually', note: '' }] }, false, true).then(res => {
+      setSuccessNoti(`Send email successfully`)
+      updateTable(res.data)
+      setTimeout(() => {
+        setSuccessNoti(false)
+      }, 2000);
+    })
+  }
+
   return (
     <>
       {mailDialog &&
-        <SendMailDialog user={user} contact={contact} toggleDialog={() => { setMailDialog(!mailDialog) }}
+        <SendMailDialog
+          user={user}
+          sendTo={contact}
+          toggleDialog={() => { setMailDialog(!mailDialog) }}
           updateMailMetric={updateMailMetric}
+          setMailDialog={setMailDialog}
+          notification={notification}
+          setSuccessNoti={setSuccessNoti}
+          onComplete={updateData}
         />
       }
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
@@ -190,7 +217,7 @@ function TicketDetail(props) {
             {contact.first_name}
           </Typography>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-            <Tooltip title="Call client">
+            {/* <Tooltip title="Call client">
               <Button
                 variant='contained'
                 classes={{
@@ -216,7 +243,7 @@ function TicketDetail(props) {
               >
                 <EmailIcon fontSize="small" />
               </Button>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip title="Schedule">
               <Button
                 variant='contained'
@@ -321,6 +348,14 @@ function TicketDetail(props) {
             <MailDetail
               backToInbox={backToInbox}
               user={user}
+              onCall={onCall}
+              onSendEmail={onSendEmail}
+              sendTo={contact}
+              setSuccessNoti={setSuccessNoti}
+              contact={contact}
+              contactHistories={allHistories}
+              thread_ids={moreRow.thread_ids}
+              forceUpdateData={forceUpdateData}
             />
           </Paper>
         </Grid>

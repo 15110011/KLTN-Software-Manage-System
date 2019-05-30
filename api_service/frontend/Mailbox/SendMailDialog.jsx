@@ -26,7 +26,7 @@ import { apiPatch } from '../common/Request';
 
 function SendMailDialog(props) {
 
-  const { classes, sendTo, toggleDialog, user, onComplete} = props
+  const { classes, sendTo, toggleDialog, user, onComplete, setMailDialog, setSuccessNoti } = props
   const [mail, setMail] = React.useState({
     user_id: user.id,
     to: sendTo.mail,
@@ -34,6 +34,7 @@ function SendMailDialog(props) {
     subject: '',
     message: ''
   })
+
   const [editorState, setEditorState] = React.useState(htmlToState(""))
 
   const [error, setError] = React.useState({})
@@ -49,10 +50,13 @@ function SendMailDialog(props) {
     }
     apiPost(SEND_EMAIL, { data }, false, false)
       .then(res => {
-          // notification()
-          // setCreateCampaignDialog(false)
-          onComplete(res.data)
+        // notification()
+        // setCreateCampaignDialog(false)
+        onComplete(res.data)
       })
+    setMailDialog(false)
+    // notification('Successfully Sent')
+    setSuccessNoti('Successfully Sent')
   }
 
   const onEditorStateChange = editorState => {
@@ -60,102 +64,103 @@ function SendMailDialog(props) {
   };
 
   return (
-    <Dialog
-      open={true}
-      onClose={toggleDialog}
-      maxWidth="md"
-      fullWidth
-    >
-      <DialogTitle>Send Email</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={8}>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              Subject
+    <>
+      <Dialog
+        open={true}
+        onClose={toggleDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>Send Email</DialogTitle>
+        <DialogContent>
+          <Grid container spacing={8}>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                Subject
             </InputLabel>
-          </Grid>
-          <Grid item xs={10}>
-            <Input
-              onChange={onChangeInput}
-              name="subject"
-              type="text"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={mail.subject}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              To
+            </Grid>
+            <Grid item xs={10}>
+              <Input
+                onChange={onChangeInput}
+                name="subject"
+                type="text"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+                value={mail.subject}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                To
             </InputLabel>
-          </Grid>
-          <Grid item xs={10}>
-            <Input
-              onChange={onChangeInput}
-              name="to"
-              type="text"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={mail.to}
-              required
-              fullWidth
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              From
+            </Grid>
+            <Grid item xs={10}>
+              <Input
+                onChange={onChangeInput}
+                name="to"
+                type="text"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+                value={mail.to}
+                required
+                fullWidth
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+              >
+                From
             </InputLabel>
-          </Grid>
-          <Grid item xs={10}>
-            <Input
-              name="from"
-              type="text"
-              classes={{
-                underline: classes.cssUnderline,
-              }}
-              value={mail.from}
-              fullWidth
-              disabled
-            />
-          </Grid>
-          <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-              required
-            >
-              Content
+            </Grid>
+            <Grid item xs={10}>
+              <Input
+                name="from"
+                type="text"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+                value={mail.from}
+                fullWidth
+                disabled
+              />
+            </Grid>
+            <Grid className={classes.inputCustom} item xs={2} style={{ paddingLeft: '24px' }}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+                required
+              >
+                Content
             </InputLabel>
-          </Grid>
-          <Grid item xs={10} className="pt-3">
-            {/* <Input
+            </Grid>
+            <Grid item xs={10} className="pt-3">
+              {/* <Input
               onChange={onChangeInput}
               name="text"
               type="text"
@@ -165,19 +170,20 @@ function SendMailDialog(props) {
               value={user.text}
               fullWidth
             /> */}
-            <Editor
-              editorState={editorState}
-              wrapperClassName="editor-wrapper"
-              editorClassName="editor"
-              onEditorStateChange={onEditorStateChange}
-            />
+              <Editor
+                editorState={editorState}
+                wrapperClassName="editor-wrapper"
+                editorClassName="editor"
+                onEditorStateChange={onEditorStateChange}
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      </DialogContent>
-      <DialogActions>
-        <Button style={{ marginRight: '20px' }} variant="contained" color="primary" onClick={onSendMail}>SEND</Button>
-      </DialogActions>
-    </Dialog>
+        </DialogContent>
+        <DialogActions>
+          <Button style={{ marginRight: '20px' }} variant="contained" color="primary" onClick={onSendMail}>SEND</Button>
+        </DialogActions>
+      </Dialog>
+    </>
   )
 }
 

@@ -5,6 +5,7 @@ import Paper from '@material-ui/core/Paper';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
+import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
 import Avatar from '@material-ui/core/Avatar';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
@@ -32,11 +33,29 @@ import SideBarMailBox from './SideBarMailBox'
 import SendMailComponent from './SendMailComponent'
 import { initMailWebsocket } from '../../common/Utils';
 import * as dateFns from 'date-fns'
+import { Editor } from "react-draft-wysiwyg";
+import { htmlToState, draftToRaw } from "../../common/Utils";
 
+let oldMails = { data: [] }
 
 function MailDetail(props) {
 
-  const { classes, history, backToInbox, user, thread_ids, sendTo } = props
+  const {
+    classes,
+    history,
+    backToInbox,
+    user,
+    thread_ids,
+    sendTo,
+    onCall,
+    onSendEmail,
+    setSuccessNoti,
+    contact,
+    contactHistories,
+    updateNote,
+    forceUpdateData
+  } = props
+
 
   const [expanded, setExpanded] = React.useState(null)
   const [noExpand, setNoExpand] = React.useState([])
@@ -50,36 +69,61 @@ function MailDetail(props) {
     ]
   })
   const [mailDialog, setMailDialog] = React.useState(false)
+  const [contentStt, setContentStt] = React.useState('VIEW')
+  const [editorState, setEditorState] = React.useState([])
+  const [old, setOld] = React.useState({
+    name: '',
+    content: ''
+  })
 
+  const [addNote, setAddNote] = React.useState([])
+  const [expandNote, setExpandNote] = React.useState([])
 
+  const ws = initMailWebsocket(user.id)
+
+  
   React.useEffect(() => {
-    const ws = initMailWebsocket(user.id)
     setSocket(ws)
-    let oldMails = { data: [] }
-
     ws.onmessage = event => {
 
       let response = JSON.parse(event.data)
       if (response.type == 'single') {
         oldMails = { data: [response.data[0], ...oldMails.data] }
-        setEmails(oldMails)
-        setIsReply(oldMails.data.map(d => {
-          return d.map(_ => ({ stt: false }))
+        let isReplies = oldMails.data.map(d => {
+          if (Array.isArray(d)) {
+            return d.map(_ => ({ stt: false }))
+          }
+          else {
+  
+            return { stt: false }
+          }
         }
-        ))
+        )
+        console.log('##',oldMails, isReplies)
+        setEmails(oldMails)
+        setIsReply(isReplies)
         setNoExpand(oldMails.data.map(d => {
-          return d.map(_ => true)
+          if (Array.isArray(d)) { return d.map(_ => (true)) }
+          else {
+            return true
+          }
         }
         ))
       } else {
         setEmails(response)
         oldMails = response
         setIsReply(response.data.map(d => {
-          return d.map(_ => ({ stt: false }))
+          if (Array.isArray(d)) { return d.map(_ => ({ stt: false })) }
+          else {
+            return { stt: false }
+          }
         }
         ))
         setNoExpand(response.data.map(d => {
-          return d.map(_ => true)
+          if (Array.isArray(d)) { return d.map(_ => (true)) }
+          else {
+            return true
+          }
         }
         ))
       }
@@ -89,8 +133,40 @@ function MailDetail(props) {
         threads: thread_ids
       }))
     }
+    return () => {
+      ws.close()
+    }
   }, [])
-  console.log(isReply)
+
+  // React.useEffect(() => {
+  //   if (typeof forceUpdateData === 'number' && forceUpdateData !== 1) {
+  //     ws.onopen = e => {
+  //       ws.send(JSON.stringify({
+  //         threads: thread_ids
+  //       }))
+  //     }
+  //   }
+
+  // }, [forceUpdateData])
+
+  React.useEffect(() => {
+    setEditorState(emails.data.map(_ => htmlToState("")))
+    setOld(emails.data.map(o => ({ content: '' })))
+    setAddNote(emails.data.map(n => ({ stt: false })))
+    setExpandNote(emails.data.map(p => ({ stt: true })))
+  }, [emails.data])
+
+  const handleExpandNote = (j) => {
+    let cloneExpandNote = [...expandNote]
+    cloneExpandNote[j] = !cloneExpandNote[j]
+    setExpandNote(cloneExpandNote)
+  };
+
+  const onEditorStateChange = (i, editor) => {
+    let cloneEditorChange = [...editorState]
+    cloneEditorChange[i] = editor
+    setEditorState(cloneEditorChange)
+  }
 
   const handleClick = event => {
     setAnchorElAdd(event.currentTarget);
@@ -99,6 +175,7 @@ function MailDetail(props) {
   const handleClose = () => {
     setAnchorElAdd(null);
   };
+
 
   const handleCloseReply = (i, insideIndex) => {
     let cloneIsReply = [...isReply]
@@ -114,9 +191,9 @@ function MailDetail(props) {
       cloneIsReply[i][insideIndex].threadId = thread_ids[i]
       cloneIsReply[i][insideIndex]['In-Reply-To'] = replyingEmail['Message-Id'][0]
       cloneIsReply[i][insideIndex]['References'] = `${replyingEmail['References'].length ? replyingEmail['References'][0] + ' ' : ''}${replyingEmail['Message-Id'][0]}`
-      cloneIsReply[i][insideIndex]['subject'] = emails.data[i][0].subject.reduce((acc, s)=>{
+      cloneIsReply[i][insideIndex]['subject'] = emails.data[i][0].subject.reduce((acc, s) => {
         let res = acc
-        res +=s
+        res += s
         return res
 
       }, '')
@@ -145,11 +222,14 @@ function MailDetail(props) {
   const handleSendEmail = () => {
     setMailDialog(true)
   }
+
+
+
   return (
     <div className={classes.root}>
       {mailDialog &&
         <SendMailDialog user={user} toggleDialog={() => { setMailDialog(!mailDialog) }}
-
+          setSuccessNoti={setSuccessNoti}
         />
       }
       <Grid container spacing={8}>
@@ -168,319 +248,403 @@ function MailDetail(props) {
             <List>
               {
                 noExpand[0] && emails.data && emails.data.map((t, j) => {
-                  console.log(emails.data)
-                  var result = dateFns.differenceInDays(
-                    new Date(),
-                    new Date(t[0].date_created[0])
-                  )
-                  let dateValue = ''
-                  if (result == 0) {
-                    dateValue = dateFns.format(new Date(t[0].date_created[0]), 'HH:mm')
-                  } else {
-                    dateValue = dateFns.formatDistance(new Date(t[0].date_created[0]), new Date())
+                  let result
+                  let date_created
+                  let message
+                  if (Array.isArray(t)) {
+                    result = dateFns.isEqual(
+                      dateFns.startOfDay(new Date()),
+                      dateFns.startOfDay(new Date(t[0].date_created[0]))
+                    )
+                    date_created = new Date(t[0].date_created[0])
+                    message = t[0].message
                   }
+                  else {
+                    result = dateFns.isEqual(
+                      dateFns.startOfDay(new Date()),
+                      dateFns.startOfDay(new Date(t.date_created))
+                    )
+                    date_created = new Date(t.date_created)
+                  }
+
+                  let dateValue = ''
+                  if (result) {
+                    dateValue = dateFns.format(date_created, 'HH:mm')
+                  } else {
+                    dateValue = dateFns.formatDistance(date_created, new Date())
+                  }
+                  console.log(j,t)
                   return (
-                    <>
-                      <ListItem key={j} alignItems="flex-start">
-                        <ListItemAvatar>
-                          <Avatar className={classes.pinkAvatar}>
-                            <EmailIcon fontSize="small" />
-                          </Avatar>
-                        </ListItemAvatar>
-                        <ExpansionPanel
-                          style={{ margin: 'unset' }}
-                          classes={{ root: classes.expandCus }}
-                          // expanded={expanded === 'panel2'}
-                          onChange={(e) => handleChange(j, 0)}
-                        >
-                          <ExpansionPanelSummary
-                            onClick={(e) => handleExpand(j, 0)}
-                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                    Array.isArray(t) ?
+                      <>
+                        <ListItem key={j} alignItems="flex-start">
+                          <ListItemAvatar>
+                            <Avatar className={classes.pinkAvatar}>
+                              <EmailIcon fontSize="small" />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ExpansionPanel
+                            style={{ margin: 'unset' }}
+                            classes={{ root: classes.expandCus }}
+                            // expanded={expanded === 'panel2'}
+                            onChange={(e) => handleChange(j, 0)}
                           >
-                            <ListItemText
-                              primary={
-                                "The AQV Team"
-                              }
-                              secondary={
-                                <React.Fragment>
-                                  <Typography component="span" className={classes.inline} color="textPrimary">
-                                    theaqvteam@gmail.com
+                            <ExpansionPanelSummary
+                              onClick={(e) => handleExpand(j, 0)}
+                              classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                            >
+                              <ListItemText
+                                primary={
+                                  "The AQV Team"
+                                }
+                                secondary={
+                                  <React.Fragment>
+                                    <Typography component="span" className={classes.inline} color="textPrimary">
+                                      theaqvteam@gmail.com
                                   </Typography>
-                                  {noExpand[j][0] &&
-                                    <div dangerouslySetInnerHTML={{ __html: t[0].message }} className={classes.etcDot}>
-                                    </div>
+                                    {noExpand[j] && noExpand[j][0] &&
+                                      <div dangerouslySetInnerHTML={{ __html: t[0].message }} className={classes.etcDot}>
+                                      </div>
+                                    }
+                                  </React.Fragment>
+                                }
+                              />
+                              <ListItemText
+                                secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{dateValue}</i></div>}
+                              />
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                              <Grid container spacing>
+                                <Grid item xs={11}>
+                                  <Typography variant="span">
+                                    <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: message }}></span>
+                                  </Typography>
+                                </Grid>
+                                <Grid item xs={1}>
+                                  <IconButton
+                                    onClick={(event) => {
+                                      handleReply(j, 0)
+                                    }}
+                                    style={{ outline: 'none', float: 'right' }}
+                                  >
+                                    <ReplyIcon fontSize="small" />
+                                  </IconButton>
+                                </Grid>
+                                <Grid item xs={12}>
+                                  {
+                                    isReply[j] && isReply[j][0].stt &&
+                                    <SendMailComponent
+                                      handleCloseReply={() => handleCloseReply(j, 0)}
+                                      user={user}
+                                      sendTo={sendTo}
+                                      data={isReply[j][0]}
+                                    />
                                   }
-                                </React.Fragment>
-                              }
-                            />
-                            <ListItemText
-                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{dateValue}</i></div>}
-                            />
-                          </ExpansionPanelSummary>
-                          <ExpansionPanelDetails>
-                            <Grid container spacing>
-                              <Grid item xs={11}>
-                                <Typography variant="span">
-                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: t[0].message }}></span>
-                                </Typography>
-                              </Grid>
-                              <Grid item xs={1}>
-                                <IconButton
-                                  onClick={(event) => {
-                                    handleReply(j, 0)
-                                  }}
-                                  style={{ outline: 'none', float: 'right' }}
-                                >
-                                  <ReplyIcon fontSize="small" />
-                                </IconButton>
-                              </Grid>
-                              <Grid item xs={12}>
+                                </Grid>
                                 {
-                                  isReply[j][0] && isReply[j][0].stt &&
-                                  <SendMailComponent
-                                    handleCloseReply={() => handleCloseReply(j, 0)}
-                                    user={user}
-                                    sendTo={sendTo}
-                                    data={isReply[j][0]}
-                                  />
+                                  t.slice(1).map((e, i) => {
+                                    i += 1
+                                    if (e.from.length > 0) {
+                                      var result = dateFns.isEqual(
+                                        dateFns.startOfDay(new Date()),
+                                        dateFns.startOfDay(new Date(e.date_created))
+                                      )
+                                      let dateValue = ''
+                                      if (result) {
+                                        dateValue = dateFns.format(new Date(e.date_created), 'HH:mm')
+                                      } else {
+                                        dateValue = dateFns.formatDistance(new Date(e.date_created), new Date())
+                                      }
+                                      let name = ''
+                                      let mail = ''
+                                      let fromName = e.from[0].match(/(.+) (<.+>)/)
+                                      name = fromName[1]
+                                      mail = fromName[2]
+                                      return (
+                                        <ListItem key={i + 'i'} alignItems="flex-start">
+                                          <ListItemAvatar>
+                                            <Avatar className={classes.pinkAvatar}>
+                                              <EmailIcon fontSize="small" />
+                                            </Avatar>
+                                          </ListItemAvatar>
+                                          <ExpansionPanel
+                                            style={{ margin: 'unset' }}
+                                            classes={{ root: classes.expandCus }}
+                                            // expanded={expanded === 'panel2'}
+                                            onChange={(e) => handleChange(j, i)}
+                                          >
+                                            <ExpansionPanelSummary
+                                              onClick={(e) => handleExpand(j, i)}
+                                              classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                                            >
+                                              <ListItemText
+                                                primary={
+                                                  name
+                                                }
+                                                secondary={
+                                                  <React.Fragment>
+                                                    <Typography component="span" className={classes.inline} color="textPrimary">
+                                                      {e.from && e.from != "The AQV Team <theaqvteam@gmail.com>" ? 'to me' : mail}
+                                                    </Typography>
+                                                    {noExpand[j][i] &&
+                                                      <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
+                                                      </div>
+                                                    }
+                                                  </React.Fragment>
+                                                }
+                                              />
+                                              <ListItemText
+                                                secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{dateValue}</i></div>}
+                                              />
+                                            </ExpansionPanelSummary>
+                                            <ExpansionPanelDetails>
+                                              <Grid container spacing>
+                                                <Grid item xs={11}>
+                                                  <Typography variant="span">
+                                                    <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
+                                                  </Typography>
+                                                </Grid>
+                                                <Grid item xs={1}>
+                                                  <IconButton
+                                                    onClick={(event) => {
+                                                      handleReply(j, i)
+                                                    }}
+                                                    style={{ outline: 'none', float: 'right' }}
+                                                  >
+                                                    <ReplyIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                  {
+                                                    isReply[j][i].stt &&
+                                                    <SendMailComponent
+                                                      handleCloseReply={() => handleCloseReply(j, i)}
+                                                      user={user}
+                                                      sendTo={sendTo}
+                                                      data={isReply[j][i]}
+                                                    />
+                                                  }
+                                                </Grid>
+                                              </Grid>
+                                            </ExpansionPanelDetails>
+                                          </ExpansionPanel>
+                                        </ListItem>
+                                      )
+                                    } else {
+                                      var result = dateFns.isEqual(
+                                        dateFns.startOfDay(new Date()),
+                                        dateFns.startOfDay(new Date(e.date_created[0]))
+                                      )
+                                      let dateValue = ''
+                                      if (result) {
+                                        dateValue = dateFns.format(new Date(e.date_created[0]), 'HH:mm')
+                                      } else {
+                                        dateValue = dateFns.formatDistance(new Date(e.date_created[0]), new Date())
+                                      }
+                                      return (
+                                        <ListItem key={i + 'i'} alignItems="flex-start">
+                                          <ListItemAvatar>
+                                            <Avatar className={classes.pinkAvatar}>
+                                              <EmailIcon fontSize="small" />
+                                            </Avatar>
+                                          </ListItemAvatar>
+                                          <ExpansionPanel
+                                            style={{ margin: 'unset' }}
+                                            classes={{ root: classes.expandCus }}
+                                            // expanded={expanded === 'panel2'}
+                                            onChange={(e) => handleChange(j, i)}
+                                          >
+                                            <ExpansionPanelSummary
+                                              onClick={(e) => handleExpand(j, i)}
+                                              classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                                            >
+                                              <ListItemText
+                                                primary={
+                                                  "theaqvteam@gmail.com"
+                                                }
+                                                secondary={
+                                                  <React.Fragment>
+                                                    <Typography component="span" className={classes.inline} color="textPrimary">
+                                                    </Typography>
+                                                    {noExpand[j][i] &&
+                                                      <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
+                                                      </div>
+                                                    }
+                                                  </React.Fragment>
+                                                }
+                                              />
+                                              <ListItemText
+                                                secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i> {dateValue}</i></div>}
+                                              />
+                                            </ExpansionPanelSummary>
+                                            <ExpansionPanelDetails>
+                                              <Grid container spacing>
+                                                <Grid item xs={11}>
+                                                  <Typography variant="span">
+                                                    <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
+                                                  </Typography>
+                                                </Grid>
+                                                <Grid item xs={1}>
+                                                  <IconButton
+                                                    onClick={(event) => {
+                                                      handleReply(j, i)
+                                                    }}
+                                                    style={{ outline: 'none', float: 'right' }}
+                                                  >
+                                                    <ReplyIcon fontSize="small" />
+                                                  </IconButton>
+                                                </Grid>
+                                                <Grid item xs={12}>
+                                                  {
+                                                    isReply[j][i] && isReply[j][i].stt &&
+                                                    <SendMailComponent
+                                                      handleCloseReply={() => handleCloseReply(j, i)}
+                                                      sendTo={sendTo}
+                                                      user={user}
+                                                      data={isReply[j][i]}
+                                                    />
+                                                  }
+                                                </Grid>
+                                              </Grid>
+                                            </ExpansionPanelDetails>
+                                          </ExpansionPanel>
+                                        </ListItem>
+                                      )
+                                    }
+                                  })
                                 }
                               </Grid>
-                              {
-                                t.slice(1).map((e, i) => {
-                                  i += 1
-                                  if (e.from.length > 0) {
-                                    var result = dateFns.differenceInDays(
-                                      new Date(),
-                                      new Date(e.date_created)
-                                    )
-                                    let dateValue = ''
-                                    if (result == 0) {
-                                      dateValue = dateFns.format(new Date(e.date_created), 'HH:mm')
-                                    } else {
-                                      dateValue = dateFns.formatDistance(new Date(e.date_created), new Date())
+                            </ExpansionPanelDetails>
+                          </ExpansionPanel>
+                        </ListItem>
+                        <Divider />
+                      </>
+                      :
+                      <>
+                        <ListItem alignItems="flex-start">
+                          <ListItemAvatar>
+                            <Avatar className={classes.greenAvatar}>
+                              <PhoneIcon fontSize="small" />
+                            </Avatar>
+                          </ListItemAvatar>
+                          <ExpansionPanel
+                            style={{ margin: 'unset' }}
+                            classes={{ root: classes.expandCus }}
+                            // expanded={expanded === 'panel2'}
+                            onChange={handleChange()}
+                          // onClick={handleShowReply}
+                          >
+                            <ExpansionPanelSummary
+                              onClick={(e) => handleExpandNote(j)}
+                              classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
+                            >
+                              <ListItemText
+                                primary={contact.first_name + ' ' + contact.last_name}
+                                secondary={
+                                  <React.Fragment>
+                                    <Typography component="span" className={classes.inline} color="textPrimary">
+                                      {contact.phone}
+                                    </Typography>
+                                    {
+                                      expandNote[j] &&
+                                      <div dangerouslySetInnerHTML={{ __html: t.note }} className={classes.etcDot}>
+                                      </div>
                                     }
-                                    let name = ''
-                                    let mail = ''
-                                    let fromName = e.from[0].match(/(.+) (<.+>)/)
-                                    name = fromName[1]
-                                    mail = fromName[2]
-                                    return (
-                                      <ListItem key={i} alignItems="flex-start">
-                                        <ListItemAvatar>
-                                          <Avatar className={classes.pinkAvatar}>
-                                            <EmailIcon fontSize="small" />
-                                          </Avatar>
-                                        </ListItemAvatar>
-                                        <ExpansionPanel
-                                          style={{ margin: 'unset' }}
-                                          classes={{ root: classes.expandCus }}
-                                          // expanded={expanded === 'panel2'}
-                                          onChange={(e) => handleChange(j, i)}
-                                        >
-                                          <ExpansionPanelSummary
-                                            onClick={(e) => handleExpand(j, i)}
-                                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
-                                            style={{ paddingRight: 0 }}
-                                          >
-                                            <ListItemText
-                                              primary={
-                                                name
-                                              }
-                                              secondary={
-                                                <React.Fragment>
-                                                  <Typography component="span" className={classes.inline} color="textPrimary">
-                                                    {e.from && e.from != "The AQV Team <theaqvteam@gmail.com>" ? 'to me' : mail}
-                                                  </Typography>
-                                                  {noExpand[j][i] &&
-                                                    <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
-                                                    </div>
-                                                  }
-                                                </React.Fragment>
-                                              }
-                                            />
-                                            <ListItemText
-                                              secondary={<div style={{ textAlign: 'right', fontSize: '12px' }}><i>{dateValue}</i></div>}
-                                            />
-                                          </ExpansionPanelSummary>
-                                          <ExpansionPanelDetails>
-                                            <Grid container spacing>
-                                              <Grid item xs={11}>
-                                                <Typography variant="span">
-                                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
-                                                </Typography>
-                                              </Grid>
-                                              <Grid item xs={1}>
-                                                <IconButton
-                                                  onClick={(event) => {
-                                                    handleReply(j, i)
-                                                  }}
-                                                  style={{ outline: 'none', float: 'right' }}
-                                                >
-                                                  <ReplyIcon fontSize="small" />
-                                                </IconButton>
-                                              </Grid>
-                                              <Grid item xs={12}>
+                                  </React.Fragment>
+                                }
+                              />
+                              <ListItemText
+                                secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>{t.date_created}</i></div>}
+                              />
+                            </ExpansionPanelSummary>
+                            <ExpansionPanelDetails>
+                              <Grid container spacing>
+                                <Grid item xs={12}>
+                                  <Typography component="div">
+                                    {
+                                      <>
+                                        {
+                                          addNote[j] && !addNote[j].stt ?
+                                            <>
+                                              <DialogContent style={{ wordBreak: 'break-word' }} classes={{ root: classes.CusNote }}
+                                                onClick={() => {
+                                                  let cloneEditor = [...editorState]
+                                                  cloneEditor[j] = htmlToState(t.note)
+                                                  setEditorState(cloneEditor)
+                                                  let cloneOld = [...old]
+                                                  cloneOld[j] = t.note
+                                                  setOld(cloneOld)
+                                                  let cloneAddNote = [...addNote]
+                                                  cloneAddNote[j] = { stt: true }
+                                                  setAddNote(cloneAddNote)
+                                                  // setContentStt('EDIT')
+                                                }}
+                                              >
                                                 {
-                                                  isReply[j][i].stt &&
-                                                  <SendMailComponent
-                                                    handleCloseReply={() => handleCloseReply(j, i)}
-                                                    user={user}
-                                                    sendTo={sendTo}
-                                                    data={isReply[j][i]}
-                                                  />
+                                                  t.note ?
+                                                    <DialogContentText dangerouslySetInnerHTML={{ __html: t.note }}>
+                                                    </DialogContentText>
+                                                    :
+                                                    <DialogContentText>
+                                                      Let create new note
+                                        </DialogContentText>
                                                 }
-                                              </Grid>
-                                            </Grid>
-                                          </ExpansionPanelDetails>
-                                        </ExpansionPanel>
-                                      </ListItem>
-                                    )
-                                  } else {
-                                    var result = dateFns.differenceInDays(
-                                      new Date(),
-                                      new Date(e.date_created[0])
-                                    )
-                                    let dateValue = ''
-                                    if (result == 0) {
-                                      dateValue = dateFns.format(new Date(e.date_created[0]), 'HH:mm')
-                                    } else {
-                                      dateValue = dateFns.formatDistance(new Date(e.date_created[0]), new Date())
+                                              </DialogContent>
+                                            </> :
+                                            <>
+                                              <DialogContent
+                                                className='p-3'
+                                              >
+                                                <Editor
+                                                  editorState={editorState[j]}
+                                                  wrapperClassName="editor-wrapper"
+                                                  editorClassName="editor"
+                                                  onEditorStateChange={editor => onEditorStateChange(j, editor)}
+                                                  editorStyle={{ minHeight: '330px' }}
+                                                />
+                                              </DialogContent>
+                                              <DialogActions>
+                                                <Button variant='contained' onClick={() => {
+                                                  setContentStt('VIEW')
+                                                  let cloneEditorState = [...editorState]
+                                                  cloneEditorState[j] = htmlToState("")
+                                                  setEditorState(cloneEditorState)
+                                                  let cloneAddNote = [...addNote]
+                                                  cloneAddNote[j] = { stt: false }
+                                                  setAddNote(cloneAddNote)
+                                                }}>Cancel</Button>
+                                                <Button variant='contained' color='primary'
+                                                  onClick={() => {
+                                                    // setContentStt('VIEW')
+                                                    updateNote(j, draftToRaw(editorState[j]))
+                                                    let cloneEmails = [...emails.data]
+                                                    cloneEmails[j].note = (draftToRaw(editorState[j]))
+                                                    setEmails({ data: cloneEmails })
+                                                    let cloneEditorState = [...editorState]
+                                                    cloneEditorState[j] = htmlToState("")
+                                                    setEditorState(cloneEditorState)
+                                                    let cloneAddNote = [...addNote]
+                                                    cloneAddNote[j] = { stt: false }
+                                                    setAddNote(cloneAddNote)
+                                                  }}
+                                                >Apply</Button>
+                                              </DialogActions>
+                                            </>
+                                        }
+                                      </>
                                     }
-                                    return (
-                                      <ListItem key={j} alignItems="flex-start">
-                                        <ListItemAvatar>
-                                          <Avatar className={classes.pinkAvatar}>
-                                            <EmailIcon fontSize="small" />
-                                          </Avatar>
-                                        </ListItemAvatar>
-                                        <ExpansionPanel
-                                          style={{ margin: 'unset' }}
-                                          classes={{ root: classes.expandCus }}
-                                          // expanded={expanded === 'panel2'}
-                                          onChange={(e) => handleChange(j, i)}
-                                        >
-                                          <ExpansionPanelSummary
-                                            onClick={(e) => handleExpand(j, i)}
-                                            classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
-                                          >
-                                            <ListItemText
-                                              primary={
-                                                "theaqvteam@gmail.com"
-                                              }
-                                              secondary={
-                                                <React.Fragment>
-                                                  <Typography component="span" className={classes.inline} color="textPrimary">
-                                                  </Typography>
-                                                  {noExpand[j][i] &&
-                                                    <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
-                                                    </div>
-                                                  }
-                                                </React.Fragment>
-                                              }
-                                            />
-                                            <ListItemText
-                                              secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i> {dateValue}</i></div>}
-                                            />
-                                          </ExpansionPanelSummary>
-                                          <ExpansionPanelDetails>
-                                            <Grid container spacing>
-                                              <Grid item xs={11}>
-                                                <Typography variant="span">
-                                                  <span className={classes.etcDot} dangerouslySetInnerHTML={{ __html: e.message }}></span>
-                                                </Typography>
-                                              </Grid>
-                                              <Grid item xs={1}>
-                                                <IconButton
-                                                  onClick={(event) => {
-                                                    handleReply(j, i)
-                                                  }}
-                                                  style={{ outline: 'none', float: 'right' }}
-                                                >
-                                                  <ReplyIcon fontSize="small" />
-                                                </IconButton>
-                                              </Grid>
-                                              <Grid item xs={12}>
-                                                {
-                                                  isReply[j][i].stt &&
-                                                  <SendMailComponent
-                                                    handleCloseReply={() => handleCloseReply(j, i)}
-                                                    sendTo={sendTo}
-                                                    user={user}
-                                                    data={isReply[j][i]}
-                                                  />
-                                                }
-                                              </Grid>
-                                            </Grid>
-                                          </ExpansionPanelDetails>
-                                        </ExpansionPanel>
-                                      </ListItem>
-                                    )
-                                  }
-                                })
-                              }
-                            </Grid>
-                          </ExpansionPanelDetails>
-                        </ExpansionPanel>
-                      </ListItem>
-                      <Divider />
-                    </>
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </ExpansionPanelDetails>
+                          </ExpansionPanel>
+                        </ListItem>
+                        <Divider />
+                      </>
                   )
                 })
               }
-              <Divider />
-              <ListItem alignItems="flex-start">
-                <ListItemAvatar>
-                  <Avatar className={classes.greenAvatar}>
-                    <PhoneIcon fontSize="small" />
-                  </Avatar>
-                </ListItemAvatar>
-                <ExpansionPanel
-                  style={{ margin: 'unset' }}
-                  classes={{ root: classes.expandCus }}
-                  // expanded={expanded === 'panel2'}
-                  onChange={handleChange()}
-                // onClick={handleShowReply}
-                >
-                  <ExpansionPanelSummary
-                    classes={{ expanded: classes.expandSumCus, content: classes.expandSumCus, root: classes.expandSumRoot }}
-                  >
-                    <ListItemText
-                      primary="Dang Van Minh"
-                      secondary={
-                        <React.Fragment>
-                          <Typography component="span" className={classes.inline} color="textPrimary">
-                            (+84) 374 834 476
-                          </Typography>
-                          {noExpand &&
-                            <div className={classes.etcDot}>
-                              Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                              Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                              when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                            </div>
-                          }
-                        </React.Fragment>
-                      }
-                    />
-                    <ListItemText
-                      secondary={<div style={{ fontSize: '12px', padding: '10px', textAlign: 'right' }}><i>May 10, 2019, 3:27 PM (10 days ago)</i></div>}
-                    />
-                  </ExpansionPanelSummary>
-                  <ExpansionPanelDetails>
-                    <Grid container spacing>
-                      <Grid item xs={12}>
-                        <Typography variant="span">
-                          Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-                          Lorem Ipsum has been the industry's standard dummy text ever since the 1500s,
-                          when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-                        </Typography>
-                      </Grid>
-                    </Grid>
-                  </ExpansionPanelDetails>
-                </ExpansionPanel>
-              </ListItem>
             </List>
-            <Divider />
-
             <Grid container spacing={8}>
               {/* <Grid item xs={12}>
                 {
@@ -506,8 +670,8 @@ function MailDetail(props) {
                   open={Boolean(anchorElAdd)}
                   onClose={() => setAnchorElAdd(null)}
                 >
-                  <MenuItem onClick={() => handleSendEmail()}>Send Mail</MenuItem>
-                  <MenuItem onClick={() => handleSendEmail()}>Call</MenuItem>
+                  <MenuItem onClick={() => onSendEmail()}>Send Mail</MenuItem>
+                  <MenuItem onClick={() => onCall()}>Call</MenuItem>
                 </Menu>
               </Grid>
             </Grid>

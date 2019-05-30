@@ -197,6 +197,10 @@ function FollowUpTable(props) {
                   followup={moreRow.followup}
                   updateTable={() => {
                     forceFollowUp()
+                    // tableMarketingRef.current.onQueryChange()
+                    // let cloneMoreRow = { ...moreRow }
+                    // cloneMoreRow.histories.unshift(contact)
+                    // setMoreRow(cloneMoreRow)
                   }}
                 />
               </DialogContent>
@@ -382,7 +386,7 @@ function FollowUpTable(props) {
           </Collapse>
         </div>
       }
-    </USERCONTEXT.Consumer >
+    </USERCONTEXT.Consumer>
   )
 
 }
