@@ -1,51 +1,56 @@
-import * as React from 'react'
+import * as React from 'react';
 
-import { withStyles } from '@material-ui/core';
-import Grid from '@material-ui/core/Grid'
-import Button from '@material-ui/core/Button'
-import * as cn from 'classnames'
-import styles from './SalerepStyles.js'
-import TicketsTable from './TicketsTable'
-import ActivitiesTable from './ActivitiesTable'
-import CampaignsTable from './CampaignsTable'
-import FollowUpTable from './FollowUp/FollowUpTable'
-import OrderTable from './Order/OrderTable'
-import RemoveIcon from '@material-ui/icons/Remove'
-import AddIcon from '@material-ui/icons/Add'
-import Paper from '@material-ui/core/Paper'
+import {
+  withStyles,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from '@material-ui/core';
+import Grid from '@material-ui/core/Grid';
+import Button from '@material-ui/core/Button';
+import * as cn from 'classnames';
+import RemoveIcon from '@material-ui/icons/Remove';
+import AddIcon from '@material-ui/icons/Add';
+import Paper from '@material-ui/core/Paper';
 import Collapse from '@material-ui/core/Collapse';
-import CategoryIcon from '@material-ui/icons/Category'
-import { Table, TableHead, TableBody, TableRow, TableCell } from '@material-ui/core'
-import { VectorMap } from 'react-jvectormap'
+import CategoryIcon from '@material-ui/icons/Category';
+
+import { VectorMap } from 'react-jvectormap';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import IconButton from '@material-ui/core/IconButton';
+import OrderTable from './Order/OrderTable';
+import FollowUpTable from './FollowUp/FollowUpTable';
+import CampaignsTable from './CampaignsTable';
+import ActivitiesTable from './ActivitiesTable';
+import TicketsTable from './TicketsTable';
+import styles from './SalerepStyles.js';
 
-import Card from "../../components/Card/Card";
-import CardHeader from "../../components/Card/CardHeader";
-import CardBody from "../../components/Card/CardBody";
-import CardIcon from '../../components/Card/CardIcon'
-import useFetchData from '../../CustomHook/useFetchData'
+import Card from '../../components/Card/Card';
+import CardHeader from '../../components/Card/CardHeader';
+import CardBody from '../../components/Card/CardBody';
+import CardIcon from '../../components/Card/CardIcon';
+import useFetchData from '../../CustomHook/useFetchData';
 
-import CustomSnackbar from '../../components/CustomSnackbar'
+import CustomSnackbar from '../../components/CustomSnackbar';
 import { apiGet, apiPost } from '../../common/Request.js';
-import { ORDER_CHART_URL } from '../../common/urls'
+import { ORDER_CHART_URL } from '../../common/urls';
 
-import stateHashes from '../../common/StateHash'
-
+import stateHashes from '../../common/StateHash';
 
 function SalerepDashboard(props) {
+  const { classes } = props;
 
-  const { classes } = props
-
-
-  let vectorRef = React.useRef(null)
+  const vectorRef = React.useRef(null);
   const tableMarketingRef = React.useRef(null);
   const tableActivtyRef = React.useRef(null);
 
   const tableCampaignRef = React.useRef(null);
-  const tableFollowUpRef = React.useRef(null)
-  const tableOrderUpRef = React.useRef(null)
+  const tableFollowUpRef = React.useRef(null);
+  const tableOrderUpRef = React.useRef(null);
 
+  console.log(vectorRef);
   const [expanded, setExpanded] = React.useState({
     upcoming1: true,
     upcoming2: true,
@@ -53,10 +58,10 @@ function SalerepDashboard(props) {
     followUp: true,
     waitingList: true,
     order: true,
-    map: true
-  })
+    map: true,
+  });
 
-  const [toggleExpand, setToggleExpand] = React.useState(true)
+  const [toggleExpand, setToggleExpand] = React.useState(true);
 
   const handleExpandAllClick = () => {
     setExpanded({
@@ -66,9 +71,9 @@ function SalerepDashboard(props) {
       followUp: true,
       waitingList: true,
       order: true,
-      map: true
-    })
-  }
+      map: true,
+    });
+  };
   const handleCollapseAllClick = () => {
     setExpanded({
       upcoming1: false,
@@ -77,67 +82,90 @@ function SalerepDashboard(props) {
       followUp: false,
       waitingList: false,
       order: false,
-      map: false
-    })
-  }
+      map: false,
+    });
+  };
 
-  const [stateData, setStateData, setUrl, forceUpdate] = useFetchData(ORDER_CHART_URL + `?chart_type=state&duration=month`, null, { data: [] })
+  const [stateData, setStateData, setUrl, forceUpdate] = useFetchData(
+    `${ORDER_CHART_URL}?chart_type=state&duration=month`,
+    null,
+    {
+      data: [],
+    },
+  );
 
   const handleExpandClick = (type) => {
-    setExpanded({ ...expanded, [type]: !expanded[type] });
+    setExpanded({
+      ...expanded,
+      [type]: !expanded[type],
+    });
   };
 
   const forceCampaign = () => {
-    tableCampaignRef.current.onQueryChange()
-  }
+    tableCampaignRef.current.onQueryChange();
+  };
   const forceMarketing = () => {
-    tableMarketingRef.current.onQueryChange()
-  }
+    tableMarketingRef.current.onQueryChange();
+  };
   const forceActivities = () => {
-    tableActivtyRef.current.onQueryChange()
-  }
+    tableActivtyRef.current.onQueryChange();
+  };
 
   const forceFollowUp = () => {
-    tableFollowUpRef.current.onQueryChange()
-  }
+    tableFollowUpRef.current.onQueryChange();
+  };
   const forceOrder = () => {
-    tableOrderUpRef.current.onQueryChange()
-  }
+    tableOrderUpRef.current.onQueryChange();
+  };
 
-  let regionData = stateData.data.reduce((acc, d) => {
-    acc['US-' + d.code] = d.amount
-    return acc
-  }, {})
+  const regionData = stateData.data.reduce((acc, d) => {
+    acc[`US-${d.code}`] = d.amount;
+    return acc;
+  }, {});
 
-  let totalAmount = stateData.data.reduce((acc, d) => {
-    acc += d.amount
-    return acc
-  }, 0)
+  const totalAmount = stateData.data.reduce((acc, d) => {
+    acc += d.amount;
+    return acc;
+  }, 0);
 
   return (
     <div className={classes.root}>
       <Grid container classes={{ container: classes.fixTable }}>
-        <Grid item xs={12} className={cn("text-right pt-4")} >
-          <Button style={{ outline: 'none' }} variant="outlined" size="small" color="default" onClick={() => handleCollapseAllClick()}>
+        <Grid item xs={12} className={cn('text-right pt-4')}>
+          <Button
+            style={{ outline: 'none' }}
+            variant="outlined"
+            size="small"
+            color="default"
+            onClick={() => handleCollapseAllClick()}
+          >
             <RemoveIcon fontSize="small" />
             {' '}
-            Collapse All
+Collapse All
           </Button>
           {' '}
-          <Button style={{ outline: 'none' }} variant="outlined" size="small" color="default" onClick={() => handleExpandAllClick()}>
+          <Button
+            style={{ outline: 'none' }}
+            variant="outlined"
+            size="small"
+            color="default"
+            onClick={() => handleExpandAllClick()}
+          >
             <AddIcon fontSize="small" />
             {' '}
-            Expand All
+Expand All
           </Button>
         </Grid>
         <Grid item xs={12}>
-          <Paper className={cn({ 'shadow-none': !expanded['map'] })}>
-            <Card className={cn({ 'shadow-none': !expanded['map'] })}>
-              <CardHeader color='info'>
-                <h4 className={classes.cardChartTitle}>Top 6 states with hightest amount of running campaign</h4>
+          <Paper className={cn({ 'shadow-none': !expanded.map })}>
+            <Card className={cn({ 'shadow-none': !expanded.map })}>
+              <CardHeader color="info">
+                <h4 className={classes.cardChartTitle}>
+                  Top 6 states with hightest amount of running campaign
+                </h4>
                 <IconButton
                   className={cn(classes.expand_map, {
-                    [classes.expandOpen]: expanded['map'],
+                    [classes.expandOpen]: expanded.map,
                   })}
                   onClick={() => handleExpandClick('map')}
                   aria-label="Show more"
@@ -145,11 +173,8 @@ function SalerepDashboard(props) {
                   <ExpandMoreIcon />
                 </IconButton>
               </CardHeader>
-              <Collapse
-                in={expanded['map']}
-              >
-                <CardBody
-                >
+              <Collapse in={expanded.map}>
+                <CardBody>
                   <Grid container>
                     <Grid item xs={5}>
                       <Table>
@@ -157,74 +182,81 @@ function SalerepDashboard(props) {
                           <TableRow>
                             <TableCell>Code</TableCell>
                             <TableCell>State</TableCell>
-                            <TableCell style={{ textAlign: 'right' }}>Amount</TableCell>
+                            <TableCell style={{ textAlign: 'right' }}>
+                              Amount
+                            </TableCell>
                             <TableCell>Percentage</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {stateData.data.map((d, index) => {
-                            return (
-                              <TableRow>
-                                <TableCell>{d.code}</TableCell>
-                                <TableCell>{stateHashes[d.code]}</TableCell>
-                                <TableCell style={{ textAlign: 'right' }}>{d.amount}</TableCell>
-                                <TableCell>{(d.amount * 100 / totalAmount).toFixed(2) + '%'}</TableCell>
-                              </TableRow>)
-                          })}
+                          {stateData.data.map((d, index) => (
+                            <TableRow>
+                              <TableCell>{d.code}</TableCell>
+                              <TableCell>{stateHashes[d.code]}</TableCell>
+                              <TableCell style={{ textAlign: 'right' }}>
+                                {d.amount}
+                              </TableCell>
+                              <TableCell>
+                                {`${((d.amount * 100) / totalAmount).toFixed(
+                                  2,
+                                )}%`}
+                              </TableCell>
+                            </TableRow>
+                          ))}
                         </TableBody>
                       </Table>
                     </Grid>
                     <Grid item xs={7}>
                       <div style={{ witdh: '50%', height: '300px' }}>
-                        <VectorMap map={'us_aea'}
+                        <VectorMap
+                          map="us_aea"
                           backgroundColor="transparent"
                           containerClassName="map"
                           ref={vectorRef}
                           containerStyle={{
                             width: '100%',
-                            height: '100%'
+                            height: '100%',
                           }}
-                          labels={
-                            {
-                              regions: {
-                                render: (code) => { return code.split('-')[1] },
-                                offsets: (code) => {
-                                  return {
-                                    'CA': [-10, 10],
-                                    'ID': [0, 40],
-                                    'OK': [25, 0],
-                                    'LA': [-20, 0],
-                                    'FL': [45, 0],
-                                    'KY': [10, 5],
-                                    'VA': [15, 5],
-                                    'MI': [30, 30],
-                                    'AK': [50, -25],
-                                    'HI': [25, 50]
-                                  }[code.split('-')[1]];
-                                }
-                              }
-                            }
-                          }
+                          labels={{
+                            regions: {
+                              render: code => code.split('-')[1],
+                              offsets: code => ({
+                                CA: [-10, 10],
+                                ID: [0, 40],
+                                OK: [25, 0],
+                                LA: [-20, 0],
+                                FL: [45, 0],
+                                KY: [10, 5],
+                                VA: [15, 5],
+                                MI: [30, 30],
+                                AK: [50, -25],
+                                HI: [25, 50],
+                              }[code.split('-')[1]]),
+                            },
+                          }}
                           regionStyle={{
                             initial: {
-                              fill: "#e4e4e4",
-                              "fill-opacity": 0.9,
-                              stroke: "none",
-                              "stroke-width": 0,
-                              "stroke-opacity": 0
-                            }
+                              fill: '#e4e4e4',
+                              'fill-opacity': 0.9,
+                              stroke: 'none',
+                              'stroke-width': 0,
+                              'stroke-opacity': 0,
+                            },
                           }}
                           regionLabelStyle={{
                             initial: {
-                              fill: '#fff'
+                              fill: '#fff',
                             },
                             hover: {
-                              fill: 'black'
-                            }
+                              fill: 'black',
+                            },
+                            selected: {
+                              fill: '#F4A582',
+                            },
                           }}
-                          series={
-                            {
-                              regions: [{
+                          series={{
+                            regions: [
+                              {
                                 values: regionData,
                                 scale: ['#01ff5b', '#ff0000'],
                                 normalizeFunction: 'polynomial',
@@ -233,21 +265,24 @@ function SalerepDashboard(props) {
                                   // vertical: true,
                                   title: 'Amount Ranges',
                                 },
-                              }]
-                            }
-                          }
+                              },
+                            ],
+                          }}
                           containerClassName="map"
                           onRegionTipShow={(e, el, code) => {
-                            el.html(el.html() + ': ' + (regionData[code] ? regionData[code] : 0))
-                          }
-                          }
+                            el.html(
+                              `${el.html()}: ${
+                                regionData[code] ? regionData[code] : 0
+                              }`,
+                            );
+                          }}
+                          regionsSelectable
+                          onRegionSelected={(selected) => {
+                            console.log(vectorRef.current.getSelectedRegions());
+                          }}
                         />
-
                       </div>
                     </Grid>
-
-
-
                   </Grid>
                 </CardBody>
               </Collapse>
@@ -255,7 +290,8 @@ function SalerepDashboard(props) {
           </Paper>
         </Grid>
         <Grid item xs={12} className="pt-2">
-          <ActivitiesTable tableActivtyRef={tableActivtyRef}
+          <ActivitiesTable
+            tableActivtyRef={tableActivtyRef}
             tableMarketingRef={tableMarketingRef}
             forceActivities={forceActivities}
             expanded={expanded}
@@ -263,7 +299,8 @@ function SalerepDashboard(props) {
           />
         </Grid>
         <Grid item xs={12}>
-          <CampaignsTable forceActivities={forceActivities}
+          <CampaignsTable
+            forceActivities={forceActivities}
             history={props.history}
             tableRef={tableCampaignRef}
             expanded={expanded}
@@ -271,7 +308,8 @@ function SalerepDashboard(props) {
           />
         </Grid>
         <Grid item xs={12}>
-          <TicketsTable forceActivities={forceActivities}
+          <TicketsTable
+            forceActivities={forceActivities}
             history={props.history}
             forceMarketing={forceMarketing}
             tableMarketingRef={tableMarketingRef}
@@ -281,7 +319,8 @@ function SalerepDashboard(props) {
           />
         </Grid>
         <Grid item xs={12}>
-          <FollowUpTable forceActivities={forceActivities}
+          <FollowUpTable
+            forceActivities={forceActivities}
             history={props.history}
             tableRef={tableFollowUpRef}
             forceFollowUp={forceFollowUp}
@@ -291,7 +330,8 @@ function SalerepDashboard(props) {
           />
         </Grid>
         <Grid item xs={12}>
-          <OrderTable forceActivities={forceActivities}
+          <OrderTable
+            forceActivities={forceActivities}
             history={props.history}
             tableRef={tableOrderUpRef}
             forceOrder={forceOrder}
@@ -301,8 +341,7 @@ function SalerepDashboard(props) {
         </Grid>
       </Grid>
     </div>
-  )
+  );
 }
 
-
-export default withStyles(styles)(SalerepDashboard)
+export default withStyles(styles)(SalerepDashboard);
