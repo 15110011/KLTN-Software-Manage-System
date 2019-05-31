@@ -74,6 +74,13 @@ const styles = theme => ({
   },
   tabSelected: {},
   etcDot: {
+    '& p:nth-child(1)': {
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      textOverflow: 'ellipsis',
+      width: '250px',
+      height: '20px'
+    },
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
@@ -124,6 +131,16 @@ const styles = theme => ({
     color: '#fff',
     backgroundColor: pink[500],
   },
+  CusNote: {
+    cursor: 'pointer',
+    padding: '24px 24px 24px',
+    maxHeight: '600px',
+    '&:hover': {
+      borderRadius: '4px',
+      backgroundColor: '#f4f5f7',
+      borderBottomColor: 'rgba(9,30,66,.25)'
+    }
+  }
 });
 
 export default styles;

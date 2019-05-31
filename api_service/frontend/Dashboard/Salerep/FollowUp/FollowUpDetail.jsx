@@ -174,7 +174,7 @@ function FollowUpDetail(props) {
     if (!stepDetail[activeStep].id) {
       apiPost(STEP_DETAIL_URL, { ...stepDetail[activeStep] }, false, true).then(res => {
         apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
-          updateTable()
+          updateTable(res.data)
           setSuccessNoti('Successfully Called')
           setTimeout(() => {
             setSuccessNoti(false)
@@ -183,16 +183,29 @@ function FollowUpDetail(props) {
       })
     } else {
       apiPost(ORDER_URL + '/' + id + '/history', { action: 'Call Client' }, false, true).then(res => {
-        updateTable()
+        updateTable(res.data)
         setSuccessNoti('Successfully Called')
         setTimeout(() => {
           setSuccessNoti(false)
         }, 2000);
       })
+      apiPatch(STEP_DETAIL_URL + '/' + stepDetail[activeStep].id, { thread: [...stepDetail[activeStep].thread, { type: 'Call Client', note: '', date_created: dateFns.format(new Date(), 'yyyy-MM-dd HH:mm') }] }, false, true)
+        .then(res => {
+          updateTable(res.data)
+        })
     }
   }
   const onSendEmail = () => {
     setMailDialog(true)
+  }
+
+  const updateNote = (i, note) => {
+    let cloneData = [...stepDetail[activeStep].thread]
+    cloneData[i].note = note
+    apiPatch(STEP_DETAIL_URL + '/' + stepDetail[activeStep].id, { thread: cloneData }, false, true)
+      .then(res => {
+        updateTable(res.data)
+      })
   }
 
   // let checkBoxOrRadio = []
@@ -261,11 +274,8 @@ function FollowUpDetail(props) {
       })
     }
   }
-  if(stepDetail[activeStep])
-  console.log(stepDetail[activeStep].thread)
 
   const updateData = (newThreadId) => {
-
     apiPatch(STEP_DETAIL_URL + '/' + stepDetail[activeStep].id, { ...stepDetail[activeStep], thread: [...stepDetail[activeStep].thread, { type: "Send Email Manually", "thread_id": newThreadId['thread_id'], note: '' }] }, false, true).then(res => {
       setSuccessNoti(`Send email successfully`)
       updateTable()
@@ -274,6 +284,8 @@ function FollowUpDetail(props) {
       }, 2000);
     })
   }
+
+
   return (
     <>
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
@@ -281,6 +293,8 @@ function FollowUpDetail(props) {
       {mailDialog &&
         <SendMailDialog user={user} sendTo={followup.contacts} toggleDialog={() => { setMailDialog(!mailDialog) }}
           onComplete={updateData}
+          setMailDialog={setMailDialog}
+          setSuccessNoti={setSuccessNoti}
         />
       }
       {laterDialog && <CreateEventDialog user={user} toggleDialog={() => { setLaterDialog(!laterDialog) }}
@@ -330,8 +344,7 @@ function FollowUpDetail(props) {
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-
-            <Tooltip title='Call customer'>
+            {/* <Tooltip title='Call customer'>
               <Button
                 variant='contained'
                 classes={{
@@ -356,8 +369,7 @@ function FollowUpDetail(props) {
               >
                 <EmailIcon fontSize="small" />
               </Button>
-            </Tooltip>
-
+            </Tooltip> */}
             <Tooltip title="Schedule">
               <Button
                 variant='contained'
@@ -535,9 +547,15 @@ function FollowUpDetail(props) {
                 <Grid className="pt-3">
                   <MailDetail
                     backToInbox={backToInbox}
-                    user={user} 
+                    user={user}
                     thread_ids={stepDetail[activeStep].thread}
                     sendTo={moreRow.contact}
+                    contact={moreRow.contact}
+                    contactHistories={moreRow.allHistories}
+                    onCall={onCall}
+                    onSendEmail={onSendEmail}
+                    setSuccessNot={setSuccessNoti}
+                    updateNote={updateNote}
                   />
                 </Grid>
               }
@@ -671,19 +689,19 @@ function FollowUpDetail(props) {
                 {
                   value === 0 &&
                   <TabContainer>
-                    <NoteDetail
+                    {/* <NoteDetail
                       type="all"
                       campaign={campaign}
                       contact={contact}
-                    />
+                    /> */}
                   </TabContainer>
                 }
                 {value === 1 &&
                   <TabContainer>
-                    <NoteDetail
+                    {/* <NoteDetail
                       campaign={campaign}
                       contact={contact}
-                    />
+                    /> */}
                   </TabContainer>
                 }
               </>

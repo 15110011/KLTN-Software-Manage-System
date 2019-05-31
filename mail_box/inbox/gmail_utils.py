@@ -133,12 +133,10 @@ class GmailService:
                 userId='me', body={'raw': raw}).execute()
             return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
         else:
-            print('CAI NAY Nay',data)
-            message['References'] = data['References']
-            message['In-Reply-To'] = data['In-Reply-To']
+            message.add_header('References', data['References'])
+            message.add_header('In-Reply-To', data['In-Reply-To'])
             raw = base64.urlsafe_b64encode(
                 message.as_bytes()).decode()
-            print('CAI NAY Nay2 :',raw)
 
             email = service.users().messages().send(
                 userId='me', body={'raw': raw, 'threadId': data['threadId']}

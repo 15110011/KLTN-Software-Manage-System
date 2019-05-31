@@ -96,29 +96,22 @@ function UserList(props) {
                 <th>Features</th>
                 <th>Quantity</th>
                 <th>Type</th>
+                <th>License</th>
                 <th>Pricing</th>
-                <th>Line Total</th>
               </tr>
               <tr>
                 <td>Package 1</td>
                 <td>Feature 1</td>
                 <td>1</td>
                 <td>Unlimited</td>
-                <td>$100</td>
-                <td>$100</td>
+                <td>#3434234234</td>
+                <td style={{ textAlign: 'right' }}>$100</td>
               </tr>
               <tr>
-                <td>Package 1</td>
-                <td>Feature 1</td>
-                <td>1</td>
-                <td>Unlimited</td>
-                <td>$100</td>
-                <td>$100</td>
+                <td colSpan={5} style={{ textAlign: 'right' }}>Total</td>
+                <td style={{ textAlign: 'right' }}>100</td>
               </tr>
             </table>
-            <div style={{ position: 'absolute', right: 0 }}>SubTotal: $100</div>
-            <br />
-            <div style={{ position: 'absolute', right: 0 }}>Total: $100</div>
           </div>
         </Grid>
       </Grid>

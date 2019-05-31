@@ -28,7 +28,7 @@ def send_email_api(user, to_address, from_address, subject, message, contact_mar
     res = request.json()
     #try:
     contact_marketing = models.ContactMarketing.objects.get(id=contact_marketing_id)
-    contact_marketing.thread_ids.append((res['thread_id']))
+    contact_marketing.thread_ids.append({'thread_id':res['thread_id'], 'type': 'Send Email'})
     contact_marketing.save()
     #except:
     #    pass

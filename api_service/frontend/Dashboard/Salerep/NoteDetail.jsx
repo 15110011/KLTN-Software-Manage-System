@@ -204,17 +204,17 @@ function NoteDetail(props) {
           }
           {
             type == 'all' ?
-            <>
-            <ExpansionPanel expanded={expand.expanded === 'panel1'} onChange={handleChangeExpand('panel1')}>
-              <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="subtitle2" className={classes.heading}>{note.name}</Typography>
-              </ExpansionPanelSummary>
-              <ExpansionPanelDetails>
-                <Typography component="div" dangerouslySetInnerHTML={{ __html: note.content }}>
-                </Typography>
-              </ExpansionPanelDetails>
-            </ExpansionPanel>
-            </>
+              <>
+                <ExpansionPanel expanded={expand.expanded === 'panel1'} onChange={handleChangeExpand('panel1')}>
+                  <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                    <Typography variant="subtitle2" className={classes.heading}>{note.name}</Typography>
+                  </ExpansionPanelSummary>
+                  <ExpansionPanelDetails>
+                    <Typography component="div" dangerouslySetInnerHTML={{ __html: note.content }}>
+                    </Typography>
+                  </ExpansionPanelDetails>
+                </ExpansionPanel>
+              </>
               :
               <Typography component="div">
                 {
@@ -233,7 +233,7 @@ function NoteDetail(props) {
                           :
                           <DialogContentText>
                             Let create new note
-                </DialogContentText>
+                          </DialogContentText>
                         }
                       </DialogContent>
 
