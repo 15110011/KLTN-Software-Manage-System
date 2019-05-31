@@ -50,7 +50,13 @@ function SalerepDashboard(props) {
   const tableFollowUpRef = React.useRef(null);
   const tableOrderUpRef = React.useRef(null);
 
-  console.log(vectorRef);
+  const queryState = props.history.location.search.match('(state=)(.+)\\&*');
+  const [selectingRegion, setSelectingRegion] = React.useState(
+    queryState && queryState.length ? queryState[2] : false,
+  );
+
+  const mapChartRef = React.useRef(null);
+
   const [expanded, setExpanded] = React.useState({
     upcoming1: true,
     upcoming2: true,
@@ -62,6 +68,7 @@ function SalerepDashboard(props) {
   });
 
   const [toggleExpand, setToggleExpand] = React.useState(true);
+  const [floatingState, setFloatingState] = React.useState(false);
 
   const handleExpandAllClick = () => {
     setExpanded({
@@ -127,6 +134,25 @@ function SalerepDashboard(props) {
     acc += d.amount;
     return acc;
   }, 0);
+  const handleScroll = () => {
+    if (vectorRef.current) {
+      if (
+        window.pageYOffset
+        >= vectorRef.current.refs.map.getBoundingClientRect().bottom
+      ) {
+        setFloatingState(true);
+      } else {
+        setFloatingState(false);
+      }
+    }
+  };
+
+  React.useEffect(() => {
+    window.addEventListener('scroll', () => {
+      handleScroll();
+    });
+    return window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className={classes.root}>
@@ -254,6 +280,9 @@ Expand All
                               fill: '#F4A582',
                             },
                           }}
+                          selectedRegions={
+                            selectingRegion ? [selectingRegion] : []
+                          }
                           series={{
                             regions: [
                               {
@@ -277,8 +306,17 @@ Expand All
                             );
                           }}
                           regionsSelectable
-                          onRegionSelected={(selected) => {
-                            console.log(vectorRef.current.getSelectedRegions());
+                          regionsSelectableOne
+                          onRegionClick={(e, code) => {
+                            if (code === selectingRegion) {
+                              setSelectingRegion(false);
+                            } else {
+                              setSelectingRegion(code);
+                            }
+                            props.history.push({
+                              pathName: './',
+                              search: `?state=${code}`,
+                            });
                           }}
                         />
                       </div>
@@ -289,6 +327,25 @@ Expand All
             </Card>
           </Paper>
         </Grid>
+        {floatingState && (
+          <div
+            className="shadow"
+            style={{
+              position: 'fixed',
+              top: '16px',
+              right: '16px',
+              padding: '16px',
+              zIndex: '99999',
+              backgroundColor: 'white',
+            }}
+          >
+            <p>
+              <strong>Selecting state</strong>
+            </p>
+            {' '}
+            {stateHashes[selectingRegion.split('-')[1]]}
+          </div>
+        )}
         <Grid item xs={12} className="pt-2">
           <ActivitiesTable
             tableActivtyRef={tableActivtyRef}

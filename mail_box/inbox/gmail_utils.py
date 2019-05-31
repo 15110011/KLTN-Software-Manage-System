@@ -146,5 +146,5 @@ class GmailService:
             return {"message_id": email['id'], "thread_id": email['threadId'], 'email_type': email['labelIds']}
 
 
-#gmail = GmailService()
-#gmail.get_service()
+gmail = GmailService()
+gmail.get_service()
