@@ -87,7 +87,7 @@ function FollowUpTable(props) {
       notification('Successfully Removed')
     })
   }
-
+  
 
   const onConfirmDeal = e => {
     const promises = []

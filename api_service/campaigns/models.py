@@ -9,6 +9,8 @@ from packages.models import Package
 # Create your models here.
 
 
+
+
 class MailTemplate(BaseModel):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='mail_templates')
