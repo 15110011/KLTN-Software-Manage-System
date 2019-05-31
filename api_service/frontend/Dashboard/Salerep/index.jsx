@@ -362,6 +362,7 @@ Expand All
             tableRef={tableCampaignRef}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -373,6 +374,7 @@ Expand All
             forceFollowUp={forceFollowUp}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -384,6 +386,7 @@ Expand All
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -394,6 +397,7 @@ Expand All
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion.split('-')[1]}
           />
         </Grid>
       </Grid>

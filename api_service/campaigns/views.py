@@ -305,7 +305,7 @@ class CampaignView(ModelViewSet):
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
         type_ = request.query_params.get('type', 'manager')
-        selecting_state = request.query_params.get('selectingSate' , None)
+        selecting_state = request.query_params.get('selectingState' , None)
         # Filter
         campaign_name = request.query_params.get('campaign_name', None)
         product_name = request.query_params.get('product_name', None)
@@ -316,9 +316,9 @@ class CampaignView(ModelViewSet):
 
         campaign_status = request.query_params.get('status', None)
         if selecting_state:
-            filters.add(Q(marketing_plan__conditions__must__operand='1') & Q(marketing_plan__conditions__must__data__icontain = selecting_state), Q.OR)
-            filters.add(Q(marketing_plan__conditions__must__data__icontain = selecting_state), Q.OR)
-            filters.add(Q(marketing_plan__conditions__must__data__icontain = selecting_state), Q.OR)
+            filters.add(~Q(marketing_plan__condition__must__operand='1'), Q.OR)
+            filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
+            filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
         if campaign_name:
             filters.add(Q(name__icontains=campaign_name), Q.AND)
 
@@ -345,6 +345,11 @@ class CampaignView(ModelViewSet):
                 Q(end_date__lte=end_to), Q.AND)
         if type_ == 'both':
             filters.add(Q(assigned_to=request.user), Q.OR)
+            if selecting_state:
+                filters.add(Q(marketing_plan__condition__must__contains={"operand":'2'}),Q.AND)
+                #filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
+                #filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
+
         if campaign_status:
             statuses = campaign_status.split(',')
             status_filters = Q()
@@ -394,6 +399,7 @@ class CampaignView(ModelViewSet):
         if limit is not None:
             queryset = queryset[int(page)*int(limit)
                                     :int(page)*int(limit)+int(limit)]
+        print("QUERYYYYYYYYYYYYYY:", queryset.query)
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data

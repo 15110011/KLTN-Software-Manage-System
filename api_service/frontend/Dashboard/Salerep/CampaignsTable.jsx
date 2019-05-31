@@ -40,6 +40,7 @@ function CampaignTable(props) {
     tableRef,
     expanded,
     handleExpandClick
+    selectingRegion
   } = props
 
   const [deletingRow, setDeletingRow] = React.useState({})
@@ -383,6 +384,7 @@ function CampaignTable(props) {
                   searchString += `${order[3] ? '&start_order=' + order[3] : ''}`
                   searchString += `${order[4] ? '&end_order=' + order[4] : ''}`
                   searchString += `${order[5] ? '&status_order=' + order[5] : ''}`
+                  searchString += `${selectingRegion ? '&selectingState=' + selectingRegion : ''}`
                   apiGet(CAMPAIGNS_URL + `?type=both&page=${activePageCampaign}&limit=${query.pageSize}` + searchString, true).then(res => {
                     const data = res.data.data.map((c, index) => {
                       let status = 'Idle'
