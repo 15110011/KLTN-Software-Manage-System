@@ -125,10 +125,14 @@ const CustomerCharts = (props) => {
               <CardIcon color="info">
                 <CategoryIcon />
               </CardIcon>
-              <h4 className={classes.cardChartTitle}>Top 6 States
+              <h4 className={classes.cardChartTitle}>
+                Order Amount
               </h4>
             </CardHeader>
             <CardBody>
+              <Typography classes={{ root: classes.activitytTagline }} component='p'>
+                Top 6 state with order amount
+                  </Typography>
               <Grid container>
                 <Grid item xs={5}>
                   <Table>
@@ -236,10 +240,14 @@ const CustomerCharts = (props) => {
               <CardIcon color="info">
                 <CategoryIcon />
               </CardIcon>
-              <h4 className={classes.cardChartTitle}>Top 6 activities State
+              <h4 className={classes.cardChartTitle}>
+                Sale Activity
               </h4>
             </CardHeader>
             <CardBody>
+              <Typography classes={{ root: classes.activitytTagline }} component='p'>
+                Top 6 state with working campaigns
+                  </Typography>
               <Grid container>
                 <Grid item xs={5}>
                   <Table>
@@ -247,7 +255,7 @@ const CustomerCharts = (props) => {
                       <TableRow>
                         <TableCell>Code</TableCell>
                         <TableCell>State</TableCell>
-                        <TableCell style={{ textAlign: 'right' }}>No. Contacts</TableCell>
+                        <TableCell style={{ textAlign: 'right' }}>No. Campaign</TableCell>
                         <TableCell>Percentage</TableCell>
                       </TableRow>
                     </TableHead>

@@ -127,6 +127,9 @@ const ProductCharts = (props) => {
               </h4>
             </CardHeader>
             <CardBody>
+            <Typography classes={{ root: classes.activitytTagline }} component='p'>
+                Monthly Income and monthly average income
+                  </Typography>
               <div style={{ witdh: '50%', height: '300px' }}>
                 <ResponsiveContainer>
                   <ComposedChart
@@ -191,6 +194,9 @@ const ProductCharts = (props) => {
               </h4>
             </CardHeader>
             <CardBody>
+            <Typography classes={{ root: classes.activitytTagline }} component='p'>
+                Monthly amount of license type
+                  </Typography>
               <div style={{ witdh: '50%', height: '300px' }}>
                 <ResponsiveContainer>
                   <LineChart

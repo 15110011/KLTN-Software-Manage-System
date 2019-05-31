@@ -81,7 +81,6 @@ class GmailService:
         thread = service.users().threads().get(userId='me', id=thread_id).execute()
         data = []
         for msg in thread['messages']:
-            print(msg)
             subject = [s['value']
                        for s in msg['payload']['headers'] if s['name'] == 'subject']
             from_email = [f['value']
@@ -89,8 +88,7 @@ class GmailService:
             date = [d['value']
                     for d in msg['payload']['headers'] if d['name'] == 'Date']
             message_id = [m['value'] for m in msg['payload']
-                          ['headers'] if m['name'] == 'Message-Id']
-            print(msg['payload'])
+                          ['headers'] if m['name'] == 'Message-ID' or m['name'] == 'Message-Id']
             references = [r['value'] for r in msg['payload']
                           ['headers'] if r['name'] == 'References']
             if 'data' in msg['payload']['body']:

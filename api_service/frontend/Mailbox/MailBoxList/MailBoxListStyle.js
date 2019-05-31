@@ -79,13 +79,13 @@ const styles = theme => ({
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       width: '250px',
-      height: '20px'
+      height: '22px'
     },
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     width: '250px',
-    height: '20px'
+    height: '22px'
   },
   titleContent: {
     display: 'inline-flex'

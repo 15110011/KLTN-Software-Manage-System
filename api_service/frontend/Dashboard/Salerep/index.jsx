@@ -343,7 +343,7 @@ Expand All
               <strong>Selecting state</strong>
             </p>
             {' '}
-            {stateHashes[selectingRegion.split('-')[1]]}
+            {selectingRegion && stateHashes[selectingRegion.split('-')[1]]}
           </div>
         )}
         <Grid item xs={12} className="pt-2">

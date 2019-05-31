@@ -16,7 +16,9 @@ class InboxConfig(AppConfig):
         subscriber = pubsub_v1.SubscriberClient()
         subscription_path = subscriber.subscription_path(
             'theaqvteam', 'mail-box')
-
+        gmail = GmailService()
+        res =gmail.watch_mail_box()
+        print(res)
         def callback(message):
             history_id = json.loads(str(message.data, 'utf-8'))['historyId']
             gmail = GmailService()
@@ -27,10 +29,13 @@ class InboxConfig(AppConfig):
                 mail.save()
                 return
             history = gmail.get_history(mail[0]['history_id'], 'INBOX')
+            print("1231231231231231231231211")
+
             if len(history['messages']) > 0:
                 channel_layer = get_channel_layer()
                 for email in history['messages']:
                     new_msg = gmail.get_message(email['message_id'])
+                    # print("1231231231231231231231211", new_msg)
                     async_to_sync(channel_layer.group_send)('mailbox', {
                         "type": "email.message",
                         "message": new_msg,

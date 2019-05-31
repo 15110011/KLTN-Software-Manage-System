@@ -113,6 +113,7 @@ class ReportOrderSerializer(serializers.ModelSerializer):
     sale_rep = MeSerializer()
     packages = PackageSerializer(many=True)
     campaign = CampaignSerializer()
+    contacts = ContactSerializer()
 
     class Meta:
         model = models.Order

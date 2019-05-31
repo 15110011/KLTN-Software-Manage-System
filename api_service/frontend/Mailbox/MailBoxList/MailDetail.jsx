@@ -38,9 +38,9 @@ import { htmlToState, draftToRaw } from "../../common/Utils";
 
 let oldMails = { data: [] }
 let ws
+let dirty = 1
 
 function MailDetail(props) {
-  const { classes, history, backToInbox, user, thread_ids, sendTo } = props;
 
   const {
     classes,
@@ -82,26 +82,29 @@ function MailDetail(props) {
   const [expandNote, setExpandNote] = React.useState([])
 
 
-  
   React.useEffect(() => {
     ws = initMailWebsocket(user.id)
     setSocket(ws)
     ws.onmessage = event => {
-
       let response = JSON.parse(event.data)
       if (response.type == 'single') {
-        oldMails = { data: [response.data[0], ...oldMails.data] }
+        let findIndex = thread_ids.findIndex(t => {
+          return t.thread_id && t.thread_id === response.thread_id
+        })
+        if (findIndex === -1) { oldMails = { data: [response.data[0], ...oldMails.data] } }
+        else {
+          oldMails.data[findIndex] = response.data[0]
+        }
         let isReplies = oldMails.data.map(d => {
           if (Array.isArray(d)) {
             return d.map(_ => ({ stt: false }))
           }
           else {
-  
+
             return { stt: false }
           }
         }
         )
-        console.log('##',oldMails, isReplies)
         setEmails(oldMails)
         setIsReply(isReplies)
         setNoExpand(oldMails.data.map(d => {
@@ -128,6 +131,13 @@ function MailDetail(props) {
           }
         }
         ))
+        if (dirty == 1) {
+          setEditorState(oldMails.data.map(_ => htmlToState("")))
+          setOld(oldMails.data.map(o => ({ content: '' })))
+          setAddNote(oldMails.data.map(n => ({ stt: false })))
+          setExpandNote(oldMails.data.map(p => ({ stt: true })))
+        }
+        dirty += 1
       }
     };
     ws.onopen = e => {
@@ -140,25 +150,18 @@ function MailDetail(props) {
     }
   }, [])
 
-   React.useEffect(() => {
-     if (typeof forceUpdateData === 'number' && forceUpdateData !== 1) {
-         ws.send(JSON.stringify({
-           threads: thread_ids
-         }))
-     }
-
-   }, [forceUpdateData])
-
   React.useEffect(() => {
-    setEditorState(emails.data.map(_ => htmlToState("")))
-    setOld(emails.data.map(o => ({ content: '' })))
-    setAddNote(emails.data.map(n => ({ stt: false })))
-    setExpandNote(emails.data.map(p => ({ stt: true })))
-  }, [emails.data])
+    if (typeof forceUpdateData === 'number' && forceUpdateData > 1) {
+      ws.send(JSON.stringify({
+        threads: thread_ids
+      }))
+    }
+
+  }, [forceUpdateData])
 
   const handleExpandNote = (j) => {
     let cloneExpandNote = [...expandNote]
-    cloneExpandNote[j] = !cloneExpandNote[j]
+    cloneExpandNote[j].stt = !cloneExpandNote[j].stt
     setExpandNote(cloneExpandNote)
   };
 
@@ -190,6 +193,7 @@ function MailDetail(props) {
       let replyingEmail = emails.data[i][insideIndex]
       cloneIsReply[i][insideIndex].threadId = thread_ids[i]
       cloneIsReply[i][insideIndex]['In-Reply-To'] = replyingEmail['Message-Id'][0]
+      console.log(replyingEmail)
       cloneIsReply[i][insideIndex]['References'] = `${replyingEmail['References'].length ? replyingEmail['References'][0] + ' ' : ''}${replyingEmail['Message-Id'][0]}`
       cloneIsReply[i][insideIndex]['subject'] = emails.data[i][0].subject.reduce((acc, s) => {
         let res = acc
@@ -231,7 +235,7 @@ function MailDetail(props) {
         <SendMailDialog user={user} toggleDialog={() => { setMailDialog(!mailDialog) }}
           setSuccessNoti={setSuccessNoti}
         />
-      )}
+      }
       <Grid container spacing={8}>
         <Grid item xs={12}>
           <Paper>
@@ -250,6 +254,7 @@ function MailDetail(props) {
                   let result
                   let date_created
                   let message
+
                   if (Array.isArray(t)) {
                     result = dateFns.isEqual(
                       dateFns.startOfDay(new Date()),
@@ -272,7 +277,7 @@ function MailDetail(props) {
                   } else {
                     dateValue = dateFns.formatDistance(date_created, new Date())
                   }
-                  console.log(j,t)
+
                   return (
                     Array.isArray(t) ?
                       <>
@@ -299,8 +304,8 @@ function MailDetail(props) {
                                 secondary={
                                   <React.Fragment>
                                     <Typography component="span" className={classes.inline} color="textPrimary">
-                                      theaqvteam@gmail.com
-                                  </Typography>
+                                      {`to ${contact.mail}`}
+                                    </Typography>
                                     {noExpand[j] && noExpand[j][0] &&
                                       <div dangerouslySetInnerHTML={{ __html: t[0].message }} className={classes.etcDot}>
                                       </div>
@@ -331,7 +336,7 @@ function MailDetail(props) {
                                 </Grid>
                                 <Grid item xs={12}>
                                   {
-                                    isReply[j] && isReply[j][0].stt &&
+                                    isReply[j] && isReply[j][0] && isReply[j][0].stt &&
                                     <SendMailComponent
                                       handleCloseReply={() => handleCloseReply(j, 0)}
                                       user={user}
@@ -415,7 +420,7 @@ function MailDetail(props) {
                                                 </Grid>
                                                 <Grid item xs={12}>
                                                   {
-                                                    isReply[j][i].stt &&
+                                                    isReply[j] && isReply[j][i] && isReply[j][i].stt &&
                                                     <SendMailComponent
                                                       handleCloseReply={() => handleCloseReply(j, i)}
                                                       user={user}
@@ -459,13 +464,14 @@ function MailDetail(props) {
                                             >
                                               <ListItemText
                                                 primary={
-                                                  "theaqvteam@gmail.com"
+                                                  "The AQV Team"
                                                 }
                                                 secondary={
                                                   <React.Fragment>
                                                     <Typography component="span" className={classes.inline} color="textPrimary">
+                                                      {`to ${contact.mail}`}
                                                     </Typography>
-                                                    {noExpand[j][i] &&
+                                                    {noExpand[j] && noExpand[j][i] &&
                                                       <div dangerouslySetInnerHTML={{ __html: e.message }} className={classes.etcDot}>
                                                       </div>
                                                     }
@@ -495,7 +501,7 @@ function MailDetail(props) {
                                                 </Grid>
                                                 <Grid item xs={12}>
                                                   {
-                                                    isReply[j][i] && isReply[j][i].stt &&
+                                                    isReply[j] && isReply[j][i] && isReply[j][i].stt &&
                                                     <SendMailComponent
                                                       handleCloseReply={() => handleCloseReply(j, i)}
                                                       sendTo={sendTo}
@@ -545,7 +551,7 @@ function MailDetail(props) {
                                       {contact.phone}
                                     </Typography>
                                     {
-                                      expandNote[j] &&
+                                      expandNote[j] && expandNote[j].stt &&
                                       <div dangerouslySetInnerHTML={{ __html: t.note }} className={classes.etcDot}>
                                       </div>
                                     }
@@ -624,6 +630,7 @@ function MailDetail(props) {
                                                     setEditorState(cloneEditorState)
                                                     let cloneAddNote = [...addNote]
                                                     cloneAddNote[j] = { stt: false }
+                                                    // handleExpandNote(j)
                                                     setAddNote(cloneAddNote)
                                                   }}
                                                 >Apply</Button>
