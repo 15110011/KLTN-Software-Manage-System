@@ -37,6 +37,7 @@ import { Editor } from "react-draft-wysiwyg";
 import { htmlToState, draftToRaw } from "../../common/Utils";
 
 let oldMails = { data: [] }
+let ws
 
 function MailDetail(props) {
   const { classes, history, backToInbox, user, thread_ids, sendTo } = props;
@@ -80,10 +81,10 @@ function MailDetail(props) {
   const [addNote, setAddNote] = React.useState([])
   const [expandNote, setExpandNote] = React.useState([])
 
-  const ws = initMailWebsocket(user.id)
 
   
   React.useEffect(() => {
+    ws = initMailWebsocket(user.id)
     setSocket(ws)
     ws.onmessage = event => {
 
@@ -139,16 +140,14 @@ function MailDetail(props) {
     }
   }, [])
 
-  // React.useEffect(() => {
-  //   if (typeof forceUpdateData === 'number' && forceUpdateData !== 1) {
-  //     ws.onopen = e => {
-  //       ws.send(JSON.stringify({
-  //         threads: thread_ids
-  //       }))
-  //     }
-  //   }
+   React.useEffect(() => {
+     if (typeof forceUpdateData === 'number' && forceUpdateData !== 1) {
+         ws.send(JSON.stringify({
+           threads: thread_ids
+         }))
+     }
 
-  // }, [forceUpdateData])
+   }, [forceUpdateData])
 
   React.useEffect(() => {
     setEditorState(emails.data.map(_ => htmlToState("")))
