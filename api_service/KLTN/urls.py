@@ -9,6 +9,7 @@ from rest_framework_simplejwt.views import (
 from account.views import MeView, LoginAndUpdateView, LogoutView, RegisterView, ActivateView, SaleRepView, UserView
 from packages.views import ProductViewSet, PackageViewSet, ProductCategoryView, ProductTypeView
 from contacts.views import ContactView, ContactGroupView
+from contacts.upload_excel_contact import upload_excel_contacts
 from campaigns.views import MarketingPlanView, CampaignView, FollowUpPlanView, GetPlanAction, GetMarketingPlanConditions, ContactMatchConditions, NoteView, CampaignExtraView, AssignedCampaigns
 from campaigns.views import ContactMarketingView, MailTemplateView
 from orders.views import OrderHistoryView, OrderView, LicenseView, LifetimeLicenseView, OrderChartView, LicenseChartView
@@ -82,4 +83,5 @@ urlpatterns = [
 
     path('api/v1/campaigns/<int:pk>/note',
          CampaignExtraView.as_view({'get': 'note'})),
+    path('api/v1/uploads', upload_excel_contacts)
 ]
