@@ -156,6 +156,10 @@ class OrderView(ModelViewSet):
         phone = request.query_params.get('phone', None)
         campaign = request.query_params.get('campaign', None)
         no_steps = request.query_params.get('no_steps', None)
+        selecting_state = request.query_params.get('selectingState', None)
+
+        if selecting_state:
+            filters.add(Q(contacts__state=selecting_state), Q.AND)
         if contact_name:
             filters.add(Q(contacts__first_name__icontains=contact_name) | Q(
                 contacts__last_name__icontains=contact_name) | Q(full_name__icontains=contact_name), Q.AND)

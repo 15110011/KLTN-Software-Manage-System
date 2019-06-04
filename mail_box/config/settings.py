@@ -221,51 +221,51 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 
-# LOGGING = {
-#    'version': 1,
-#    'disable_existing_loggers': True,
-#    'formatters': {
-#        'verbose': {
-#            '()': 'djangocolors_formatter.DjangoColorsFormatter',
-#            'format': '%(levelname)s %(name)s %(asctime)s %(module)s %(process)d %(thread)d %(pathname)s@%(lineno)s: %(message)s'
-#        },
-#        'simple': {
-#            '()': 'djangocolors_formatter.DjangoColorsFormatter',
-#            'format': '%(levelname)s %(name)s %(filename)s@%(lineno)s: %(message)s'
-#        },
-#        'super_simple': {
-#            '()': 'djangocolors_formatter.DjangoColorsFormatter',
-#            'format': '[%(asctime)s] : %(message)s'
-#        }
-#    },
-#    'handlers': {
-#        'console': {
-#            'class': 'logging.StreamHandler',
-#            'formatter': 'simple',
-#        },
-#        'mail_admins': {
-#            'class': 'django.utils.log.AdminEmailHandler',
-#            'formatter': 'verbose',
-#            'level': 'ERROR'
-#        }
-#    },
-#    'loggers': {
-#        '': {
-#            'handlers': ['mail_admins', 'console'],
-#            'level': 'DEBUG',
-#        },
-#        'django': {
-#            'handlers': ['mail_admins', 'console'],
-#            'level': 'DEBUG',
-#            'propagate': False,
-#        },
-#        'django.server': {
-#            'handlers': ['console'],
-#            'level': 'WARN',
-#        },
-#        'django.template': {
-#            'handlers': ['console'],
-#            'level': 'WARN',
-#        }
-#    },
+#LOGGING = {
+#   'version': 1,
+#   'disable_existing_loggers': True,
+#   'formatters': {
+#       'verbose': {
+#           '()': 'djangocolors_formatter.DjangoColorsFormatter',
+#           'format': '%(levelname)s %(name)s %(asctime)s %(module)s %(process)d %(thread)d %(pathname)s@%(lineno)s: %(message)s'
+#       },
+#       'simple': {
+#           '()': 'djangocolors_formatter.DjangoColorsFormatter',
+#           'format': '%(levelname)s %(name)s %(filename)s@%(lineno)s: %(message)s'
+#       },
+#       'super_simple': {
+#           '()': 'djangocolors_formatter.DjangoColorsFormatter',
+#           'format': '[%(asctime)s] : %(message)s'
+#       }
+#   },
+#   'handlers': {
+#       'console': {
+#           'class': 'logging.StreamHandler',
+#           'formatter': 'simple',
+#       },
+#       'mail_admins': {
+#           'class': 'django.utils.log.AdminEmailHandler',
+#           'formatter': 'verbose',
+#           'level': 'ERROR'
+#       }
+#   },
+#   'loggers': {
+#       '': {
+#           'handlers': ['mail_admins', 'console'],
+#           'level': 'DEBUG',
+#       },
+#       'django': {
+#           'handlers': ['mail_admins', 'console'],
+#           'level': 'DEBUG',
+#           'propagate': False,
+#       },
+#       'django.server': {
+#           'handlers': ['console'],
+#           'level': 'WARN',
+#       },
+#       'django.template': {
+#           'handlers': ['console'],
+#           'level': 'WARN',
+#       }
+#   },
 #}

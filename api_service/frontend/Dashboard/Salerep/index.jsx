@@ -310,13 +310,17 @@ Expand All
                           onRegionClick={(e, code) => {
                             if (code === selectingRegion) {
                               setSelectingRegion(false);
+                              props.history.push({
+                                pathName: './',
+                              });
                             } else {
                               setSelectingRegion(code);
+
+                              props.history.push({
+                                pathName: './',
+                                search: `?state=${code}`,
+                              });
                             }
-                            props.history.push({
-                              pathName: './',
-                              search: `?state=${code}`,
-                            });
                           }}
                         />
                       </div>
@@ -337,13 +341,17 @@ Expand All
               padding: '16px',
               zIndex: '99999',
               backgroundColor: 'white',
+              cursor: 'pointer',
+            }}
+            onClick={() => {
+              window.scrollTo(0, 0);
             }}
           >
             <p>
               <strong>Selecting state</strong>
             </p>
             {' '}
-            {selectingRegion && stateHashes[selectingRegion.split('-')[1]]}
+            {selectingRegion ? selectingRegion.split('-')[1] : 'ALL'}
           </div>
         )}
         <Grid item xs={12} className="pt-2">
@@ -362,6 +370,7 @@ Expand All
             tableRef={tableCampaignRef}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -373,6 +382,7 @@ Expand All
             forceFollowUp={forceFollowUp}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -384,6 +394,7 @@ Expand All
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -394,6 +405,7 @@ Expand All
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
       </Grid>
