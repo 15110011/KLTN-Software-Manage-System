@@ -99,9 +99,9 @@ function EmailTemplateList(props) {
       {createEmailTemplateDialog &&
         <Dialog open={true} onClose={() => setCreateEmailTemplateDialog(false)}
           fullWidth
-          maxWidth="md"
+          maxWidth="lg"
         >
-          <DialogTitle>Create new email template</DialogTitle>
+          <DialogTitle>Create Email Template</DialogTitle>
           <CreateEmailTemplate
             user={user}
             notification={notification}

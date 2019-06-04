@@ -155,7 +155,7 @@ function CreateEmailTemplate(props) {
 
             </Grid>
             <Grid item xs={12}>
-              <Grid container >
+              <Grid container spacing={8}>
                 <Grid item xs={2} style={{ position: 'relative' }}>
                   <InputLabel
                     htmlFor="custom-css-standard-input"
@@ -168,7 +168,7 @@ function CreateEmailTemplate(props) {
                     Template
                   </InputLabel>
                 </Grid>
-                <Grid item xs={10}>
+                <Grid item xs={6}>
                   <Editor
                     editorState={editorState}
                     wrapperClassName="editor-wrapper"
@@ -180,6 +180,16 @@ function CreateEmailTemplate(props) {
 
                   >
                   </Editor>
+                </Grid>
+                <Grid item xs={4}>
+                  <div style={{ paddingTop: '10px', border: '1px solid #F1F1F1', height: '100%' }}>
+                    <p style={{ padding: '10px', fontSize: '20px', fontStyle: 'italic', fontWeight: 'bold' }}>System Variables</p>
+                    <ul>
+                      <li style={{ listStyleType: 'circle' }}>
+                        $contact_name$: Your customer name
+                      </li>
+                    </ul>
+                  </div>
                 </Grid>
               </Grid>
             </Grid>

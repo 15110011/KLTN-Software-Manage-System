@@ -7,6 +7,7 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import ProductIcon from '@material-ui/icons/Archive';
 import AppBar from '@material-ui/core/AppBar';
+import Checkbox from '@material-ui/core/Checkbox';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
@@ -26,6 +27,8 @@ import MaterialTable from 'material-table'
 import IconButton from '@material-ui/core/IconButton';
 import CustomSnackbar from '../../components/CustomSnackbar'
 import * as numeral from 'numeral'
+import * as NumberFormat from 'react-number-format';
+import NumberFormatCustom from '../../components/NumberFormatCustom'
 
 // API
 import { PRODUCTS_URL, REFRESH_TOKEN_URL } from "../../common/urls";
@@ -36,6 +39,7 @@ import { BAD_REQUEST } from "../../common/Code";
 import SelectCustom from '../../../components/SelectCustom'
 import FormLicensePrice from '../CreateProduct/FormLicensePrice/FormLicensePrice'
 import FormFeature from '../CreateProduct/FormFeature/FormFeature'
+import FormPackage from '../CreateProduct/FormPackage/FormPackage'
 
 import styles from './ProductDetailStyle'
 
@@ -196,6 +200,11 @@ function ProductDetail(props) {
     packages.forEach(p => {
       p.numbers = p.numbers.map(n => n.number)
     })
+    packages = packages.map(p=>{
+      const {product_, ...rest} = p
+
+      return {...rest}
+    })
     apiPut(PRODUCTS_URL + '/' + id, { packages, features }, false, true)
       .then(res => {
         // setProductDetailData(res.data)
@@ -253,6 +262,8 @@ function ProductDetail(props) {
   const onChangeCreateFeature = e => {
     setCreateFeature({ ...createFeature, [e.target.name]: e.target.value })
   }
+
+  let packages = {}
 
   const onRemoveLicenseType = (packageIndex, month) => {
     const packages = productDetailData.packages.concat([])
@@ -312,6 +323,12 @@ function ProductDetail(props) {
     else {
       packages[packageIndex][e.target.name] = e.target.value
     }
+    setProductDetailData({ ...productDetailData, packages })
+  }
+
+  const onChangeLicenseInput2 = (e, packageIndex, curMonth) => {
+    const packages = productDetailData.packages.concat([])
+    packages[packageIndex].prices[curMonth] = e.target.value
     setProductDetailData({ ...productDetailData, packages })
   }
 
@@ -521,143 +538,6 @@ function ProductDetail(props) {
               {
                 value === 1 &&
                 <TabContainer>
-                  {/* <Grid container spacing={40}>
-                    <Grid item xs={12}>
-                      <Typography variant="h5" gutterBottom>
-                        Feature Info
-                        </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Grid container spacing={40}>
-                        <Grid className={classes.inputCustom} item xs={4}>
-                          <InputLabel
-                            required
-                            htmlFor="custom-css-standard-input"
-                            classes={{
-                              root: classes.cssLabel,
-                              focused: classes.cssFocused,
-                            }}
-                          >
-                            Feature Name
-                            </InputLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-
-                          <Input
-                            fullWidth
-                            required
-                            error={error.fname}
-                            onChange={onChangeCreateFeature}
-                            value={createFeature.name}
-                            name="name"
-                            classes={{
-                              underline: classes.cssUnderline,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-
-                      <Grid container spacing={40}>
-                        <Grid className={classes.inputCustom} item xs={4}>
-                          <InputLabel
-                            required
-                            htmlFor="custom-css-standard-input"
-                            classes={{
-                              root: classes.cssLabel,
-                              focused: classes.cssFocused,
-                            }}
-                          >
-                            Feature Price
-                              </InputLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Input
-                            fullWidth
-                            required
-                            error={error.fprice}
-                            type="number"
-                            onChange={onChangeCreateFeature}
-                            value={createFeature.price}
-                            name="price"
-                            classes={{
-                              underline: classes.cssUnderline,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <Grid container spacing={40}>
-                        <Grid className={classes.inputCustom} item xs={4}>
-                          <InputLabel
-                            htmlFor="custom-css-standard-input"
-                            classes={{
-                              root: classes.cssLabel,
-                              focused: classes.cssFocused,
-                            }}
-                          >
-                            Feature Description
-                            </InputLabel>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Input
-                            fullWidth
-                            onChange={onChangeCreateFeature}
-                            value={createFeature.desc}
-                            name="desc"
-                            classes={{
-                              underline: classes.cssUnderline,
-                            }}
-                          />
-                        </Grid>
-                      </Grid>
-
-                    </Grid>
-                    <Grid item xs={12}>
-                      {
-                        Object.keys(error).map(k => (<p className="text-danger">
-                          {error[k]}
-                        </p>
-                        ))
-                      }
-                    </Grid>
-                    <Grid item xs={12} className="d-flex justify-content-center">
-
-                      {
-                        updateFeatureBtn == false &&
-                        <Button
-                          type="button"
-                          variant="contained"
-                          color="primary"
-                          onClick={handleCreateFeature}
-                        >
-                          Add Feature
-                      </Button>
-                      }
-                      {
-                        updateFeatureBtn == true &&
-                        <>
-                          <Button
-                            type="button"
-                            variant="contained"
-                            color="default"
-                            onClick={toggleUpdateFeature}
-                          >
-                            Cancel
-                      </Button>
-                          &nbsp;
-                          <Button
-                            type="button"
-                            variant="contained"
-                            color="primary"
-                            onClick={onClickUpdateFeature}
-                          >
-                            Update
-                      </Button>
-                        </>
-                      }
-                    </Grid>
-                  </Grid> */}
                   <FormFeature
                     onChangeCreateFeature={onChangeCreateFeature}
                     createFeature={createFeature}
@@ -734,7 +614,7 @@ function ProductDetail(props) {
                           handleUpdateFeature(e, rowData)
                         }}
                         // onSelectionChange={onSelectionChange}
-                        title="Basic"
+                        title="Features"
                         options={{
                           toolbar: true,
                           paging: false,
@@ -743,159 +623,126 @@ function ProductDetail(props) {
                       />
                     </Grid>
                   </Grid>
-                  {/* <br />
-
-                  <Grid container>
-                    <Grid item xs={12} className="d-flex justify-content-center mt-3">
-                      <Button onClick={handleResetData} variant="contained" className={classes.button}>
-                        RESET
-                      </Button>&nbsp;&nbsp;
-                      <Button onClick={handleSave} variant="contained" color="primary" className={classes.button}>
-                        SAVE
-                      </Button>
-                    </Grid>
-                  </Grid> */}
                 </TabContainer>
               }
               {value === 2 &&
                 <TabContainer>
                   <Grid item xs={12}>
-                    <Typography variant="h5" gutterBottom>
-                      Package Info
-                    </Typography>
+                    <FormPackage />
                   </Grid>
                   <Grid item xs={12}>
                     <MaterialTable
-                      columns={[
-                        { title: '', field: 'actions' },
-                        { title: 'Package Name', field: 'packageName' },
-                        { title: 'Sell Price', field: 'sellPrice' },
-                        {
-                          title: 'Notes', field: 'notes',
-                        },
-                      ]}
+                      components={{
+
+                      }}
+                      columns={
+                        ([
+                          { title: '#', field: 'numeral', headerStyle: { width: '50px' } },
+                          {
+                            title: 'Features', field: 'feature', render: rowData => {
+                              if (rowData.isPrice == true) {
+                                return (
+                                  <div className="sum-row" style={{ fontWeight: 'bold', textTransform: 'uppercase', color: 'rgba(0, 0, 0, 0.54)' }}>{rowData.feature}</div>
+                                )
+                              }
+                              return (
+                                <div>{rowData.feature}</div>
+                              )
+                            },
+                            headerStyle: { width: '300px' }
+                          }
+                        ]).concat(
+                          productDetailData.packages.map((p, index) => {
+                            return (
+                              {
+                                title: p.name, field: p.name,
+                                render: rowData => {
+                                  return (
+                                    !rowData.isPrice
+                                      ?
+                                      <Checkbox
+                                        color="primary"
+                                        checked={productDetailData.packages[index].numbers.includes(productDetailData.features[rowData.numeral - 1].number)}
+                                        onChange={(e, stt) => handleChooseFeature(index, rowData.numeral - 1, stt)}
+                                        name="checkedFeature"
+                                      />
+                                      : <Grid container spacing={24}>
+                                        <Grid className={classes.inputCustom} item xs={4}>
+                                          <Input
+                                            onChange={(e) => onChangeLicenseInput2(e, index, `${rowData.month}`)}
+                                            value={productDetailData.packages[index].prices[`${rowData.month}`]}
+                                            name="prices"
+                                            inputComponent={NumberFormatCustom}
+                                            classes={{
+                                              underline: classes.cssUnderline,
+                                            }}
+                                          />
+                                        </Grid>
+                                      </Grid>
+                                  )
+                                }
+                              }
+                            )
+                          }))
+                      }
                       data={
-                        productDetailData.packages.map((p, packageIndex) => {
+                        productDetailData.features.map((f, index) => {
                           return (
                             {
-                              actions:
-                                (
-                                  <>
-                                    <Button
-                                      variant="outlined"
-                                      className={classes.button}
-                                      aria-owns={Boolean(anchorEl) ? 'material-appbar' : undefined}
-                                      aria-haspopup="true"
-                                      onClick={handleProfileMenuOpen}
-                                      color="default"
-                                    >
-                                      Actions
-                      </Button>
-                                    <Menu
-                                      anchorEl={anchorEl}
-                                      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                      transformOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                                      open={Boolean(anchorEl)}
-                                      onClose={() => setAnchorEl(null)} >
-                                      <MenuItem onClick={() => {
-                                        handleAddPackageForm()
-                                      }}>
-                                        Add
-                                      </MenuItem>
-                                      <MenuItem onClick={() => { handleRemovePackageForm(packageIndex) }}>Remove</MenuItem>
-                                    </Menu>
-                                  </>
-                                )
-                              ,
-                              packageName:
-                                (<form className={classes.container} noValidate autoComplete="off">
-                                  <Grid container>
-                                    <Grid item xs={12} className="mb-3">
-                                      <Input
-                                        placeholder="Type package's name..."
-                                        fullWidth
-                                        className={classes.input}
-                                        inputProps={{
-                                          'aria-label': 'Package Name',
-                                        }}
-                                        name='name'
-                                        value={p.name}
-                                        onChange={(e) => onChangeLicenseInput(e, packageIndex)}
-
-                                      />
-                                    </Grid>
-                                    <Grid item xs={12}>
-                                      <SelectCustom
-                                        options={productDetailData.features.map(f => ({ label: f.name + `(${numeral(f.price).format('0,0.00')} VND)`, value: f.number, ...f }))}
-                                        handleChange={(values, element) => handleChangeSelect(values, element, packageIndex)}
-                                        data={
-                                          productDetailData.packages[packageIndex].numbers
-                                            .reduce((acc, p) => {
-                                              acc.push({ label: p.name, value: p.number, ...p })
-                                              return acc
-                                            }, [])
-                                        }
-                                        multi
-                                        placeholder=""
-                                        label="Features"
-                                      />
-                                    </Grid>
-                                  </Grid>
-                                </form>)
-                              ,
-                              sellPrice:
-                                (<div style={{ display: 'inline-grid' }}>
-                                  {
-                                    Object.keys(p.prices).map((pkey, priceIndex) => {
-                                      let thisScopeIndex = priceIndex
-                                      return (
-                                        <>
-                                          <FormLicensePrice key={`priceIndex${thisScopeIndex}`}
-                                            onRemoveLicenseType={() => { onRemoveLicenseType(packageIndex, pkey) }}
-                                            price={{ value: p.prices[pkey], month: pkey }}
-                                            onInputChange={(e, curMonth) => onChangeLicenseInput(e, packageIndex, curMonth)}
-                                            months={
-                                              MONTHS.reduce((acc, m) => {
-                                                if (Object.keys(p.prices).findIndex(pr => pr == m.value && pr != pkey) == -1) {
-                                                  acc.push(<MenuItem value={m.value}>{m.label}</MenuItem>)
-                                                }
-                                                return acc
-                                              }, [])
-                                            }
-                                          />
-
-                                        </>
-                                      )
-                                    })
-                                  }
-                                  <Button onClick={() => {
-                                    onLicenseTypeClick(packageIndex)
-                                  }} variant="outlined" color="default" className={(classes.addFeatureButton, "mt-3")}>
-                                    License Price
-                            </Button>
-                                </div>)
-                              ,
-                              notes:
-                                (<Input
-                                  fullWidth
-                                  placeholder="Notes"
-                                  className={classes.input}
-                                  inputProps={{
-                                    'aria-label': 'Description',
-                                  }}
-                                  onChange={(e) => onChangeLicenseInput(e, packageIndex)}
-                                  name='note'
-                                  value={p.note}
-                                />)
-
+                              ...packages,
+                              numeral: index + 1,
+                              feature: f.name,
                             }
                           )
-                        })
+                        }).concat(
+                          productDetailData.features.length > 0 && productDetailData.packages.length > 0 ?
+                            [
+                              {
+                                numberal: '',
+                                feature: '1 Month',
+                                isPrice: true,
+                                month: 1,
+                                ...packages,
+                              },
+                              {
+                                numberal: '',
+                                feature: '6 Months',
+                                isPrice: true,
+                                month: 6,
+                                ...packages,
+                              },
+                              {
+                                numberal: '',
+                                feature: '12 Months',
+                                isPrice: true,
+                                month: 12,
+                                ...packages,
+                              },
+                              {
+                                numberal: '',
+                                feature: 'Unlimited',
+                                isPrice: true,
+                                month: 999999,
+                                ...packages,
+                              },
+                            ] : [])
                       }
-                      title="Basic"
+                      title="Package Info"
+                      actions={[
+                        {
+                          icon: 'add',
+                          tooltip: 'Add Package',
+                          onClick: (event, rows) => {
+                            setPackageDialog(true)
+                          },
+                          isFreeAction: true
+                        }
+                      ]}
                       options={{
-                        toolbar: false,
+                        toolbar: true,
                         paging: false,
+                        search: false,
+                        sorting: false,
                       }}
                     />
                   </Grid>

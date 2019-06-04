@@ -40,7 +40,7 @@ import { ORDER_CHART_URL } from '../../common/urls';
 import stateHashes from '../../common/StateHash';
 
 function SalerepDashboard(props) {
-  const { classes } = props;
+  const { classes, user } = props;
 
   const vectorRef = React.useRef(null);
   const tableMarketingRef = React.useRef(null);
@@ -287,7 +287,7 @@ Expand All
                             regions: [
                               {
                                 values: regionData,
-                                scale: ['#01ff5b', '#ff0000'],
+                                scale: ['#e8f5e9', '#1b5e20'],
                                 normalizeFunction: 'polynomial',
                                 legend: {
                                   // horizontal: true,
@@ -371,6 +371,7 @@ Expand All
             expanded={expanded}
             handleExpandClick={handleExpandClick}
             selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
+            user={user}
           />
         </Grid>
         <Grid item xs={12}>

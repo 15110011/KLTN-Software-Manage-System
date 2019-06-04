@@ -6,6 +6,7 @@ import { withStyles, Typography, Paper, IconButton, Button } from '@material-ui/
 import { Dialog, DialogContent, DialogActions, DialogTitle, DialogContentText } from '@material-ui/core'
 import Grid from '@material-ui/core/Grid'
 import PhoneIcon from '@material-ui/icons/Phone'
+import AddIcon from '@material-ui/icons/Add'
 import SwapIcon from '@material-ui/icons/SwapHoriz'
 import RemoveIcon from '@material-ui/icons/Remove'
 import EmailIcon from '@material-ui/icons/Email'
@@ -162,35 +163,51 @@ function CampaignDetail(props) {
             {
               moreRow.manager == userId && moreRow.status == 'Idle' &&
               <Tooltip title="Start campaign">
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnPurple
-                }}
-                onClick={() => {
-                  setMovingRow({ id: moreRow.id, name: moreRow.name, start: moreRow.start })
-                }}
-              >
-                <PlayIcon fontSize="small" />
-              </Button>
+                <Button
+                  variant='contained'
+                  classes={{
+                    contained: classes.btnPurple
+                  }}
+                  onClick={() => {
+                    setMovingRow({ id: moreRow.id, name: moreRow.name, start: moreRow.start })
+                  }}
+                >
+                  <PlayIcon fontSize="small" />
+                </Button>
               </Tooltip>
             }
             {
 
               moreRow.manager == userId && moreRow.status == 'Idle' &&
-              <Tooltip title="Delete campaign">
-              <Button
-                variant='contained'
-                classes={{
-                  contained: classes.btnRed
-                }}
-                onClick={() => {
-                  setDeletingRow({ id: moreRow.id, name: moreRow.name })
-                }}
-              >
-                <DeleteIcon fontSize="small" />
-              </Button>
-              </Tooltip>
+              <>
+                <Tooltip title="Delete campaign">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnRed
+                    }}
+                    onClick={() => {
+                      setDeletingRow({ id: moreRow.id, name: moreRow.name })
+                    }}
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </Button>
+                </Tooltip>
+                &nbsp;
+                <Tooltip title="Add contact to this campaign">
+                  <Button
+                    variant='contained'
+                    classes={{
+                      contained: classes.btnGreen
+                    }}
+                    onClick={() => {
+                      setDeletingRow({ id: moreRow.id, name: moreRow.name })
+                    }}
+                  >
+                    <AddIcon fontSize="small" />
+                  </Button>
+                </Tooltip>
+              </>
             }
           </DialogActions>
         </Grid>

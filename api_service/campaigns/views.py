@@ -18,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.exceptions import MethodNotAllowed
 
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
-from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer,ContactMarketingSerializer2
 import json
 
 
@@ -497,6 +497,12 @@ class ContactMarketingView(ModelViewSet):
     queryset = ContactMarketing.objects.select_related(
         'campaign', 'contact', 'marketing_plan')
     serializer_class = ContactMarketingSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = ContactMarketingSerializer2(data=request.data, context={"request": request})
+        serializer.is_valid()
+        created = self.perform_create(serializer)
+        return Response(created)
 
     def list(self, request, *args, **kwargs):
         filters = Q()

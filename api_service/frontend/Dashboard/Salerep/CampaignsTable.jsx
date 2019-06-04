@@ -8,6 +8,7 @@ import { Dialog, DialogTitle, DialogActions, DialogContent, DialogContentText } 
 import DeleteIcon from '@material-ui/icons/Delete'
 import PlayIcon from '@material-ui/icons/PlayCircleFilled'
 import MoreVert from '@material-ui/icons/MoreVert'
+import AddIcon from '@material-ui/icons/Add'
 import Tooltip from '@material-ui/core/Tooltip'
 import * as dateFns from 'date-fns'
 import * as cn from 'classnames'
@@ -21,7 +22,7 @@ import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
 import CustomFItlerRow from '../../components/CustomFilterRow'
-
+import ContactList from '../../Contacts/ContactList'
 import CampaignDetail from './CampaignDetail'
 import { apiGet, apiPost, apiPatch, apiDelete } from '../../common/Request'
 import CustomSnackbar from '../../components/CustomSnackbar'
@@ -33,21 +34,25 @@ let activePageCampaign = 0
 
 function CampaignTable(props) {
 
-  const { 
-    classes, 
-    forceActivities, 
-    history, 
+  const {
+    classes,
+    forceActivities,
+    history,
     tableRef,
     expanded,
-    handleExpandClick
-    selectingRegion
+    handleExpandClick,
+    selectingRegion,
+    user,
   } = props
+
+  console.log(user)
 
   const [deletingRow, setDeletingRow] = React.useState({})
   const [campaignRow, setMovingRow] = React.useState({})
   const [moreRow, setMoreRow] = React.useState({})
 
   const [moreDialog, setMoreDialog] = React.useState(false)
+  const [addContactDialog, setAddContactDialog] = React.useState(false)
 
   const [timeRanges, setTimeRanges] = React.useState([null, null, null, { from: null, to: null }, { from: null, to: null }])
   const [notiSuccess, setNotiSuccess] = React.useState(false)
@@ -85,6 +90,21 @@ function CampaignTable(props) {
         setMoreDialog(false)
         onNotiSuccess('Successfully Started')
       })
+  }
+
+  const handleAddContact = (rows) => {
+    console.log(user)
+    console.log(addContactDialog)
+    rows.forEach(d => {
+      let data = {
+        marketing_plan: addContactDialog.marketing_plan.id,
+        contact: d.contact.id,
+        campaign: addContactDialog.id
+      }
+      apiPost(CONTACT_MARKETING_URL, data, false, true).then(res => {
+
+      })
+    })
   }
 
   // const getMoreRow = id => {
@@ -138,6 +158,28 @@ function CampaignTable(props) {
                   onNotiSuccess={onNotiSuccess}
                   userId={user.id}
                 // getMoreRow={getMoreRow}
+                />
+              </DialogContent>
+            </Dialog>
+          }
+          {addContactDialog &&
+            <Dialog
+              open={true}
+              onClose={() => setAddContactDialog(false)}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>
+                <h4>
+                  Contact
+                </h4>
+              </DialogTitle>
+              <DialogContent>
+                <ContactList
+                  user={user}
+                  disabledAction={true}
+                  handleAddContact={handleAddContact}
+                  allContacts={addContactDialog.allContacts}
                 />
               </DialogContent>
             </Dialog>
@@ -287,6 +329,16 @@ function CampaignTable(props) {
                           </IconButton>
                         </Tooltip>)
                     }
+                    if (props.action.icon == 'add' && props.data.status == 'Idle' && props.data.manager == user.id) {
+                      return (
+                        <Tooltip title={props.action.tooltip}>
+                          <IconButton
+                            onClick={(event) => props.action.onClick(event, props.data)}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </Tooltip>)
+                    }
                     return null
                   },
                   FilterRow: props =>
@@ -415,8 +467,7 @@ function CampaignTable(props) {
                         marketing_plan: c.marketing_plan,
                         status,
                         manager: c.manager.id,
-                        allContacts: c.contacts
-
+                        allContacts: c.contacts,
                       }
                     })
                     resolve({
@@ -441,6 +492,13 @@ function CampaignTable(props) {
                   tooltip: 'Start campaign',
                   onClick: (event, row) => {
                     setMovingRow(row)
+                  },
+                },
+                {
+                  icon: 'add',
+                  tooltip: 'Add contact to campaign',
+                  onClick: (event, row) => {
+                    setAddContactDialog(row)
                   },
                 },
                 {

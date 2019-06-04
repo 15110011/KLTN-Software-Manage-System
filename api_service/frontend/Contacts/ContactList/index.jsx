@@ -76,8 +76,8 @@ function ContactList(props) {
   }, [groups.data.length])
 
 
-  const { classes } = props;
-
+  const { classes, disabledAction, handleAddContact, allContacts } = props;
+  console.log(allContacts,'hihi')
   let notiTimeout = {}
   //Clear timer
   React.useEffect(() => {
@@ -362,9 +362,11 @@ function ContactList(props) {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={1} className='my-3 d-flex flex-column justify-content-end'>
-          <Button onClick={onClickActionBtn}>Action</Button>
-        </Grid>
+        {!disabledAction &&
+          <Grid item xs={1} className='my-3 d-flex flex-column justify-content-end'>
+            <Button onClick={onClickActionBtn}>Action</Button>
+          </Grid>
+        }
         <Grid item xs={12}>
           {
             selectingGroup == -1 ?
@@ -439,7 +441,8 @@ function ContactList(props) {
                           email: d.mail,
                           phone: d.phone,
                           org: d.org,
-                          id: d.id
+                          id: d.id,
+                          contact: d
                         })
                         )
                         resolve({
@@ -452,52 +455,69 @@ function ContactList(props) {
                 }
 
                 title="Contacts List"
-                actions={[
-                  {
-                    icon: 'add',
-                    tooltip: 'Create New Contact',
-                    onClick: (event, rows) => {
-                      setCreateContactDialog(true)
-                    },
-                    isFreeAction: true
-                  },
-                  {
+                actions={
 
-                    icon: 'delete',
-                    tooltip: 'Delete Contacts',
-                    onClick: (event, rows) => {
-                      // setCreateContactDialog(true)
-                      setDeleteContacts(rows.map(r => r.id))
-                      setDeleteContactConfirm(true)
+                  !disabledAction ? [
+                    {
+                      icon: 'add',
+                      tooltip: 'Create New Contact',
+                      onClick: (event, rows) => {
+                        setCreateContactDialog(true)
+                      },
+                      isFreeAction: true
                     },
-                  },
-                  {
-                    icon: 'swap_horiz',
-                    tooltip: 'Add these contacts to group',
-                    onClick: (event, rows) => {
-                      setSelectingContacts(rows)
-                      setChangeGroupDialog(true)
-                    },
+                    {
 
-                  },
-                ]}
+                      icon: 'delete',
+                      tooltip: 'Delete Contacts',
+                      onClick: (event, rows) => {
+                        // setCreateContactDialog(true)
+                        setDeleteContacts(rows.map(r => r.id))
+                        setDeleteContactConfirm(true)
+                      },
+                    },
+                    {
+                      icon: 'swap_horiz',
+                      tooltip: 'Add these contacts to group',
+                      onClick: (event, rows) => {
+                        setSelectingContacts(rows)
+                        setChangeGroupDialog(true)
+                      },
+
+                    }
+                  ]
+                    : [
+                      {
+                        icon: 'add',
+                        tooltip: 'Add Contact',
+                        onClick: (event, rows) => {
+                          handleAddContact(rows)
+                        },
+                      },
+                    ]
+                }
                 onRowClick={
-                  (e, rowData) => {
-                    props.history.push('/contacts/' + rowData.id)
-                  }
+                  !disabledAction && (
+                    (e, rowData) => {
+                      props.history.push('/contacts/' + rowData.id)
+                    }
+                  )
                 }
                 options={{
                   search: false,
                   selection: true,
+                  selectionProps: rowData => ({
+                    disabled: true
+                  }),
                   filtering: true,
                   paging: true,
-                  debounceInterval: 300
+                  debounceInterval: 300,
                 }}
               />
           }
         </Grid>
       </Grid>
-    </div >
+    </div>
   )
 }
 

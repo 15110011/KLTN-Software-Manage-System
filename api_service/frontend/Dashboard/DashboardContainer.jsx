@@ -19,11 +19,12 @@ import FollowUpTableDetail from './Salerep/FollowUp/FollowUpTableDetail'
 import OrderTableDetail from './Salerep/Order/OrderTableDetail'
 
 function Dashboard(props) {
-
+  
   return (
       <USERCONTEXT.Consumer>
         {({ user }) => 
         {
+          console.log(user)
           return (
           <>
           <Paper className="d-flex justify-content-between" style={{

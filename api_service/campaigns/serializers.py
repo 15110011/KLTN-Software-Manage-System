@@ -281,3 +281,9 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
             step_details = StepDetail.objects.bulk_create(step_details)
 
         return instance
+
+class ContactMarketingSerializer2(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ContactMarketing
+        fields = '__all__'
