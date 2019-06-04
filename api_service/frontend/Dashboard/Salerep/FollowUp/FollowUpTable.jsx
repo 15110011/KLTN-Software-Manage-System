@@ -47,7 +47,9 @@ function FollowUpTable(props) {
     forceFollowUp,
     forceOrder,
     expanded,
-    handleExpandClick
+    handleExpandClick,
+    selectingRegion
+
   } = props
 
   // const [viewType, setViewType] = React.useState('campaign')
@@ -312,6 +314,9 @@ function FollowUpTable(props) {
                   searchString += `${flOrder[5] ? '&no_steps_order=' + flOrder[5] : ''}`
                   searchString += `${flOrder[6] ? '&progress_order=' + flOrder[6] : ''}`
 
+                  searchString += `${
+                    selectingRegion ? `&selectingState=${selectingRegion}` : ""
+                  }`;
                   apiGet(ORDER_URL + `?page=${activePage}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
                     const data = res.data.data.map((d, index) => {
                       const noSteps = d.campaign.follow_up_plan.steps.length

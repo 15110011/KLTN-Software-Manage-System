@@ -93,7 +93,7 @@ class ContactMarketing(BaseModel):
     job_id = models.CharField(max_length=255, null=True, blank=True)
     sale_rep = models.ForeignKey(
         User, related_name='contact_marketing_plans', on_delete=models.CASCADE, blank=True, null=True)
-    thread_ids = JSONField(default=list([]))
+    thread_ids = JSONField(default=list([]), blank=True)
 
 
 

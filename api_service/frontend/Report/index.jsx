@@ -32,6 +32,7 @@ import { apiPost, apiGet } from '../common/Request.js';
 import { REPORT_URL } from '../common/urls'
 import { CalendarMonthGrid } from 'react-dates/lib';
 import * as moment from 'moment'
+import statesHashes from '../common/StateHash'
 
 function Report(props) {
   const { classes, user } = props
@@ -39,6 +40,7 @@ function Report(props) {
   const [endDate, setEndDate] = React.useState(moment().endOf('month'))
   const [focusedInput, setFocusedInput] = React.useState(null)
   const [dataSearch, setDataSearch] = React.useState([])
+  const [typeReport, setTypeReport] = React.useState('product')
   let data = {
     from: moment().startOf('month').format('YYYY-MM-DD'),
     to: moment().endOf('month').format('YYYY-MM-DD'),
@@ -57,6 +59,7 @@ function Report(props) {
   //   value: 'Id'
   // }
 
+
   const [fields, setFields] = React.useState({
     text: 'Name',
     value: 'Id'
@@ -66,6 +69,10 @@ function Report(props) {
     apiPost(REPORT_URL, { data: { state: data.states.length ? data.states : null, from: startDate.format('YYYY-MM-DD'), to: endDate.format('YYYY-MM-DD') } }, false, true).then(res => {
       setDataSearch(res.data.data)
     })
+  }
+
+  const onChangeTypeReport = e => {
+    setTypeReport([e.target.name] = e.target.value)
   }
 
   console.log(dataSearch)
@@ -97,7 +104,7 @@ function Report(props) {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={3}>
                 <DateRangePicker
                   startDatePlaceholderText="From"
                   endDatePlaceholderText="To"
@@ -116,34 +123,34 @@ function Report(props) {
               </Grid>
               {
                 user.profile.is_manager &&
-                <Grid item xs={3} style={{ marginLeft: '-85px' }}>
-                <TextField
-                  style={{ marginTop: '0', height: '48px' }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">
-                      <TypeIcon fontSize="small" />
-                    </InputAdornment>,
-                  }}
-                  fullWidth
-                  select
-                  label="Type"
-                  classes={{ root: classes.textField }}
-                  // value={values.currency}
-                  // onChange={handleChange('currency')}
-                  SelectProps={{
+                <Grid item xs={3}>
+                  <TextField
+                    style={{ marginTop: '0', height: '48px' }}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">
+                        <TypeIcon fontSize="small" />
+                      </InputAdornment>,
+                    }}
+                    fullWidth
+                    select
+                    label="Type"
+                    classes={{ root: classes.textField }}
+                    value={typeReport}
+                    onChange={onChangeTypeReport}
+                    SelectProps={{
 
-                  }}
-                  margin="normal"
-                  variant="outlined"
-                >
-                  <MenuItem>
-                    Product
+                    }}
+                    margin="normal"
+                    variant="outlined"
+                  >
+                    <MenuItem value="product">
+                      Product
                   </MenuItem>
-                  <MenuItem>
-                    Sale Rep
+                    <MenuItem value="sale">
+                      Sale Rep
                   </MenuItem>
-                </TextField>
-              </Grid>}
+                  </TextField>
+                </Grid>}
               <Grid item xs={2}>
                 <Button onClick={() => handleFilter()} style={{ height: '48px', width: '50%' }} variant="contained" color="primary">
                   Filter
@@ -153,43 +160,84 @@ function Report(props) {
           </Paper>
         </Grid>
         <Grid item xs={12} className="pt-3">
-          <MaterialTable
-            title="Report"
-            columns={[
-              { title: '#', field: 'numeral', headerStyle: { zIndex: 0 }, filtering: false, sorting: false },
-              { title: 'Order', field: 'order', headerStyle: { zIndex: 0 } },
-              { title: 'Product', field: 'product', headerStyle: { zIndex: 0 },
-              customSort: (a, b) => {
-                  if (!a.product) return 1
-                  if (!b.product) return -1
-                  return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
-                }
-               },
-              {
-                title: 'Campaign', field: 'campaign', headerStyle: { zIndex: 0 },
-                customSort: (a, b) => {
-                  if (!a.campaign) return 1
-                  if (!b.campaign) return -1
-                  return a.campaign.toString().toLowerCase() < b.campaign.toString().toLowerCase() ? -1 : 1
-                }
-              },
-              { title: 'State', field: 'state', headerStyle: { zIndex: 0 } }
-            ]}
+          {
+            typeReport == 'product' ?
+              <MaterialTable
+                title="Product"
+                columns={[
+                  { title: '#', field: 'numeral', headerStyle: { zIndex: 0 }, filtering: false, sorting: false },
+                  { title: 'Order', field: 'order', headerStyle: { zIndex: 0 } },
+                  {
+                    title: 'Product', field: 'product', headerStyle: { zIndex: 0 },
+                    customSort: (a, b) => {
+                      if (!a.product) return 1
+                      if (!b.product) return -1
+                      return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
+                    }
+                  },
+                  {
+                    title: 'Campaign', field: 'campaign', headerStyle: { zIndex: 0 },
+                    customSort: (a, b) => {
+                      if (!a.campaign) return 1
+                      if (!b.campaign) return -1
+                      return a.campaign.toString().toLowerCase() < b.campaign.toString().toLowerCase() ? -1 : 1
+                    }
+                  },
+                  { title: 'State', field: 'state', headerStyle: { zIndex: 0 } }
+                ]}
 
-            options={{
-              search: false,
-              filtering: true
-            }}
-            data={dataSearch && dataSearch.map((s, i) => ({
-              'numeral': i + 1,
-              'order': s.name ? s.name : '',
-              'product': s.campaign.product != null ? s.campaign.product.name : 'asad',
-              'campaign': s.campaign.name ? s.campaign.name : '',
-              state: ''
-            }))
+                options={{
+                  search: false,
+                  filtering: true
+                }}
+                data={dataSearch && dataSearch.map((s, i) => ({
+                  'numeral': i + 1,
+                  'order': s.name ? s.name : '',
+                  'product': s.campaign.product != null ? s.campaign.product.name : 'asad',
+                  'campaign': s.campaign.name ? s.campaign.name : '',
+                  'state': stateHashes[s.contacts.state]
+                }))
 
-            }
-          />
+                }
+              /> :
+              <MaterialTable
+                title="Sale Rep"
+                columns={[
+                  { title: '#', field: 'numeral', headerStyle: { zIndex: 0 }, filtering: false, sorting: false },
+                  { title: 'Order', field: 'order', headerStyle: { zIndex: 0 } },
+                  {
+                    title: 'Sale Rep', field: 'sale', headerStyle: { zIndex: 0 },
+                    // customSort: (a, b) => {
+                    //   if (!a.product) return 1
+                    //   if (!b.product) return -1
+                    //   return a.product.toString().toLowerCase() < b.product.toString().toLowerCase() ? -1 : 1
+                    // }
+                  },
+                  {
+                    title: 'Campaign', field: 'campaign', headerStyle: { zIndex: 0 },
+                    customSort: (a, b) => {
+                      if (!a.campaign) return 1
+                      if (!b.campaign) return -1
+                      return a.campaign.toString().toLowerCase() < b.campaign.toString().toLowerCase() ? -1 : 1
+                    }
+                  },
+                  { title: 'State', field: 'state', headerStyle: { zIndex: 0 } }
+                ]}
+
+                options={{
+                  search: false,
+                  filtering: true
+                }}
+                data={dataSearch && dataSearch.map((s, i) => ({
+                  'numeral': i + 1,
+                  'order': s.name ? s.name : '',
+                  'sale': s.sale_rep.username ? s.sale_rep.username : '',
+                  'campaign': s.campaign.name ? s.campaign.name : '',
+                  'state': stateHashes[s.contacts.state]
+                }))
+                }
+              />
+          }
         </Grid>
       </Grid>
     </div>

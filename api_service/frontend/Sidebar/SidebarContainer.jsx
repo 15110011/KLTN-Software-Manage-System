@@ -68,6 +68,9 @@ export default function SidebarContainer(props) {
     else if (action.startsWith('settings')) {
       onClickSidebar('settings')
     }
+    else if (action.startsWith('report')) {
+      onClickSidebar('report')
+    }
   })
 
   return (

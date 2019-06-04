@@ -29,7 +29,7 @@ import styles from './ContactListStyle'
 import { BAD_REQUEST } from '../../common/Code';
 import AddToGroup from '../AddToGroup';
 import UpdateGroup from '../UpdateGroupDialog'
-
+import ImportDialog from '../ImportDialog'
 
 function ContactList(props) {
   const [contacts, setContacts] = React.useState({ data: [], total: 0 })
@@ -51,6 +51,7 @@ function ContactList(props) {
   const [changeGroupDialog, setChangeGroupDialog] = React.useState(false)
   const [updateGroupDialog, setUpdateGroupDialog] = React.useState(false)
   // const [activePage, setActivePage] = React.useState(0)
+  const [importDialog, setImportDialog] = React.useState(false)
   let activePage = 0
 
   const search = {}
@@ -109,6 +110,10 @@ function ContactList(props) {
 
   const toggleGroupDialog = () => {
     setGroupDialog(!groupDialog)
+  }
+
+  const toggleImportDialog = () => {
+    setImportDialog(!importDialog)
   }
 
   const onCreateGroupSuccess = (newGroup) => {
@@ -229,6 +234,9 @@ function ContactList(props) {
     && (groups.data[selectingGroupIndex].creator.id == props.user.id)
   return (
     <div className={classes.root}>
+      {importDialog &&
+        <ImportDialog toggleImportDialog={toggleImportDialog} />
+      }
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice != '' && <CustomSnackbar isErr msg={errNotice} />}
       {createContactDialog &&
@@ -311,6 +319,7 @@ function ContactList(props) {
         onClose={() => setActionAnchorEl(null)}
       >
         <MenuItem onClick={() => toggleGroupDialog()}>Create Contact Group</MenuItem>
+        <MenuItem onClick={() => toggleImportDialog()}>Import Contact Data</MenuItem>
         {
           selectingGroupIndex !== 0 && groups.data[selectingGroupIndex].creator.id == props.user.id &&
           <MenuItem onClick={() => setConfirmDelete(true)}>Delete Selecting Contact Group</MenuItem>

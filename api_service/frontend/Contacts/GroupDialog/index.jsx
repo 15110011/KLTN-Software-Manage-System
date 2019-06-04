@@ -271,7 +271,7 @@ function GroupDialog(props) {
           <Button type="subbmit" color="secondary">Submit</Button>
         </DialogActions>
       </form>
-    </Dialog >
+    </Dialog>
   )
 }
 

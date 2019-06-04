@@ -215,6 +215,15 @@ function TicketDetail(props) {
     });
   };
 
+  const updateNote = (i, note) => {
+    let cloneData = [...moreRow.thread_ids]
+    cloneData[i].note = note
+    apiPatch(CONTACT_MARKETING_URL + '/' + id, { thread_ids: cloneData }, false, true)
+      .then(res => {
+        updateTable(res.data)
+      })
+  }
+
   return (
     <>
       {mailDialog && (
@@ -407,6 +416,7 @@ function TicketDetail(props) {
               contactHistories={allHistories}
               thread_ids={moreRow.thread_ids}
               forceUpdateData={forceUpdateData}
+              updateNote={updateNote}
             />
           </Paper>
         </Grid>

@@ -521,6 +521,9 @@ class ContactMarketingView(ModelViewSet):
         email = request.query_params.get('email', None)
         phone = request.query_params.get('phone', None)
         campaign = request.query_params.get('campaign', None)
+        selecting_state = request.query_params.get('selectingState', None)
+        if selecting_state:
+            filters.add(Q(contact__state=selecting_state), Q.AND)
         if contact_name:
             filters.add(Q(contact__first_name__icontains=contact_name) | Q(
                 contact__last_name__icontains=contact_name) | Q(full_name__icontains=contact_name), Q.AND)
@@ -574,19 +577,7 @@ class ContactMarketingView(ModelViewSet):
             action=request.data['action'], contact_marketing=instance)
         serializer = ContactMarketingHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
-import json, requests
 
-def send_email_api(user, to_address, from_address, subject, message):
-    data2 = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
-                    "subject": subject, "message": message}})
-    data = json.dumps({"data": {"user_id": 5, "to": 'dangvanminh09@gmail.com', "from": 'theaqvteam@gmail.com',
-                    "subject": 'From SEND EMAIL', "message":'lffffff' }})
-    request = requests.post('http://emails:8001/api/v1/send-email',
-            data=data, headers={'Content-Type': 'application/json'})
-
-    print(data2)
-    res = request.json()
-    print(res)
 
 class MailTemplateView(ModelViewSet):
 
@@ -600,8 +591,6 @@ class MailTemplateView(ModelViewSet):
         jobs_and_times = scheduler.get_jobs(with_times=True)
         for j in jobs_and_times:
             print(j)
-        send_email_api(request.user, "dangvanminh09@gmail.com", "theaqvteam@gmail.com", "From SEND EMAIL", 'lffffff' )
-
 
         filters = Q()
         filters.add(Q(user=request.user.id), Q.AND)

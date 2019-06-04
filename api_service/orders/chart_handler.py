@@ -59,18 +59,26 @@ def activity_chart(duration, target):
         filters.add(Q(created__gte=start_date_of_year), Q.AND)
         filters.add(Q(start_date__month=target) |
                     Q(end_date__month=target), Q.AND)
-        # Campaing is running this month
+        # Campaign is running this month
         queryset = Campaign.objects.filter(filters)
         # serializer = CampaignSerializer(queryset, many=True)
         for r in queryset:
             for c in r.marketing_plan.condition['must']:
-                if c['operand'] == '1':
-                    for s in c['data']:
-                        for c in r.contact_marketing_plan.all():
-                            processing[c.contact.state] += 1
-                            # processing[s] +=
-                else:
-                    processing = {k: v+1 for k, v in processing.items()}
+                if c['operand'] == '1' and c['operator'] == 'Equal to':
+                    if isinstance(c['data'], list):
+                        for s in c['data']:
+                            # for c in r.contact_marketing_plan.all():
+                            # print(c)
+                            processing[s] += 1
+                                # processing[s] +=
+                    else:
+                        processing[c['data']] += 1
+                elif c['operand'] == '1' and c['operator'] == 'Not equal to':
+                    if isinstance(c['data'], list):
+                        for s in c['data']:
+                            processing = {k:(v+1 if k != s else v) for k, v in processing.items()}
+                    else:
+                        processing = {k:(v+1 if k != c['data'] else v) for k, v in processing.items()}
         processing = dict(
             sorted(processing.items(), key=itemgetter(1), reverse=True))
         for i in range(6):

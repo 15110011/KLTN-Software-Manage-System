@@ -16,7 +16,9 @@ class InboxConfig(AppConfig):
         subscriber = pubsub_v1.SubscriberClient()
         subscription_path = subscriber.subscription_path(
             'theaqvteam', 'mail-box')
-
+        gmail = GmailService()
+        res =gmail.watch_mail_box()
+        print(res)
         def callback(message):
             history_id = json.loads(str(message.data, 'utf-8'))['historyId']
             gmail = GmailService()

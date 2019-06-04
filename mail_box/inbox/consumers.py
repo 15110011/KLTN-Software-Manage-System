@@ -29,7 +29,6 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         data = []
         for thread in threads:
             action_type = thread['type']
-            print(thread)
             if action_type == 'Call Client':
                 data.append(thread)
             else: 
@@ -43,6 +42,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
         gmail = GmailService()
         thread_id = event['thread_id']
         data = []
+        print(f'user_{self.user_id}_thread_{thread_id}',cache.get(f'user_{self.user_id}_thread_{thread_id}'))
         if cache.get(f'user_{self.user_id}_thread_{thread_id}') is not None:
             cache.delete_pattern(f'user_{self.user_id}_thread_{thread_id}')
             messages = gmail.get_thread(event['thread_id'])
@@ -52,7 +52,7 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
             messages = gmail.get_thread(event['thread_id'])
             cache.set(f'user_{self.user_id}_thread_{thread_id}', messages['messages'], timeout=None)
             data.append(messages['messages'])
-        await self.send_json({"data": data, "type": "single"})
+        await self.send_json({"data": data, "type": "single", "thread_id": thread_id})
         
 
     # @database_sync_to_async

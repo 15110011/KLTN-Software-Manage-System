@@ -29,7 +29,7 @@ class StepDetail(BaseModel):
     information = JSONField(blank=True, null=True)
     status = models.CharField(
         max_length=50, choices=STEP_STATUS_CHOICES, default='RUNNING')
-    thread = JSONField(default=list([]))
+    thread = JSONField(default=list([]), blank=True)
 
     class Meta:
         ordering = ('id',)
