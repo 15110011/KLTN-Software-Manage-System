@@ -52,6 +52,7 @@ import FormLabel from "@material-ui/core/FormLabel";
 import FormGroup from "@material-ui/core/FormGroup";
 import Checkbox from "@material-ui/core/Checkbox";
 import SendMailDialog from "../../../Mailbox/SendMailDialog";
+import * as NumberFormat from "react-number-format";
 
 import ContactDetail from "../ContactDetail";
 import AllContactDetail from "./AllContactDetail";
@@ -108,9 +109,17 @@ function FollowUpDetail(props) {
   const [stepDetail, setStepDetail] = React.useState([]);
   const [update, setUpdate] = React.useState(0);
   const [backToInbox, setBackToInbox] = React.useState(false);
+  const [total, setTotal] = React.useState([]);
 
   React.useEffect(() => {
     if (followup) {
+      const cloneTotal = Array.from(
+        {
+          length: moreRow.packages.length
+        },
+        _ => 0
+      );
+
       setStepDetail(
         followup.campaign.follow_up_plan.steps.map((s, i) => {
           let information = s.conditions.reduce((acc, c) => {
@@ -120,9 +129,19 @@ function FollowUpDetail(props) {
             }
             if (c.type == "final") {
               result = {};
-              console.log(moreRow);
-              moreRow.packages.forEach(p => {
-                result[p.id] = { type: "", price: "" };
+              moreRow.packages.forEach((p, packageIndex) => {
+                result[p.id] = {};
+                let curStepDetailRes =
+                  followup.step_details[i].information["Choose Packages"];
+                cloneTotal[packageIndex] = Object.keys(
+                  curStepDetailRes.result[p.id]
+                ).reduce((acc, m) => {
+                  let res = acc;
+                  res +=
+                    curStepDetailRes.result[p.id][m].price *
+                    curStepDetailRes.result[p.id][m].quantity;
+                  return res;
+                }, 0);
               });
             }
             acc[c.name] = {
@@ -147,11 +166,15 @@ function FollowUpDetail(props) {
           };
         })
       );
+
+      setTotal(cloneTotal);
     }
   }, [followup, update]);
 
   const handleChangeSelectTabActivity = e => {
-    setSelectTabActivity({ [e.target.name]: e.target.value });
+    setSelectTabActivity({
+      [e.target.name]: e.target.value
+    });
   };
 
   const onChangeUpdateStepDetail = (e, iKey, checked) => {
@@ -180,14 +203,23 @@ function FollowUpDetail(props) {
     }
     setStepDetail(cloneStepDetail);
   };
-  const onChangePackages = (e, iKey, packageIndex, pid) => {
+  const onChangePackages = (e, iKey, packageIndex, pid, type) => {
     const cloneStepDetail = [...stepDetail];
-    cloneStepDetail[activeStep].information[iKey].result[pid].type = parseInt(
-      e.target.value
-    );
-    cloneStepDetail[activeStep].information[iKey].result[pid].price =
-      moreRow.packages[packageIndex].prices[e.target.value];
-
+    const cloneTotal = [...total];
+    if (!cloneStepDetail[activeStep].information[iKey].result[pid][type]) {
+      cloneStepDetail[activeStep].information[iKey].result[pid][type] = {
+        price: moreRow.packages[packageIndex].prices[e.target.value],
+        quantity: 1
+      };
+      cloneTotal[packageIndex] +=
+        moreRow.packages[packageIndex].prices[e.target.value];
+    } else {
+      let curStepDetail =
+        cloneStepDetail[activeStep].information[iKey].result[pid][type];
+      cloneTotal[packageIndex] -= curStepDetail.quantity * curStepDetail.price;
+      delete cloneStepDetail[activeStep].information[iKey].result[pid][type];
+    }
+    setTotal(cloneTotal);
     setStepDetail(cloneStepDetail);
   };
 
@@ -209,7 +241,9 @@ function FollowUpDetail(props) {
         res => {
           apiPost(
             ORDER_URL + "/" + id + "/history",
-            { action: "Call Client" },
+            {
+              action: "Call Client"
+            },
             false,
             true
           ).then(res => {
@@ -224,7 +258,9 @@ function FollowUpDetail(props) {
     } else {
       apiPost(
         ORDER_URL + "/" + id + "/history",
-        { action: "Call Client" },
+        {
+          action: "Call Client"
+        },
         false,
         true
       ).then(res => {
@@ -262,7 +298,9 @@ function FollowUpDetail(props) {
     cloneData[i].note = note;
     apiPatch(
       STEP_DETAIL_URL + "/" + stepDetail[activeStep].id,
-      { thread: cloneData },
+      {
+        thread: cloneData
+      },
       false,
       true
     ).then(res => {
@@ -381,8 +419,9 @@ function FollowUpDetail(props) {
 
   return (
     <>
-      {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
-      {error.all && <CustomSnackbar isErr msg={error.all} />}
+      {" "}
+      {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}{" "}
+      {error.all && <CustomSnackbar isErr msg={error.all} />}{" "}
       {mailDialog && (
         <SendMailDialog
           user={user}
@@ -394,7 +433,7 @@ function FollowUpDetail(props) {
           setMailDialog={setMailDialog}
           setSuccessNoti={setSuccessNoti}
         />
-      )}
+      )}{" "}
       {laterDialog && (
         <CreateEventDialog
           user={user}
@@ -711,55 +750,265 @@ function FollowUpDetail(props) {
                                   <FormControl
                                     component="fieldset"
                                     className={classes.formControl}
-                                    required
                                   >
                                     <FormLabel component="legend">
-                                      {p.name}
+                                      {p.name} ({" "}
+                                      <strong>
+                                        <NumberFormat
+                                          value={total[packageIndex]}
+                                          prefix="$"
+                                          thousandSeparator
+                                          displayType="text"
+                                        />
+                                      </strong>{" "}
+                                      )
                                     </FormLabel>
-                                    <RadioGroup
-                                      aria-label="Gender"
-                                      name="result"
-                                      className={classes.group}
-                                      value={
-                                        stepDetail[activeStep].information[iKey]
-                                          .result[`${p.id}`].type
-                                      }
-                                      onChange={value =>
-                                        onChangePackages(
-                                          value,
-                                          iKey,
-                                          packageIndex,
-                                          p.id
-                                        )
-                                      }
-                                      row
-                                    >
-                                      {Object.keys(p.prices).map((k, index) => {
-                                        return (
-                                          <FormControlLabel
-                                            value={parseInt(k)}
-                                            control={
-                                              <Radio
-                                                color="primary"
-                                                disabled={
-                                                  stepDetail[
-                                                    stepDetail.length - 1
-                                                  ].status == "COMPLETED"
-                                                }
-                                              />
-                                            }
-                                            label={
-                                              k != 999999
-                                                ? k +
-                                                  ` month(s) ($${p.prices[k]})`
-                                                : `Lifetime ($${p.prices[k]})`
-                                            }
-                                            key={k + index}
-                                            style={{ marginBottom: 0 }}
-                                          />
-                                        );
-                                      })}
-                                    </RadioGroup>
+                                    <Grid container>
+                                      <FormGroup
+                                        aria-label="Gender"
+                                        name="result"
+                                        className={classes.group}
+                                        value={
+                                          stepDetail[activeStep].information[
+                                            iKey
+                                          ].result[`${p.id}`].type
+                                        }
+                                        row
+                                      >
+                                        {Object.keys(p.prices).map(
+                                          (k, index) => {
+                                            return (
+                                              <React.Fragment>
+                                                <Grid item xs={3}>
+                                                  <FormControlLabel
+                                                    value={k}
+                                                    control={
+                                                      <Checkbox
+                                                        color="primary"
+                                                        checked={Boolean(
+                                                          stepDetail[activeStep]
+                                                            .information[iKey]
+                                                            .result[`${p.id}`][
+                                                            k
+                                                          ]
+                                                        )}
+                                                        onChange={value =>
+                                                          onChangePackages(
+                                                            value,
+                                                            iKey,
+                                                            packageIndex,
+                                                            p.id,
+                                                            k
+                                                          )
+                                                        }
+                                                        disabled={
+                                                          stepDetail[
+                                                            stepDetail.length -
+                                                              1
+                                                          ].status ==
+                                                          "COMPLETED"
+                                                        }
+                                                      />
+                                                    }
+                                                    label={
+                                                      <React.Fragment>
+                                                        {k == 999999 &&
+                                                          `Lifetime `}
+                                                        {k > 1 && k < 99999
+                                                          ? k + ` months `
+                                                          : k + ` month `}
+                                                        (
+                                                        <NumberFormat
+                                                          displayType="text"
+                                                          value={p.prices[k]}
+                                                          thousandSeparator
+                                                          prefix="$"
+                                                        />
+                                                        )
+                                                      </React.Fragment>
+                                                    }
+                                                    key={k + index}
+                                                    style={{ marginBottom: 0 }}
+                                                  />
+                                                </Grid>
+                                                {stepDetail[activeStep]
+                                                  .information[iKey].result[
+                                                  `${p.id}`
+                                                ][k] ? (
+                                                  <Grid
+                                                    item
+                                                    xs={3}
+                                                    className="d-flex align-items-center"
+                                                  >
+                                                    <Grid container>
+                                                      <Grid
+                                                        item
+                                                        xs={1}
+                                                        className="d-flex align-items-center"
+                                                      >
+                                                        <span>x </span>
+                                                      </Grid>
+                                                      <Grid item xs={3}>
+                                                        <TextField
+                                                          inputProps={{
+                                                            min: 1
+                                                          }}
+                                                          onChange={e => {
+                                                            const cloneStepDetail = [
+                                                              ...stepDetail
+                                                            ];
+
+                                                            const cloneTotal = [
+                                                              ...total
+                                                            ];
+                                                            if (
+                                                              e.target.value <
+                                                              cloneStepDetail[
+                                                                activeStep
+                                                              ].information[
+                                                                iKey
+                                                              ].result[p.id][k]
+                                                                .quantity
+                                                            ) {
+                                                              cloneTotal[
+                                                                packageIndex
+                                                              ] -=
+                                                                cloneStepDetail[
+                                                                  activeStep
+                                                                ].information[
+                                                                  iKey
+                                                                ].result[p.id][
+                                                                  k
+                                                                ].price *
+                                                                (cloneStepDetail[
+                                                                  activeStep
+                                                                ].information[
+                                                                  iKey
+                                                                ].result[p.id][
+                                                                  k
+                                                                ].quantity -
+                                                                  e.target
+                                                                    .value);
+                                                            } else if (
+                                                              e.target.value ===
+                                                              cloneStepDetail[
+                                                                activeStep
+                                                              ].information[
+                                                                iKey
+                                                              ].result[p.id][k]
+                                                                .quantity
+                                                            ) {
+                                                              return;
+                                                            } else {
+                                                              cloneTotal[
+                                                                packageIndex
+                                                              ] +=
+                                                                cloneStepDetail[
+                                                                  activeStep
+                                                                ].information[
+                                                                  iKey
+                                                                ].result[p.id][
+                                                                  k
+                                                                ].price *
+                                                                (e.target
+                                                                  .value -
+                                                                  cloneStepDetail[
+                                                                    activeStep
+                                                                  ].information[
+                                                                    iKey
+                                                                  ].result[
+                                                                    p.id
+                                                                  ][k]
+                                                                    .quantity);
+                                                            }
+                                                            setTotal(
+                                                              cloneTotal
+                                                            );
+                                                            if (
+                                                              e.target.value >=
+                                                              1
+                                                            ) {
+                                                              cloneStepDetail[
+                                                                activeStep
+                                                              ].information[
+                                                                iKey
+                                                              ].result[p.id][
+                                                                k
+                                                              ] = {
+                                                                price:
+                                                                  cloneStepDetail[
+                                                                    activeStep
+                                                                  ].information[
+                                                                    iKey
+                                                                  ].result[
+                                                                    p.id
+                                                                  ][k].price,
+                                                                quantity:
+                                                                  e.target.value
+                                                              };
+                                                            } else {
+                                                              const cloneStepDetail = [
+                                                                ...stepDetail
+                                                              ];
+                                                              if (
+                                                                e.target
+                                                                  .value >= 1
+                                                              ) {
+                                                                cloneStepDetail[
+                                                                  activeStep
+                                                                ].information[
+                                                                  iKey
+                                                                ].result[p.id][
+                                                                  k
+                                                                ] = {
+                                                                  price:
+                                                                    cloneStepDetail[
+                                                                      activeStep
+                                                                    ]
+                                                                      .information[
+                                                                      iKey
+                                                                    ].result[
+                                                                      p.id
+                                                                    ][k].price,
+                                                                  quantity: 1
+                                                                };
+                                                              }
+                                                            }
+
+                                                            setStepDetail(
+                                                              cloneStepDetail
+                                                            );
+                                                          }}
+                                                          value={
+                                                            stepDetail[
+                                                              activeStep
+                                                            ].information[iKey]
+                                                              .result[
+                                                              `${p.id}`
+                                                            ][k].quantity
+                                                          }
+                                                          type="number"
+                                                        />
+                                                      </Grid>
+                                                    </Grid>
+                                                  </Grid>
+                                                ) : (
+                                                  <Grid
+                                                    className="d-flex align-items-center"
+                                                    item
+                                                    xs={3}
+                                                  >
+                                                    <span className="d-flex align-items-center">
+                                                      x 0
+                                                    </span>
+                                                  </Grid>
+                                                )}
+                                              </React.Fragment>
+                                            );
+                                          }
+                                        )}
+                                      </FormGroup>
+                                    </Grid>
                                   </FormControl>
                                 );
                               })}
@@ -769,6 +1018,21 @@ function FollowUpDetail(props) {
                     );
                   }
                 )}{" "}
+              <Grid item xs={12}>
+                Total:{" "}
+                <strong>
+                  <NumberFormat
+                    value={total.reduce((acc, t) => {
+                      let res = acc;
+                      res += t;
+                      return res;
+                    }, 0)}
+                    displayType="text"
+                    prefix="$"
+                    thousandSeparator
+                  />
+                </strong>
+              </Grid>
               <Grid
                 item
                 xs={12}
@@ -903,7 +1167,7 @@ function FollowUpDetail(props) {
             )}
           </Paper>
         </Grid>
-      </Grid>
+      </Grid>{" "}
     </>
   );
 }

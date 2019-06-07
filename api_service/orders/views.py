@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.template.loader import render_to_string
 from django.db.models import Q
 from django.db.models.functions import Concat, Lower
 from django.db.models import Count, CharField, Value as V, Case, When, IntegerField
@@ -117,15 +118,15 @@ class OrderChartView(ModelViewSet):
                         }
                 return Response(order_data)
         if chart_type == 'active':
-            return Response(chart_handler.activity_chart(duration, filter_cat ))
+            return Response(chart_handler.activity_chart(duration, filter_cat))
         if chart_type == 'state':
-            return Response(chart_handler.state_chart(duration, filter_cat, filters ))
+            return Response(chart_handler.state_chart(duration, filter_cat, filters))
         if chart_type == 'sale_rep':
-            return Response(chart_handler.sale_rep_chart(duration, filter_cat, filters ))
+            return Response(chart_handler.sale_rep_chart(duration, filter_cat, filters))
         if chart_type == 'success':
-            return Response(chart_handler.success_deal_chart(duration, filter_cat, filters ))
+            return Response(chart_handler.success_deal_chart(duration, filter_cat, filters))
         if chart_type == 'overview':
-            return Response(chart_handler.overview_chart(duration, filter_cat, filters ))
+            return Response(chart_handler.overview_chart(duration, filter_cat, filters))
 
 
 class OrderView(ModelViewSet):
@@ -202,7 +203,7 @@ class OrderView(ModelViewSet):
             queryset = queryset.order_by(progress_order)
         if limit:
             query = queryset[
-                int(page)*int(limit):int(page)*int(limit)+int(limit)]
+                int(page)*int(limit): int(page)*int(limit)+int(limit)]
             serializer = self.get_serializer(query, many=True)
 
         else:
@@ -214,7 +215,16 @@ class OrderView(ModelViewSet):
             "data": serializer.data,
             "total": queryset.count()
         }
-
+        # if order_status == 'COMPLETED':
+        #    import functools
+        #    total = 0
+        #    target = serializer.data[1]
+        #    total = functools.reduce(
+        #        lambda acc, l: acc+l['package']['prices']['999999'], target['lifetime_licenses'], 0)
+        #    total += functools.reduce(lambda acc, l: acc +
+        #                              l['package']['prices'][l['duration']], target['licenses'], 0)
+        #    print(render_to_string(
+        #        'invoices/index.html', {'orders': target, 'total': total}))
         return Response(new_data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
@@ -231,17 +241,37 @@ class OrderView(ModelViewSet):
             instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        status = request.data.get('status', None)
+        # if status =='COMPLETED':
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['POST'], detail=True)
     def history(self, request, pk=None):
         instance = self.get_object()
         # instance.modified = datetime.datetime.now
-        instance.save()
         history = OrderHistory.objects.create(
             action=request.data['action'], order=instance)
         serializer = OrderHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True)
+    def invoice(self, request, pk=None):
+        import functools
+        instance = self.get_object()
+        total = 0
+        serializer = self.get_serializer(instance)
+        target = serializer.data
+        total = functools.reduce(
+            lambda acc, l: acc+l['package']['prices']['999999'], target['lifetime_licenses'], 0)
+        total += functools.reduce(lambda acc, l: acc +
+                                  l['package']['prices'][l['duration']], target['licenses'], 0)
+        message = render_to_string(
+            'invoices/index.html', {'orders': target, 'total': total})
+        data = json.dumps({"data": {"user_id": request.user.id, "to": target['contacts']['mail'], "from": 'theaqvteam@gmail.com', "subject": 'Bill', "message": message}})
+        request = requests.post('http://emails:8001/api/v1/send-email',
+                                data=data, headers={'Content-Type': 'application/json'})
+        res = request.json()
 
 
 class OrderHistoryView(ModelViewSet):

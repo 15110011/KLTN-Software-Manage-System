@@ -351,7 +351,9 @@ Expand All
               <strong>Selecting state</strong>
             </p>
             {' '}
-            {selectingRegion ? selectingRegion.split('-')[1] : 'ALL'}
+            {selectingRegion
+              ? stateHashes[selectingRegion.split('-')[1]]
+              : 'ALL'}
           </div>
         )}
         <Grid item xs={12} className="pt-2">

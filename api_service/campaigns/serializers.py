@@ -16,22 +16,42 @@ import django_rq
 from datetime import datetime, timedelta, timezone
 import calendar
 from KLTN.common import send_email
-import requests, json
+import requests
+import json
 import logging
 logger = logging.getLogger(__name__)
 
+
 def send_email_api(user, to_address, from_address, subject, message, contact_marketing_id):
     data = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
-                    "subject": subject, "message": message}})
+                                "subject": subject, "message": message}})
     request = requests.post('http://emails:8001/api/v1/send-email',
-            data=data, headers={'Content-Type': 'application/json'})
+                            data=data, headers={'Content-Type': 'application/json'})
     res = request.json()
-    #try:
-    contact_marketing = models.ContactMarketing.objects.get(id=contact_marketing_id)
-    contact_marketing.thread_ids.append({'thread_id':res['thread_id'], 'type': 'Send Email'})
+    # try:
+    contact_marketing = models.ContactMarketing.objects.get(
+        id=contact_marketing_id)
+    contact_marketing.thread_ids.append(
+        {'thread_id': res['thread_id'], 'type': 'Send Email'})
     contact_marketing.save()
-    #except:
+    # except:
     #    pass
+
+
+def send_email_api_step(user, to_address, from_address, subject, message, step_detail_id):
+    data = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
+                                "subject": subject, "message": message}})
+    request = requests.post('http://emails:8001/api/v1/send-email',
+                            data=data, headers={'Content-Type': 'application/json'})
+    res = request.json()
+    # try:
+    step_detail = StepDetail.objects.get(id=step_detail_id)
+    step_detail.thread.append(
+        {'thread_id': res['thread_id'], 'type': 'Send Email'})
+    step_detail.save()
+    # except:
+    #    pass
+
 
 class MailTemplateSerializer(serializers.ModelSerializer):
 
@@ -109,6 +129,7 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
                     step.save()
         return instance
 
+
 class ReportCampaignSerializer(serializers.ModelSerializer):
     packages = PackageSerializer(many=True)
     manager = MeSerializer()
@@ -117,13 +138,14 @@ class ReportCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Campaign
         fields = '__all__'
-    
+
     def get_product(self, instance):
         try:
             return ProductSerializier(instance.packages.all()[0].features.all()[0].product).data
         except:
             return None
-        
+
+
 class CampaignSerializer(serializers.ModelSerializer):
     follow_up_plan = FollowUpPlanSerializer()
     marketing_plan = MarketingPlanSerializer()
@@ -190,7 +212,8 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
 
                 if 'Send Email' in campaign.marketing_plan.actions:
                     contact_marketing = models.ContactMarketing(
-                        marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, sale_rep=sale_reps[index % len(sale_reps)]
+                        marketing_plan=validated_data['marketing_plan'], contact=cur_contact, campaign=campaign, sale_rep=sale_reps[index % len(
+                            sale_reps)]
                     )
                     contact_marketing.save()
                     job = scheduler.schedule(
@@ -266,18 +289,23 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
         if status == 'COMPLETED':
             new_order = Order.objects.create(
                 contacts=instance.contact, sale_rep=self.context.get('request').user, campaign=instance.campaign)
-
+            steps = new_order.campaign.follow_up_plan.steps.all()
             step_details = [StepDetail(step=s, order=new_order, information={})
-                            for s in new_order.campaign.follow_up_plan.steps.all()]
+                            for s in steps]
             step_details[len(step_details) - 1].information = {
                 "Choose Packages": {
                     "type": 'final', "result": {}
                 }
             }
             step_details[len(step_details) - 1].information['Choose Packages']['result'] = {
-                f'{p.id}': {"type": '', "price": ''} for p in instance.campaign.packages.all()
+                f'{p.id}': {} for p in instance.campaign.packages.all()
             }
 
             step_details = StepDetail.objects.bulk_create(step_details)
+            if "Send Email" in steps[0].actions:
+                cur_contact = step_details[0].order.contacts
+                queue = django_rq.get_queue('default', is_async=True)
+                queue.enqueue(send_email_api_step, self.context.get(
+                    'request').user, cur_contact.mail, "theaqvteam@gmail.com", steps[0].mail_template.subject, handle_mail_template.manipulate_template(steps[0].mail_template.template, contact=cur_contact), step_details[0].id)
 
         return instance
