@@ -81,83 +81,81 @@ function Report(props) {
     <div className={classes.root}>
       <Grid container>
         <Grid item xs={12}>
-          <Paper className={classes.paper}>
-            <Grid container spacing={24} >
-              <Grid item xs={3} className={classes.borderBox} style={{ display: 'inline-flex', marginLeft: '85px' }}>
-                <Grid container style={{ height: '48px', color: '#82888a', border: '1px solid #dbdbdb' }}>
-                  <Grid item xs={1}>
-                    <StateIcon fontSize="small" />
-                  </Grid>
-                  {' '}
-                  <Grid item xs={11}>
-                    <MultiSelectComponent id="checkbox" dataSource={sportsData}
-                      removed={(e) => {
-                        data.states = data.states.filter(s => s != e.itemData.Id)
-                      }}
-                      select={(e) => {
-                        data.states = ([...data.states, e.itemData.Id])
-                      }}
-                      cssClass={classes.removeBorder}
-                      fields={fields} placeholder="Select States" mode="CheckBox" selectAllText="Select All" unSelectAllText="Unselect All" showSelectAll={true}>
-                      <Inject services={[CheckBoxSelection]} />
-                    </MultiSelectComponent>
-                  </Grid>
+          <Grid container spacing={24}>
+            <Grid item xs={3} className={classes.borderBox} style={{ display: 'inline-flex'}}>
+              <Grid container style={{ height: '48px', color: '#82888a', border: '1px solid #dbdbdb' }}>
+                <Grid item xs={1}>
+                  <StateIcon fontSize="small" />
+                </Grid>
+                {' '}
+                <Grid item xs={11}>
+                  <MultiSelectComponent id="checkbox" dataSource={sportsData}
+                    removed={(e) => {
+                      data.states = data.states.filter(s => s != e.itemData.Id)
+                    }}
+                    select={(e) => {
+                      data.states = ([...data.states, e.itemData.Id])
+                    }}
+                    cssClass={classes.removeBorder}
+                    fields={fields} placeholder="Select States" mode="CheckBox" selectAllText="Select All" unSelectAllText="Unselect All" showSelectAll={true}>
+                    <Inject services={[CheckBoxSelection]} />
+                  </MultiSelectComponent>
                 </Grid>
               </Grid>
-              <Grid item xs={3}>
-                <DateRangePicker
-                  startDatePlaceholderText="From"
-                  endDatePlaceholderText="To"
-                  startDate={startDate} // momentPropTypes.momentObj or null,
-                  endDate={endDate} // momentPropTypes.momentObj or null,
-                  focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
-                  onDatesChange={({ startDate, endDate }) => {
-                    setStartDate(startDate)
-                    setEndDate(endDate)
-                  }} // PropTypes.func.isRequired,
-                  onFocusChange={setFocusedInput} // PropTypes.func.isRequired,
-                  showDefaultInputIcon={true}
-                  // minDate={null}
-                  inputIconPosition={ICON_BEFORE_POSITION}
-                />
-              </Grid>
-              {
-                user.profile.is_manager &&
-                <Grid item xs={3}>
-                  <TextField
-                    style={{ marginTop: '0', height: '48px' }}
-                    InputProps={{
-                      startAdornment: <InputAdornment position="start">
-                        <TypeIcon fontSize="small" />
-                      </InputAdornment>,
-                    }}
-                    fullWidth
-                    select
-                    label="Type"
-                    classes={{ root: classes.textField }}
-                    value={typeReport}
-                    onChange={onChangeTypeReport}
-                    SelectProps={{
-
-                    }}
-                    margin="normal"
-                    variant="outlined"
-                  >
-                    <MenuItem value="product">
-                      Product
-                  </MenuItem>
-                    <MenuItem value="sale">
-                      Sale Rep
-                  </MenuItem>
-                  </TextField>
-                </Grid>}
-              <Grid item xs={2}>
-                <Button onClick={() => handleFilter()} style={{ height: '48px', width: '50%' }} variant="contained" color="primary">
-                  Filter
-                </Button>
-              </Grid>
             </Grid>
-          </Paper>
+            <Grid item xs={4} className={classes.datePick}>
+              <DateRangePicker
+                startDatePlaceholderText="From"
+                endDatePlaceholderText="To"
+                startDate={startDate} // momentPropTypes.momentObj or null,
+                endDate={endDate} // momentPropTypes.momentObj or null,
+                focusedInput={focusedInput} // PropTypes.oneOf([START_DATE, END_DATE]) or null,
+                onDatesChange={({ startDate, endDate }) => {
+                  setStartDate(startDate)
+                  setEndDate(endDate)
+                }} // PropTypes.func.isRequired,
+                onFocusChange={setFocusedInput} // PropTypes.func.isRequired,
+                showDefaultInputIcon={true}
+                // minDate={null}
+                inputIconPosition={ICON_BEFORE_POSITION}
+              />
+            </Grid>
+            {
+              user.profile.is_manager &&
+              <Grid item xs={3}>
+                <TextField
+                  style={{ marginTop: '0', height: '48px' }}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">
+                      <TypeIcon fontSize="small" />
+                    </InputAdornment>,
+                  }}
+                  fullWidth
+                  select
+                  label="Type"
+                  classes={{ root: classes.textField }}
+                  value={typeReport}
+                  onChange={onChangeTypeReport}
+                  SelectProps={{
+
+                  }}
+                  margin="normal"
+                  variant="outlined"
+                >
+                  <MenuItem value="product">
+                    Product
+                  </MenuItem>
+                  <MenuItem value="sale">
+                    Sale Rep
+                  </MenuItem>
+                </TextField>
+              </Grid>}
+            <Grid item xs={2}>
+              <Button onClick={() => handleFilter()} style={{ height: '48px', width: '50%' }} variant="contained" color="primary">
+                Filter
+                </Button>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={12} className="pt-3">
           {

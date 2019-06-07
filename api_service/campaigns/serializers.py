@@ -309,3 +309,9 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
                     'request').user, cur_contact.mail, "theaqvteam@gmail.com", steps[0].mail_template.subject, handle_mail_template.manipulate_template(steps[0].mail_template.template, contact=cur_contact), step_details[0].id)
 
         return instance
+
+class ContactMarketingSerializer2(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ContactMarketing
+        fields = '__all__'

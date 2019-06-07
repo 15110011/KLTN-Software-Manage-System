@@ -209,7 +209,7 @@ const CustomerCharts = (props) => {
                         {
                           regions: [{
                             values: regionData,
-                            scale: ['#01ff5b', '#ff0000'],
+                            scale: ['#e8f5e9', '#1b5e20'],
                             normalizeFunction: 'polynomial',
                             legend: {
                               // horizontal: true,
@@ -324,7 +324,7 @@ const CustomerCharts = (props) => {
                         {
                           regions: [{
                             values: activeRegionData,
-                            scale: ['#01ff5b', '#ff0000'],
+                            scale: ['#e8f5e9', '#1b5e20'],
                             normalizeFunction: 'polynomial',
                             legend: {
                               // horizontal: true,

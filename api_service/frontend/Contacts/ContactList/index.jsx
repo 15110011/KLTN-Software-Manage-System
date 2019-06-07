@@ -76,8 +76,8 @@ function ContactList(props) {
   }, [groups.data.length])
 
 
-  const { classes } = props;
-
+  const { classes, disabledAction, handleAddContact, allContacts } = props;
+  console.log(allContacts, 'hihi')
   let notiTimeout = {}
   //Clear timer
   React.useEffect(() => {
@@ -352,9 +352,17 @@ function ContactList(props) {
                   else {
                     classRoot = classes.groupPrivate
                   }
+                  let duplicateTime = 0
+                  if (allContacts) {
+                    g.contacts.forEach(c => {
+                      if (allContacts.some(ac => ac.id === c.id)) {
+                        duplicateTime += 1
+                      }
+                    })
+                  }
                   return (
                     <MenuItem value={g.id} name={index} key={`groups${g.id}`}>
-                      <BookmarkIcon classes={{ root: classRoot }} />&nbsp;&nbsp;{g.name} ({g.total_contact})
+                      <BookmarkIcon classes={{ root: classRoot }} />&nbsp;&nbsp;{g.name} ({g.total_contact - duplicateTime})
                     </MenuItem>
                   )
                 })
@@ -362,9 +370,11 @@ function ContactList(props) {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={1} className='my-3 d-flex flex-column justify-content-end'>
-          <Button onClick={onClickActionBtn}>Action</Button>
-        </Grid>
+        {!disabledAction &&
+          <Grid item xs={1} className='my-3 d-flex flex-column justify-content-end'>
+            <Button onClick={onClickActionBtn}>Action</Button>
+          </Grid>
+        }
         <Grid item xs={12}>
           {
             selectingGroup == -1 ?
@@ -431,73 +441,118 @@ function ContactList(props) {
                     apiGet(GROUP_URL + '/' + selectingGroup
                       + '/contacts' +
                       `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
-                        const data = res.data.data.map((d, index) => ({
-                          '#': activePage * query.pageSize + index + 1,
-                          fullName: d.first_name + ' ' + d.last_name,
-                          firstName: d.first_name,
-                          lastName: d.last_name,
-                          email: d.mail,
-                          phone: d.phone,
-                          org: d.org,
-                          id: d.id
-                        })
-                        )
+                        let data = []
+                        let duplicateTime = 0
+                        if (!disabledAction) {
+                          data = res.data.data.map((d, index) => ({
+                            '#': activePage * query.pageSize + index + 1,
+                            fullName: d.first_name + ' ' + d.last_name,
+                            firstName: d.first_name,
+                            lastName: d.last_name,
+                            email: d.mail,
+                            phone: d.phone,
+                            org: d.org,
+                            id: d.id,
+                            contact: d
+                          })
+                          )
+                        }
+                        else {
+
+                          data = res.data.data.reduce((acc, d, index) => {
+                            if (!allContacts.some(c => c.id === d.id)) {
+                              acc.push({
+                                '#': activePage * query.pageSize + index + 1,
+                                fullName: d.first_name + ' ' + d.last_name,
+                                firstName: d.first_name,
+                                lastName: d.last_name,
+                                email: d.mail,
+                                phone: d.phone,
+                                org: d.org,
+                                id: d.id,
+                                contact: d
+                              })
+                            }
+                            else {
+                              duplicateTime += 1
+                            }
+                            return acc
+                          }
+                            , [])
+                        }
                         resolve({
                           data,
                           page: res.data.page,
-                          totalCount: res.data.total
+                          totalCount: res.data.total - duplicateTime
                         })
                       })
                   })
                 }
 
                 title="Contacts List"
-                actions={[
-                  {
-                    icon: 'add',
-                    tooltip: 'Create New Contact',
-                    onClick: (event, rows) => {
-                      setCreateContactDialog(true)
-                    },
-                    isFreeAction: true
-                  },
-                  {
+                actions={
 
-                    icon: 'delete',
-                    tooltip: 'Delete Contacts',
-                    onClick: (event, rows) => {
-                      // setCreateContactDialog(true)
-                      setDeleteContacts(rows.map(r => r.id))
-                      setDeleteContactConfirm(true)
+                  !disabledAction ? [
+                    {
+                      icon: 'add',
+                      tooltip: 'Create New Contact',
+                      onClick: (event, rows) => {
+                        setCreateContactDialog(true)
+                      },
+                      isFreeAction: true
                     },
-                  },
-                  {
-                    icon: 'swap_horiz',
-                    tooltip: 'Add these contacts to group',
-                    onClick: (event, rows) => {
-                      setSelectingContacts(rows)
-                      setChangeGroupDialog(true)
-                    },
+                    {
 
-                  },
-                ]}
+                      icon: 'delete',
+                      tooltip: 'Delete Contacts',
+                      onClick: (event, rows) => {
+                        // setCreateContactDialog(true)
+                        setDeleteContacts(rows.map(r => r.id))
+                        setDeleteContactConfirm(true)
+                      },
+                    },
+                    {
+                      icon: 'swap_horiz',
+                      tooltip: 'Add these contacts to group',
+                      onClick: (event, rows) => {
+                        setSelectingContacts(rows)
+                        setChangeGroupDialog(true)
+                      },
+
+                    }
+                  ]
+                    : [
+                      {
+                        icon: 'add',
+                        tooltip: 'Add Contact',
+                        onClick: (event, rows) => {
+                          handleAddContact(rows)
+                        },
+                      },
+                    ]
+                }
                 onRowClick={
-                  (e, rowData) => {
-                    props.history.push('/contacts/' + rowData.id)
-                  }
+                  !disabledAction && (
+                    (e, rowData) => {
+                      props.history.push('/contacts/' + rowData.id)
+                    }
+                  )
                 }
                 options={{
                   search: false,
                   selection: true,
+                  selectionProps: rowData => ({
+                    disabled: true
+                  }),
                   filtering: true,
                   paging: true,
-                  debounceInterval: 300
+                  debounceInterval: 300,
                 }}
               />
           }
         </Grid>
       </Grid>
-    </div >
+    </div>
   )
 }
 

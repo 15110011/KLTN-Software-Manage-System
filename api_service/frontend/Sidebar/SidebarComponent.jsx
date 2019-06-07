@@ -350,7 +350,7 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Invoices" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem
+              {/* <ListItem
                 button
                 className={classes.nested}
                 onClick={() => props.history.push('/orders')}
@@ -361,8 +361,8 @@ const SidebarComponent = props => {
                   <SaleOrderIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Sale Orders" classes={{ primary: classes.listItemText }} />
-              </ListItem>
-              <ListItem
+              </ListItem> */}
+              {/* <ListItem
                 button
                 className={classes.nested}
                 onClick={() => props.history.push('/deals')}
@@ -373,7 +373,7 @@ const SidebarComponent = props => {
                   <DealIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Deals" classes={{ primary: classes.listItemText }} />
-              </ListItem>
+              </ListItem> */}
             </List>
           </Collapse>
           <Divider classes={{ root: classes.divider }} />

@@ -8,10 +8,10 @@ const styles = theme => ({
   },
   borderBox: {
     '&> div:nth-child(1)': {
-    padding: '10px !important',
-    borderRadius: '2px'
+      padding: '10px !important',
+      borderRadius: '2px'
+    },
   },
-},
   removeBorder: {
     color: 'red',
     borderBottom: 'none !important',
@@ -29,6 +29,11 @@ const styles = theme => ({
       '&> fieldset:nth-child(1)': {
         borderRadius: '2px'
       }
+    }
+  },
+  datePick: {
+    '& div:nth-child(1)': {
+      width: '100%'
     }
   }
 });

@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@date-io/date-fns": "^1.1.0",
-    "@material-ui/core": "^3.9.2",
+    "@material-ui/core": "^3.9.3",
     "@material-ui/icons": "^3.0.2",
     "@syncfusion/ej2-react-dropdowns": "^17.1.48",
     "@wojtekmaj/react-datetimerange-picker": "^2.1.0",
@@ -63,7 +63,6 @@
   },
   "homepage": "https://github.com/15110011/KLTN-Software-Manage-System#readme",
   "devDependencies": {
-    "eslint": "^5.16.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.17.3",
     "eslint-plugin-jsx-a11y": "^6.2.1",
