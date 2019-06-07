@@ -77,7 +77,7 @@ function ContactList(props) {
 
 
   const { classes, disabledAction, handleAddContact, allContacts } = props;
-  console.log(allContacts,'hihi')
+  console.log(allContacts, 'hihi')
   let notiTimeout = {}
   //Clear timer
   React.useEffect(() => {
@@ -352,9 +352,17 @@ function ContactList(props) {
                   else {
                     classRoot = classes.groupPrivate
                   }
+                  let duplicateTime = 0
+                  if (allContacts) {
+                    g.contacts.forEach(c => {
+                      if (allContacts.some(ac => ac.id === c.id)) {
+                        duplicateTime += 1
+                      }
+                    })
+                  }
                   return (
                     <MenuItem value={g.id} name={index} key={`groups${g.id}`}>
-                      <BookmarkIcon classes={{ root: classRoot }} />&nbsp;&nbsp;{g.name} ({g.total_contact})
+                      <BookmarkIcon classes={{ root: classRoot }} />&nbsp;&nbsp;{g.name} ({g.total_contact - duplicateTime})
                     </MenuItem>
                   )
                 })
@@ -433,22 +441,49 @@ function ContactList(props) {
                     apiGet(GROUP_URL + '/' + selectingGroup
                       + '/contacts' +
                       `?page=${activePage}&limit=${query.pageSize}` + searchString, true).then(res => {
-                        const data = res.data.data.map((d, index) => ({
-                          '#': activePage * query.pageSize + index + 1,
-                          fullName: d.first_name + ' ' + d.last_name,
-                          firstName: d.first_name,
-                          lastName: d.last_name,
-                          email: d.mail,
-                          phone: d.phone,
-                          org: d.org,
-                          id: d.id,
-                          contact: d
-                        })
-                        )
+                        let data = []
+                        let duplicateTime = 0
+                        if (!disabledAction) {
+                          data = res.data.data.map((d, index) => ({
+                            '#': activePage * query.pageSize + index + 1,
+                            fullName: d.first_name + ' ' + d.last_name,
+                            firstName: d.first_name,
+                            lastName: d.last_name,
+                            email: d.mail,
+                            phone: d.phone,
+                            org: d.org,
+                            id: d.id,
+                            contact: d
+                          })
+                          )
+                        }
+                        else {
+
+                          data = res.data.data.reduce((acc, d, index) => {
+                            if (!allContacts.some(c => c.id === d.id)) {
+                              acc.push({
+                                '#': activePage * query.pageSize + index + 1,
+                                fullName: d.first_name + ' ' + d.last_name,
+                                firstName: d.first_name,
+                                lastName: d.last_name,
+                                email: d.mail,
+                                phone: d.phone,
+                                org: d.org,
+                                id: d.id,
+                                contact: d
+                              })
+                            }
+                            else {
+                              duplicateTime += 1
+                            }
+                            return acc
+                          }
+                            , [])
+                        }
                         resolve({
                           data,
                           page: res.data.page,
-                          totalCount: res.data.total
+                          totalCount: res.data.total - duplicateTime
                         })
                       })
                   })
