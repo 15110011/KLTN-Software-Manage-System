@@ -235,7 +235,10 @@ function ContactList(props) {
   return (
     <div className={classes.root}>
       {importDialog &&
-        <ImportDialog toggleImportDialog={toggleImportDialog} />
+        <ImportDialog toggleImportDialog={toggleImportDialog}
+
+        selectingGroup={selectingGroup}
+        />
       }
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice != '' && <CustomSnackbar isErr msg={errNotice} />}
