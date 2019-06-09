@@ -22,7 +22,9 @@ export const apiGet = (url, authorization) => {
     .then(res => ({ data: res }));
 };
 export const apiPost = (url, data, multipart, authorization, others) => {
-  const headers = {};
+  const headers = {
+    'Content-type': 'application/json',
+  };
   if (others) {
     Object.keys(others).forEach((k) => {
       if (others[k]) {
@@ -80,7 +82,7 @@ export const apiPut = (url, data, multipart, authorization) => {
 };
 
 export const apiPatch = (url, data, multipart, authorization) => {
-const headers = {
+  const headers = {
     'Content-type': multipart ? 'multipart/form-data' : 'application/json',
     'X-CSRFToken': Cookies.get('csrftoken'),
   };
