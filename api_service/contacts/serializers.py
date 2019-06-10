@@ -71,7 +71,6 @@ class GroupWithoutContactSerializer(serializers.ModelSerializer):
 class ContactReadSerializer(serializers.ModelSerializer):
     groups = GroupWithoutContactSerializer(many=True)
     full_name = serializers.SerializerMethodField()
-    
 
     class Meta:
         model = models.Contact
@@ -104,16 +103,15 @@ class ContactSerializer(serializers.ModelSerializer):
         return ret
 
     def create(self, validated_data):
-        groups = validated_data.pop('groups')
+        groups = validated_data.pop('groups', None)
         if not groups or len(groups) == 0:
             raise ValidationError(
                 detail={"msg": '"All Contacts" must be included'})
         instance = super().create(validated_data)
         instance.groups.set(groups)
         return instance
-    
+
     def update(self, instance, validated_data):
-        
         groups = validated_data.pop('groups')
         if not groups or len(groups) == 0:
             raise ValidationError(
@@ -136,5 +134,3 @@ class ContactSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Zipcode must be 6 digits in length')
         return value
-
-

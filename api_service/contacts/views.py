@@ -46,6 +46,7 @@ class ContactView(ModelViewSet):
                 contacts__in=request.data['contacts'])
             for g in groups:
                 g.contacts.remove(*contacts)
+            contacts.delete()
         else:
             models.ContactGroup.objects.get(
                 id=request.data['group']).contacts.remove(*contacts)
@@ -64,10 +65,10 @@ class ContactGroupView(ModelViewSet):
 
         isFindGroupDefault = False
         if 'group' in request.query_params:
-            filters.add(Q(name__icontains=request.query_params['group']), Q.AND)
+            filters.add(
+                Q(name__icontains=request.query_params['group']), Q.AND)
             if request.query_params['group'] == 'All Contacts':
                 isFindGroupDefault = True
-            
         queryset = self.get_queryset().filter(filters)
         if isFindGroupDefault:
             serializer = serializers.GroupSerializer(
@@ -77,9 +78,9 @@ class ContactGroupView(ModelViewSet):
         elif request.query_params.get('group', None):
             serializer = serializers.GroupSerializer(
                 queryset, context={'request': request}, many=True)
-            new_serializer={
+            new_serializer = {
                 "data": serializer.data,
-                "total" : len(serializer.data)
+                "total": len(serializer.data)
             }
         else:
             self_g = []
@@ -91,12 +92,13 @@ class ContactGroupView(ModelViewSet):
             self_g = serializer.data
             default_group = self_g.pop(0)
             self_g.sort(key=lambda x: x['_type'], reverse=True)
-            
-            public_groups = models.ContactGroup.objects.filter(_type='PUBLIC')
+            public_groups = models.ContactGroup.objects.filter(
+                _type='PUBLIC').exclude(id__in=[g['id'] for g in self_g])
             public_g_serializer = serializers.GroupSerializer(
                 public_groups.order_by('id'), many=True, context={'request': request})
             total_groups += len(public_g_serializer.data)
             public_g = public_g_serializer.data
+            print(self_g)
             new_serializer = {
                 "data":  [default_group] + public_g + self_g,
                 "total": total_groups

@@ -281,11 +281,11 @@ LOGGING = {
             'handlers': ['mail_admins', 'console'],
             'level': 'DEBUG',
         },
-#        'django': {
-#            'handlers': ['mail_admins', 'console'],
-#            'level': 'DEBUG',
-#            'propagate': False,
-#        },
+        #        'django': {
+        #            'handlers': ['mail_admins', 'console'],
+        #            'level': 'DEBUG',
+        #            'propagate': False,
+        #        },
         'django.server': {
             'handlers': ['console'],
             'level': 'WARN',

@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import UniqueConstraint, Q
 from django.contrib.auth.models import User
 from KLTN.models import BaseModel
 
@@ -24,8 +25,9 @@ class Contact(BaseModel):
     def _get_fullname(self):
         return f'{self.first_name} {self.last_name}'
 
-    # class Meta:
-    #     unique_together = (("user", "first_name", "last_name"),)
+    class Meta:
+        constraints = [UniqueConstraint(
+            fields=["user", "first_name", "last_name"], condition=Q(is_removed=False), name='contact_unique')]
 
 
 GROUP_TYPES = (
@@ -48,5 +50,3 @@ class ContactGroup(BaseModel):
 
     class Meta:
         unique_together = (("user", "name"),)
-
-

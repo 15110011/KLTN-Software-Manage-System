@@ -6,21 +6,25 @@ const styles = theme => ({
     position: 'relative',
     borderRadius: '4px',
     '&:hover': {
-      cursor: 'pointer'
-    }
+      cursor: 'pointer',
+    },
   },
   main: {
-    position: 'absolute',
-    top: '35%',
-    left: '45%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100%',
     '&:hover': {
-      cursor: 'pointer'
-    }
+      cursor: 'pointer',
+    },
   },
   iconCus: {
-    color: '#707070'
-  }
-})
+    color: '#707070',
+  },
+  dialogRoot: {
+    overflowY: 'unset',
+  },
+});
 
-
-export default styles
+export default styles;
