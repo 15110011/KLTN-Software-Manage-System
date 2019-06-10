@@ -31,7 +31,8 @@ import {
   CONTACT_MARKETING_URL,
   ORDER_URL
 } from "../../../common/urls";
-
+import * as dateFns from 'date-fns'
+import stateHash from '../../../common/StateHash'
 import styles from "../SalerepStyles.js";
 import { EVENTS_URL, GROUP_URL } from "../../../common/urls";
 import Card from "../../../components/Card/Card";
@@ -147,13 +148,13 @@ function OrderTable(props) {
                       if (columnId == 1) {
                         flSearch.fname = value;
                       } else if (columnId == 2) {
-                        flSearch.email = value;
+                        flSearch.state = value;
                       } else if (columnId == 3) {
-                        flSearch.phone = value;
-                      } else if (columnId == 4) {
-                        flSearch.campaign = value;
-                      } else if (columnId == 5) {
                         flSearch.noSteps = value;
+                      } else if (columnId == 4) {
+                        flSearch.status = value;
+                      } else if (columnId == 5) {
+                        flSearch.created = value;
                       }
                       activePage = 0;
                       props.onFilterChanged(columnId, value);
@@ -193,7 +194,7 @@ function OrderTable(props) {
               }}
               columns={[
                 {
-                  title: "Order ID",
+                  title: "#",
                   field: "#",
                   headerStyle: { maxWidth: "0px" },
                   filtering: false,
@@ -201,17 +202,13 @@ function OrderTable(props) {
                 },
                 { title: "Full Name", field: "full_name" },
                 {
-                  title: "Email",
-                  field: "email"
-                },
-                {
-                  title: "Phone",
-                  field: "phone",
-                  sorting: false
+                  title: "State",
+                  field: "state"
                 },
                 {
                   title: "No.packages",
-                  field: "numberOfPackages"
+                  field: "numberOfPackages",
+                  cellStyle: { width: '5%' }
                 },
                 {
                   title: "Licenses Status",
@@ -243,50 +240,59 @@ function OrderTable(props) {
                       );
                     }
                   }
-                }
+                },
+
+                {
+                  title: "Created",
+                  field: "created",
+                  render: (row) => {
+                    return dateFns.format(dateFns.parseISO(row.created), 'HH:mm MM-dd-yyyy')
+                  },
+                  headerStyle: { width: '15%' }
+                },
               ]}
               data={query => {
                 return new Promise((resolve, reject) => {
                   let searchString = `${
                     flSearch.fname ? "&contact_name=" + flSearch.fname : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.email ? "&email=" + flSearch.email : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.phone ? "&phone=" + flSearch.phone : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.campaign ? "&campaign=" + flSearch.campaign : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.noSteps ? "&no_steps=" + flSearch.noSteps : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flOrder[1] ? "&contact_order=" + flOrder[1] : ""
-                  }`;
+                    }`;
                   searchString += `${
-                    flOrder[2] ? "&email_order=" + flOrder[2] : ""
-                  }`;
+                    flOrder[2] ? "&state_order=" + flOrder[2] : ""
+                    }`;
                   searchString += `${
-                    flOrder[4] ? "&camapign_order=" + flOrder[4] : ""
-                  }`;
+                    flOrder[3] ? "&no_steps_order=" + flOrder[3] : ""
+                    }`;
                   searchString += `${
-                    flOrder[5] ? "&no_steps_order=" + flOrder[5] : ""
-                  }`;
+                    flOrder[4] ? "&status_order=" + flOrder[4] : ""
+                    }`;
                   searchString += `${
-                    flOrder[6] ? "&progress_order=" + flOrder[6] : ""
-                  }`;
+                    flOrder[5] ? "&created_order=" + flOrder[5] : ""
+                    }`;
                   searchString += `${
                     selectingRegion ? `&selectingState=${selectingRegion}` : ""
-                  }`;
+                    }`;
                   apiGet(
                     ORDER_URL +
-                      `?status=COMPLETED&page=${activePage}&limit=${
-                        query.pageSize
-                      }` +
-                      searchString +
-                      query.search,
+                    `?status=COMPLETED&page=${activePage}&limit=${
+                    query.pageSize
+                    }` +
+                    searchString +
+                    query.search,
                     true
                   ).then(res => {
                     const data = res.data.data.map((d, index) => {
@@ -330,6 +336,8 @@ function OrderTable(props) {
                           d.contacts.first_name + " " + d.contacts.last_name,
                         phone: d.contacts.phone,
                         email: d.contacts.mail,
+                        state: stateHash[d.contacts.state],
+                        created: d.created,
                         numberOfPackages: d.packages.length,
                         packages: d.packages,
                         status: d.status,

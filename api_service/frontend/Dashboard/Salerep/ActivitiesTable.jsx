@@ -362,7 +362,7 @@ function ActivitiesTable(props) {
                   {
                     title: 'Start', field: 'start',
                     render: (row) => {
-                      return dateFns.format(dateFns.parseISO(row.start), 'hh:mm:ss  dd-MM-yyyy')
+                      return dateFns.format(dateFns.parseISO(row.start), 'HH:mm MM-dd-yyyy')
 
                     },
                     type: 'dateRange'

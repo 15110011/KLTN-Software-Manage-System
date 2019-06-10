@@ -27,6 +27,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import * as cn from "classnames";
+import stateHash from '../../../common/StateHash'
 import {
   EVENTS_URL,
   CONTACT_MARKETING_URL,
@@ -226,9 +227,12 @@ function FollowUpTable(props) {
               fullWidth
             >
               <DialogTitle>
-                <h4>Confirm Deal</h4>
+                <h4>Confirm Action</h4>
               </DialogTitle>
-              <DialogContent />
+              <DialogContent>
+                This will become an order and
+                this action cannot be undone. Are you sure?
+              </DialogContent>
               <DialogActions>
                 <Button variant="contained" onClick={() => setMovingRow({})}>
                   Cancel{" "}
@@ -362,15 +366,10 @@ function FollowUpTable(props) {
                   filtering: false,
                   sorting: false
                 },
-                { title: "Full Name", field: "fname" },
+                { title: "Full Name", field: "fname", cellStyle: { width: '20%' } },
                 {
-                  title: "Email",
-                  field: "email"
-                },
-                {
-                  title: "Phone",
-                  field: "phone",
-                  sorting: false
+                  title: "State",
+                  field: "state"
                 },
                 {
                   title: "Campaign",
@@ -379,7 +378,8 @@ function FollowUpTable(props) {
                 {
                   title: "No. Steps",
                   field: "noSteps",
-                  type: "numeric"
+                  type: "numeric",
+                  cellStyle: { width: '10px' }
                 },
                 {
                   title: "Progress",
@@ -400,49 +400,57 @@ function FollowUpTable(props) {
                       </span>
                     );
                   }
+                },
+                {
+                  title: "Created",
+                  field: "created",
+                  render: (row) => {
+                    return dateFns.format(dateFns.parseISO(row.created), 'HH:mm MM-dd-yyyy')
+                  },
+                  cellStyle: { width: '15%' }
                 }
               ]}
               data={query => {
                 return new Promise((resolve, reject) => {
                   let searchString = `${
                     flSearch.fname ? "&contact_name=" + flSearch.fname : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.email ? "&email=" + flSearch.email : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.phone ? "&phone=" + flSearch.phone : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.campaign ? "&campaign=" + flSearch.campaign : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flSearch.noSteps ? "&no_steps=" + flSearch.noSteps : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flOrder[1] ? "&contact_order=" + flOrder[1] : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flOrder[2] ? "&email_order=" + flOrder[2] : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flOrder[4] ? "&campaign_order=" + flOrder[4] : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flOrder[5] ? "&no_steps_order=" + flOrder[5] : ""
-                  }`;
+                    }`;
                   searchString += `${
                     flOrder[6] ? "&progress_order=" + flOrder[6] : ""
-                  }`;
+                    }`;
 
                   searchString += `${
                     selectingRegion ? `&selectingState=${selectingRegion}` : ""
-                  }`;
+                    }`;
                   apiGet(
                     ORDER_URL +
-                      `?page=${activePage}&limit=${query.pageSize}` +
-                      searchString +
-                      query.search,
+                    `?page=${activePage}&limit=${query.pageSize}` +
+                    searchString +
+                    query.search,
                     true
                   ).then(res => {
                     const data = res.data.data.map((d, index) => {
@@ -460,6 +468,7 @@ function FollowUpTable(props) {
                           d.contacts.first_name + " " + d.contacts.last_name,
                         phone: d.contacts.phone,
                         email: d.contacts.mail,
+                        state: stateHash[d.contacts.state],
                         campaignName: d.campaign.name,
                         noSteps,
                         progress,
@@ -468,7 +477,8 @@ function FollowUpTable(props) {
                         followup: d,
                         histories: d.history,
                         allHistories: d.all_histories,
-                        contact: d.contacts
+                        contact: d.contacts,
+                        created: d.created
                       };
                     });
                     if (moreRow) {

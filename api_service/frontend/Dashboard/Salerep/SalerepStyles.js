@@ -206,6 +206,13 @@ const styles = (theme) => ({
   expandOpen: {
     transform: 'rotate(180deg)',
   },
+  tableCus: {
+    '& div:nth-child(1)': {
+      '& table:nth-child(1)': {
+        tableLayout: 'fixed'
+      }
+    }
+  }
 })
 
 

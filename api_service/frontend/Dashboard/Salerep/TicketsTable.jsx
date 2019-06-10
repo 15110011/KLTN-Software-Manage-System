@@ -27,7 +27,8 @@ import TicketDetail from './TicketDetail';
 import { apiGet, apiPost, apiPatch } from '../../common/Request';
 import CustomSnackbar from '../../components/CustomSnackbar';
 import USERCONTEXT from '../../components/UserContext';
-
+import * as dateFns from 'date-fns'
+import stateHash from '../../common/StateHash'
 const search = {};
 const activePage = 0;
 const order = [];
@@ -111,6 +112,10 @@ function TicketsTable(props) {
       setSuccessNoti(false);
     }, 2000);
   };
+  if(tableMarketingRef.current)
+    {
+      console.log(document.querySelector('.'+tableMarketingRef.current.props.classes.paginationRoot).parentNode)
+    }
 
   return (
     <USERCONTEXT.Consumer>
@@ -176,12 +181,12 @@ function TicketsTable(props) {
                   Move contact
                   {' '}
                   <b>
-(
+                    (
                     {movingRow.full_name}
-)
+                    )
                   </b>
                   {' '}
-to follow-up phase
+                  to follow-up phase
                   . This action cannot be undone. Are you sure?
                 </div>
               </DialogContentText>
@@ -217,21 +222,21 @@ to follow-up phase
                   Remove contact
                   {' '}
                   <b>
-(
+                    (
                     {deletingRow.full_name}
-)
+                    )
                   </b>
                   {' '}
-out of
-                  campaign
+                  from
+                                    campaign
                   {' '}
                   <b>
-(
+                    (
                     {deletingRow.campaignName}
-)
+                    )
                   </b>
-. This action
-                  cannot be undone. Are you sure?
+                  . This action
+                                    cannot be undone. Are you sure?
                 </div>
               </DialogContentText>
             </DialogContent>
@@ -263,6 +268,7 @@ out of
             <ExpandMoreIcon />
           </IconButton>
           <Collapse collapsedHeight="100px" in={expanded.waitingList}>
+            <div className={classes.tableCus}>
             <MaterialTable
               tableRef={tableMarketingRef}
               components={{
@@ -331,50 +337,66 @@ out of
                   title: '#',
                   field: '#',
                   filtering: false,
-                  headerStyle: { maxWidth: '0px' },
+                  headerStyle: { width: '5%' },
                   sorting: false,
                   filtering: false,
                 },
                 {
                   title: 'Full name',
                   field: 'full_name',
-                  headerStyle: { minWidth: '200px' },
+                  headerStyle: { width: '20%' },
                 },
-                { title: 'Email', field: 'mail' },
+                {
+                  title: 'Email', field: 'mail', cellStyle: {
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  },
+                  headerStyle: { width: '15%' }
+                },
                 { title: 'Phone', field: 'phone', sorting: false },
+                { title: 'State', field: 'state' },
                 {
                   title: 'Campaign',
                   field: 'campaignName',
+                },
+                {
+                  title: 'Created',
+                  field: 'created',
+                  render: (row) => {
+                    return dateFns.format(dateFns.parseISO(row.created), 'HH:mm MM-dd-yyyy')
+                  },
+                  headerStyle: { width: '15%' }
                 },
               ]}
               data={query => new Promise((resolve, reject) => {
                 let searchString = `${
                   search.full_name ? `&contact_name=${search.full_name}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   search.email ? `&email=${search.email}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   search.phone ? `&phone=${search.phone}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   search.campaign ? `&campaign=${search.campaign}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   order[1] ? `&contact_name_order=${order[1]}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   order[2] ? `&email_order=${order[2]}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   order[4] ? `&campaign_order=${order[4]}` : ''
-                }`;
+                  }`;
                 searchString += `${
                   selectingRegion ? `&selectingState=${selectingRegion}` : ''
-                }`;
+                  }`;
                 apiGet(
                   `${CONTACT_MARKETING_URL}?page=${activePage}&limit=${
-                    query.pageSize
+                  query.pageSize
                   }${searchString}`,
                   true,
                 ).then((res) => {
@@ -385,6 +407,7 @@ out of
                       full_name: c.contact.full_name,
                       mail: c.contact.mail,
                       phone: c.contact.phone,
+                      state: stateHash[c.contact.state],
                       campaignName: c.campaign.name,
                       id: c.id,
                       contact: c.contact,
@@ -392,6 +415,7 @@ out of
                       histories: c.histories,
                       marketing: c,
                       thread_ids: c.thread_ids,
+                      created: c.created
                     });
                   });
                   resolve({
@@ -435,6 +459,7 @@ out of
                 debounceInterval: 300,
               }}
             />
+            </div>
           </Collapse>
         </div>
       )}
