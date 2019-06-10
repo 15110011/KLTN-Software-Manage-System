@@ -66,7 +66,6 @@ function MailList(props) {
   } = props;
   const [open, setOpen] = React.useState(true)
 
-  console.log(emails)
 
   const handleClick = () => {
     setOpen(!open);

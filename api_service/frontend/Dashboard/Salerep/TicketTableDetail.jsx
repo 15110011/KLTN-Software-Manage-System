@@ -114,6 +114,7 @@ function TicketTableDetail(props) {
     }, data => {
       if (data.data.length) {
         let t = data.data[indexActive]
+        console.log(110)
         setMoreRow({
           full_name: t.contact.full_name,
           mail: t.contact.mail,
@@ -123,10 +124,13 @@ function TicketTableDetail(props) {
           contact: t.contact,
           campaign: t.campaign,
           histories: t.histories,
-          marketing: t
+          marketing: t,
+          thread_ids: t.thread_ids
         })
       }
     })
+    
+    console.log(moreRow)
 
   const handleRefreshTickets = e => {
     e.preventDefault()
@@ -134,16 +138,11 @@ function TicketTableDetail(props) {
     setSearchInput('')
   }
 
-  // React.useEffect(() => {
-  //   if (!first) {
-  //     console.log(3)
-  //     handleViewDetail(indexActive)
-  //   }
-  // })
   React.useEffect(() => {
     if (first && tickets.data.length > 0) {
       let t = tickets.data[0]
       setFirst(false)
+      console.log(140)
       setMoreRow({
         full_name: t.contact.full_name,
         mail: t.contact.mail,
@@ -153,7 +152,8 @@ function TicketTableDetail(props) {
         contact: t.contact,
         campaign: t.campaign,
         histories: t.histories,
-        marketing: t
+        marketing: t,
+        thread_ids: t.thread_ids
       })
     }
   }, [tickets.data.length])
@@ -193,6 +193,7 @@ function TicketTableDetail(props) {
   const handleViewDetail = (index) => {
     let t = tickets.data[index]
     if (t) {
+      console.log(190)
       setMoreRow({
         full_name: t.contact.full_name,
         mail: t.contact.mail,
@@ -202,7 +203,8 @@ function TicketTableDetail(props) {
         contact: t.contact,
         campaign: t.campaign,
         histories: t.histories,
-        marketing: t
+        marketing: t,
+        thread_ids: t.thread_ids
       })
     }
     setIndexActive(index)
@@ -364,6 +366,7 @@ function TicketTableDetail(props) {
                 setMovingRow={setMovingRow}
                 user={user}
                 setLaterDialog={setLaterDialog}
+                moreRow={moreRow}
               />
             }
           </Grid>

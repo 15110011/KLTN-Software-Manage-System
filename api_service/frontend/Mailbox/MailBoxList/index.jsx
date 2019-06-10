@@ -52,14 +52,12 @@ function MailBoxList(props) {
     const ws = initMailWebsocket(user.id)
     setSocket(ws)
     ws.onmessage = event => {
-      console.log(event)
       let response = JSON.parse(event.data)
       if (response.type == "single") {
         setEmails({ data: [...emails.data, response.data] })
 
       }
       else {
-        // console.log(event)
         setEmails({ data: response.data })
 
       }

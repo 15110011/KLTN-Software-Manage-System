@@ -8,13 +8,15 @@ import {
   DialogContent,
   DialogContentText,
 } from '@material-ui/core';
+import { Link } from 'react-router-dom'
 import MaterialTable from 'material-table';
 import MTableBody from 'material-table/dist/m-table-body';
 import MTableHeader from 'material-table/dist/m-table-header';
 import TablePagination from '@material-ui/core/TablePagination';
-
+import MTableCell from 'material-table/dist/m-table-cell'
 import Collapse from '@material-ui/core/Collapse';
 import IconButton from '@material-ui/core/IconButton';
+import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import * as cn from 'classnames';
@@ -112,10 +114,6 @@ function TicketsTable(props) {
       setSuccessNoti(false);
     }, 2000);
   };
-  if(tableMarketingRef.current)
-    {
-      console.log(document.querySelector('.'+tableMarketingRef.current.props.classes.paginationRoot).parentNode)
-    }
 
   return (
     <USERCONTEXT.Consumer>
@@ -269,196 +267,231 @@ function TicketsTable(props) {
           </IconButton>
           <Collapse collapsedHeight="100px" in={expanded.waitingList}>
             <div className={classes.tableCus}>
-            <MaterialTable
-              tableRef={tableMarketingRef}
-              components={{
-                Toolbar: props => (
-                  <Card plain>
-                    <CardHeader color="primary">
-                      <h4
-                        onClick={() => history.push('/dashboard/ticket-detail')}
-                        style={{ cursor: 'pointer' }}
-                        className={classes.cardTitleWhite}
-                      >
-                        Waiting List
+              <MaterialTable
+                tableRef={tableMarketingRef}
+                components={{
+                  Toolbar: props => (
+                    <Card plain>
+                      <CardHeader color="primary">
+                        <h4
+                          onClick={() => history.push('/dashboard/ticket-detail')}
+                          style={{ cursor: 'pointer' }}
+                          className={classes.cardTitleWhite}
+                        >
+                          Waiting List
                       </h4>
-                    </CardHeader>
-                  </Card>
-                ),
-                Header: props => (
-                  <MTableHeader
-                    {...props}
-                    onOrderChange={(orderBy, dir) => {
-                      order.forEach((orderType, index) => {
-                        if (orderBy != index) {
-                          order[index] = null;
-                        }
-                      });
-                      order[orderBy] = dir;
+                      </CardHeader>
+                    </Card>
+                  ),
+                  Header: props => (
+                    <MTableHeader
+                      {...props}
+                      onOrderChange={(orderBy, dir) => {
+                        order.forEach((orderType, index) => {
+                          if (orderBy != index) {
+                            order[index] = null;
+                          }
+                        });
+                        order[orderBy] = dir;
 
-                      props.onOrderChange(orderBy, dir);
-                    }}
-                  />
-                ),
-                Body: props => (
-                  <MTableBody
-                    {...props}
-                    onFilterChanged={(columnId, value, position) => {
-                      if (columnId == 1) {
-                        search.full_name = value;
-                      } else if (columnId == 2) {
-                        search.email = value;
-                      } else if (columnId == 3) {
-                        search.phone = value;
-                      } else if (columnId == 4) {
-                        search.campaign = value;
-                      }
-                      activePage = 0;
-                      props.onFilterChanged(columnId, value);
-                    }}
-                  />
-                ),
-                Pagination: props => (
-                  <TablePagination
-                    {...props}
-                    page={activePage}
-                    rowsPerPageOptions={[5, 10, 20]}
-                    count={props.count}
-                    onChangePage={(e, nextPage) => {
-                      props.onChangePage(a, nextPage);
-                      // setActivePage(nextPage)
-                      activePage = nextPage;
-                    }}
-                  />
-                ),
-              }}
-              columns={[
-                {
-                  title: '#',
-                  field: '#',
-                  filtering: false,
-                  headerStyle: { width: '5%' },
-                  sorting: false,
-                  filtering: false,
-                },
-                {
-                  title: 'Full name',
-                  field: 'full_name',
-                  headerStyle: { width: '20%' },
-                },
-                {
-                  title: 'Email', field: 'mail', cellStyle: {
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
+                        props.onOrderChange(orderBy, dir);
+                      }}
+                    />
+                  ),
+                  Body: props => (
+                    <MTableBody
+                      {...props}
+                      onFilterChanged={(columnId, value, position) => {
+                        if (columnId == 1) {
+                          search.full_name = value;
+                        } else if (columnId == 2) {
+                          search.email = value;
+                        } else if (columnId == 3) {
+                          search.phone = value;
+                        } else if (columnId == 4) {
+                          search.campaign = value;
+                        }
+                        activePage = 0;
+                        props.onFilterChanged(columnId, value);
+                      }}
+                    />
+                  ),
+                  Pagination: props => (
+                    <TablePagination
+                      {...props}
+                      page={activePage}
+                      rowsPerPageOptions={[5, 10, 20]}
+                      count={props.count}
+                      onChangePage={(e, nextPage) => {
+                        props.onChangePage(a, nextPage);
+                        // setActivePage(nextPage)
+                        activePage = nextPage;
+                      }}
+                    />
+                  ),
+                  Cell: props => {
+                    return (
+                      <>
+                        {
+                          props.columnDef.field == 'mail' &&
+                          <Tooltip title={props.rowData.mail}>
+                            <MTableCell
+                              {...props}
+                            >
+
+                            </MTableCell>
+                          </Tooltip>
+                        }
+
+                        {
+                          props.columnDef.field !== 'mail' &&
+                          <MTableCell
+                            {...props}
+                          >
+
+                          </MTableCell>
+                        }
+                      </>
+                    )
+                  }
+                }}
+                columns={[
+                  {
+                    title: '#',
+                    field: '#',
+                    filtering: false,
+                    headerStyle: { width: '5%' },
+                    sorting: false,
+                    filtering: false,
                   },
-                  headerStyle: { width: '15%' }
-                },
-                { title: 'Phone', field: 'phone', sorting: false },
-                { title: 'State', field: 'state' },
-                {
-                  title: 'Campaign',
-                  field: 'campaignName',
-                },
-                {
-                  title: 'Created',
-                  field: 'created',
-                  render: (row) => {
-                    return dateFns.format(dateFns.parseISO(row.created), 'HH:mm MM-dd-yyyy')
+                  {
+                    title: 'Full name',
+                    field: 'full_name',
+                    headerStyle: { width: '20%' },
+                    render: (row) => {
+                      return <Link to={"/contacts/" + row.contact.id}>{row.full_name}</Link>
+                    },
                   },
-                  headerStyle: { width: '15%' }
-                },
-              ]}
-              data={query => new Promise((resolve, reject) => {
-                let searchString = `${
-                  search.full_name ? `&contact_name=${search.full_name}` : ''
-                  }`;
-                searchString += `${
-                  search.email ? `&email=${search.email}` : ''
-                  }`;
-                searchString += `${
-                  search.phone ? `&phone=${search.phone}` : ''
-                  }`;
-                searchString += `${
-                  search.campaign ? `&campaign=${search.campaign}` : ''
-                  }`;
-                searchString += `${
-                  order[1] ? `&contact_name_order=${order[1]}` : ''
-                  }`;
-                searchString += `${
-                  order[2] ? `&email_order=${order[2]}` : ''
-                  }`;
-                searchString += `${
-                  order[4] ? `&campaign_order=${order[4]}` : ''
-                  }`;
-                searchString += `${
-                  selectingRegion ? `&selectingState=${selectingRegion}` : ''
-                  }`;
-                apiGet(
-                  `${CONTACT_MARKETING_URL}?page=${activePage}&limit=${
-                  query.pageSize
-                  }${searchString}`,
-                  true,
-                ).then((res) => {
-                  const data = [];
-                  res.data.data.forEach((c, index) => {
-                    data.push({
-                      '#': activePage * query.pageSize + index + 1,
-                      full_name: c.contact.full_name,
-                      mail: c.contact.mail,
-                      phone: c.contact.phone,
-                      state: stateHash[c.contact.state],
-                      campaignName: c.campaign.name,
-                      id: c.id,
-                      contact: c.contact,
-                      campaign: c.campaign,
-                      histories: c.histories,
-                      marketing: c,
-                      thread_ids: c.thread_ids,
-                      created: c.created
+                  {
+                    title: 'Email', field: 'mail', cellStyle: {
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    },
+                    headerStyle: { width: '15%' },
+                    render: (row) => {
+                      return (
+                        // <Tooltip title={row.mail}>
+                        row.mail
+                        // </Tooltip>
+                      )
+                    },
+                  },
+                  { title: 'Phone', field: 'phone', sorting: false },
+                  { title: 'State', field: 'state' },
+                  {
+                    title: 'Campaign',
+                    field: 'campaignName',
+                  },
+                  {
+                    title: 'Created',
+                    field: 'created',
+                    render: (row) => {
+                      return dateFns.format(dateFns.parseISO(row.created), 'HH:mm MM-dd-yyyy')
+                    },
+                    headerStyle: { width: '15%' }
+                  },
+                ]}
+                data={query => new Promise((resolve, reject) => {
+                  let searchString = `${
+                    search.full_name ? `&contact_name=${search.full_name}` : ''
+                    }`;
+                  searchString += `${
+                    search.email ? `&email=${search.email}` : ''
+                    }`;
+                  searchString += `${
+                    search.phone ? `&phone=${search.phone}` : ''
+                    }`;
+                  searchString += `${
+                    search.campaign ? `&campaign=${search.campaign}` : ''
+                    }`;
+                  searchString += `${
+                    order[1] ? `&contact_name_order=${order[1]}` : ''
+                    }`;
+                  searchString += `${
+                    order[2] ? `&email_order=${order[2]}` : ''
+                    }`;
+                  searchString += `${
+                    order[4] ? `&campaign_order=${order[4]}` : ''
+                    }`;
+                  searchString += `${
+                    selectingRegion ? `&selectingState=${selectingRegion}` : ''
+                    }`;
+                  apiGet(
+                    `${CONTACT_MARKETING_URL}?page=${activePage}&limit=${
+                    query.pageSize
+                    }${searchString}`,
+                    true,
+                  ).then((res) => {
+                    const data = [];
+                    res.data.data.forEach((c, index) => {
+                      data.push({
+                        '#': activePage * query.pageSize + index + 1,
+                        full_name: c.contact.full_name,
+                        mail: c.contact.mail,
+                        phone: c.contact.phone,
+                        state: stateHash[c.contact.state],
+                        campaignName: c.campaign.name,
+                        id: c.id,
+                        contact: c.contact,
+                        campaign: c.campaign,
+                        histories: c.histories,
+                        marketing: c,
+                        thread_ids: c.thread_ids,
+                        created: c.created
+                      });
+                    });
+                    resolve({
+                      data,
+                      page: res.data.page,
+                      totalCount: res.data.total,
                     });
                   });
-                  resolve({
-                    data,
-                    page: res.data.page,
-                    totalCount: res.data.total,
-                  });
-                });
-              })
-              }
-              actions={[
-                {
-                  icon: 'remove',
-                  tooltip: 'Remove contact out of this campaign',
-                  onClick: (event, row) => {
-                    setDeletingRow(row);
-                    // forceActivities()
+                })
+                }
+                actions={[
+                  {
+                    icon: 'remove',
+                    tooltip: 'Remove contact out of this campaign',
+                    onClick: (event, row) => {
+                      setDeletingRow(row);
+                      // forceActivities()
+                    },
                   },
-                },
-                {
-                  icon: 'swap_horiz',
-                  tooltip: 'Move to Follow-up',
-                  onClick: (event, row) => {
-                    setMovingRow(row);
+                  {
+                    icon: 'swap_horiz',
+                    tooltip: 'Move to Follow-up',
+                    onClick: (event, row) => {
+                      setMovingRow(row);
+                    },
                   },
-                },
-                {
-                  icon: 'more_vert',
-                  tooltip: 'More actions',
-                  onClick: (event, row) => {
-                    setMoreRow(row);
-                    setMoreDialog(true);
+                  {
+                    icon: 'more_vert',
+                    tooltip: 'More actions',
+                    onClick: (event, row) => {
+                      setMoreRow(row);
+                      setMoreDialog(true);
+                    },
                   },
-                },
-              ]}
-              options={{
-                search: false,
-                paging: true,
-                filtering: true,
-                actionsColumnIndex: -1,
-                debounceInterval: 300,
-              }}
-            />
+                ]}
+                options={{
+                  search: false,
+                  paging: true,
+                  filtering: true,
+                  actionsColumnIndex: -1,
+                  debounceInterval: 300,
+                }}
+              />
             </div>
           </Collapse>
         </div>

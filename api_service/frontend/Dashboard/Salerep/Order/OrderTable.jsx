@@ -7,6 +7,7 @@ import {
   IconButton,
   Grid
 } from "@material-ui/core";
+import { Link } from 'react-router-dom'
 import MaterialTable from "material-table";
 import MTableBody from "material-table/dist/m-table-body";
 import MTableHeader from "material-table/dist/m-table-header";
@@ -144,7 +145,6 @@ function OrderTable(props) {
                   <MTableBody
                     {...props}
                     onFilterChanged={(columnId, value) => {
-                      console.log(value);
                       if (columnId == 1) {
                         flSearch.fname = value;
                       } else if (columnId == 2) {
@@ -200,7 +200,12 @@ function OrderTable(props) {
                   filtering: false,
                   sorting: false
                 },
-                { title: "Full Name", field: "full_name" },
+                {
+                  title: "Full Name", field: "full_name",
+                  render: (row) => {
+                    return (<Link to={"/contacts/" + row.contacts.id}>{row.full_name}</Link>)
+                  },
+                },
                 {
                   title: "State",
                   field: "state"
@@ -329,7 +334,6 @@ function OrderTable(props) {
                         },
                         ""
                       );
-                      // console.log(d.id, licenseStatus)
                       return {
                         "#": query.pageSize * activePage + index + 1,
                         full_name:

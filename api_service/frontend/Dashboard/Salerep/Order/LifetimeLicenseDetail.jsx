@@ -10,7 +10,6 @@ import { title } from '../../../components/material-dashboard-react.jsx';
 function LicenseDetail(props) {
 
   const { classes, allLicenses, toggleDialog } = props
-  console.log(allLicenses)
   return (
     <div>
       <table className="table table-borderless">

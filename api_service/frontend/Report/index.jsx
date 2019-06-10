@@ -75,7 +75,6 @@ function Report(props) {
     setTypeReport([e.target.name] = e.target.value)
   }
 
-  console.log(dataSearch)
 
   return (
     <div className={classes.root}>

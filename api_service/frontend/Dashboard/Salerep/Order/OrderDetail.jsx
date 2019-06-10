@@ -57,7 +57,6 @@ function OrderDetail(props) {
     userId,
     user
   } = props
-  console.log(moreRow)
   // const [contactHistories, setContactHistories] = React.useState({
   //   'Send Email ': 0,
   //   'Send Email Manually': 0,

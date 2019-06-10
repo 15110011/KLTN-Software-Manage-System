@@ -397,14 +397,12 @@ function CreateMarketingPlan(props) {
     }
     else if (action.action == 'clear') {
       cloneCreateMarketingPlan.mail_template = {}
-      console.log(cloneCreateMarketingPlan)
       setCreateMarketingPlan(cloneCreateMarketingPlan)
     }
   }
 
   const handleChangeSelectAddress = (value, element, index) => {
     const cloneCreateMarketingPlan = { ...createMarketingPlan }
-    console.log(value)
     // if (value) {
     cloneCreateMarketingPlan.condition.must[index][element.name] = value.map(v => v.value)
     // }

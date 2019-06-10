@@ -31,7 +31,6 @@ function UserList(props) {
 
   let activePage = 0
 
-  console.log(userData)
   return (
     <div className={classes.root}>
       <CreateUser createUserDialog={createUserDialog} handleOpenDialog={handleOpenDialog} handleCloseDialog={handleCloseDialog} />

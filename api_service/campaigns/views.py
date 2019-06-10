@@ -184,7 +184,6 @@ class MarketingPlanView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         qs = self.get_queryset()
         if type(qs) is dict and qs.get('elastic_search', None):
-            print(qs)
             return Response(qs)
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
@@ -405,7 +404,6 @@ class CampaignView(ModelViewSet):
         if limit is not None:
             queryset = queryset[int(page)*int(limit)
                                     :int(page)*int(limit)+int(limit)]
-        print("QUERYYYYYYYYYYYYYY:", queryset.query)
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
@@ -603,8 +601,6 @@ class MailTemplateView(ModelViewSet):
 
         scheduler = django_rq.get_scheduler('default')
         jobs_and_times = scheduler.get_jobs(with_times=True)
-        for j in jobs_and_times:
-            print(j)
 
         filters = Q()
         filters.add(Q(user=request.user.id), Q.AND)

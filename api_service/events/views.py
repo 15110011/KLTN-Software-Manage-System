@@ -59,17 +59,15 @@ class EventView(ModelViewSet):
         if start_order:
             start_order = '-start_date' if start_order == 'desc' else 'start_date'
         if view_type == 'campaign':
-            excludes.add(Q(marketing=None), Q.AND)
-            excludes.add(Q(order=None), Q.AND)
             # filters.add(Q(marketing__campaign__end_date__gte=now) & Q(marketing__campaign__start_date__lte=now), Q.AND)
-            filters.add(Q(marketing__campaign__end_date__gte=now), Q.AND)
-            filters.add(Q(marketing__status='RUNNING') |
-                        Q(order__status='RUNNING'), Q.AND)
+            filters.add(Q(marketing__campaign__end_date__gte=now)| Q(order__campaign__end_date__gte=now), Q.AND)
+            filters.add(Q(~Q(marketing=None) & Q(marketing__status='RUNNING')) |
+                        Q(~Q(order=None) & Q(order__status='RUNNING')), Q.AND)
         elif view_type == 'personal':
             filters.add(Q(marketing=None), Q.AND)
             filters.add(Q(order=None), Q.AND)
         # filters.add(Q(end_date__gte=now) & Q(start_date__lte=now), Q.AND)
-        filters.add(Q(end_date__date__gte=now), Q.AND)
+        #filters.add(Q(end_date__date__gte=now), Q.AND)
         if remaining:
             filters.add(Q(end_date=datetime.timedelta(
                 days=int(remaining))+now), Q.AND)
@@ -88,8 +86,8 @@ class EventView(ModelViewSet):
             phase_filter = Q()
             if 'Ticket' in phase:
                 phase_filter.add(Q(marketing__status='RUNNING'), Q.OR)
-            if 'Follow-Up' in phase:
-                phase_filter.add(Q(marketing__status='COMPLETED')
+            if 'Follow-up' in phase:
+                phase_filter.add(Q(marketing=None)
                                  & Q(order__status='RUNNING'), Q.OR)
             if 'Order' in phase:
                 phase_filter.add(Q(order__status='COMPLETED'), Q.OR)
@@ -188,7 +186,7 @@ class EventView(ModelViewSet):
                                          if target.upper() in c['first_name'].upper() or c['last_name'].upper() in target.upper()]
                 final_data.append(event)
                 set_id.add(event['id'])
-
+        print(queryset.query)
         new_data = {
             "data": final_data,
             "total": self.get_queryset().exclude(excludes).filter(filters).values('contacts__first_name').count()

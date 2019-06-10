@@ -98,7 +98,6 @@ class ContactGroupView(ModelViewSet):
                 public_groups.order_by('id'), many=True, context={'request': request})
             total_groups += len(public_g_serializer.data)
             public_g = public_g_serializer.data
-            print(self_g)
             new_serializer = {
                 "data":  [default_group] + public_g + self_g,
                 "total": total_groups
