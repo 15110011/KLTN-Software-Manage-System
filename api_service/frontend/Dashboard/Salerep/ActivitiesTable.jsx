@@ -104,6 +104,7 @@ function ActivitiesTable(props) {
   const getMoreRow = id => {
     apiGet(CONTACT_MARKETING_URL + '/' + id, true).then(res => {
       const c = res.data
+      console.log(c)
       setMoreRow({
         full_name: c.contact.full_name,
         mail: c.contact.mail,
@@ -113,9 +114,9 @@ function ActivitiesTable(props) {
         contact: c.contact,
         campaign: c.campaign,
         histories: c.histories,
-        marketing: c
+        marketing: c,
+        thread_ids: c.thread_ids
       })
-      setOpenDialog('marketing')
     })
   }
 
@@ -206,6 +207,7 @@ function ActivitiesTable(props) {
                   setMovingRow={setMovingRow}
                   setDeletingRow={setDeletingRow}
                   getMoreRow={getMoreRow}
+                  moreRow={moreRow}
                 />
               </DialogContent>
             </Dialog>
@@ -335,8 +337,7 @@ function ActivitiesTable(props) {
                     title: 'Phase', field: 'phase',
                     lookup: {
                       'Ticket': 'Ticket',
-                      'Follow-Up': 'Follow-Up',
-                      'Order': 'Order',
+                      'Follow-up': 'Follow-up',
                     }
                   },
                   {
@@ -409,11 +410,12 @@ function ActivitiesTable(props) {
                           phase = 'Ticket'
                           phaseId = `T` + d.marketing.id
                         }
+                        console.log(phase)
                         acc.push(...d.contacts.map(c => {
                           return {
                             work: d.name,
                             target: c.first_name + ' ' + c.last_name,
-                            campaign: d.marketing.campaign.name,
+                            campaign: d.marketing ? d.marketing.campaign.name: d.order.campaign.name,
                             phase,
                             priority: priority[d.priority],
                             remaining: d.remaining + ' day(s)',
@@ -437,6 +439,12 @@ function ActivitiesTable(props) {
                 onRowClick={(e, rowData) => {
                   if (rowData.phase == 'Ticket') {
                     getMoreRow(rowData.marketing.id)
+                    setOpenDialog('marketing')
+                  }
+                  else if (rowData.phase == 'Follow-up'){
+                    getMoreRow(rowData.order.id)
+                    setOpenDialog('followUp')
+
                   }
                 }}
                 title="Contacts List"
@@ -572,7 +580,6 @@ function ActivitiesTable(props) {
                     apiGet(EVENTS_URL + `?list_type=upcoming&page=${activePageActivity}&limit=${query.pageSize}` + searchString + query.search, true).then(res => {
                       const data = res.data.data.reduce((acc, d, index) => {
                         const priority = ['Low', 'Medium', 'High']
-                        console.log(d)
                         acc.push({
                           work: d.name,
                           target: 'Me',

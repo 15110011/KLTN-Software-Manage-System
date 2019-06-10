@@ -85,7 +85,6 @@ function SendMailComponent(props) {
     setEditorState(editorState)
   };
 
-  console.log(sendTo)
 
   return (
     <Paper style={{ padding: '15px', marginTop: '20px' }}>

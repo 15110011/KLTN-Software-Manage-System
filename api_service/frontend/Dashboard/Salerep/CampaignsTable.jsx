@@ -45,7 +45,6 @@ function CampaignTable(props) {
     user,
   } = props
 
-  console.log(user)
 
   const [deletingRow, setDeletingRow] = React.useState({})
   const [campaignRow, setMovingRow] = React.useState({})
@@ -93,8 +92,6 @@ function CampaignTable(props) {
   }
 
   const handleAddContact = (rows) => {
-    console.log(user)
-    console.log(addContactDialog)
     rows.forEach(d => {
       let data = {
         marketing_plan: addContactDialog.marketing_plan.id,

@@ -7,10 +7,12 @@ import {
   IconButton,
   Grid
 } from "@material-ui/core";
+import {Link} from 'react-router-dom'
 import MaterialTable from "material-table";
 import MTableBody from "material-table/dist/m-table-body";
 import MTableHeader from "material-table/dist/m-table-header";
 import TablePagination from "@material-ui/core/TablePagination";
+import MTableCell from 'material-table/dist/m-table-cell'
 import AddIcon from "@material-ui/icons/Add";
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
@@ -176,7 +178,6 @@ function FollowUpTable(props) {
       notification("Successfully Created");
       setMoreDialog(false);
       setMoreRow(null);
-      console.log("PROMISE ALL:", res);
       apiGet(ORDER_URL + "/" + res[0].data.id + '/invoice', true);
     });
   };
@@ -310,7 +311,6 @@ function FollowUpTable(props) {
                   <MTableBody
                     {...props}
                     onFilterChanged={(columnId, value) => {
-                      console.log(value);
                       if (columnId == 1) {
                         flSearch.fname = value;
                       } else if (columnId == 2) {
@@ -356,7 +356,16 @@ function FollowUpTable(props) {
                       activePage = nextPage;
                     }}
                   />
-                )
+                ),
+                Cell: props => {
+                  return (
+                    <MTableCell
+                      {...props}
+                    >
+
+                    </MTableCell>
+                  )
+                }
               }}
               columns={[
                 {
@@ -366,7 +375,12 @@ function FollowUpTable(props) {
                   filtering: false,
                   sorting: false
                 },
-                { title: "Full Name", field: "fname", cellStyle: { width: '20%' } },
+                {
+                  title: "Full Name", field: "fname", cellStyle: { width: '20%' },
+                  render: (row) => {
+                    return (<Link to={"/contacts/" + row.contact.id}>{row.fname}</Link>)
+                  },
+                },
                 {
                   title: "State",
                   field: "state"

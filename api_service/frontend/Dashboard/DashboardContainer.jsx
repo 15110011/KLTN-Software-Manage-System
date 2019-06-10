@@ -24,7 +24,6 @@ function Dashboard(props) {
       <USERCONTEXT.Consumer>
         {({ user }) => 
         {
-          console.log(user)
           return (
           <>
           <Paper className="d-flex justify-content-between" style={{

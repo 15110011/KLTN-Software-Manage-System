@@ -7,7 +7,7 @@ from orders.models import Order
 from contacts.models import Contact
 from contacts.serializers import ContactWithoutGroupSerializer
 from campaigns.serializers import ContactMarketingSerializer
-
+from orders.serializers import OrderSerializer
 from datetime import datetime
 
 
@@ -17,7 +17,7 @@ class EventReadSerializer(serializers.ModelSerializer):
     marketing = ContactMarketingSerializer()
     assigned_to = serializers.HiddenField(
         default=serializers.CurrentUserDefault())
-    # order = ContactMarketingSerializer()
+    order = OrderSerializer()
     remaining = serializers.SerializerMethodField()
     is_overdue = serializers.SerializerMethodField()
 
@@ -44,7 +44,6 @@ class EventReadSerializer(serializers.ModelSerializer):
         return instance
 
     def get_remaining(self, instance):
-        print(instance.end_date,datetime.now().date(), (instance.end_date.date() - datetime.now().date()).days)
         return (instance.end_date.date() - datetime.now().date()).days
 
     def get_is_overdue(self, instance):
@@ -63,11 +62,9 @@ class EventSerializer(serializers.ModelSerializer):
         if type_ == 'campaign':
             for c in validated_data['contacts']:
                 try:
-                    cur_contact_marketing = ContactMarketing.objects.filter(contact=c).filter(
-                        campaign=int(campaign))[0]
+                    cur_contact_marketing = ContactMarketing.objects.get(contact=c, campaign=int(campaign))
                     if cur_contact_marketing.status == 'COMPLETED':
-                        cur_order = Order.objects.filter(contact=c).filter(
-                            campaign=int(campaign))[0]
+                        cur_order = Order.objects.get(contacts=c, campaign=int(campaign))
 
                         validated_data['order'] = Order.objects.get(id=cur_order.id)
                     else:

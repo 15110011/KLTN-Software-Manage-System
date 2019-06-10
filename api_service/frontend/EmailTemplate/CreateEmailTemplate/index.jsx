@@ -66,7 +66,6 @@ function CreateEmailTemplate(props) {
 
     apiPost(MAIL_TEMPLATES_URL, { ...createTemplate, template: draftToRaw(editorState) }, false, true)
       .then(res => {
-        console.log(res)
         if (res.data.code == "token_not_valid") {
           apiPost(REFRESH_TOKEN_URL, { refresh: localStorage.getItem('refresh') }).then(res => {
             if (res.data.code == "token_not_valid" || res.data.code == BAD_REQUEST) {
