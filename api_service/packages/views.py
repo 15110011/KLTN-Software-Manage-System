@@ -21,21 +21,22 @@ class ProductCategoryView(ModelViewSet):
     def list(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response({"data": serializer.data, "total": len(serializer.data)})
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
         return Response({"msg": "DEL OK"}, status=status.HTTP_200_OK)
 
+
 class ProductTypeView(ModelViewSet):
     serializer_class = ProductTypeSerializer
     queryset = ProductType.objects
     permission_classes = (IsAuthenticated,)
-    
+
     def list(self, request, *args, **kwargs):
         serializer = self.get_serializer(self.get_queryset(), many=True)
         return Response({"data": serializer.data, "total": len(serializer.data)})
-    
+
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.delete()
@@ -161,14 +162,15 @@ class PackageViewSet(ModelViewSet):
         if search_product:
             filters.add(Q(features__product__id=search_product), Q.AND)
         if limit is not None and search_product is not None:
-            queryset = Package.objects.filter(filters)[
+            queryset = Package.objects.filter(filters).distinct()[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
         else:
-            queryset = Package.objects.filter(filters)
+            queryset = Package.objects.filter(filters).distinct()
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
-        new_serializer['total'] = Package.objects.filter(filters).count()
+        new_serializer['total'] = Package.objects.filter(
+            filters).distinct().count()
         return Response(new_serializer, status=status.HTTP_200_OK)
 
 
