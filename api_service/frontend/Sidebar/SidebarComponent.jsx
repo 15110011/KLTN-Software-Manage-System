@@ -432,7 +432,7 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle3} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <ListItem
+              {/* <ListItem
                 button
                 className={classes.nested}
                 onClick={() => props.history.push('/inbox')}
@@ -443,7 +443,7 @@ const SidebarComponent = props => {
                   <InboxIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Inbox" classes={{ primary: classes.listItemText }} />
-              </ListItem>
+              </ListItem> */}
               <ListItem
                 button
                 className={classes.nested}

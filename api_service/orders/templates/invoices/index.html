@@ -2,81 +2,93 @@
 <html>
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title></title>
-    
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title></title>
+  <style>
+    .row {
+      margin-right: -15px;
+      margin-left: -15px;
+    }
+
+    .col {
+      width: 50%;
+      float: left;
+    }
+  </style>
 </head>
 
 <body>
-    <div style="display:grid; grid-template-columns: auto auto auto auto; grid-gap: 10">
-        <div style="padding:20px 0">
-          <h3>Bill to: {{name}}</h3>
-            <p>Name</p>
-            <p>Address</p>
-            <p>Phone</p>
-            <p>Email</p>
-        </div>
-        <div style="padding: 20px 0">
-            <h3>Product:</h3>
-            <p>Name</p>
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col" style="padding:20px 0">
+        <h3>Bill to:</h3>
+        <p>{{contact.first_name}} {{contact.last_name}}</p>
+        <p>{{contact.address}}</p>
+        <p>{{contact.phone}}</p>
+        <p>{{contact.mail}}</p>
+      </div>
+      <div class="col" style="padding: 20px 0">
+        <h3>Product:</h3>
+        <p>{{product.name}}</p>
+      </div>
     </div>
-    <div style="position: relative">
-        <table style="width: 100%" border="1">
-            <tr>
-                <th>Packages</th>
-                <th>Features</th>
-                <th>Quantity</th>
-                <th>Type</th>
-                <th>Code</th>
-                <th>Pricing</th>
-            </tr>
-            {% for l in orders.lifetime_licenses %}
-              <tr>
-                <td>{{l.package.name}}</td>
-                <td>
-                  <ul>
-                  {% for f in l.package.features %}
-                    <li>{{f.name}}</li> 
-                  {% endfor %}
-                  </ul>
-                </td>
-                <td>1</td>
-                <td>Unlimited</td>
-                <td>{{l.code}}</td>
-                <td style="text-align:right">${{l.package.prices.999999}}</td>
-              </tr>
+  </div>
+  <div style="position: relative">
+    <table style="width: 100%" border="1">
+      <tr>
+        <th>Packages</th>
+        <th>Features</th>
+        <th>Quantity</th>
+        <th>Type</th>
+        <th>Code</th>
+        <th>Pricing</th>
+      </tr>
+      {% for l in orders.lifetime_licenses %}
+      <tr>
+        <td>{{l.package.name}}</td>
+        <td>
+          <ul>
+            {% for f in l.package.features %}
+            <li>{{f.name}}</li>
             {% endfor %}
+          </ul>
+        </td>
+        <td>1</td>
+        <td>Unlimited</td>
+        <td>{{l.code}}</td>
+        <td style="text-align:right">${{l.package.prices.999999}}</td>
+      </tr>
+      {% endfor %}
 
-            {% for l in orders.licenses %}
-              <tr>
-                <td>{{l.package.name}}</td>
-                <td>
-                  <ul>
-                  {% for f in l.package.features %}
-                    <li>{{f.name}}</li> 
-                  {% endfor %}
-                  </ul>
-                </td>
-                <td>1</td>
-                <td>{{l.duration}} month</td>
-                <td>{{l.code}}</td>
-                <td style="text-align:right">
-                  {% for duration, price in l.package.prices.items%}
-                    {% if duration == l.duration|safe %}
-                      ${{price}}
-                    {% endif %}
-                  {% endfor %}
-                </td>
-              </tr>
+      {% for l in orders.licenses %}
+      <tr>
+        <td>{{l.package.name}}</td>
+        <td>
+          <ul>
+            {% for f in l.package.features %}
+            <li>{{f.name}}</li>
             {% endfor %}
-            <tr>
-                <td colSpan="5" style="text-align: right">Total</td>
-                <td style="text-align: right">${{total}}</td>
-            </tr>
-        </table>
-    </div>
+          </ul>
+        </td>
+        <td>1</td>
+        <td>{{l.duration}} month</td>
+        <td>{{l.code}}</td>
+        <td style="text-align:right">
+          {% for duration, price in l.package.prices.items%}
+          {% if duration == l.duration|safe %}
+          ${{price}}
+          {% endif %}
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colSpan="5" style="text-align: right">Total</td>
+        <td style="text-align: right">${{total}}</td>
+      </tr>
+    </table>
+  </div>
 </body>
 
 </html>

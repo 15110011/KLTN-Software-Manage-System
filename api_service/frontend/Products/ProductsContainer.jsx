@@ -16,7 +16,7 @@ function ProductsContainer(props) {
   return (
     <div>
       <ProductBreadcrumb user={props.user} history={props.history} />
-      <BreadcrumbsItem to='/products'>PRODUCTS</BreadcrumbsItem>
+      <BreadcrumbsItem to='/products'>Products</BreadcrumbsItem>
       <Switch>
         <Route exact path="/products" component={(props) => (<ProductList {...props} />)} />
         {

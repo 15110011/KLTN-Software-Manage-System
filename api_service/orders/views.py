@@ -15,6 +15,7 @@ from .models import Order, OrderHistory, License, LifetimeLicense
 from steps.models import StepDetail
 from datetime import datetime, date
 from . import chart_handler
+import json, requests
 # Create your views here.
 cur_year = datetime.today().year
 start_date_of_year = date(cur_year, 1, 1)
@@ -263,15 +264,17 @@ class OrderView(ModelViewSet):
         serializer = self.get_serializer(instance)
         target = serializer.data
         total = functools.reduce(
-            lambda acc, l: acc+l['package']['prices']['999999'], target['lifetime_licenses'], 0)
+            lambda acc, l: acc+int(l['package']['prices']['999999']), target['lifetime_licenses'], 0)
         total += functools.reduce(lambda acc, l: acc +
-                                  l['package']['prices'][l['duration']], target['licenses'], 0)
+                                  int(l['package']['prices'][str(l['duration'])]), target['licenses'], 0)
         message = render_to_string(
-            'invoices/index.html', {'orders': target, 'total': total})
+            'invoices/index.html', {'orders': target, 'total': total, 'contact': target['contacts'], 'product': target['packages'][0]['product_']})
         data = json.dumps({"data": {"user_id": request.user.id, "to": target['contacts']['mail'], "from": 'theaqvteam@gmail.com', "subject": 'Bill', "message": message}})
+        print(message)
         request = requests.post('http://emails:8001/api/v1/send-email',
                                 data=data, headers={'Content-Type': 'application/json'})
         res = request.json()
+        return Response({"SENT": 'OK'},status=status.HTTP_200_OK)
 
 
 class OrderHistoryView(ModelViewSet):
