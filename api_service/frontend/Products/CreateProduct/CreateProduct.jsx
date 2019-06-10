@@ -432,7 +432,6 @@ function CreateProduct(props) {
     <div>
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice && <CustomSnackbar isErr msg={errNotice} />}
-      <BreadcrumbsItem to='/products/add'>Product Informations</BreadcrumbsItem>
       <Dialog
         open={createProductDialog}
         onClose={handleCloseCreateProductDialog}

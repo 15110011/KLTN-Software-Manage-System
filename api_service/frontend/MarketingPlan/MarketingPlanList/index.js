@@ -8,6 +8,7 @@ import { TablePagination } from '@material-ui/core';
 
 // API
 import { MARKETING_PLANS_URL } from "../../common/urls";
+import { BAD_REQUEST } from '../../common/Code'
 import { apiGet, apiDelete } from '../../common/Request';
 
 
@@ -41,8 +42,32 @@ function MarketingPlanList(props) {
   }
   let notiTimeout = {}
 
-  const setDeleteMarketingPlan = e => {
-    apiDelete(MARKETING_PLANS_URL + '/' + 'batchdelete', true).then(res => {
+  const setDeleteMarketingPlan = data => {
+    let deleteData = []
+    let errorData = []
+    data.forEach(d => {
+      if (d.can_remove) {
+        deleteData.push(d.id)
+      }
+      else {
+        errorData.push(d)
+      }
+    })
+
+    if (errorData.length) {
+      setErrNotice(errorData.reduce((acc, d) => {
+        acc += d.name + ', '
+        return acc
+      }, '').slice(0, -2) + `${errorData.length == 1 ? ' is' : ' are'} in used`)
+      notiTimeout.err = setTimeout(() => {
+        setErrNotice(false)
+      }, 2000);
+      return
+    }
+
+    apiDelete(MARKETING_PLANS_URL + '/' + 'batchdelete', {
+      marketing_plans: deleteData
+    }, true).then(res => {
       if (res.data.code == BAD_REQUEST) {
         setErrNotice('Delete failed')
         notiTimeout.err = setTimeout(() => {
@@ -53,9 +78,8 @@ function MarketingPlanList(props) {
         notiTimeout.success = setTimeout(() => {
           setCompleteNotice(false)
         }, 2000);
-        apiGet(MARKETING_PLANS_URL, false, true).then(res => {
-          tableRef.current.onQueryChange()
-        })
+        tableRef.current.onQueryChange()
+
         setDeleteContactConfirm(false)
       }
     })
@@ -77,6 +101,7 @@ function MarketingPlanList(props) {
   return (
     <div className={classes.root}>
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
+      {errNotice && <CustomSnackbar isErr msg={errNotice} />}
       {
         createMarketingPlanDialog &&
         <CreateMarketingPlan
@@ -130,7 +155,8 @@ function MarketingPlanList(props) {
                       name: m.name,
                       used: m.used,
                       status: m.status,
-                      id: m.id
+                      id: m.id,
+                      can_remove: m.can_remove
                     }))
                     resolve({
                       data,
@@ -145,7 +171,7 @@ function MarketingPlanList(props) {
                 icon: 'delete',
                 tooltip: 'Remove',
                 onClick: (event, rows) => {
-                  setDeleteMarketingPlan(rows.map(r => r.id))
+                  setDeleteMarketingPlan(rows)
                 },
               },
               {
@@ -161,7 +187,8 @@ function MarketingPlanList(props) {
             options={{
               selection: true,
               filtering: true,
-              paging: true
+              paging: true,
+
             }}
             onRowClick={(e, rowData) => {
               props.history.push('/marketing-plans/' + rowData.id)

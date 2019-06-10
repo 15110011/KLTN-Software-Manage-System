@@ -12,7 +12,7 @@ import Button from '@material-ui/core/Button';
 import {
   InputLabel, DialogTitle, TablePagination, Divider, 
 ,
- Dialog, DialogActions, DialogContent, DialogContentText 
+  Dialog, DialogActions, DialogContent, DialogContentText
 } from '@material-ui/core';
 import Snackbar from '@material-ui/core/Snackbar';
 import Popover from '@material-ui/core/Popover';
@@ -79,7 +79,7 @@ function ContactList(props) {
 
 
   const {
-    classes, disabledAction, handleAddContact, allContacts, 
+    classes, disabledAction, handleAddContact, allContacts,
   } = props;
   const notiTimeout = {};
   // Clear timer
@@ -91,7 +91,7 @@ function ContactList(props) {
         clearTimeout(notiTimeout[k]);
       });
     },
-   []);
+    []);
 
 
   // event handler
@@ -99,7 +99,7 @@ function ContactList(props) {
   const onChangeGroup = (e, i) => {
     setSelectingGroup(e.target.value);
     setSelectingGroupIndex(parseInt(i.props.name));
-    apiGet(`${GROUP_URL }/${e.target.value }/contacts`, true).then((res) => {
+    apiGet(`${GROUP_URL}/${e.target.value}/contacts`, true).then((res) => {
       // setContacts({ ...res.data })
       tableRef.current.onQueryChange();
     });
@@ -130,7 +130,7 @@ function ContactList(props) {
 
 
   const onDeleteGroup = () => {
-    apiDelete(`${GROUP_URL }/${selectingGroup}`, true).then((res) => {
+    apiDelete(`${GROUP_URL}/${selectingGroup}`, true).then((res) => {
       if (!res.data.code) {
         setCompleteNotice('Successfully Deleted');
         notiTimeout.success = setTimeout(() => {
@@ -162,14 +162,14 @@ function ContactList(props) {
     }, 2000);
     if (selectingGroup in isAddedToGroups) {
       forceUpdateGroup();
-      apiGet(`${GROUP_URL }/${selectingGroup }/contacts`, true).then((res) => {
+      apiGet(`${GROUP_URL}/${selectingGroup}/contacts`, true).then((res) => {
         // setContacts({ ...res.data })
         tableRef.current.onQueryChange(123123);
       });
     } else {
       setSelectingGroup(groups.data[0].id);
       forceUpdateGroup();
-      apiGet(`${GROUP_URL }/${groups.data[0].id }/contacts`, true).then((res) => {
+      apiGet(`${GROUP_URL}/${groups.data[0].id}/contacts`, true).then((res) => {
         // setContacts({ ...res.data })
         tableRef.current.onQueryChange();
       });
@@ -182,7 +182,7 @@ function ContactList(props) {
       group: selectingGroup,
       isDefaultGroup: selectingGroup == groups.data[0].id,
     };
-    apiDelete(`${CONTACT_URL }/` + 'batchdelete', contactsInfo, true).then((res) => {
+    apiDelete(`${CONTACT_URL}/` + 'batchdelete', contactsInfo, true).then((res) => {
       if (res.data.code == BAD_REQUEST) {
         setErrNotice('Delete failed');
         notiTimeout.err = setTimeout(() => {
@@ -194,7 +194,7 @@ function ContactList(props) {
           setCompleteNotice(false);
         }, 2000);
         forceUpdateGroup();
-        apiGet(`${GROUP_URL }/${selectingGroup }/contacts`, true).then((res) => {
+        apiGet(`${GROUP_URL}/${selectingGroup}/contacts`, true).then((res) => {
           // setContacts({ ...res.data })
           tableRef.current.onQueryChange();
         });
@@ -232,25 +232,25 @@ function ContactList(props) {
     && (groups.data[selectingGroupIndex].creator.id == props.user.id);
   return (
     <div className={classes.root}>
-      {importDialog && 
-          <ImportDialog
+      {importDialog &&
+        <ImportDialog
           toggleImportDialog={toggleImportDialog}
           groups={groups.data}
           selectingGroup={selectingGroup}
-            onImportComplete={()=>{
-              tableRef.current.onQueryChange();
-              setCompleteNotice('Successfully imported');
-              notiTimeout.success = setTimeout(() => {
-                setCompleteNotice(false);
-              }, 2000);
-              forceUpdateGroup()
-            }}
+          onImportComplete={() => {
+            tableRef.current.onQueryChange();
+            setCompleteNotice('Successfully imported');
+            notiTimeout.success = setTimeout(() => {
+              setCompleteNotice(false);
+            }, 2000);
+            forceUpdateGroup()
+          }}
         />
 
       }
       {completeNotice != '' && <CustomSnackbar isSuccess msg={completeNotice} />}
       {errNotice != '' && <CustomSnackbar isErr msg={errNotice} />}
-        {createContactDialog && 
+      {createContactDialog &&
         <CreateContact
           onCreateSuccess={onCreateContactSuccess} groups={groups} toggleDialog={toggleCreateDialog}
           selectingGroup={groups.data[selectingGroupIndex]}
@@ -263,13 +263,13 @@ function ContactList(props) {
       */}
       {changeGroupDialog
         && (
-<AddToGroup
-groups={groups} selectingGroup={selectingGroup}
-          toggleDialog={toggleAddToGroupDialog}
-selectingContacts={selectingContacts}
-          onSuccess={onMoveContactSuccess}
-        />
-)
+          <AddToGroup
+            groups={groups} selectingGroup={selectingGroup}
+            toggleDialog={toggleAddToGroupDialog}
+            selectingContacts={selectingContacts}
+            onSuccess={onMoveContactSuccess}
+          />
+        )
       }
 
       {/* END */}
@@ -278,12 +278,12 @@ selectingContacts={selectingContacts}
         update selecting group
       */}
       {updateGroupDialog && (
-      <UpdateGroup
-group={groups.data[selectingGroupIndex]}
-  toggleDialog={() => { setUpdateGroupDialog(!updateGroupDialog); }}
-  onUpdateSuccess={() => { onUpdateGroupSuccess(); }}
-  user={props.user}
-/>
+        <UpdateGroup
+          group={groups.data[selectingGroupIndex]}
+          toggleDialog={() => { setUpdateGroupDialog(!updateGroupDialog); }}
+          onUpdateSuccess={() => { onUpdateGroupSuccess(); }}
+          user={props.user}
+        />
       )}
 
       {/* END */}
@@ -306,8 +306,8 @@ group={groups.data[selectingGroupIndex]}
             setDeleteContactConfirm(false);
           }}
           >
-Cancel
-</Button>
+            Cancel
+          </Button>
           <Button onClick={() => { onDeleteContacts(); }} color="primary">Delete</Button>
         </DialogActions>
       </Dialog>
@@ -318,27 +318,27 @@ Cancel
         <DialogTitle>
           DELETE GROUP
           {' '}
-          <strong>{contacts.group}</strong>
         </DialogTitle>
-sele.id
         <DialogContent>
-  <DialogContentText>
+          <DialogContentText>
+            Delete group <strong>{groups.data[selectingGroupIndex] && groups.data[selectingGroupIndex].name}</strong>
+            <br />
             This action cannot be undone
           </DialogContentText>
-</DialogContent>
+        </DialogContent>
         <DialogActions>
           <Button onClick={() => { setConfirmDelete(false); }}>Cancel</Button>
-          <Button onClick={() => { onDeleteGroup(); }} color="primary">Delete group</Button>
+          <Button onClick={() => { onDeleteGroup(); }} color="primary">Delete</Button>
         </DialogActions>
       </Dialog>
       {
         groupDialog && (
-        <GroupDialog
-toggleGroupDialog={toggleGroupDialog}
-  canAddContacts defaultGroup={groups.data[0].id}
-  user={props.user}
-  onCreateGroupSuccess={onCreateGroupSuccess}
-/>
+          <GroupDialog
+            toggleGroupDialog={toggleGroupDialog}
+            canAddContacts defaultGroup={groups.data[0].id}
+            user={props.user}
+            onCreateGroupSuccess={onCreateGroupSuccess}
+          />
         )
       }
       <Menu
@@ -359,7 +359,7 @@ toggleGroupDialog={toggleGroupDialog}
           && <MenuItem onClick={() => setUpdateGroupDialog(true)}>Update Selecting Contact Group's Detail</MenuItem>}
       </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
-        <Grid item xs={2} className="my-3">
+        <Grid item xs={3} className='my-3'>
           <FormControl fullWidth className={classes.formControl}>
             <InputLabel>Contact Group</InputLabel>
             <Select
@@ -393,9 +393,9 @@ toggleGroupDialog={toggleGroupDialog}
                       <BookmarkIcon classes={{ root: classRoot }} />
                       {g.name}
                       {' '}
-(
+                      (
 {g.total_contact - duplicateTime}
-)
+                      )
                     </MenuItem>
                   );
                 })
@@ -405,10 +405,10 @@ toggleGroupDialog={toggleGroupDialog}
         </Grid>
         {!disabledAction
           && (
-<Grid item xs={1} className="my-3 d-flex flex-column justify-content-end">
-            <Button onClick={onClickActionBtn}>Action</Button>
-          </Grid>
-)
+            <Grid item xs={1} className="my-3 d-flex flex-column justify-content-end">
+              <Button onClick={onClickActionBtn}>Action</Button>
+            </Grid>
+          )
         }
         <Grid item xs={12}>
           {
@@ -420,22 +420,22 @@ toggleGroupDialog={toggleGroupDialog}
                   {
                     Body: props => (
                       <MTableBody
-                      {...props} onFilterChanged={(columnId, value) => {
-                        if (columnId == 1) {
-                          search.first_name = value;
-                        } else if (columnId == 2) {
-                          search.last_name = value;
-                        } else if (columnId == 3) {
-                          search.mail = value;
-                        } else if (columnId == 4) {
-                          search.phone = value;
-                        } else if (columnId == 5) {
-                          search.org = value;
-                        }
-                        activePage = 0;
-                        props.onFilterChanged(columnId, value);
-                        // Columnid la thu tu cot tren bang (ko tinh selection)
-                      }}
+                        {...props} onFilterChanged={(columnId, value) => {
+                          if (columnId == 1) {
+                            search.first_name = value;
+                          } else if (columnId == 2) {
+                            search.last_name = value;
+                          } else if (columnId == 3) {
+                            search.mail = value;
+                          } else if (columnId == 4) {
+                            search.phone = value;
+                          } else if (columnId == 5) {
+                            search.org = value;
+                          }
+                          activePage = 0;
+                          props.onFilterChanged(columnId, value);
+                          // Columnid la thu tu cot tren bang (ko tinh selection)
+                        }}
                       />
                     ),
                     Pagination: props => (
@@ -444,17 +444,17 @@ toggleGroupDialog={toggleGroupDialog}
                         page={activePage} rowsPerPageOptions={[5, 10, 20]}
                         count={props.count}
                         onChangePage={(e, nextPage) => {
-                        props.onChangePage(a, nextPage);
-                        // setActivePage(nextPage)
-                        activePage = nextPage;
-                      }}
-/>
+                          props.onChangePage(a, nextPage);
+                          // setActivePage(nextPage)
+                          activePage = nextPage;
+                        }}
+                      />
                     ),
                   }
                 }
                 columns={[
                   {
-                    title: '#', field: '#', type: 'numeric', cellStyle: { width: '100px' }, filtering: false, 
+                    title: '#', field: '#', type: 'numeric', cellStyle: { width: '100px' }, filtering: false,
                   },
                   { title: 'First name', field: 'firstName' },
                   { title: 'Last name', field: 'lastName' },
@@ -476,50 +476,50 @@ toggleGroupDialog={toggleGroupDialog}
                   searchString += `${search.mail ? `&mail=${search.mail}` : ''}`;
                   searchString += `${search.phone ? `&phone=${search.phone}` : ''}`;
                   searchString += `${search.org ? `&org=${search.org}` : ''}`;
-                  apiGet(`${GROUP_URL }/${selectingGroup
-                  }/contacts`
-                      + `?page=${activePage}&limit=${query.pageSize}${searchString}`, true).then((res) => {
-                    let data = [];
-                    let duplicateTime = 0;
-                    if (!disabledAction) {
-                      data = res.data.data.map((d, index) => ({
-                        '#': activePage * query.pageSize + index + 1,
-                        fullName: `${d.first_name } ${d.last_name}`,
-                        firstName: d.first_name,
-                        lastName: d.last_name,
-                        email: d.mail,
-                        phone: d.phone,
-                        org: d.org,
-                        id: d.id,
-                        contact: d,
-                      }),);
-                    } else {
-                      data = res.data.data.reduce((acc, d, index) => {
-                        if (!allContacts.some(c => c.id === d.id)) {
-                          acc.push({
-                            '#': activePage * query.pageSize + index + 1,
-                            fullName: `${d.first_name } ${d.last_name}`,
-                            firstName: d.first_name,
-                            lastName: d.last_name,
-                            email: d.mail,
-                            phone: d.phone,
-                            org: d.org,
-                            id: d.id,
-                            contact: d,
-                          });
-                        } else {
-                          duplicateTime += 1;
-                        }
-                        return acc;
-                      },
-                      []);
-                    }
-                    resolve({
-                      data,
-                      page: res.data.page,
-                      totalCount: res.data.total - duplicateTime,
+                  apiGet(`${GROUP_URL}/${selectingGroup
+                    }/contacts`
+                    + `?page=${activePage}&limit=${query.pageSize}${searchString}`, true).then((res) => {
+                      let data = [];
+                      let duplicateTime = 0;
+                      if (!disabledAction) {
+                        data = res.data.data.map((d, index) => ({
+                          '#': activePage * query.pageSize + index + 1,
+                          fullName: `${d.first_name} ${d.last_name}`,
+                          firstName: d.first_name,
+                          lastName: d.last_name,
+                          email: d.mail,
+                          phone: d.phone,
+                          org: d.org,
+                          id: d.id,
+                          contact: d,
+                        }));
+                      } else {
+                        data = res.data.data.reduce((acc, d, index) => {
+                          if (!allContacts.some(c => c.id === d.id)) {
+                            acc.push({
+                              '#': activePage * query.pageSize + index + 1,
+                              fullName: `${d.first_name} ${d.last_name}`,
+                              firstName: d.first_name,
+                              lastName: d.last_name,
+                              email: d.mail,
+                              phone: d.phone,
+                              org: d.org,
+                              id: d.id,
+                              contact: d,
+                            });
+                          } else {
+                            duplicateTime += 1;
+                          }
+                          return acc;
+                        },
+                          []);
+                      }
+                      resolve({
+                        data,
+                        page: res.data.page,
+                        totalCount: res.data.total - duplicateTime,
+                      });
                     });
-                  });
                 })
                 }
 

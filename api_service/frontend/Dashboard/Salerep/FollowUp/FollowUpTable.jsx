@@ -176,7 +176,7 @@ function FollowUpTable(props) {
       setMoreDialog(false);
       setMoreRow(null);
       console.log("PROMISE ALL:", res);
-      apiGet(ORDER_URL + "/" + res[0].id, false, true);
+      apiGet(ORDER_URL + "/" + res[0].data.id + '/invoice', true);
     });
   };
 

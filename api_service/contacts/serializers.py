@@ -88,13 +88,6 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Contact
         fields = '__all__'
-        validators = [
-            UniqueTogetherValidator(
-                queryset=models.Contact.objects.all(),
-                fields=('first_name', 'last_name', 'user'),
-                message='This contact is existed'
-            )
-        ]
 
     def to_internal_value(self, data):
         ret = super().to_internal_value(data)
@@ -129,8 +122,8 @@ class ContactSerializer(serializers.ModelSerializer):
 
     def validate_zipcode(self, value):
 
-        is_valid_zipcode = re.compile('^\d{6}$')
+        is_valid_zipcode = re.compile('^\d{5}$')
         if not is_valid_zipcode.match(str(value)) and value != '':
             raise serializers.ValidationError(
-                'Zipcode must be 6 digits in length')
+                'Zipcode must be 5 digits in length')
         return value

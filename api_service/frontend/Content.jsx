@@ -219,12 +219,12 @@ class Content extends React.Component {
                     <FollowUpPlanContainer {...props} user={user} />
                   )}
                 />
-                <Route
+                {/* <Route
                   path="/inbox"
                   component={props => (
                     <MailBoxContainer {...props} user={user} />
                   )}
-                />
+                /> */}
                 <Route path="/settings" component={SiteAdminContainer} />
                 <Route
                   path="/calendar"

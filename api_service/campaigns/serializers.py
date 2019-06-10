@@ -71,10 +71,16 @@ class NoteSerializer(serializers.ModelSerializer):
 
 
 class MarketingPlanSerializer(serializers.ModelSerializer):
+    can_remove = serializers.SerializerMethodField()
+
     class Meta:
         model = models.MarketingPlan
         fields = '__all__'
 
+    def get_can_remove(self, instance):
+        if instance.campaigns.all():
+            return False
+        return True
 
 class CreateMarketingPlanSerializer(serializers.ModelSerializer):
     manager = serializers.HiddenField(default=serializers.CurrentUserDefault())

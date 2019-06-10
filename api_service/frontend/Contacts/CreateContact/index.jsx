@@ -57,13 +57,12 @@ function CreateContact(props) {
       const groups = [].concat([{ ...allContactsGroup, label: allContactsGroup.name, value: allContactsGroup.id }])
       if (selectingGroup.id != allContactsGroup.id) {
         groups.push({
-          label: selectingGroup.name, value: selectingGroup.id
+          label: selectingGroup.name, value: selectingGroup.id, ...selectingGroup
         })
       }
       setCreateObj({ ...createObj, groups })
     }
   }, [props.groups.data.length])
-
 
 
   //Event Handler

@@ -73,47 +73,6 @@ function UserList(props) {
             ]}
           />
         </Grid>
-        <Grid item xs={12}>
-          <div style={{
-            display: 'grid', gridTemplateColumns: 'auto auto auto auto', gridGap: 10
-          }}>
-            <div style={{ padding: '20px 0' }}>
-              <h3>Bill to:</h3>
-              <p>Name</p>
-              <p>Address</p>
-              <p>Phone</p>
-              <p>Email</p>
-            </div>
-            <div style={{ padding: '20px 0' }}>
-              <h3>Product:</h3>
-              <p>Name</p>
-            </div>
-          </div>
-          <div style={{ position: 'relative' }}>
-            <table style={{ width: '100%' }} border="1">
-              <tr>
-                <th>Packages</th>
-                <th>Features</th>
-                <th>Quantity</th>
-                <th>Type</th>
-                <th>License</th>
-                <th>Pricing</th>
-              </tr>
-              <tr>
-                <td>Package 1</td>
-                <td>Feature 1</td>
-                <td>1</td>
-                <td>Unlimited</td>
-                <td>#3434234234</td>
-                <td style={{ textAlign: 'right' }}>$100</td>
-              </tr>
-              <tr>
-                <td colSpan={5} style={{ textAlign: 'right' }}>Total</td>
-                <td style={{ textAlign: 'right' }}>100</td>
-              </tr>
-            </table>
-          </div>
-        </Grid>
       </Grid>
     </div>
   )

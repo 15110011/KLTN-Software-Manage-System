@@ -209,6 +209,12 @@ class MarketingPlanView(ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    @action(detail=False, methods=['DELETE'])
+    def batchdelete(self, request):
+        marketing_plan = MarketingPlan.objects.filter(
+            id__in=request.data['marketing_plans']).delete()
+
+        return Response({"msg": 'OK'}, status=status.HTTP_200_OK)
 
 class FollowUpPlanView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
@@ -583,6 +589,8 @@ class ContactMarketingView(ModelViewSet):
             action=request.data['action'], contact_marketing=instance)
         serializer = ContactMarketingHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    
 
 
 class MailTemplateView(ModelViewSet):
