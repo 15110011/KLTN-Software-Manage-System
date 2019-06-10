@@ -241,7 +241,7 @@ class OrderView(ModelViewSet):
             instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
-        status = request.data.get('status', None)
+        status_ = request.data.get('status', None)
         # if status =='COMPLETED':
 
         return Response(serializer.data, status=status.HTTP_200_OK)

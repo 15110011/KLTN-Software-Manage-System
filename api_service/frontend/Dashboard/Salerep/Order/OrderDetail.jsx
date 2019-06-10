@@ -186,7 +186,7 @@ function OrderDetail(props) {
             </Grid>
           </Grid>
           <DialogActions style={{ float: 'left', marginLeft: '-4px' }}>
-            <Tooltip title="Send Email">
+            {/* <Tooltip title="Send Email">
               <Button
                 variant='contained'
                 classes={{
@@ -211,7 +211,7 @@ function OrderDetail(props) {
               >
                 <PhoneIcon fontSize="small" />
               </Button>
-            </Tooltip>
+            </Tooltip> */}
           </DialogActions>
         </Grid>
         <Grid className={classes.inputHeaderCustom} item xs={12}>

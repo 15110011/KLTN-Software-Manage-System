@@ -82,7 +82,7 @@ function Report(props) {
       <Grid container>
         <Grid item xs={12}>
           <Grid container spacing={24}>
-            <Grid item xs={3} className={classes.borderBox} style={{ display: 'inline-flex'}}>
+            <Grid item xs={3} className={classes.borderBox} style={{ display: 'inline-flex' }}>
               <Grid container style={{ height: '48px', color: '#82888a', border: '1px solid #dbdbdb' }}>
                 <Grid item xs={1}>
                   <StateIcon fontSize="small" />

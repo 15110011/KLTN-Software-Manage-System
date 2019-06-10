@@ -32,9 +32,11 @@ const styles = theme => ({
     }
   },
   datePick: {
-    '& div:nth-child(1)': {
-      width: '100%'
-    }
+    display: 'flex',
+    justifyContent: 'center',
+    // '& div:nth-child(1)': {
+    //   width: '100%'
+    // }
   }
 });
 

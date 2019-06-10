@@ -329,7 +329,7 @@ function ContactList(props) {
           <MenuItem onClick={() => setUpdateGroupDialog(true)}>Update Selecting Contact Group's Detail</MenuItem>}
       </Menu>
       <Grid classes={{ container: classes.fixTable }} container spacing={8}>
-        <Grid item xs={2} className='my-3'>
+        <Grid item xs={3} className='my-3'>
           <FormControl fullWidth className={classes.formControl}>
             <InputLabel>Contact Group</InputLabel>
             <Select
