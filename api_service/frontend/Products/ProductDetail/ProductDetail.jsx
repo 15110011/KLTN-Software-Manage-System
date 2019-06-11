@@ -1,7 +1,6 @@
 import * as React from 'react'
 import ReactDOM from 'react-dom';
 
-import MaterialTable from 'material-table'
 import { withStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
@@ -66,6 +65,8 @@ function ProductDetail(props) {
     add: '',
     labelWidth: 0
   })
+  const [packageDialog, setPackageDialog] = React.useState(false)
+
   const [featureDialog, setFeatureDialog] = React.useState(false)
   const [anchorEl, setAnchorEl] = React.useState(null)
   const [search, setSearch] = React.useState('')
@@ -74,6 +75,14 @@ function ProductDetail(props) {
   const [updatingUnit, setUpdatingUnit] = React.useState(-1)
   const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
   const [completeNotice, setCompleteNotice] = React.useState(false)
+  const [createPackage, setCreatePackage] = React.useState({
+    name: '',
+    prices:
+      { '1': '' },
+    discount: 0,
+    features: [],
+    numbers: []
+  })
   const [productDetailData, setProductDetailData] = React.useState({
     name: '',
     desc: '',
@@ -92,6 +101,23 @@ function ProductDetail(props) {
     ],
     features: []
   })
+
+  const handleChooseFeature = (packageIndex, feature, status) => {
+    let clonePackage = productDetailData.packages.concat([])
+
+    if (status) {
+      clonePackage[packageIndex].features.push(feature)
+      clonePackage[packageIndex].numbers.push(feature.number)
+    } else {
+      let featureIndex = clonePackage[packageIndex].features.findIndex(f=>{
+        return f.id == feature.id})
+      clonePackage[packageIndex].features = clonePackage[packageIndex].features.slice(0, featureIndex).concat(clonePackage[packageIndex].features.slice(featureIndex + 1))
+      clonePackage[packageIndex].numbers = clonePackage[packageIndex].numbers.slice(0, featureIndex).concat(clonePackage[packageIndex].numbers.slice(featureIndex + 1))
+      console.log(clonePackage[packageIndex].features ) 
+    }
+    setProductDetailData({ ...productDetailData, packages: clonePackage })
+  }
+
   const [createFeature, setCreateFeature] = React.useState({
     name: '',
     price: '',
@@ -144,7 +170,10 @@ function ProductDetail(props) {
     if (!Object.keys(err).length) {
       let number = 1
       if (features[features.length - 1]) { number = features[features.length - 1].number + 1 }
+      console.log(productDetailData)
       features.push({ ...createFeature, number })
+      console.log({ ...productDetailData, features })
+
       setProductDetailData({ ...productDetailData, features })
     }
     setCreateFeature({
@@ -194,16 +223,56 @@ function ProductDetail(props) {
         setProductDetailData({ ...res.data })
       })
   }
+
+  const handleOpenPackageDialog = () => {
+    setPackageDialog(true)
+  }
+
+  const handleClosePackageDialog = () => {
+    setPackageDialog(false)
+  }
+
+  const onChangeCreatePackage = (e) => {
+    // let clonePackage = createProduct.packages.concat([])
+    // clonePackage[packageIndex][e.target.name] = e.target.value
+    setCreatePackage({ ...createPackage, [e.target.name]: e.target.value })
+  }
+
+  const handleCreatePackage = e => {
+    const packages = productDetailData.packages.concat([])
+    packages.push({
+      name: createPackage.name,
+      prices:
+        { '1': '', '6': '', '12': '', '999999': '' }
+      ,
+      discount: 0,
+      features: [],
+      numbers: []
+    })
+    setProductDetailData({ ...productDetailData, packages })
+    handleClosePackageDialog()
+    setCreatePackage({
+      name: '',
+      prices:
+        { '1': '', '6': '', '12': '', '999999': '' }
+      ,
+      discount: 0,
+      features: [],
+      numbers: []
+    })
+  }
+
   const handleSave = e => {
+    console.log(1111)
     const id = props.match.params.id
     let { packages, features } = productDetailData
     packages.forEach(p => {
       p.numbers = p.numbers.map(n => n.number)
     })
-    packages = packages.map(p=>{
-      const {product_, ...rest} = p
+    packages = packages.map(p => {
+      const { product_, ...rest } = p
 
-      return {...rest}
+      return { ...rest }
     })
     apiPut(PRODUCTS_URL + '/' + id, { packages, features }, false, true)
       .then(res => {
@@ -567,33 +636,17 @@ function ProductDetail(props) {
                         ]}
                         data={
                           productDetailData.features.map((f, index) => {
-                            for (let y = 0; y < productDetailData.packages.length; y++) {
-                              if (productDetailData.packages[y].numbers.findIndex(i => {
-                                return i.number == f.number
-                              }) != -1) {
-                                return ({
-                                  numeral: (index + 1),
-                                  fname: (f.name),
-                                  fprice: (f.price),
-                                  fdesc: (f.desc),
-                                  action: <div></div>
-
-                                })
-                              } else {
-                                return ({
-                                  numeral: (index + 1),
-                                  fname: (f.name),
-                                  fprice: (f.price),
-                                  fdesc: (f.desc),
-                                  action:
-                                    <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
-                                      <DeleteIcon fontSize="small" />
-                                    </IconButton>
-                                })
-                              }
-                            }
-                          })
-                        }
+                            return ({
+                              numeral: (index + 1),
+                              fname: (f.name),
+                              fprice: (f.price),
+                              fdesc: (f.desc),
+                              action:
+                                <IconButton name="deleteFeature" onClick={(e) => handleDeleteFeature(e, index)} aria-label="Delete" className={classes.margin}>
+                                  <DeleteIcon fontSize="small" />
+                                </IconButton>
+                            })
+                          })}
                         actions={[
                           {
                             icon: 'add',
@@ -623,12 +676,39 @@ function ProductDetail(props) {
                       />
                     </Grid>
                   </Grid>
+                  <Grid container>
+                    <Grid item xs={12} className="d-flex justify-content-center mt-3">
+                      <Button onClick={handleResetData} variant="contained" className={classes.button}>
+                        RESET
+                      </Button>&nbsp;&nbsp;
+                      <Button onClick={handleSave} variant="contained" color="primary" className={classes.button}>
+                        SAVE
+                      </Button>
+                    </Grid>
+                  </Grid>
                 </TabContainer>
               }
               {value === 2 &&
                 <TabContainer>
                   <Grid item xs={12}>
-                    <FormPackage />
+                    <FormPackage
+                      handleCreatePackage={handleCreatePackage}
+                      createPackage={createPackage}
+                      onChangeCreatePackage={onChangeCreatePackage}
+                      packageDialog={packageDialog}
+                      handleClosePackageDialog={handleClosePackageDialog}
+                      handleOpenPackageDialog={handleOpenPackageDialog}
+                      handleProfileMenuOpen={handleProfileMenuOpen}
+                      createProduct={productDetailData}
+                      anchorEl={anchorEl}
+                      setAnchorEl={setAnchorEl}
+                      onRemoveLicenseType={onRemoveLicenseType}
+                      handleAddPackageForm={handleAddPackageForm}
+                      onLicenseTypeClick={onLicenseTypeClick}
+                      onChangeLicenseInput={onChangeLicenseInput}
+                      handleRemovePackageForm={handleRemovePackageForm}
+                      handleChangeSelect={handleChangeSelect}
+                    />
                   </Grid>
                   <Grid item xs={12}>
                     <MaterialTable
@@ -662,8 +742,8 @@ function ProductDetail(props) {
                                       ?
                                       <Checkbox
                                         color="primary"
-                                        checked={productDetailData.packages[index].numbers.includes(productDetailData.features[rowData.numeral - 1].number)}
-                                        onChange={(e, stt) => handleChooseFeature(index, rowData.numeral - 1, stt)}
+                                        checked={p.features.findIndex(f=> f.id === rowData.f.id)!==-1}
+                                        onChange={(e, stt) => handleChooseFeature(index, rowData.f, stt)}
                                         name="checkedFeature"
                                       />
                                       : <Grid container spacing={24}>
@@ -692,6 +772,7 @@ function ProductDetail(props) {
                               ...packages,
                               numeral: index + 1,
                               feature: f.name,
+                              f
                             }
                           )
                         }).concat(

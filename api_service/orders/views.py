@@ -128,6 +128,8 @@ class OrderChartView(ModelViewSet):
             return Response(chart_handler.success_deal_chart(duration, filter_cat, filters))
         if chart_type == 'overview':
             return Response(chart_handler.overview_chart(duration, filter_cat, filters))
+        if chart_type == 'running_campaign':
+            return Response(chart_handler.RunningCampaign(duration, filter_cat, request.user))
 
 
 class OrderView(ModelViewSet):

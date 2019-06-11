@@ -79,7 +79,7 @@ function FollowUpTableDetail(props) {
           setMoreRow({
             fname: d.contacts.first_name + ' ' + d.contacts.last_name,
             phone: d.contacts.phone,
-            email: d.contacts.mail,
+            mail: d.contacts.mail,
             campaignName: d.campaign.name,
             noSteps,
             progress,
@@ -88,10 +88,13 @@ function FollowUpTableDetail(props) {
             histories: d.history,
             allHistories: d.all_histories,
             packages: d.campaign.packages,
+            contact: d.contacts
           })
         }
       }
     })
+
+    console.log(moreRow)
 
   React.useEffect(() => {
     if (!first) {
@@ -153,7 +156,7 @@ function FollowUpTableDetail(props) {
       setMoreRow({
         fname: d.contacts.first_name + ' ' + d.contacts.last_name,
         phone: d.contacts.phone,
-        email: d.contacts.mail,
+        mail: d.contacts.mail,
         campaignName: d.campaign.name,
         noSteps,
         progress,
@@ -162,6 +165,7 @@ function FollowUpTableDetail(props) {
         histories: d.history,
         allHistories: d.all_histories,
         packages: d.campaign.packages,
+        contact: d.contacts
       })
     }
   }, [followUps.data.length])
@@ -177,7 +181,7 @@ function FollowUpTableDetail(props) {
     setMoreRow({
       fname: d.contacts.first_name + ' ' + d.contacts.last_name,
       phone: d.contacts.phone,
-      email: d.contacts.mail,
+      mail: d.contacts.mail,
       campaignName: d.campaign.name,
       noSteps,
       progress,
@@ -186,6 +190,7 @@ function FollowUpTableDetail(props) {
       histories: d.history,
       allHistories: d.all_histories,
       packages: d.campaign.packages,
+      contact: d.contacts
     })
     setIndexActive(index)
   }
@@ -331,7 +336,7 @@ function FollowUpTableDetail(props) {
                   id={moreRow.id}
                   moreRow={moreRow}
                   followup={moreRow.followup}
-                  // contact={followUps.data.contacts}
+                  contact={moreRow}
                   updateTable={() => { forceUpdate() }}
                   user={user}
                 /> : 'No record to display'

@@ -481,7 +481,7 @@ function FollowUpTable(props) {
                         fname:
                           d.contacts.first_name + " " + d.contacts.last_name,
                         phone: d.contacts.phone,
-                        email: d.contacts.mail,
+                        mail: d.contacts.mail,
                         state: stateHash[d.contacts.state],
                         campaignName: d.campaign.name,
                         noSteps,

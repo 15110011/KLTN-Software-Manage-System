@@ -233,6 +233,11 @@ const cities = {
     "Los Banos",
     "Martinez"
   ],
+  "American Samoa": [
+    "Pago Pago",
+    "Tāfuna",
+    "Leone"
+  ],
   "Illinois": [
     "Chicago",
     "Aurora",
