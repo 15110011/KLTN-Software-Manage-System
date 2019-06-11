@@ -180,7 +180,7 @@ const SidebarComponent = props => {
                     style={{ maxHeight: '350px', overflow: 'scroll' }}
                   >
                     <ClickAwayListener onClickAway={handleCloseNoti}>
-                    <Notification notifications={notificationData} />
+                      <Notification notifications={notificationData} />
                     </ClickAwayListener>
                   </Paper>
                 </Grow>
@@ -485,18 +485,20 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Calendar" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem
-                button
-                className={classes.nested}
-                onClick={() => props.history.push('/settings')}
-                classes={{ selected: classes.listItemSlected }}
-                selected={selecting == 'settings'}
-              >
-                <ListItemIcon>
-                  <SettingsIcon classes={{ root: classes.listItemIcon }} />
-                </ListItemIcon>
-                <ListItemText inset primary="Settings" classes={{ primary: classes.listItemText }} />
-              </ListItem>
+              {
+                user.is_superuser &&
+                <ListItem
+                  button
+                  className={classes.nested}
+                  onClick={() => props.history.push('/settings')}
+                  classes={{ selected: classes.listItemSlected }}
+                  selected={selecting == 'settings'}
+                >
+                  <ListItemIcon>
+                    <SettingsIcon classes={{ root: classes.listItemIcon }} />
+                  </ListItemIcon>
+                  <ListItemText inset primary="Settings" classes={{ primary: classes.listItemText }} />
+                </ListItem>}
             </List>
           </Collapse>
         </List>

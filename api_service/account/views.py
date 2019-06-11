@@ -128,7 +128,7 @@ class UserView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects
     serializer_class = serializers.MeSerializer
-    http_method_names = ['get']
+    http_method_names = ['get', 'delete']
 
     def list(self, request, *args, **kwargs):
 
@@ -136,6 +136,12 @@ class UserView(viewsets.ModelViewSet):
 
         return Response({"data": serializer.data, "total": len(serializer.data)})
 
+    @action(detail=False, methods=['DELETE'])
+    def batchdelete(self, request):
+        user = User.objects.filter(
+            id__in=request.data['ids']).delete()
+
+        return Response({"msg": 'OK'}, status=status.HTTP_200_OK)
 
 class SaleRepView(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)

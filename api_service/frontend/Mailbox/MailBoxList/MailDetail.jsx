@@ -65,6 +65,8 @@ function MailDetail(props) {
     disabledAddConversation
   } = props;
 
+  console.log(contact)
+
   const [expanded, setExpanded] = React.useState(null);
   const [noExpand, setNoExpand] = React.useState([]);
   const [open, setOpen] = React.useState(true);

@@ -136,10 +136,7 @@ class RegisterSerializer(serializers.ModelSerializer, TokenObtainPairSerializer)
                     detail={'message': 'Username already existed'})
         except User.DoesNotExist:
             self.user = User.objects.create_user(**validated_data)
-            self.user.is_active = False
             self.user.save()
-            queue = django_rq.get_queue('default', is_async=True)
-            queue.enqueue(send_email_register, self.user)
             new_profile = models.Profile(
                 user=self.user, is_manager=profile['is_manager'], phone=profile['phone'], company_name=profile['company_name'])
             new_profile.save()
