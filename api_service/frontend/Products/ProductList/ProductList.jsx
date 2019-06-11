@@ -10,6 +10,7 @@ import { TablePagination } from '@material-ui/core';
 import { apiGet, apiDelete } from '../../common/Request';
 import { arrayOf } from 'prop-types';
 import CreateProduct from '../CreateProduct/CreateProduct'
+import { spawn } from 'child_process';
 
 const styles = theme => ({
   root: {
@@ -88,7 +89,11 @@ function ProductList(props) {
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Description', field: 'description', filtering: false },
+              { title: 'Description', field: 'description', filtering: false, render: (row)=>{
+                return (
+                  <span dangerouslySetInnerHTML={{__html: row.description}}></span>
+                )
+              }  },
               {
                 title: 'Status',
                 field: 'status',

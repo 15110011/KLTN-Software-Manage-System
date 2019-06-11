@@ -71,8 +71,8 @@ function CreateProduct(props) {
 
   const [updateFeatureBtn, setUpdateFeatureBtn] = React.useState(false)
   const [error, setError] = React.useState({})
-  const [categoryData, setCategoryData, setURLCategory, forceUpdateCategory] = useFetchData(PRODUCT_CATEGORIES_URL, props.history, {})
-  const [productTypeData, setProductTypeData, setURLProductType, forceUpdateProductType] = useFetchData(PRODUCT_TYPES_URL, props.history, {})
+  const [categoryData, setCategoryData, setURLCategory, forceUpdateCategory] = useFetchData(PRODUCT_CATEGORIES_URL, props.history, { data: [] })
+  const [productTypeData, setProductTypeData, setURLProductType, forceUpdateProductType] = useFetchData(PRODUCT_TYPES_URL, props.history, { data: [] })
   const [editorState, setEditorState] = React.useState(htmlToState(""))
 
   const [createProduct, setCreateProduct] = React.useState({
@@ -92,8 +92,15 @@ function CreateProduct(props) {
       // }
     ],
     features: [],
-    product_type: '',
-    category: ''
+    product_type: {
+      name: '',
+      id: ''
+    },
+    category: {
+
+      name: '',
+      id: ''
+    }
   })
 
   const [createPackage, setCreatePackage] = React.useState({
@@ -197,7 +204,7 @@ function CreateProduct(props) {
 
   const handleChangeCategoryAndType = (values, element) => {
     // const products = 
-    createProduct[element.name] = values.value
+    createProduct[element.name] = values
     setCreateProduct({ ...createProduct })
   }
 
@@ -366,6 +373,10 @@ function CreateProduct(props) {
   const apiPostProduct = () => {
     const cloneProduct = JSON.parse(JSON.stringify(createProduct))
     cloneProduct.desc = draftToRaw(editorState)
+    console.log(cloneProduct)
+
+    cloneProduct.product_type = cloneProduct.product_type.id
+    cloneProduct.category = cloneProduct.category.id
     if (tabIndex == 0) {
       delete cloneProduct.features
       delete cloneProduct.packages
@@ -545,18 +556,19 @@ function CreateProduct(props) {
                         </Grid>
                         <Grid item xs={8}>
                           <SelectCustom
-                            options={Object.values(productTypeData).map((g, i) => ({
+                            options={productTypeData.data.map((g, i) => ({
                               label: `${g.name}`,
                               value: `${g.id}`,
+                              ...g
                             }))}
                             handleChange={(values, element) => handleChangeCategoryAndType(values, element)}
-                            // data={
-                            //   createProduct.actions
-                            //     .reduce((acc, g) => {
-                            //       acc.push({ label: `${g.label}`, value: g.value })
-                            //       return acc
-                            //     }, [])
-                            // }
+                            data={
+                              {
+                                label: createProduct.product_type.name,
+                                value: createProduct.product_type.id,
+                                ...createProduct.product_type
+                              }}
+
                             single
                             placeholder=""
                             label=""
@@ -581,18 +593,19 @@ function CreateProduct(props) {
                         </Grid>
                         <Grid item xs={8}>
                           <SelectCustom
-                            options={Object.values(categoryData).map((g, i) => ({
+                            options={categoryData.data.map((g, i) => ({
                               label: `${g.name}`,
                               value: `${g.id}`,
+                              ...g
                             }))}
                             handleChange={(values, element) => handleChangeCategoryAndType(values, element)}
-                            // data={
-                            //   createStep.actions
-                            //     .reduce((acc, g) => {
-                            //       acc.push({ label: `${g.label}`, value: g.value })
-                            //       return acc
-                            //     }, [])
-                            // }
+                            data={
+                              {
+                                label: createProduct.category.name,
+                                value: createProduct.category.id,
+                                ...createProduct.category
+                              }
+                            }
                             single
                             name="category"
                             placeholder=""

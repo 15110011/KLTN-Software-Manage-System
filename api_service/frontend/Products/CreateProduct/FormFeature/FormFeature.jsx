@@ -34,9 +34,8 @@ function FormFeature(props) {
     handleOpenFeatureDialog,
     handleCreateFeature,
     onClickUpdateFeature,
-    updateFeatureBtn
+    updateFeatureBtn,
   } = props;
-
   return (
     <div className={classes.root}>
       <Dialog

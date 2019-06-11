@@ -204,6 +204,7 @@ const SidebarComponent = props => {
           onClose={() => setAnchorEl(null)}
         >
 
+          <MenuItem>{user.username == 'admin' ? 'Admin' : user.username}</MenuItem>
           <MenuItem onClick={() => props.history.push('/logout')}>Log out</MenuItem>
         </Menu>
       </AppBar>
@@ -228,77 +229,87 @@ const SidebarComponent = props => {
         </div>
         <Divider light />
         <List>
-          <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
-            <ListItemIcon>
-              <PersonalIcon classes={{ root: classes.listItemIcon }} />
-            </ListItemIcon>
-            <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemTextHeader }} />
-          </ListItem>
-          <Divider classes={{ root: classes.divider }} />
-          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
-            onClick={() => setToggle(!toggle)}
-          // classes={{ selected: classes.listItemSlected }}
-          >
-            <ListItemIcon>
-              <TheaterIcon classes={{ root: classes.listItemIcon }} />
-            </ListItemIcon>
-            <ListItemText
-              primary="MARKETING"
-              classes={{ primary: classes.listItemTextHeader }}
-            />
-            {toggle ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={toggle} timeout="auto" unmountOnExit>
-            <List component="div" disablePadding>
-              <ListItem
-                classes={{ selected: classes.listItemSlected }}
-                selected={selecting == 'marketing-plans'}
-                button
-                className={classes.nested}
-                onClick={() => props.history.push('/marketing-plans')}>
+          {
+            !user.is_superuser &&
+            <>
+              <ListItem style={{ cursor: 'pointer' }} onClick={() => props.history.push('/contacts')} classes={{ selected: classes.listItemSlected }} selected={selecting == 'contacts'}>
                 <ListItemIcon>
-                  <MarketingListIcon classes={{ root: classes.listItemIcon }} />
+                  <PersonalIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Marketing Plans" classes={{ primary: classes.listItemText }} />
+                <ListItemText inset primary="CONTACT" classes={{ primary: classes.listItemTextHeader }} />
               </ListItem>
-              <ListItem
-                button
-                className={classes.nested}
-                onClick={() => props.history.push('/email-templates')}
-                classes={{ selected: classes.listItemSlected }}
-                selected={selecting == 'email-templates'}
+              <Divider classes={{ root: classes.divider }} />
+            </>
+          }
+          {
+            !user.is_superuser &&
+            <>
+              <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+                onClick={() => setToggle(!toggle)}
+              // classes={{ selected: classes.listItemSlected }}
               >
                 <ListItemIcon>
-                  <EmailTemplateIcon classes={{ root: classes.listItemIcon }} />
+                  <TheaterIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
-                <ListItemText inset primary="Email Templates" classes={{ primary: classes.listItemText }} />
+                <ListItemText
+                  primary="MARKETING"
+                  classes={{ primary: classes.listItemTextHeader }}
+                />
+                {toggle ? <ExpandLess /> : <ExpandMore />}
               </ListItem>
-              <ListItem
-                button
-                className={classes.nested}
-                onClick={() => props.history.push('/follow-up-plans')}
-                classes={{ selected: classes.listItemSlected }}
-                selected={selecting == 'follow-up-plans'}
-              >
-                <ListItemIcon>
-                  <FollowUpPlanIcon classes={{ root: classes.listItemIcon }} />
-                </ListItemIcon>
-                <ListItemText inset primary="Follow-up Plans" classes={{ primary: classes.listItemText }} />
-              </ListItem>
-              <ListItem
-                button
-                className={classes.nested}
-                onClick={() => props.history.push('/campaigns')}
-                classes={{ selected: classes.listItemSlected }}
-                selected={selecting == 'campaigns'}
-              >
-                <ListItemIcon>
-                  <CampaignIcon classes={{ root: classes.listItemIcon }} />
-                </ListItemIcon>
-                <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
-              </ListItem>
-            </List>
-          </Collapse>
+              <Collapse in={toggle} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem
+                    classes={{ selected: classes.listItemSlected }}
+                    selected={selecting == 'marketing-plans'}
+                    button
+                    className={classes.nested}
+                    onClick={() => props.history.push('/marketing-plans')}>
+                    <ListItemIcon>
+                      <MarketingListIcon classes={{ root: classes.listItemIcon }} />
+                    </ListItemIcon>
+                    <ListItemText inset primary="Marketing Plans" classes={{ primary: classes.listItemText }} />
+                  </ListItem>
+                  <ListItem
+                    button
+                    className={classes.nested}
+                    onClick={() => props.history.push('/email-templates')}
+                    classes={{ selected: classes.listItemSlected }}
+                    selected={selecting == 'email-templates'}
+                  >
+                    <ListItemIcon>
+                      <EmailTemplateIcon classes={{ root: classes.listItemIcon }} />
+                    </ListItemIcon>
+                    <ListItemText inset primary="Email Templates" classes={{ primary: classes.listItemText }} />
+                  </ListItem>
+                  <ListItem
+                    button
+                    className={classes.nested}
+                    onClick={() => props.history.push('/follow-up-plans')}
+                    classes={{ selected: classes.listItemSlected }}
+                    selected={selecting == 'follow-up-plans'}
+                  >
+                    <ListItemIcon>
+                      <FollowUpPlanIcon classes={{ root: classes.listItemIcon }} />
+                    </ListItemIcon>
+                    <ListItemText inset primary="Follow-up Plans" classes={{ primary: classes.listItemText }} />
+                  </ListItem>
+                  <ListItem
+                    button
+                    className={classes.nested}
+                    onClick={() => props.history.push('/campaigns')}
+                    classes={{ selected: classes.listItemSlected }}
+                    selected={selecting == 'campaigns'}
+                  >
+                    <ListItemIcon>
+                      <CampaignIcon classes={{ root: classes.listItemIcon }} />
+                    </ListItemIcon>
+                    <ListItemText inset primary="Campaigns" classes={{ primary: classes.listItemText }} />
+                  </ListItem>
+                </List>
+              </Collapse>
+            </>
+          }
           <Divider classes={{ root: classes.divider }} />
           <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
             onClick={() => setToggle1(!toggle1)}
@@ -338,7 +349,7 @@ const SidebarComponent = props => {
                 </ListItemIcon>
                 <ListItemText inset primary="Products" classes={{ primary: classes.listItemText }} />
               </ListItem>
-              <ListItem
+              {/* <ListItem
                 button
                 className={classes.nested}
                 onClick={() => props.history.push('/invoices')}
@@ -349,7 +360,7 @@ const SidebarComponent = props => {
                   <InvoiceIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Invoices" classes={{ primary: classes.listItemText }} />
-              </ListItem>
+              </ListItem> */}
               {/* <ListItem
                 button
                 className={classes.nested}
@@ -418,7 +429,7 @@ const SidebarComponent = props => {
             </List>
           </Collapse>
           <Divider classes={{ root: classes.divider }} />
-          <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
+          {/* <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
             onClick={() => setToggle3(!toggle3)}
           >
             <ListItemIcon>
@@ -432,7 +443,7 @@ const SidebarComponent = props => {
           </ListItem>
           <Collapse in={toggle3} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              {/* <ListItem
+              <ListItem
                 button
                 className={classes.nested}
                 onClick={() => props.history.push('/inbox')}
@@ -443,7 +454,7 @@ const SidebarComponent = props => {
                   <InboxIcon classes={{ root: classes.listItemIcon }} />
                 </ListItemIcon>
                 <ListItemText inset primary="Inbox" classes={{ primary: classes.listItemText }} />
-              </ListItem> */}
+              </ListItem>
               <ListItem
                 button
                 className={classes.nested}
@@ -457,7 +468,7 @@ const SidebarComponent = props => {
                 <ListItemText inset primary="Notes" classes={{ primary: classes.listItemText }} />
               </ListItem>
             </List>
-          </Collapse>
+          </Collapse> */}
           <Divider classes={{ root: classes.divider }} />
           <ListItem button classes={{ root: classes.listItemBgr, selected: classes.listItemSlected }}
             onClick={() => setToggle4(!toggle4)}

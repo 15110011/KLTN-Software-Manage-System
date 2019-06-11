@@ -37,6 +37,45 @@ def overview_chart(duration, target, filters):
                   'waiting': waiting_list, 'follow_up': follow_up}
     return {"data": result}
 
+def RunningCampaign(duration, target, user):
+    processing = {k: 0 for k in statesHashes}
+    result = []
+    if duration == 'month':
+        filters = Q()
+        filters.add(Q(created__gte=start_date_of_year), Q.AND)
+        filters.add(Q(assigned_to=user), Q.AND)
+        filters.add(Q(start_date__month=target) |
+                    Q(end_date__month=target), Q.AND)
+        # Campaign is running this month
+        queryset = Campaign.objects.filter(filters)
+        # serializer = CampaignSerializer(queryset, many=True)
+        for r in queryset:
+            for c in r.marketing_plan.condition['must']:
+                if c['operand'] == '1' and c['operator'] == 'Equal to':
+                    if isinstance(c['data'], list):
+                        for s in c['data']:
+                            # for c in r.contact_marketing_plan.all():
+                            # print(c)
+                            processing[s] += 1
+                                # processing[s] +=
+                    else:
+                        processing[c['data']] += 1
+                elif c['operand'] == '1' and c['operator'] == 'Not equal to':
+                    if isinstance(c['data'], list):
+                        for s in c['data']:
+                            processing = {k:(v+1 if k != s else v) for k, v in processing.items()}
+                    else:
+                        processing = {k:(v+1 if k != c['data'] else v) for k, v in processing.items()}
+        processing = dict(
+            sorted(processing.items(), key=itemgetter(1), reverse=True))
+        for i in range(6):
+            if processing[list(processing.keys())[i]] != 0:
+                result.append({"code": list(processing.keys())[i],
+                        "amount": processing[list(processing.keys())[i]]})
+            else:
+                break
+
+    return {"data":result}
 
 def state_chart(duration, target, filters):
     result = []

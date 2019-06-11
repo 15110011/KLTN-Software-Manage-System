@@ -94,7 +94,7 @@ function SalerepDashboard(props) {
   };
 
   const [stateData, setStateData, setUrl, forceUpdate] = useFetchData(
-    `${ORDER_CHART_URL}?chart_type=state&duration=month`,
+    `${ORDER_CHART_URL}?chart_type=running_campaign&duration=month`,
     null,
     {
       data: [],
@@ -124,7 +124,6 @@ function SalerepDashboard(props) {
   const forceOrder = () => {
     tableOrderUpRef.current.onQueryChange();
   };
-
   const regionData = stateData.data.reduce((acc, d) => {
     acc[`US-${d.code}`] = d.amount;
     return acc;
