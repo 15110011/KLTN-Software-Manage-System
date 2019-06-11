@@ -4,6 +4,13 @@ import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from '@material-ui/core';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import IconButton from '@material-ui/core/IconButton';
@@ -17,7 +24,6 @@ import Tooltip from '@material-ui/core/Tooltip';
 
 // Components
 import AsyncSelect from '../../components/AsyncSelectCustom';
-
 import stateHashes from '../../common/StateHash';
 
 import CreateMarketingPlan from '../../MarketingPlan/CreateMarketingPlan';
@@ -43,6 +49,7 @@ function MarketingPlanDetails(props) {
     setIsEditMarketingPlan,
     notification,
   } = props;
+  const [previewTemplate, setPreviewTemplate] = React.useState(null);
 
   const [
     createMarketingPlanDialog,
@@ -63,6 +70,81 @@ function MarketingPlanDetails(props) {
               ))
             }
       </Grid> */}
+      {previewTemplate && (
+        <Dialog
+          open
+          onClose={() => {
+            setPreviewTemplate(null);
+          }}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>
+            <div>{previewTemplate.name}</div>
+          </DialogTitle>
+          <DialogContent>
+            <Grid container spacing={24}>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} style={{ position: 'relative' }}>
+                    <InputLabel htmlFor="custom-css-standard-input" required>
+                      Subject
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <div>{previewTemplate.subject}</div>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} style={{ position: 'relative' }}>
+                    <InputLabel htmlFor="custom-css-standard-input" required>
+                      Template
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Grid container spacing="8">
+                      <Grid item xs={12}>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: previewTemplate.template,
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <div
+                          style={{
+                            paddingTop: '10px',
+                            border: '1px solid #F1F1F1',
+                            height: '100%',
+                          }}
+                        >
+                          <p
+                            style={{
+                              padding: '10px',
+                              fontSize: '20px',
+                              fontStyle: 'italic',
+                              fontWeight: 'bold',
+                            }}
+                          >
+                            System Variables
+                          </p>
+                          <ul>
+                            <li style={{ listStyleType: 'circle' }}>
+                              $contact_name$: Your customer name
+                            </li>
+                          </ul>
+                        </div>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </DialogContent>
+        </Dialog>
+      )}
       {createMarketingPlanDialog && (
         <React.Fragment>
           {isEditMarketingPlan ? (
@@ -372,6 +454,11 @@ function MarketingPlanDetails(props) {
                     <IconButton
                       aria-label="Preview"
                       classes={{ root: classes.fixButton }}
+                      onClick={() => {
+                        setPreviewTemplate(
+                          createCampaign.marketing_plan.mail_template,
+                        );
+                      }}
                     >
                       <PreviewIcon style={{ fontSize: '16px' }} />
                     </IconButton>
@@ -385,24 +472,33 @@ function MarketingPlanDetails(props) {
           <Grid container spacing={24}>
             <Grid item xs={12} style={{ marginTop: '20px' }}>
               <Button
-                onClick={e => handleApplyConditionTable(e)}
+                onClick={(e) => {
+                  if (createCampaign.marketing_plan.name) {
+                    handleApplyConditionTable(e);
+                  } else {
+                  }
+                }}
                 variant="contained"
                 color="primary"
               >
                 Filter
               </Button>
             </Grid>
+            {!createCampaign.marketing_plan.name && (
+              <div className="text-muted small w-100">
+                <i>*Select marketing plan and contact groups to filter</i>
+              </div>
+            )}
           </Grid>
         </Grid>
-        {applyConditionTable === true && (
+        {applyConditionTable === true && createCampaign.marketing_plan.name && (
           <Grid
             classes={{ container: classes.fixTable }}
             container
-            spacing={24}
-            className="mt-4"
+            className="mt-4 d-flex justify-content-center"
           >
             <Divider />
-            <Grid item xs={12}>
+            <div style={{ width: '85%', marginBottom: '8px' }}>
               <MaterialTable
                 columns={[
                   {
@@ -414,6 +510,12 @@ function MarketingPlanDetails(props) {
                   },
                   { title: 'First Name', field: 'fname' },
                   { title: 'Last Name', field: 'lname' },
+                  {
+                    title: 'State',
+                    field: 'state',
+                    render: row => stateHashes[row.state],
+                  },
+
                   { title: 'Email', field: 'email' },
                   { title: 'Phone', field: 'phone' },
                   { title: 'Orgnization', field: 'org' },
@@ -425,6 +527,7 @@ function MarketingPlanDetails(props) {
                   email: c.mail,
                   phone: c.phone,
                   org: c.org,
+                  state: c.state,
                   id: c.id,
                 }))}
                 title="Contacts List"
@@ -454,7 +557,7 @@ function MarketingPlanDetails(props) {
                   paging: true,
                 }}
               />
-            </Grid>
+            </div>
           </Grid>
         )}
       </Grid>

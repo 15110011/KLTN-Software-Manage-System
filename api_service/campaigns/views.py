@@ -18,7 +18,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.exceptions import MethodNotAllowed
 
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
-from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer,ContactMarketingSerializer2
+from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer, ContactMarketingSerializer2
 import json
 
 
@@ -166,7 +166,8 @@ class MarketingPlanView(ModelViewSet):
             marketing_plans = []
             for mp in search.to_queryset():
                 #cur_mail= MailTemplate.objects.get(id=mp.mail_template)
-                mp = {**model_to_dict(mp), "mail_template": model_to_dict(mp.mail_template)}
+                mp = {
+                    **model_to_dict(mp), "mail_template": model_to_dict(mp.mail_template)}
                 marketing_plans.append(mp)
             return {"marketing_plans": marketing_plans, "elastic_search": True}
 
@@ -214,6 +215,7 @@ class MarketingPlanView(ModelViewSet):
             id__in=request.data['marketing_plans']).delete()
 
         return Response({"msg": 'OK'}, status=status.HTTP_200_OK)
+
 
 class FollowUpPlanView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
@@ -310,7 +312,7 @@ class CampaignView(ModelViewSet):
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
         type_ = request.query_params.get('type', 'manager')
-        selecting_state = request.query_params.get('selectingState' , None)
+        selecting_state = request.query_params.get('selectingState', None)
         # Filter
         campaign_name = request.query_params.get('campaign_name', None)
         product_name = request.query_params.get('product_name', None)
@@ -322,8 +324,10 @@ class CampaignView(ModelViewSet):
         campaign_status = request.query_params.get('status', None)
         if selecting_state:
             filters.add(~Q(marketing_plan__condition__must__operand='1'), Q.OR)
-            filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
-            filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
+            filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(
+                marketing_plan__condition__must__data__any=selecting_state), Q.OR)
+            filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(
+                marketing_plan__condition__must__data__any=selecting_state), Q.OR)
         if campaign_name:
             filters.add(Q(name__icontains=campaign_name), Q.AND)
 
@@ -351,7 +355,8 @@ class CampaignView(ModelViewSet):
         if type_ == 'both':
             filters.add(Q(assigned_to=request.user), Q.OR)
             if selecting_state:
-                filters.add(Q(marketing_plan__condition__must__contains={"operand":'2'}),Q.AND)
+                filters.add(
+                    Q(marketing_plan__condition__must__contains={"operand": '2'}), Q.AND)
                 #filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
                 #filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
 
@@ -503,7 +508,8 @@ class ContactMarketingView(ModelViewSet):
     serializer_class = ContactMarketingSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = ContactMarketingSerializer2(data=request.data, context={"request": request})
+        serializer = ContactMarketingSerializer2(
+            data=request.data, context={"request": request})
         serializer.is_valid()
         created = self.perform_create(serializer)
         return Response(created)
@@ -588,8 +594,6 @@ class ContactMarketingView(ModelViewSet):
         serializer = ContactMarketingHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    
-
 
 class MailTemplateView(ModelViewSet):
 
@@ -617,4 +621,3 @@ class MailTemplateView(ModelViewSet):
         }
 
         return Response(new_data, status=status.HTTP_200_OK)
-

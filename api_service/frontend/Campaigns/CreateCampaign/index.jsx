@@ -418,7 +418,7 @@ function CreateCampaign(props) {
           onClose={handleCloseCreateCampaignDialog}
           classes={{ paper: classes.paperRoot }}
           fullWidth
-          maxWidth="lg"
+          maxWidth="md"
         >
           <DialogTitle
             style={{ position: "relative" }}

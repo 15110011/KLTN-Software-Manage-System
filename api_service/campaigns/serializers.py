@@ -56,6 +56,7 @@ def send_email_api_step(user, to_address, from_address, subject, message, step_d
 class MailTemplateSerializer(serializers.ModelSerializer):
 
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+    id = serializers.IntegerField(required=False)
 
     class Meta:
         model = models.MailTemplate
@@ -72,6 +73,7 @@ class NoteSerializer(serializers.ModelSerializer):
 
 class MarketingPlanSerializer(serializers.ModelSerializer):
     can_remove = serializers.SerializerMethodField()
+    mail_template = MailTemplateSerializer()
 
     class Meta:
         model = models.MarketingPlan
@@ -81,6 +83,16 @@ class MarketingPlanSerializer(serializers.ModelSerializer):
         if instance.campaigns.all():
             return False
         return True
+
+    def update(self, instance, validated_data):
+        mail_template = validated_data.pop('mail_template', None)
+        instance = super().update(instance, validated_data)
+        if mail_template:
+            instance.mail_template = models.MailTemplate.objects.get(
+                id=mail_template['id'])
+            instance.save()
+        return instance
+
 
 class CreateMarketingPlanSerializer(serializers.ModelSerializer):
     manager = serializers.HiddenField(default=serializers.CurrentUserDefault())
@@ -129,6 +141,8 @@ class CreateFollowUpPlanSerializer(serializers.ModelSerializer):
                     step.actions = item.get('actions', step.actions)
                     step.duration = item.get('duration', step.duration)
                     step.conditions = item.get('conditions', step.conditions)
+                    step.mail_template = item.get(
+                        'mail_template', step.mail_template)
                     step.save()
                 except:
                     step = Step(**item)
@@ -315,6 +329,7 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
                     'request').user, cur_contact.mail, "theaqvteam@gmail.com", steps[0].mail_template.subject, handle_mail_template.manipulate_template(steps[0].mail_template.template, contact=cur_contact), step_details[0].id)
 
         return instance
+
 
 class ContactMarketingSerializer2(serializers.ModelSerializer):
 

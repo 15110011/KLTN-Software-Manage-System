@@ -1,6 +1,12 @@
 import * as React from "react";
 import MaterialTable from "material-table";
 import { withStyles } from "@material-ui/core/styles";
+import {
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  DialogContent
+} from "@material-ui/core";
 import Paper from "@material-ui/core/Paper";
 import Grid from "@material-ui/core/Grid";
 import ProductIcon from "@material-ui/icons/Archive";
@@ -28,6 +34,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import IconButton from "@material-ui/core/IconButton";
 import CategoryIcon from "@material-ui/icons/Category";
+import PreviewIcon from "@material-ui/icons/RemoveRedEye";
 import CustomSnackbar from "../../components/CustomSnackbar";
 
 import stateHashes from "../../common/StateHash";
@@ -38,7 +45,8 @@ import useFetchData from "../../CustomHook/useFetchData";
 import {
   MARKETING_PLANS_URL,
   MARKETING_PLANS_CONDITIONS_URL,
-  REFRESH_TOKEN_URL
+  REFRESH_TOKEN_URL,
+  MAIL_TEMPLATES_URL
 } from "../../common/urls";
 import { apiPost, apiPatch } from "../../common/Request";
 import { BAD_REQUEST } from "../../common/Code";
@@ -72,6 +80,16 @@ function MarketingPlanDetail(props) {
     actions: [],
     manager: ""
   });
+
+  const [previewTemplate, setPreviewTemplate] = React.useState(null);
+
+  const [
+    mailTemplate,
+    setEmailTemplateData,
+    setEmailTemplateURL,
+    forceUpdateEmailTemplate
+  ] = useFetchData(MAIL_TEMPLATES_URL, props.history, { data: [], total: 0 });
+
   const [titleStt, setTitleStt] = React.useState("VIEW");
   const [value, setValue] = React.useState(0);
   const [cloneDetail, setCloneDetail] = React.useState({});
@@ -133,9 +151,10 @@ function MarketingPlanDetail(props) {
   };
 
   const handleSavePlanDetail = () => {
+    const { can_remove, ...rest } = marketingPlanDetail;
     apiPatch(
       MARKETING_PLANS_URL + "/" + marketingPlanId,
-      { ...marketingPlanDetail },
+      { ...rest },
       false,
       true
     ).then(json => {
@@ -158,6 +177,95 @@ function MarketingPlanDetail(props) {
       <BreadcrumbsItem to={`/marketing-plans/ + ${marketingPlanId}`}>
         {marketingPlanDetail.name}
       </BreadcrumbsItem>
+      {previewTemplate && (
+        <Dialog
+          open
+          onClose={() => {
+            setPreviewTemplate(null);
+          }}
+          fullWidth
+          maxWidth="md"
+        >
+          <DialogTitle>
+            <div>{previewTemplate.name}</div>
+          </DialogTitle>
+          <DialogContent>
+            <Grid container spacing={24}>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} style={{ position: "relative" }}>
+                    <InputLabel
+                      htmlFor="custom-css-standard-input"
+                      classes={{
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }}
+                      required
+                    >
+                      Subject
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <div>{previewTemplate.subject}</div>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={2} style={{ position: "relative" }}>
+                    <InputLabel
+                      htmlFor="custom-css-standard-input"
+                      classes={{
+                        root: classes.cssLabel,
+                        focused: classes.cssFocused
+                      }}
+                      required
+                    >
+                      Template
+                    </InputLabel>
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Grid container spacing="8">
+                      <Grid item xs={12}>
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html: previewTemplate.template
+                          }}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <div
+                          style={{
+                            paddingTop: "10px",
+                            border: "1px solid #F1F1F1",
+                            height: "100%"
+                          }}
+                        >
+                          <p
+                            style={{
+                              padding: "10px",
+                              fontSize: "20px",
+                              fontStyle: "italic",
+                              fontWeight: "bold"
+                            }}
+                          >
+                            System Variables
+                          </p>
+                          <ul>
+                            <li style={{ listStyleType: "circle" }}>
+                              $contact_name$: Your customer name
+                            </li>
+                          </ul>
+                        </div>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </DialogContent>
+        </Dialog>
+      )}
       <div className={classes.paper}>
         <Grid container spacing={8} style={{ margin: "unset" }}>
           <div className={classes.wrapAvatar}>
@@ -295,6 +403,43 @@ function MarketingPlanDetail(props) {
                         fullWidth
                         multi
                       />
+                    </Grid>
+                    <Grid item xs={4}>
+                      {marketingPlanDetail.mail_template && (
+                        <SelectCustom
+                          handleChange={(value, element) => {
+                            let targetIdx = mailTemplate.data.findIndex(
+                              t => t.id == value.value
+                            );
+                            if (targetIdx !== -1) {
+                              const clone = { ...marketingPlanDetail };
+                              clone.mail_template =
+                                mailTemplate.data[targetIdx];
+                              setMarketingPlanDetail(clone);
+                            }
+                          }}
+                          name="email_template"
+                          options={mailTemplate.data.map(template => ({
+                            label: template.name,
+                            value: template.id
+                          }))}
+                          data={{
+                            label: marketingPlanDetail.mail_template.name,
+                            value: marketingPlanDetail.mail_template.id
+                          }}
+                          fullWidth
+                          single
+                        />
+                      )}
+                    </Grid>
+                    <Grid item xs={1}>
+                      <IconButton
+                        onClick={() => {
+                          setPreviewTemplate(marketingPlanDetail.mail_template);
+                        }}
+                      >
+                        <PreviewIcon />
+                      </IconButton>
                     </Grid>
                   </Grid>
                 </Grid>
