@@ -391,7 +391,6 @@ function EmailTemplateList(props) {
               filtering: true,
               paging: true,
               actionsColumnIndex: -1
-
             }}
           />
         </Grid>

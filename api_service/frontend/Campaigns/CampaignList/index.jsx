@@ -130,7 +130,7 @@ function CampaignList(props) {
             title="Campaign List"
             actions={[
               {
-                icon: 'done_all',
+                icon: 'delete',
                 tooltip: 'Do',
                 onClick: (event, rows) => {
                   alert('You selected ' + rows.length + ' rows')
@@ -149,7 +149,8 @@ function CampaignList(props) {
             options={{
               selection: true,
               filtering: true,
-              paging: true
+              paging: true,
+              selection: true
             }}
           />
         </Grid>
