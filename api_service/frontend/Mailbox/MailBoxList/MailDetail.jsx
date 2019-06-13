@@ -62,10 +62,9 @@ function MailDetail(props) {
     updateNote,
     forceUpdateData,
     activeStep,
-    disabledAddConversation
+disabledAddConversation,
+productInfo
   } = props;
-
-  console.log(contact)
 
   const [expanded, setExpanded] = React.useState(null);
   const [noExpand, setNoExpand] = React.useState([]);
@@ -169,7 +168,7 @@ function MailDetail(props) {
           JSON.stringify({
             threads: thread_ids
           })
-        )
+        );
       }
     }
   }, [forceUpdateData]);
@@ -212,7 +211,7 @@ function MailDetail(props) {
         replyingEmail["References"].length
           ? replyingEmail["References"][0] + " "
           : ""
-        }${replyingEmail["Message-Id"][0]}`;
+      }${replyingEmail["Message-Id"][0]}`;
       cloneIsReply[i][insideIndex]["subject"] = emails.data[
         i
       ][0].subject.reduce((acc, s) => {
@@ -254,6 +253,7 @@ function MailDetail(props) {
             setMailDialog(!mailDialog);
           }}
           setSuccessNoti={setSuccessNoti}
+          contact={contact}
         />
       )}
       <Grid container spacing={8}>
@@ -324,16 +324,14 @@ function MailDetail(props) {
                             }}
                           >
                             <ListItemText
-                              primary={"The AQV Team"}
+                              primary={<strong>The AQV Team</strong>}
                               secondary={
                                 <React.Fragment>
                                   <Typography
                                     component="span"
                                     className={classes.inline}
                                     color="textPrimary"
-                                  >
-                                    {`to ${contact.mail}`}
-                                  </Typography>
+                                  />
                                   {noExpand[j] && noExpand[j][0] && (
                                     <div
                                       dangerouslySetInnerHTML={{
@@ -392,6 +390,8 @@ function MailDetail(props) {
                                       user={user}
                                       sendTo={sendTo}
                                       data={isReply[j][0]}
+                                      contact={contact}
+                                      productInfo={productInfo}
                                     />
                                   )}
                               </Grid>
@@ -444,20 +444,14 @@ function MailDetail(props) {
                                           }}
                                         >
                                           <ListItemText
-                                            primary={name}
+                                            primary={<strong>{name}</strong>}
                                             secondary={
                                               <React.Fragment>
                                                 <Typography
                                                   component="span"
                                                   className={classes.inline}
                                                   color="textPrimary"
-                                                >
-                                                  {e.from &&
-                                                    e.from !=
-                                                    "The AQV Team <theaqvteam@gmail.com>"
-                                                    ? "to me"
-                                                    : mail}
-                                                </Typography>
+                                                />
                                                 {noExpand[j][i] && (
                                                   <div
                                                     dangerouslySetInnerHTML={{
@@ -519,6 +513,8 @@ function MailDetail(props) {
                                                     user={user}
                                                     sendTo={sendTo}
                                                     data={isReply[j][i]}
+                                                    contact={contact}
+                                      productInfo={productInfo}
                                                   />
                                                 )}
                                             </Grid>
@@ -571,16 +567,16 @@ function MailDetail(props) {
                                           }}
                                         >
                                           <ListItemText
-                                            primary={"The AQV Team"}
+                                            primary={
+                                              <strong>The AQV Team</strong>
+                                            }
                                             secondary={
                                               <React.Fragment>
                                                 <Typography
                                                   component="span"
                                                   className={classes.inline}
                                                   color="textPrimary"
-                                                >
-                                                  {`to ${contact.mail}`}
-                                                </Typography>
+                                                />
                                                 {noExpand[j] && noExpand[j][i] && (
                                                   <div
                                                     dangerouslySetInnerHTML={{
@@ -642,6 +638,8 @@ function MailDetail(props) {
                                                     sendTo={sendTo}
                                                     user={user}
                                                     data={isReply[j][i]}
+                                                    contact={contact}
+                                      productInfo={productInfo}
                                                   />
                                                 )}
                                             </Grid>
@@ -659,198 +657,200 @@ function MailDetail(props) {
                       <Divider />
                     </>
                   ) : (
-                      <>
-                        <ListItem alignItems="flex-start">
-                          <ListItemAvatar>
-                            <Avatar className={classes.greenAvatar}>
-                              <PhoneIcon fontSize="small" />
-                            </Avatar>
-                          </ListItemAvatar>
-                          <ExpansionPanel
-                            style={{ margin: "unset" }}
-                            classes={{ root: classes.expandCus }}
-                            // expanded={expanded === 'panel2'}
-                            onChange={handleChange()}
+                    <>
+                      <ListItem alignItems="flex-start">
+                        <ListItemAvatar>
+                          <Avatar className={classes.greenAvatar}>
+                            <PhoneIcon fontSize="small" />
+                          </Avatar>
+                        </ListItemAvatar>
+                        <ExpansionPanel
+                          style={{ margin: "unset" }}
+                          classes={{ root: classes.expandCus }}
+                          // expanded={expanded === 'panel2'}
+                          onChange={handleChange()}
                           // onClick={handleShowReply}
+                        >
+                          <ExpansionPanelSummary
+                            onClick={e => handleExpandNote(j)}
+                            classes={{
+                              expanded: classes.expandSumCus,
+                              content: classes.expandSumCus,
+                              root: classes.expandSumRoot
+                            }}
                           >
-                            <ExpansionPanelSummary
-                              onClick={e => handleExpandNote(j)}
-                              classes={{
-                                expanded: classes.expandSumCus,
-                                content: classes.expandSumCus,
-                                root: classes.expandSumRoot
-                              }}
-                            >
-                              <ListItemText
-                                primary={
-                                  contact.first_name + " " + contact.last_name
-                                }
-                                secondary={
-                                  <React.Fragment>
-                                    <Typography
-                                      component="span"
-                                      className={classes.inline}
-                                      color="textPrimary"
-                                    >
-                                      {contact.phone}
-                                    </Typography>
-                                    {expandNote[j] && expandNote[j].stt && (
-                                      <div
-                                        dangerouslySetInnerHTML={{
-                                          __html: t.note
-                                        }}
-                                        className={classes.etcDot}
-                                      />
-                                    )}
-                                  </React.Fragment>
-                                }
-                              />
-                              <ListItemText
-                                secondary={
-                                  <div
-                                    style={{
-                                      fontSize: "12px",
-                                      padding: "10px",
-                                      textAlign: "right"
-                                    }}
+                            <ListItemText
+                              primary={
+                                <strong>
+                                  {contact.first_name + " " + contact.last_name}
+                                </strong>
+                              }
+                              secondary={
+                                <React.Fragment>
+                                  <Typography
+                                    component="span"
+                                    className={classes.inline}
+                                    color="textPrimary"
                                   >
-                                    <i>{t.date_created}</i>
-                                  </div>
-                                }
-                              />
-                            </ExpansionPanelSummary>
-                            <ExpansionPanelDetails>
-                              <Grid container spacing>
-                                <Grid item xs={12}>
-                                  <Typography component="div">
-                                    {
-                                      <>
-                                        {addNote[j] && !addNote[j].stt ? (
-                                          <>
-                                            <DialogContent
-                                              style={{ wordBreak: "break-word" }}
-                                              classes={{ root: classes.CusNote }}
+                                    {contact.phone}
+                                  </Typography>
+                                  {expandNote[j] && expandNote[j].stt && (
+                                    <div
+                                      dangerouslySetInnerHTML={{
+                                        __html: t.note
+                                      }}
+                                      className={classes.etcDot}
+                                    />
+                                  )}
+                                </React.Fragment>
+                              }
+                            />
+                            <ListItemText
+                              secondary={
+                                <div
+                                  style={{
+                                    fontSize: "12px",
+                                    padding: "10px",
+                                    textAlign: "right"
+                                  }}
+                                >
+                                  <i>{t.date_created}</i>
+                                </div>
+                              }
+                            />
+                          </ExpansionPanelSummary>
+                          <ExpansionPanelDetails>
+                            <Grid container spacing>
+                              <Grid item xs={12}>
+                                <Typography component="div">
+                                  {
+                                    <>
+                                      {addNote[j] && !addNote[j].stt ? (
+                                        <>
+                                          <DialogContent
+                                            style={{ wordBreak: "break-word" }}
+                                            classes={{ root: classes.CusNote }}
+                                            onClick={() => {
+                                              let cloneEditor = [
+                                                ...editorState
+                                              ];
+                                              cloneEditor[j] = htmlToState(
+                                                t.note
+                                              );
+                                              setEditorState(cloneEditor);
+                                              let cloneOld = [...old];
+                                              cloneOld[j] = t.note;
+                                              setOld(cloneOld);
+                                              let cloneAddNote = [...addNote];
+                                              cloneAddNote[j] = { stt: true };
+                                              setAddNote(cloneAddNote);
+                                              // setContentStt('EDIT')
+                                            }}
+                                          >
+                                            {t.note ? (
+                                              <DialogContentText
+                                                dangerouslySetInnerHTML={{
+                                                  __html: t.note
+                                                }}
+                                              />
+                                            ) : (
+                                              <DialogContentText>
+                                                Let create new note
+                                              </DialogContentText>
+                                            )}
+                                          </DialogContent>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <DialogContent className="p-3">
+                                            <Editor
+                                              editorState={editorState[j]}
+                                              wrapperClassName="editor-wrapper"
+                                              editorClassName="editor"
+                                              onEditorStateChange={editor =>
+                                                onEditorStateChange(j, editor)
+                                              }
+                                              editorStyle={{
+                                                minHeight: "330px"
+                                              }}
+                                            />
+                                          </DialogContent>
+                                          <DialogActions>
+                                            <Button
+                                              variant="contained"
                                               onClick={() => {
-                                                let cloneEditor = [
+                                                setContentStt("VIEW");
+                                                let cloneEditorState = [
                                                   ...editorState
                                                 ];
-                                                cloneEditor[j] = htmlToState(
-                                                  t.note
+                                                cloneEditorState[
+                                                  j
+                                                ] = htmlToState("");
+                                                setEditorState(
+                                                  cloneEditorState
                                                 );
-                                                setEditorState(cloneEditor);
-                                                let cloneOld = [...old];
-                                                cloneOld[j] = t.note;
-                                                setOld(cloneOld);
                                                 let cloneAddNote = [...addNote];
-                                                cloneAddNote[j] = { stt: true };
+                                                cloneAddNote[j] = {
+                                                  stt: false
+                                                };
                                                 setAddNote(cloneAddNote);
-                                                // setContentStt('EDIT')
                                               }}
                                             >
-                                              {t.note ? (
-                                                <DialogContentText
-                                                  dangerouslySetInnerHTML={{
-                                                    __html: t.note
-                                                  }}
-                                                />
-                                              ) : (
-                                                  <DialogContentText>
-                                                    Let create new note
-                                              </DialogContentText>
-                                                )}
-                                            </DialogContent>
-                                          </>
-                                        ) : (
-                                            <>
-                                              <DialogContent className="p-3">
-                                                <Editor
-                                                  editorState={editorState[j]}
-                                                  wrapperClassName="editor-wrapper"
-                                                  editorClassName="editor"
-                                                  onEditorStateChange={editor =>
-                                                    onEditorStateChange(j, editor)
-                                                  }
-                                                  editorStyle={{
-                                                    minHeight: "330px"
-                                                  }}
-                                                />
-                                              </DialogContent>
-                                              <DialogActions>
-                                                <Button
-                                                  variant="contained"
-                                                  onClick={() => {
-                                                    setContentStt("VIEW");
-                                                    let cloneEditorState = [
-                                                      ...editorState
-                                                    ];
-                                                    cloneEditorState[
-                                                      j
-                                                    ] = htmlToState("");
-                                                    setEditorState(
-                                                      cloneEditorState
-                                                    );
-                                                    let cloneAddNote = [...addNote];
-                                                    cloneAddNote[j] = {
-                                                      stt: false
-                                                    };
-                                                    setAddNote(cloneAddNote);
-                                                  }}
-                                                >
-                                                  Cancel
+                                              Cancel
                                             </Button>
-                                                <Button
-                                                  variant="contained"
-                                                  color="primary"
-                                                  onClick={() => {
-                                                    // setContentStt('VIEW')
-                                                    updateNote(
-                                                      j,
-                                                      draftToRaw(editorState[j])
-                                                    );
-                                                    let cloneEmails = [
-                                                      ...emails.data
-                                                    ];
-                                                    cloneEmails[
-                                                      j
-                                                    ].note = draftToRaw(
-                                                      editorState[j]
-                                                    );
-                                                    setEmails({
-                                                      data: cloneEmails
-                                                    });
-                                                    let cloneEditorState = [
-                                                      ...editorState
-                                                    ];
-                                                    cloneEditorState[
-                                                      j
-                                                    ] = htmlToState("");
-                                                    setEditorState(
-                                                      cloneEditorState
-                                                    );
-                                                    let cloneAddNote = [...addNote];
-                                                    cloneAddNote[j] = {
-                                                      stt: false
-                                                    };
-                                                    // handleExpandNote(j)
-                                                    setAddNote(cloneAddNote);
-                                                  }}
-                                                >
-                                                  Apply
+                                            <Button
+                                              variant="contained"
+                                              color="primary"
+                                              onClick={() => {
+                                                // setContentStt('VIEW')
+                                                updateNote(
+                                                  j,
+                                                  draftToRaw(editorState[j])
+                                                );
+                                                let cloneEmails = [
+                                                  ...emails.data
+                                                ];
+                                                cloneEmails[
+                                                  j
+                                                ].note = draftToRaw(
+                                                  editorState[j]
+                                                );
+                                                setEmails({
+                                                  data: cloneEmails
+                                                });
+                                                let cloneEditorState = [
+                                                  ...editorState
+                                                ];
+                                                cloneEditorState[
+                                                  j
+                                                ] = htmlToState("");
+                                                setEditorState(
+                                                  cloneEditorState
+                                                );
+                                                let cloneAddNote = [...addNote];
+                                                cloneAddNote[j] = {
+                                                  stt: false
+                                                };
+                                                // handleExpandNote(j)
+                                                setAddNote(cloneAddNote);
+                                              }}
+                                            >
+                                              Apply
                                             </Button>
-                                              </DialogActions>
-                                            </>
-                                          )}
-                                      </>
-                                    }
-                                  </Typography>
-                                </Grid>
+                                          </DialogActions>
+                                        </>
+                                      )}
+                                    </>
+                                  }
+                                </Typography>
                               </Grid>
-                            </ExpansionPanelDetails>
-                          </ExpansionPanel>
-                        </ListItem>
-                        <Divider />
-                      </>
-                    );
+                            </Grid>
+                          </ExpansionPanelDetails>
+                        </ExpansionPanel>
+                      </ListItem>
+                      <Divider />
+                    </>
+                  );
                 })}
             </List>
             <Grid container spacing={8}>

@@ -187,6 +187,10 @@ function CreateEmailTemplate(props) {
                       <li style={{ listStyleType: 'circle' }}>
                         $contact_name$: Your customer name
                       </li>
+
+                      <li style={{ listStyleType: 'circle' }}>
+                        $packages_info$: Package list and their feature 
+                      </li>
                     </ul>
                   </div>
                 </Grid>

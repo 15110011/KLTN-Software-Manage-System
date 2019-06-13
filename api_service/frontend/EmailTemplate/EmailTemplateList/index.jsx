@@ -1,6 +1,8 @@
 import * as React from 'react';
 import MaterialTable, { MTableCell } from 'material-table';
-import { withStyles } from '@material-ui/core/styles'; import Paper from '@material-ui/core/Paper'; import Grid from '@material-ui/core/Grid';
+import { withStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Grid from '@material-ui/core/Grid';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
@@ -357,6 +359,10 @@ function EmailTemplateList(props) {
                               <li style={{ listStyleType: 'circle' }}>
                                 $contact_name$: Your customer name
                               </li>
+
+                              <li style={{ listStyleType: 'circle' }}>
+                                $packages_info$: Package list and their feature
+                              </li>
                             </ul>
                           </div>
                         </Grid>
@@ -452,6 +458,10 @@ function EmailTemplateList(props) {
                             <ul>
                               <li style={{ listStyleType: 'circle' }}>
                                 $contact_name$: Your customer name
+                              </li>
+
+                              <li style={{ listStyleType: 'circle' }}>
+                                $packages_info$: Package list and their feature
                               </li>
                             </ul>
                           </div>
