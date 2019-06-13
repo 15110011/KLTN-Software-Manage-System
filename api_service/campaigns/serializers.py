@@ -240,7 +240,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                         scheduled_time=now,
                         func=send_email_api,
                         args=[self.context.get(
-                            'request').user, cur_contact.mail, "theaqvteam@gmail.com", campaign.marketing_plan.mail_template.subject, handle_mail_template.manipulate_template(campaign.marketing_plan.mail_template.template, contact=cur_contact), contact_marketing.id],
+                            'request').user, cur_contact.mail, "theaqvteam@gmail.com", campaign.marketing_plan.mail_template.subject, handle_mail_template.manipulate_template(campaign.marketing_plan.mail_template.template, contact=cur_contact, packages=campaign.packages.all()), contact_marketing.id],
                         interval=604800,
                         kwargs={},
                         repeat=10,
@@ -325,8 +325,13 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
             if "Send Email" in steps[0].actions:
                 cur_contact = step_details[0].order.contacts
                 queue = django_rq.get_queue('default', is_async=True)
-                queue.enqueue(send_email_api_step, self.context.get(
-                    'request').user, cur_contact.mail, "theaqvteam@gmail.com", steps[0].mail_template.subject, handle_mail_template.manipulate_template(steps[0].mail_template.template, contact=cur_contact), step_details[0].id)
+                queue.enqueue(send_email_api_step,
+                              self.context.get(
+                                  'request').user, cur_contact.mail, "theaqvteam@gmail.com",
+                              steps[0].mail_template.subject,
+                              handle_mail_template.manipulate_template(
+                                  steps[0].mail_template.template, contact=cur_contact, packages=step_details[0].order.campaign.packages.all()),
+                              step_details[0].id)
 
         return instance
 

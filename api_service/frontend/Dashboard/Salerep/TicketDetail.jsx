@@ -216,13 +216,17 @@ function TicketDetail(props) {
   };
 
   const updateNote = (i, note) => {
-    let cloneData = [...moreRow.thread_ids]
-    cloneData[i].note = note
-    apiPatch(CONTACT_MARKETING_URL + '/' + id, { thread_ids: cloneData }, false, true)
-      .then(res => {
-        updateTable(res.data)
-      })
-  }
+    let cloneData = [...moreRow.thread_ids];
+    cloneData[i].note = note;
+    apiPatch(
+      CONTACT_MARKETING_URL + "/" + id,
+      { thread_ids: cloneData },
+      false,
+      true
+    ).then(res => {
+      updateTable(res.data);
+    });
+  };
 
   return (
     <>
@@ -238,6 +242,8 @@ function TicketDetail(props) {
           notification={notification}
           setSuccessNoti={setSuccessNoti}
           onComplete={updateData}
+          contact={contact}
+          productInfo={moreRow.campaign.product}
         />
       )}
       {successNoti && <CustomSnackbar isSuccess msg={successNoti} />}
@@ -417,6 +423,7 @@ function TicketDetail(props) {
               thread_ids={moreRow.thread_ids}
               forceUpdateData={forceUpdateData}
               updateNote={updateNote}
+          productInfo={moreRow.campaign.product}
             />
           </Paper>
         </Grid>

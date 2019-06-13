@@ -31,29 +31,29 @@ class MailBoxConsumer(AsyncJsonWebsocketConsumer):
             action_type = thread['type']
             if action_type == 'Call Client':
                 data.append(thread)
-            else: 
+            else:
                 thread_id = thread['thread_id']
-                if cache.get(f'user_{self.user_id}_thread_{thread_id}') is not None:
+                if cache.get(f'thread_{thread_id}') is not None:
                     data.append(
-                        cache.get(f'user_{self.user_id}_thread_{thread_id}'))
+                        cache.get(f'thread_{thread_id}'))
         await self.send_json({"data": data})
 
     async def email_message(self, event):
         gmail = GmailService()
         thread_id = event['thread_id']
         data = []
-        print(f'user_{self.user_id}_thread_{thread_id}',cache.get(f'user_{self.user_id}_thread_{thread_id}'))
-        if cache.get(f'user_{self.user_id}_thread_{thread_id}') is not None:
-            cache.delete_pattern(f'user_{self.user_id}_thread_{thread_id}')
+        if cache.get(f'thread_{thread_id}') is not None:
+            cache.delete_pattern(f'thread_{thread_id}')
             messages = gmail.get_thread(event['thread_id'])
-            cache.set(f'user_{self.user_id}_thread_{thread_id}', messages['messages'], timeout=None)
+            cache.set(f'thread_{thread_id}',
+                      messages['messages'], timeout=None)
             data.append(messages['messages'])
         else:
             messages = gmail.get_thread(event['thread_id'])
-            cache.set(f'user_{self.user_id}_thread_{thread_id}', messages['messages'], timeout=None)
+            cache.set(f'thread_{thread_id}',
+                      messages['messages'], timeout=None)
             data.append(messages['messages'])
         await self.send_json({"data": data, "type": "single", "thread_id": thread_id})
-        
 
     # @database_sync_to_async
     # def get_email_db(self, user_id):
