@@ -44,6 +44,15 @@ def upload_excel_contacts(request):
                     contacts.append(serializer.instance)
                 else:
                     return Response({"validation_erros": serializer.errors, "first_name": d[0], "last_name": d[1]}, status=status.HTTP_400_BAD_REQUEST)
+            except: 
+                duplicated = models.Contact.objects.get(
+                        first_name=d[0], last_name=d[1], user=request.user)
+                cur_contact['groups'] = duplicated.groups.all()
+                serializer = serializers.ContactSerializer(duplicated,
+                                                            data=cur_contact, context={"request": request}, partial=True)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+                contacts.append(serializer.instance)
         #default_group = models.ContactGroup.objects.get(id=target_group)
         #err_contacts = []
         for g in groups:
