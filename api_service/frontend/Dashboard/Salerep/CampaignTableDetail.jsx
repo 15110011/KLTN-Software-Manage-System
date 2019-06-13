@@ -364,6 +364,7 @@ function CampaignTableDetail(props) {
                 <ul>
                   {
                     campaigns.data && campaigns.data.map((c, index) => {
+                      console.log(c)
                       let status = 'Idle'
                       if (!dateFns.isAfter(dateFns.parseISO(c.start_date), dateFns.parseISO(new Date().toISOString()))
                         && !dateFns.isBefore(dateFns.parseISO(c.end_date), dateFns.parseISO(new Date().toISOString()))) {

@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.5
--- Dumped by pg_dump version 10.5
+-- Dumped from database version 11.2
+-- Dumped by pg_dump version 11.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -14,20 +14,6 @@ SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
 
 SET default_tablespace = '';
 
@@ -79,7 +65,7 @@ ALTER SEQUENCE public.account_profile_id_seq OWNED BY public.account_profile.id;
 
 CREATE TABLE public.auth_group (
     id integer NOT NULL,
-    name character varying(80) NOT NULL
+    name character varying(150) NOT NULL
 );
 
 
@@ -419,7 +405,8 @@ CREATE TABLE public.campaigns_contactmarketing (
     campaign_id integer NOT NULL,
     contact_id integer NOT NULL,
     marketing_plan_id integer NOT NULL,
-    sale_rep_id integer
+    sale_rep_id integer,
+    thread_ids jsonb NOT NULL
 );
 
 
@@ -534,10 +521,10 @@ CREATE TABLE public.campaigns_mailtemplate (
     modified timestamp with time zone NOT NULL,
     is_removed boolean NOT NULL,
     name character varying(255) NOT NULL,
+    subject character varying(255) NOT NULL,
     template text NOT NULL,
     is_public boolean NOT NULL,
-    user_id integer NOT NULL,
-    subject character varying(255) NOT NULL
+    user_id integer NOT NULL
 );
 
 
@@ -975,6 +962,83 @@ ALTER TABLE public.events_event_id_seq OWNER TO postgres;
 --
 
 ALTER SEQUENCE public.events_event_id_seq OWNED BY public.events_event.id;
+
+
+--
+-- Name: inbox_mailbox; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.inbox_mailbox (
+    id integer NOT NULL,
+    created timestamp with time zone NOT NULL,
+    modified timestamp with time zone NOT NULL,
+    is_removed boolean NOT NULL,
+    user_id character varying(255) NOT NULL,
+    message_id character varying(255) NOT NULL,
+    thread_id character varying(255) NOT NULL,
+    email_type character varying(20) NOT NULL
+);
+
+
+ALTER TABLE public.inbox_mailbox OWNER TO postgres;
+
+--
+-- Name: inbox_mailbox_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.inbox_mailbox_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.inbox_mailbox_id_seq OWNER TO postgres;
+
+--
+-- Name: inbox_mailbox_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.inbox_mailbox_id_seq OWNED BY public.inbox_mailbox.id;
+
+
+--
+-- Name: inbox_mailhistory; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.inbox_mailhistory (
+    id integer NOT NULL,
+    created timestamp with time zone NOT NULL,
+    modified timestamp with time zone NOT NULL,
+    is_removed boolean NOT NULL,
+    history_id character varying(255) NOT NULL
+);
+
+
+ALTER TABLE public.inbox_mailhistory OWNER TO postgres;
+
+--
+-- Name: inbox_mailhistory_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.inbox_mailhistory_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.inbox_mailhistory_id_seq OWNER TO postgres;
+
+--
+-- Name: inbox_mailhistory_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.inbox_mailhistory_id_seq OWNED BY public.inbox_mailhistory.id;
 
 
 --
@@ -1760,9 +1824,9 @@ CREATE TABLE public.steps_stepdetail (
     is_removed boolean NOT NULL,
     information jsonb,
     status character varying(50) NOT NULL,
+    thread jsonb NOT NULL,
     order_id integer NOT NULL,
-    step_id integer,
-    thread jsonb NOT NULL
+    step_id integer
 );
 
 
@@ -1959,6 +2023,20 @@ ALTER TABLE ONLY public.events_event_contacts ALTER COLUMN id SET DEFAULT nextva
 
 
 --
+-- Name: inbox_mailbox id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.inbox_mailbox ALTER COLUMN id SET DEFAULT nextval('public.inbox_mailbox_id_seq'::regclass);
+
+
+--
+-- Name: inbox_mailhistory id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.inbox_mailhistory ALTER COLUMN id SET DEFAULT nextval('public.inbox_mailhistory_id_seq'::regclass);
+
+
+--
 -- Name: jet_bookmark id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -2110,8 +2188,8 @@ ALTER TABLE ONLY public.steps_stepdetail ALTER COLUMN id SET DEFAULT nextval('pu
 --
 
 COPY public.account_profile (id, created, modified, is_removed, is_manager, phone, company_name, user_id) FROM stdin;
-1	2019-05-12 18:54:04.13456+00	2019-05-12 18:54:04.142169+00	f	t	123456789	ADMIN	1
-5	2019-05-12 18:59:40.387476+00	2019-05-12 18:59:40.397335+00	f	f	01234567u89	SALE	5
+1	2019-06-11 04:47:56.806943+00	2019-06-11 04:47:56.811175+00	f	t	1674834476	Fetch	1
+2	2019-06-11 04:48:54.371316+00	2019-06-11 04:48:54.371712+00	f	f	0123456789	abc	2
 \.
 
 
@@ -2180,22 +2258,22 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 42	Can change package	11	change_package
 43	Can delete package	11	delete_package
 44	Can view package	11	view_package
-45	Can add package history	12	add_packagehistory
-46	Can change package history	12	change_packagehistory
-47	Can delete package history	12	delete_packagehistory
-48	Can view package history	12	view_packagehistory
-49	Can add product	13	add_product
-50	Can change product	13	change_product
-51	Can delete product	13	delete_product
-52	Can view product	13	view_product
-53	Can add product category	14	add_productcategory
-54	Can change product category	14	change_productcategory
-55	Can delete product category	14	delete_productcategory
-56	Can view product category	14	view_productcategory
-57	Can add product type	15	add_producttype
-58	Can change product type	15	change_producttype
-59	Can delete product type	15	delete_producttype
-60	Can view product type	15	view_producttype
+45	Can add product category	12	add_productcategory
+46	Can change product category	12	change_productcategory
+47	Can delete product category	12	delete_productcategory
+48	Can view product category	12	view_productcategory
+49	Can add product type	13	add_producttype
+50	Can change product type	13	change_producttype
+51	Can delete product type	13	delete_producttype
+52	Can view product type	13	view_producttype
+53	Can add product	14	add_product
+54	Can change product	14	change_product
+55	Can delete product	14	delete_product
+56	Can view product	14	view_product
+57	Can add package history	15	add_packagehistory
+58	Can change package history	15	change_packagehistory
+59	Can delete package history	15	delete_packagehistory
+60	Can view package history	15	view_packagehistory
 61	Can add contact	16	add_contact
 62	Can change contact	16	change_contact
 63	Can delete contact	16	delete_contact
@@ -2212,42 +2290,42 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 74	Can change contact marketing	19	change_contactmarketing
 75	Can delete contact marketing	19	delete_contactmarketing
 76	Can view contact marketing	19	view_contactmarketing
-77	Can add contact marketing history	20	add_contactmarketinghistory
-78	Can change contact marketing history	20	change_contactmarketinghistory
-79	Can delete contact marketing history	20	delete_contactmarketinghistory
-80	Can view contact marketing history	20	view_contactmarketinghistory
-81	Can add follow up plan	21	add_followupplan
-82	Can change follow up plan	21	change_followupplan
-83	Can delete follow up plan	21	delete_followupplan
-84	Can view follow up plan	21	view_followupplan
-85	Can add mail template	22	add_mailtemplate
-86	Can change mail template	22	change_mailtemplate
-87	Can delete mail template	22	delete_mailtemplate
-88	Can view mail template	22	view_mailtemplate
-89	Can add marketing plan	23	add_marketingplan
-90	Can change marketing plan	23	change_marketingplan
-91	Can delete marketing plan	23	delete_marketingplan
-92	Can view marketing plan	23	view_marketingplan
+77	Can add mail template	20	add_mailtemplate
+78	Can change mail template	20	change_mailtemplate
+79	Can delete mail template	20	delete_mailtemplate
+80	Can view mail template	20	view_mailtemplate
+81	Can add marketing plan	21	add_marketingplan
+82	Can change marketing plan	21	change_marketingplan
+83	Can delete marketing plan	21	delete_marketingplan
+84	Can view marketing plan	21	view_marketingplan
+85	Can add follow up plan	22	add_followupplan
+86	Can change follow up plan	22	change_followupplan
+87	Can delete follow up plan	22	delete_followupplan
+88	Can view follow up plan	22	view_followupplan
+89	Can add contact marketing history	23	add_contactmarketinghistory
+90	Can change contact marketing history	23	change_contactmarketinghistory
+91	Can delete contact marketing history	23	delete_contactmarketinghistory
+92	Can view contact marketing history	23	view_contactmarketinghistory
 93	Can add note	24	add_note
 94	Can change note	24	change_note
 95	Can delete note	24	delete_note
 96	Can view note	24	view_note
-97	Can add license	25	add_license
-98	Can change license	25	change_license
-99	Can delete license	25	delete_license
-100	Can view license	25	view_license
-101	Can add lifetime license	26	add_lifetimelicense
-102	Can change lifetime license	26	change_lifetimelicense
-103	Can delete lifetime license	26	delete_lifetimelicense
-104	Can view lifetime license	26	view_lifetimelicense
-105	Can add order	27	add_order
-106	Can change order	27	change_order
-107	Can delete order	27	delete_order
-108	Can view order	27	view_order
-109	Can add order history	28	add_orderhistory
-110	Can change order history	28	change_orderhistory
-111	Can delete order history	28	delete_orderhistory
-112	Can view order history	28	view_orderhistory
+97	Can add order	25	add_order
+98	Can change order	25	change_order
+99	Can delete order	25	delete_order
+100	Can view order	25	view_order
+101	Can add order history	26	add_orderhistory
+102	Can change order history	26	change_orderhistory
+103	Can delete order history	26	delete_orderhistory
+104	Can view order history	26	view_orderhistory
+105	Can add lifetime license	27	add_lifetimelicense
+106	Can change lifetime license	27	change_lifetimelicense
+107	Can delete lifetime license	27	delete_lifetimelicense
+108	Can view lifetime license	27	view_lifetimelicense
+109	Can add license	28	add_license
+110	Can change license	28	change_license
+111	Can delete license	28	delete_license
+112	Can view license	28	view_license
 113	Can add step	29	add_step
 114	Can change step	29	change_step
 115	Can delete step	29	delete_step
@@ -2268,6 +2346,14 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 130	Can change notification	33	change_notification
 131	Can delete notification	33	delete_notification
 132	Can view notification	33	view_notification
+133	Can add mail box	34	add_mailbox
+134	Can change mail box	34	change_mailbox
+135	Can delete mail box	34	delete_mailbox
+136	Can view mail box	34	view_mailbox
+137	Can add mail history	35	add_mailhistory
+138	Can change mail history	35	change_mailhistory
+139	Can delete mail history	35	delete_mailhistory
+140	Can view mail history	35	view_mailhistory
 \.
 
 
@@ -2276,8 +2362,8 @@ COPY public.auth_permission (id, name, content_type_id, codename) FROM stdin;
 --
 
 COPY public.auth_user (id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, is_active, date_joined) FROM stdin;
-5	pbkdf2_sha256$120000$LcWkrtUrVXld$gwOUUDbytCajhTPFtQbgzRAOuevYjnyUNdtOGUGKh3U=	\N	f	user234				f	t	2019-05-12 18:59:20.95362+00
-1	pbkdf2_sha256$120000$E8elhDh4wHDT$2/a8RigrWvstv1dQNHN4UIpISZz5TFn1XYFCFVJEa7A=	2019-05-22 10:33:36.341379+00	t	admin				t	t	2019-05-12 18:47:07.667847+00
+2	pbkdf2_sha256$150000$kzR4sq7VHQ2c$8uM7s17DCAfJarpwvAL3HbQBx9A/3Xba6pe/mCqsGjs=	\N	f	salerep			hepmy666@gmail.com	f	t	2019-06-11 04:48:54+00
+1	pbkdf2_sha256$150000$G8UG3RgCB4nO$6V1a1vntTlLXAIeskgErvo5ww3Ey6IdXz/L7v+DWlIs=	2019-06-11 09:14:03.158676+00	t	admin				t	t	2019-06-11 04:46:07.129787+00
 \.
 
 
@@ -2302,15 +2388,8 @@ COPY public.auth_user_user_permissions (id, user_id, permission_id) FROM stdin;
 --
 
 COPY public.campaigns_campaign (id, created, modified, is_removed, name, start_date, end_date, "desc", follow_up_plan_id, manager_id, marketing_plan_id) FROM stdin;
-1	2019-05-12 19:12:08.159525+00	2019-05-14 05:18:35.923151+00	f	New World	2019-05-13	2019-05-18	<p></p>	1	5	1
-2	2019-05-22 10:23:36.14444+00	2019-05-22 10:23:36.144805+00	f	OK now ?	2019-05-22	2019-05-25	<p>ONOW</p>	1	5	1
-3	2019-05-23 09:40:21.191153+00	2019-05-23 09:40:21.191512+00	f	Can it send?	2019-05-23	2019-05-30	<p></p>	1	5	5
-4	2019-05-24 00:07:12.643849+00	2019-05-24 00:07:12.644193+00	f	Can it send 2?	2019-05-24	2019-05-24	<p></p>	1	5	5
-5	2019-05-25 00:04:51.102303+00	2019-05-25 00:04:51.102633+00	f	Can it send 3?	2019-05-25	2019-05-25	<p></p>	1	5	5
-6	2019-05-25 00:05:08.99756+00	2019-05-25 00:05:08.997884+00	f	Can it send 3?	2019-05-25	2019-05-25	<p></p>	1	5	5
-7	2019-05-25 00:07:43.541209+00	2019-05-25 00:07:43.541599+00	f	Can it send 3?	2019-05-25	2019-05-25	<p></p>	1	5	5
-8	2019-05-26 00:20:48.754535+00	2019-05-26 00:20:48.75484+00	f	CAn it send 4?	2019-05-26	2019-05-26	<p></p>	1	5	5
-9	2019-05-27 00:03:37.935337+00	2019-05-27 00:03:37.935743+00	f	Can it send 5?	2019-05-27	2019-05-27	<p>asfasf</p>	1	5	5
+1	2019-06-11 10:37:27.073484+00	2019-06-11 10:37:27.074138+00	f	Campaign 1	2019-06-11	2019-06-29	<p>aalooo</p>	1	2	1
+2	2019-06-11 10:37:58.476874+00	2019-06-11 10:37:58.47712+00	f	Campaign 2	2019-06-11	2019-06-29	<p>asdsd</p>	2	2	2
 \.
 
 
@@ -2319,15 +2398,8 @@ COPY public.campaigns_campaign (id, created, modified, is_removed, name, start_d
 --
 
 COPY public.campaigns_campaign_assigned_to (id, campaign_id, user_id) FROM stdin;
-1	1	5
-2	2	5
-3	3	5
-4	4	5
-5	5	5
-6	6	5
-7	7	5
-8	8	5
-9	9	5
+1	1	2
+2	2	2
 \.
 
 
@@ -2336,16 +2408,8 @@ COPY public.campaigns_campaign_assigned_to (id, campaign_id, user_id) FROM stdin
 --
 
 COPY public.campaigns_campaign_packages (id, campaign_id, package_id) FROM stdin;
-1	1	1
-2	1	2
-3	2	2
-4	3	2
-5	4	2
-6	5	2
-7	6	2
-8	7	2
-9	8	2
-10	9	2
+1	1	15
+2	2	15
 \.
 
 
@@ -2353,25 +2417,15 @@ COPY public.campaigns_campaign_packages (id, campaign_id, package_id) FROM stdin
 -- Data for Name: campaigns_contactmarketing; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.campaigns_contactmarketing (id, created, modified, is_removed, status, priority, job_id, campaign_id, contact_id, marketing_plan_id, sale_rep_id) FROM stdin;
-1	2019-05-12 19:12:08.322801+00	2019-05-16 05:47:07.290918+00	f	COMPLETED	2	106b757d-b721-4ebe-8ac8-7bc32402bab8	1	1	1	5
-2	2019-05-12 19:12:08.337484+00	2019-05-16 05:47:13.185362+00	f	COMPLETED	2	106b757d-b721-4ebe-8ac8-7bc32402bab8	1	2	1	5
-3	2019-05-22 10:23:36.708758+00	2019-05-22 10:23:36.709102+00	f	RUNNING	2	369366af-1e40-4010-8684-1f67adae3cc3	2	1	1	5
-4	2019-05-23 09:40:21.381696+00	2019-05-23 09:40:21.382015+00	f	RUNNING	2	df942c5a-0b32-42d0-991b-5fd5916fdbb4	3	1	5	5
-5	2019-05-23 09:40:21.419285+00	2019-05-23 09:40:21.419609+00	f	RUNNING	2	4da90545-fc24-4881-8488-25190762172a	3	3	5	5
-6	2019-05-23 09:40:21.434844+00	2019-05-23 09:40:21.43522+00	f	RUNNING	2	7fb9cfc5-8b3e-43df-a720-e3ccdcd7487a	3	2	5	5
-7	2019-05-24 00:07:12.917698+00	2019-05-24 00:07:12.918062+00	f	RUNNING	2	f4573e6a-2592-479b-bf67-db3f5e45e351	4	1	5	5
-8	2019-05-24 00:07:12.95443+00	2019-05-24 00:07:12.95478+00	f	RUNNING	2	4518acc7-ccd2-4598-9773-4c92fd24e90c	4	3	5	5
-9	2019-05-24 00:07:12.985631+00	2019-05-24 00:07:12.985929+00	f	RUNNING	2	ab5d9157-10fe-4479-8d05-a88a8a6ec844	4	2	5	5
-10	2019-05-25 00:07:43.744364+00	2019-05-25 00:07:43.744705+00	f	RUNNING	2	0c15bb59-e154-4a9c-b419-912b7f7d3d54	7	1	5	5
-11	2019-05-25 00:07:43.7649+00	2019-05-25 00:07:43.765187+00	f	RUNNING	2	90f4c415-e763-4960-b866-6e239ea3ce88	7	3	5	5
-12	2019-05-25 00:07:43.78384+00	2019-05-25 00:07:43.78424+00	f	RUNNING	2	b42b7693-d395-462e-a960-fb4deb126fe6	7	2	5	5
-13	2019-05-26 00:20:48.91407+00	2019-05-26 00:20:48.914401+00	f	RUNNING	2	a88b6ec4-7027-465a-b2f1-86516df8f333	8	1	5	5
-14	2019-05-26 00:20:48.939551+00	2019-05-26 00:20:48.939944+00	f	RUNNING	2	fc43f7b5-f7fd-4128-88f7-7a1bac76de9a	8	3	5	5
-15	2019-05-26 00:20:48.958329+00	2019-05-26 00:20:48.958671+00	f	RUNNING	2	7db67b40-15d1-4ea0-818e-fe2309a79427	8	2	5	5
-16	2019-05-27 00:03:38.199443+00	2019-05-27 00:03:38.199906+00	f	RUNNING	2	bd7abc9b-afee-4b82-8b44-bd2ddb76b459	9	1	5	5
-17	2019-05-27 00:03:38.222445+00	2019-05-27 00:03:38.222777+00	f	RUNNING	2	f9db3bac-3dbc-47cd-99e6-050124f76497	9	3	5	5
-18	2019-05-27 00:03:38.250464+00	2019-05-27 00:03:38.250777+00	f	RUNNING	2	77e52f4b-d499-4e8b-b4e5-8feb2ea2db40	9	2	5	5
+COPY public.campaigns_contactmarketing (id, created, modified, is_removed, status, priority, job_id, campaign_id, contact_id, marketing_plan_id, sale_rep_id, thread_ids) FROM stdin;
+2	2019-06-11 10:37:27.244436+00	2019-06-11 10:37:27.247308+00	f	RUNNING	2	7ed29257-567d-48a7-b5b5-2c6def89bc36	1	3	1	2	[]
+1	2019-06-11 10:37:27.222757+00	2019-06-11 17:47:20.218725+00	f	RUNNING	2	553b9777-f2cc-41c0-9c84-764cfccf93a5	1	2	1	2	[{"type": "Send Email", "thread_id": "16b47a6c2449e5a8"}]
+3	2019-06-11 10:37:27.254909+00	2019-06-11 17:47:21.192278+00	f	RUNNING	2	5d546250-7048-4f99-a918-c235a2e91266	1	4	1	2	[{"type": "Send Email", "thread_id": "16b47a6c7ae35301"}]
+7	2019-06-11 10:37:27.299871+00	2019-06-11 17:47:22.217681+00	f	RUNNING	2	75631f9b-ec29-42a7-8e4c-bb943cf3725c	1	8	1	2	[{"type": "Send Email", "thread_id": "16b47a6ca092dbc2"}]
+5	2019-06-11 10:37:27.277602+00	2019-06-11 17:47:29.759669+00	f	RUNNING	2	9b06799e-3f13-4b0b-b6df-9a18fd6e51e6	1	6	1	2	[{"type": "Send Email", "thread_id": "16b47a6e8347a85d"}]
+4	2019-06-11 10:37:27.266374+00	2019-06-11 17:47:31.108125+00	f	RUNNING	2	c2915f0a-86f0-4fa4-8cae-f013c96f9901	1	5	1	2	[{"type": "Send Email", "thread_id": "16b47a6ee4fa4f3e"}]
+8	2019-06-11 10:37:58.587935+00	2019-06-11 17:47:32.250725+00	f	COMPLETED	2	db2219c3-9c80-454b-aeaf-e7721b4ff0da	2	1	2	2	[{"type": "Send Email", "thread_id": "16b47a6f2101b416"}]
+6	2019-06-11 10:37:27.288053+00	2019-06-12 07:11:43.573125+00	f	RUNNING	2	1f7acb09-9aad-40e8-95f9-1e1cb4391cf8	1	7	1	2	[{"type": "Send Email", "thread_id": "16b47a6bd7063e9a"}, {"note": "", "type": "Call Client", "date_created": "2019-06-12 14:11"}]
 \.
 
 
@@ -2380,6 +2434,8 @@ COPY public.campaigns_contactmarketing (id, created, modified, is_removed, statu
 --
 
 COPY public.campaigns_contactmarketinghistory (id, created, modified, is_removed, action, contact_marketing_id) FROM stdin;
+1	2019-06-12 07:11:35.257219+00	2019-06-12 07:11:35.25751+00	f	Call Client	6
+2	2019-06-12 07:11:43.565894+00	2019-06-12 07:11:43.566335+00	f	Call Client	6
 \.
 
 
@@ -2388,7 +2444,8 @@ COPY public.campaigns_contactmarketinghistory (id, created, modified, is_removed
 --
 
 COPY public.campaigns_followupplan (id, created, modified, is_removed, name, can_modify, manager_id) FROM stdin;
-1	2019-05-12 19:06:47.484467+00	2019-05-12 19:06:47.484829+00	f	FOllow1	t	5
+1	2019-06-11 10:33:58.836971+00	2019-06-11 10:33:58.837334+00	f	Follow Up Plan 1	t	2
+2	2019-06-11 10:34:42.322789+00	2019-06-11 10:34:42.323021+00	f	Follow Up Plan 2	t	2
 \.
 
 
@@ -2396,14 +2453,10 @@ COPY public.campaigns_followupplan (id, created, modified, is_removed, name, can
 -- Data for Name: campaigns_mailtemplate; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.campaigns_mailtemplate (id, created, modified, is_removed, name, template, is_public, user_id, subject) FROM stdin;
-3	2019-05-22 05:50:13.865082+00	2019-05-22 05:50:13.86544+00	f	TEmp2	<p>OK Chua</p>	f	5	This July
-4	2019-05-22 05:55:21.044441+00	2019-05-22 05:55:21.044806+00	f	asf	<p>HIIIIIIIIIIIIII</p>	f	5	aasf
-5	2019-05-22 05:55:54.612467+00	2019-05-22 05:55:54.612715+00	f	LLLLLL	<p>alkff</p>	f	5	WOwow
-6	2019-05-22 05:57:14.03812+00	2019-05-22 05:57:14.038357+00	f	bbbbb	<p>aaaa</p>	f	5	Oh NO
-7	2019-05-22 05:58:17.781928+00	2019-05-22 05:58:17.78215+00	f	Naij la minh	<p>NOOOOOOOOOOOO</p>	f	5	OKKKK
-2	2019-05-22 05:47:47.61973+00	2019-05-22 09:56:26.755709+00	f	VU	<p>ababababSPARTANNNNNNNNNNNNN</p>	f	5	This is
-1	2019-05-12 19:06:29.83437+00	2019-05-22 09:59:09.025025+00	f	Mail temp11	vvvvvvvvvvvvvvvv	t	5	Subject Template    oooqwwwwwwwwwwwwwwwaslfkasjfl kajslfk asflkjaskflj lkasjflkajsflja alskfjalksjflaksjfj
+COPY public.campaigns_mailtemplate (id, created, modified, is_removed, name, subject, template, is_public, user_id) FROM stdin;
+1	2019-06-11 10:28:56.113752+00	2019-06-11 10:28:56.114124+00	f	Mail template 1	Marketing Mail	<p>Dear, <span style="color: rgb(33,37,41);background-color: rgb(255,255,255);font-size: 16px;font-family: Helvatica, sans-serif;">$contact_name$</span></p>\n<p><span style="color: rgb(33,37,41);background-color: rgb(255,255,255);font-size: 16px;font-family: Helvatica, sans-serif;">Would you like to buy this package?</span></p>\n<p><span style="color: rgb(33,37,41);background-color: rgb(255,255,255);font-size: 16px;font-family: Helvatica, sans-serif;">Tks</span></p>	f	2
+2	2019-06-11 10:32:42.03735+00	2019-06-11 10:32:42.037693+00	f	Mail template 2	Follow Up Plan	<p>Hello, <span style="color: rgb(33,37,41);background-color: rgb(255,255,255);font-size: 16px;font-family: Helvatica, sans-serif;">$contact_name$</span></p>\n<p></p>\n<p><span style="color: rgb(33,37,41);background-color: rgb(255,255,255);font-size: 16px;font-family: Helvatica, sans-serif;">Follow up you</span></p>\n<p></p>\n<p><span style="color: rgb(33,37,41);background-color: rgb(255,255,255);font-size: 16px;font-family: Helvatica, sans-serif;">Love</span></p>	f	2
+3	2019-06-11 10:33:14.146513+00	2019-06-11 10:33:14.146757+00	f	Mail template 3	Private Mail	<p>Hello nek</p>	f	2
 \.
 
 
@@ -2412,11 +2465,9 @@ COPY public.campaigns_mailtemplate (id, created, modified, is_removed, name, tem
 --
 
 COPY public.campaigns_marketingplan (id, created, modified, is_removed, name, condition, actions, can_modify, mail_template_id, manager_id) FROM stdin;
-4	2019-05-20 05:15:05.81327+00	2019-05-20 05:15:05.813522+00	f	ALOOOOOOOOOOO	{"must": [{"data": ["AL", "AS", "AR"], "operand": "1", "operator": "Equal to"}]}	{}	t	\N	1
-3	2019-05-20 05:09:26.484937+00	2019-05-20 05:15:25.130027+00	t	afasg	{"must": [{"data": "", "operand": "", "operator": ""}]}	{}	t	\N	1
-2	2019-05-20 05:07:33.881657+00	2019-05-20 05:15:32.372899+00	t	ggg	{"must": [{"data": "", "operand": "", "operator": ""}]}	{}	t	\N	1
-1	2019-05-12 19:05:49.35249+00	2019-05-20 05:16:47.092572+00	f	Marketing	{"must": [{"data": ["AK"], "operand": "1", "operator": "Equal to"}]}	{"\\"\\""}	t	\N	5
-5	2019-05-23 09:39:12.950956+00	2019-05-23 09:39:12.951243+00	f	With sending auto	{"must": [{"data": ["AL", "AK"], "operand": "1", "operator": "Equal to"}]}	{"Send Email"}	t	3	5
+1	2019-06-11 10:29:30.437144+00	2019-06-11 10:29:30.437428+00	f	Marketing Plan 1	{"must": [{"data": ["AK"], "operand": "1", "operator": "Equal to"}]}	{"Send Email"}	t	1	2
+2	2019-06-11 10:29:52.370722+00	2019-06-11 10:29:52.370959+00	f	Marketing Plan 2	{"must": [{"data": ["CA"], "operand": "1", "operator": "Equal to"}]}	{"Send Email"}	t	1	2
+3	2019-06-11 10:30:12.739286+00	2019-06-11 10:30:12.739601+00	f	Marketing Plan 3	{"must": [{"data": ["AK", "CA"], "operand": "1", "operator": "Equal to"}]}	{"Send Email"}	t	1	2
 \.
 
 
@@ -2433,9 +2484,14 @@ COPY public.campaigns_note (id, created, modified, is_removed, name, content, _t
 --
 
 COPY public.contacts_contact (id, created, modified, is_removed, first_name, last_name, mail, phone, sex, address, country, state, city, zipcode, org, user_id) FROM stdin;
-1	2019-05-12 19:01:30.28057+00	2019-05-12 19:01:30.28086+00	f	Vu	Dang	hepmy666@gmail.com	0123456789	MALE	02 abc	America	AK	Anchorage	500000	FA	5
-3	2019-05-12 19:05:23.249904+00	2019-05-12 19:05:23.250174+00	f	Mac	Demarco	vudangho96@gmail.com	0123456789	MALE		America	AL	Birmingham	054555		5
-2	2019-05-12 19:04:50.830978+00	2019-05-15 06:58:42.235728+00	f	John	Wick	deafandblind14@gmail.com	0123456789	OTHER	\N	America	AL	Anchorage	012333		5
+1	2019-06-11 07:00:04.991044+00	2019-06-11 07:00:04.99139+00	f	Duc Anh	Tran	hepmy666@gmail.com	1234567897	MALE	123 Block B	America	CA	San Diego	70000	Fetch	2
+2	2019-06-11 07:02:45.944133+00	2019-06-11 07:02:45.944488+00	f	Ariana	Gwwww	badboy2k@gmail.com	0134523691	MALE	011 AB STREET	USA	AK	Anchorage	23133	FA	2
+3	2019-06-11 07:02:46.071341+00	2019-06-11 07:02:46.071579+00	f	Tony	Stark	hepmy777gmail.com	0134523690	FEMALE	12 AB STREET	USA	AK	Anchorage	13334	FA	2
+4	2019-06-11 07:02:46.157721+00	2019-06-11 07:02:46.158258+00	f	Steve	Rogers	steve123@gmail.com	0134523691	MALE	13 AB STREET	USA	AK	Anchorage	42333	FA	2
+5	2019-06-11 07:02:46.243904+00	2019-06-11 07:02:46.244187+00	f	Nick	Fury	nickfury@gmail.com	0134523692	FEMALE	14 AB STREET	USA	AK	Anchorage	66777	FA	2
+6	2019-06-11 07:02:46.324895+00	2019-06-11 07:02:46.325172+00	f	War	Machine	warcraft@gmail.com	0134523693	MALE	15 AB STREET	USA	AK	Anchorage	65555	FA	2
+7	2019-06-11 07:02:46.65806+00	2019-06-11 07:02:46.658339+00	f	Scott	Lang	nguoikien@gmail.com	0134523694	MALE	16 AB STREET	USA	AK	Anchorage	33333	FA	2
+8	2019-06-11 07:02:46.771245+00	2019-06-11 07:02:46.771543+00	f	Vu	Dang Ho	vudangho96@gmail.com	0134523695	MALE	17 AB STREET	USA	AK	Anchorage	78888	FA	2
 \.
 
 
@@ -2444,10 +2500,8 @@ COPY public.contacts_contact (id, created, modified, is_removed, first_name, las
 --
 
 COPY public.contacts_contactgroup (id, created, modified, is_removed, name, _type, editor_id, user_id) FROM stdin;
-4	2019-05-12 19:00:29.694296+00	2019-05-12 19:00:29.705968+00	f	All Contacts	PRIVATE	\N	5
-5	2019-05-12 19:00:44.716839+00	2019-05-12 19:00:44.723189+00	f	All Contacts	PRIVATE	\N	1
-6	2019-05-12 19:21:31.380524+00	2019-05-12 19:21:57.993593+00	f	Public One	PUBLIC	\N	5
-7	2019-05-12 19:22:57.575934+00	2019-05-12 19:22:57.576189+00	f	Private	PRIVATE	\N	5
+1	2019-06-11 04:48:54.373678+00	2019-06-11 04:48:54.374011+00	f	All Contacts		\N	2
+11	2019-06-11 07:13:37.453884+00	2019-06-11 07:13:37.454147+00	f	Private Group	PRIVATE	\N	2
 \.
 
 
@@ -2456,12 +2510,14 @@ COPY public.contacts_contactgroup (id, created, modified, is_removed, name, _typ
 --
 
 COPY public.contacts_contactgroup_contacts (id, contactgroup_id, contact_id) FROM stdin;
-1	4	1
-2	4	2
-3	4	3
-4	6	1
-5	6	2
-6	6	3
+1	1	1
+2	1	2
+3	1	3
+4	1	4
+5	1	5
+6	1	6
+7	1	7
+8	1	8
 \.
 
 
@@ -2470,54 +2526,12 @@ COPY public.contacts_contactgroup_contacts (id, contactgroup_id, contact_id) FRO
 --
 
 COPY public.django_admin_log (id, action_time, object_id, object_repr, action_flag, change_message, content_type_id, user_id) FROM stdin;
-1	2019-05-12 18:54:04.143493+00	1	Profile object (1)	1	[{"added": {}}]	9	1
-2	2019-05-12 18:55:25.395194+00	2	user234	3		6	1
-3	2019-05-12 18:56:26.655155+00	3	user234	3		6	1
-4	2019-05-12 18:57:03.346927+00	4	user234	2	[{"changed": {"fields": ["password"]}}]	6	1
-5	2019-05-12 18:57:56.093262+00	4	user234	2	[{"changed": {"fields": ["is_staff", "is_superuser"]}}]	6	1
-6	2019-05-12 18:59:13.116042+00	4	user234	3		6	1
-7	2019-05-12 18:59:21.083342+00	5	user234	1	[{"added": {}}]	6	1
-8	2019-05-12 18:59:40.398515+00	5	Profile object (5)	1	[{"added": {}}]	9	1
-9	2019-05-12 19:00:29.711445+00	4	ContactGroup object (4)	1	[{"added": {}}]	17	1
-10	2019-05-12 19:00:44.728594+00	5	ContactGroup object (5)	1	[{"added": {}}]	17	1
-11	2019-05-12 19:06:29.839864+00	1	MailTemplate object (1)	1	[{"added": {}}]	18	1
-12	2019-05-12 19:07:51.288473+00	1	ProductType object (1)	1	[{"added": {}}]	10	1
-13	2019-05-12 19:08:06.586204+00	1	ProductCategory object (1)	1	[{"added": {}}]	11	1
-14	2019-05-12 19:18:45.340141+00	1	StepDetail object (1)	2	[{"changed": {"fields": ["information"]}}]	30	1
-15	2019-05-12 19:21:57.997786+00	6	ContactGroup object (6)	2	[{"changed": {"fields": ["_type"]}}]	17	1
-16	2019-05-12 19:29:08.915016+00	1	StepDetail object (1)	2	[{"changed": {"fields": ["information"]}}]	30	1
-17	2019-05-12 19:31:58.821665+00	1	StepDetail object (1)	2	[{"changed": {"fields": ["information"]}}]	30	1
-18	2019-05-12 19:34:19.685721+00	1	StepDetail object (1)	2	[{"changed": {"fields": ["information"]}}]	30	1
-19	2019-05-12 19:39:49.836413+00	1	StepDetail object (1)	2	[{"changed": {"fields": ["information"]}}]	30	1
-20	2019-05-12 19:44:02.702594+00	1	StepDetail object (1)	3		30	1
-21	2019-05-14 05:17:17.193303+00	1	Order object (1)	3		25	1
-22	2019-05-14 05:18:36.835592+00	1	Campaign object (1)	2	[{"changed": {"fields": ["end_date"]}}]	21	1
-23	2019-05-14 05:22:10.367289+00	3	StepDetail object (3)	3		30	1
-24	2019-05-14 05:22:20.828271+00	3	Order object (3)	3		25	1
-25	2019-05-14 05:22:30.796802+00	2	ContactMarketing object (2)	2	[{"changed": {"fields": ["status"]}}]	22	1
-26	2019-05-14 05:24:29.183953+00	4	Order object (4)	3		25	1
-27	2019-05-14 05:56:56.709915+00	2	StepDetail object (2)	2	[{"changed": {"fields": ["order"]}}]	30	1
-28	2019-05-14 05:58:54.424035+00	4	StepDetail object (4)	2	[{"changed": {"fields": ["information"]}}]	30	1
-29	2019-05-14 06:00:14.138656+00	4	StepDetail object (4)	3		30	1
-30	2019-05-14 06:00:34.094667+00	5	Order object (5)	3		25	1
-31	2019-05-14 06:00:47.149589+00	2	ContactMarketing object (2)	2	[{"changed": {"fields": ["status"]}}]	22	1
-32	2019-05-14 06:01:24.889615+00	2	Contact object (2)	2	[{"changed": {"fields": ["mail"]}}]	16	1
-33	2019-05-14 06:04:03.034404+00	6	Order object (6)	3		25	1
-34	2019-05-14 06:04:11.301604+00	5	StepDetail object (5)	3		30	1
-35	2019-05-14 06:04:21.368822+00	2	ContactMarketing object (2)	2	[{"changed": {"fields": ["status"]}}]	22	1
-36	2019-05-14 06:48:37.690285+00	1	Package object (1)	2	[{"changed": {"fields": ["prices"]}}]	14	1
-37	2019-05-14 06:48:58.119028+00	2	Package object (2)	2	[{"changed": {"fields": ["prices"]}}]	14	1
-38	2019-05-15 06:58:42.906286+00	2	Contact object (2)	2	[{"changed": {"fields": ["state"]}}]	16	1
-39	2019-05-15 06:59:48.83054+00	8	Order object (8)	1	[{"added": {}}]	25	1
-40	2019-05-15 07:00:30.948737+00	8	Order object (8)	3		25	1
-41	2019-05-15 11:51:55.477033+00	2	Order object (2)	2	[{"changed": {"fields": ["name", "status"]}}]	25	1
-42	2019-05-15 11:52:26.04356+00	2	Order object (2)	2	[{"changed": {"fields": ["status"]}}]	25	1
-43	2019-05-16 05:47:07.293637+00	1	ContactMarketing object (1)	2	[{"changed": {"fields": ["sale_rep"]}}]	19	1
-44	2019-05-16 05:47:13.186908+00	2	ContactMarketing object (2)	2	[{"changed": {"fields": ["sale_rep"]}}]	19	1
-45	2019-05-20 05:15:25.12255+00	3	MarketingPlan object (3)	3		23	1
-46	2019-05-20 05:15:32.371227+00	2	MarketingPlan object (2)	3		23	1
-47	2019-05-20 05:16:38.591795+00	1	MarketingPlan object (1)	2	[{"changed": {"fields": ["actions"]}}]	23	1
-48	2019-05-20 05:16:47.230995+00	1	MarketingPlan object (1)	2	[{"changed": {"fields": ["condition"]}}]	23	1
+1	2019-06-11 04:47:56.812595+00	1	Profile object (1)	1	[{"added": {}}]	9	1
+2	2019-06-11 05:32:58.107939+00	2	salerep	2	[{"changed": {"fields": ["password"]}}]	6	1
+3	2019-06-11 05:37:25.989567+00	2	salerep	2	[]	6	1
+4	2019-06-11 05:38:05.084696+00	2	salerep	2	[{"changed": {"fields": ["password"]}}]	6	1
+5	2019-06-11 05:38:16.991726+00	2	salerep	2	[{"changed": {"fields": ["password"]}}]	6	1
+6	2019-06-11 05:41:11.305703+00	2	salerep	2	[{"changed": {"fields": ["is_active"]}}]	6	1
 \.
 
 
@@ -2537,28 +2551,30 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 9	account	profile
 10	packages	feature
 11	packages	package
-12	packages	packagehistory
-13	packages	product
-14	packages	productcategory
-15	packages	producttype
+12	packages	productcategory
+13	packages	producttype
+14	packages	product
+15	packages	packagehistory
 16	contacts	contact
 17	contacts	contactgroup
 18	campaigns	campaign
 19	campaigns	contactmarketing
-20	campaigns	contactmarketinghistory
-21	campaigns	followupplan
-22	campaigns	mailtemplate
-23	campaigns	marketingplan
+20	campaigns	mailtemplate
+21	campaigns	marketingplan
+22	campaigns	followupplan
+23	campaigns	contactmarketinghistory
 24	campaigns	note
-25	orders	license
-26	orders	lifetimelicense
-27	orders	order
-28	orders	orderhistory
+25	orders	order
+26	orders	orderhistory
+27	orders	lifetimelicense
+28	orders	license
 29	steps	step
 30	steps	stepdetail
 31	reports	report
 32	events	event
 33	notifications	notification
+34	inbox	mailbox
+35	inbox	mailhistory
 \.
 
 
@@ -2567,36 +2583,42 @@ COPY public.django_content_type (id, app_label, model) FROM stdin;
 --
 
 COPY public.django_migrations (id, app, name, applied) FROM stdin;
-1	contenttypes	0001_initial	2019-05-16 05:40:49.1038+00
-2	auth	0001_initial	2019-05-16 05:40:49.288093+00
-3	account	0001_initial	2019-05-16 05:40:49.317189+00
-4	admin	0001_initial	2019-05-16 05:40:49.355307+00
-5	admin	0002_logentry_remove_auto_add	2019-05-16 05:40:49.372074+00
-6	admin	0003_logentry_add_action_flag_choices	2019-05-16 05:40:49.392666+00
-7	contenttypes	0002_remove_content_type_name	2019-05-16 05:40:49.433976+00
-8	auth	0002_alter_permission_name_max_length	2019-05-16 05:40:49.449264+00
-9	auth	0003_alter_user_email_max_length	2019-05-16 05:40:49.467806+00
-10	auth	0004_alter_user_username_opts	2019-05-16 05:40:49.483679+00
-11	auth	0005_alter_user_last_login_null	2019-05-16 05:40:49.502569+00
-12	auth	0006_require_contenttypes_0002	2019-05-16 05:40:49.506906+00
-13	auth	0007_alter_validators_add_error_messages	2019-05-16 05:40:49.526369+00
-14	auth	0008_alter_user_username_max_length	2019-05-16 05:40:49.550771+00
-15	auth	0009_alter_user_last_name_max_length	2019-05-16 05:40:49.566144+00
-16	packages	0001_initial	2019-05-16 05:40:49.823495+00
-17	contacts	0001_initial	2019-05-16 05:40:49.973339+00
-22	jet	0001_initial	2019-05-16 05:40:51.482954+00
-23	jet	0002_delete_userdashboardmodule	2019-05-16 05:40:51.509554+00
-24	notifications	0001_initial	2019-05-16 05:40:51.574615+00
-25	reports	0001_initial	2019-05-16 05:40:51.750783+00
-26	sessions	0001_initial	2019-05-16 05:40:51.780694+00
-28	campaigns	0001_initial	2019-05-17 11:28:55.803238+00
-29	orders	0001_initial	2019-05-17 11:28:55.945917+00
-30	events	0001_initial	2019-05-17 11:28:55.964637+00
-31	events	0002_auto_20190517_1828	2019-05-17 11:28:55.971245+00
-32	campaigns	0002_auto_20190517_1833	2019-05-17 11:33:16.732224+00
-33	steps	0001_initial	2019-05-17 11:34:36.23202+00
-34	campaigns	0002_mailtemplate_subject	2019-05-17 11:40:30.324746+00
-35	steps	0002_stepdetail_thread	2019-05-22 05:22:36.440101+00
+1	contenttypes	0001_initial	2019-06-11 04:45:21.407885+00
+2	auth	0001_initial	2019-06-11 04:45:21.451918+00
+3	account	0001_initial	2019-06-11 04:45:21.503495+00
+4	admin	0001_initial	2019-06-11 04:45:21.52204+00
+5	admin	0002_logentry_remove_auto_add	2019-06-11 04:45:21.541687+00
+6	admin	0003_logentry_add_action_flag_choices	2019-06-11 04:45:21.553615+00
+7	contenttypes	0002_remove_content_type_name	2019-06-11 04:45:21.577313+00
+8	auth	0002_alter_permission_name_max_length	2019-06-11 04:45:21.585876+00
+9	auth	0003_alter_user_email_max_length	2019-06-11 04:45:21.598446+00
+10	auth	0004_alter_user_username_opts	2019-06-11 04:45:21.609451+00
+11	auth	0005_alter_user_last_login_null	2019-06-11 04:45:21.623772+00
+12	auth	0006_require_contenttypes_0002	2019-06-11 04:45:21.627053+00
+13	auth	0007_alter_validators_add_error_messages	2019-06-11 04:45:21.638463+00
+14	auth	0008_alter_user_username_max_length	2019-06-11 04:45:21.653441+00
+15	auth	0009_alter_user_last_name_max_length	2019-06-11 04:45:21.66591+00
+16	auth	0010_alter_group_name_max_length	2019-06-11 04:45:21.678501+00
+17	auth	0011_update_proxy_permissions	2019-06-11 04:45:21.696575+00
+18	packages	0001_initial	2019-06-11 04:45:21.796214+00
+19	contacts	0001_initial	2019-06-11 04:45:21.896993+00
+20	campaigns	0001_initial	2019-06-11 04:45:22.335523+00
+21	campaigns	0002_contactmarketing_thread_ids	2019-06-11 04:45:22.425563+00
+22	campaigns	0003_remove_contactmarketing_thread_ids	2019-06-11 04:45:22.450644+00
+23	campaigns	0004_contactmarketing_thread_ids	2019-06-11 04:45:22.479529+00
+24	campaigns	0005_auto_20190611_1143	2019-06-11 04:45:22.503853+00
+25	contacts	0002_auto_20190611_1143	2019-06-11 04:45:22.531162+00
+26	orders	0001_initial	2019-06-11 04:45:22.667251+00
+27	events	0001_initial	2019-06-11 04:45:22.744367+00
+28	events	0002_auto_20190529_1209	2019-06-11 04:45:22.836202+00
+29	jet	0001_initial	2019-06-11 04:45:22.872412+00
+30	jet	0002_delete_userdashboardmodule	2019-06-11 04:45:22.883253+00
+31	notifications	0001_initial	2019-06-11 04:45:22.93329+00
+32	reports	0001_initial	2019-06-11 04:45:23.024072+00
+33	sessions	0001_initial	2019-06-11 04:45:23.069727+00
+34	steps	0001_initial	2019-06-11 04:45:23.179748+00
+35	steps	0002_auto_20190611_1143	2019-06-11 04:45:23.281007+00
+36	inbox	0001_initial	2019-06-11 04:46:53.136087+00
 \.
 
 
@@ -2605,8 +2627,7 @@ COPY public.django_migrations (id, app, name, applied) FROM stdin;
 --
 
 COPY public.django_session (session_key, session_data, expire_date) FROM stdin;
-1w9k342z2juqfqs0yc4fz1yi9tq6fnnh	YWUwNGJlMjM5NThmNDU3Njc4ODczNWYxMzljMzAyYmZhNTEzZDY0OTp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiJjNzJmZGVhOWM0MTNjYjQ4ZGE0YzUzMmEwNjkyNDBmZTViMTIxMGE3In0=	2019-05-27 04:26:27.019268+00
-v83nex9mxot2zcerxc4qvtsv9aybaj2s	YWUwNGJlMjM5NThmNDU3Njc4ODczNWYxMzljMzAyYmZhNTEzZDY0OTp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiJjNzJmZGVhOWM0MTNjYjQ4ZGE0YzUzMmEwNjkyNDBmZTViMTIxMGE3In0=	2019-06-05 10:33:36.351817+00
+89gqsrobtmuj33pjdtvtwq6zh4c1lqfp	Y2Q0NWY2ZmFkMWUxZWI2NDdiMTczNDYzNmJjY2IxOTM1NTJkMDhjMzp7Il9hdXRoX3VzZXJfaWQiOiIxIiwiX2F1dGhfdXNlcl9iYWNrZW5kIjoiZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5kcy5Nb2RlbEJhY2tlbmQiLCJfYXV0aF91c2VyX2hhc2giOiIzNmFjZGI3NDdmYzUyMjEyZjE4OWU2YjgwM2Q5OTA1MzY5MDVlZmI4In0=	2019-06-25 09:14:03.161416+00
 \.
 
 
@@ -2615,25 +2636,14 @@ v83nex9mxot2zcerxc4qvtsv9aybaj2s	YWUwNGJlMjM5NThmNDU3Njc4ODczNWYxMzljMzAyYmZhNTE
 --
 
 COPY public.events_event (id, created, modified, is_removed, content, start_date, end_date, name, priority, assigned_to_id, marketing_id, order_id, user_id) FROM stdin;
-1	2019-05-12 19:12:08.326384+00	2019-05-12 19:12:08.326667+00	f	Contact Vu Dang	2019-05-12 17:00:00+00	2019-05-12 17:00:00+00	Start contacting Vu Dang	0	5	1	\N	5
-2	2019-05-12 19:12:08.341488+00	2019-05-12 19:12:08.341748+00	f	Contact John Wick	2019-05-12 17:00:00+00	2019-05-12 17:00:00+00	Start contacting John Wick	0	5	2	\N	5
-3	2019-05-14 05:12:05.713836+00	2019-05-14 05:12:05.714138+00	f	<p>One two</p>	2019-05-14 17:00:00+00	2019-05-15 17:00:00+00	Wow	2	5	\N	\N	5
-4	2019-05-22 10:23:36.724347+00	2019-05-22 10:23:36.724713+00	f	Contact Vu Dang	2019-05-21 17:00:00+00	2019-05-21 17:00:00+00	Start contacting Vu Dang	0	5	3	\N	5
-5	2019-05-23 09:40:21.388723+00	2019-05-23 09:40:21.389163+00	f	Contact Vu Dang	2019-05-22 17:00:00+00	2019-05-22 17:00:00+00	Start contacting Vu Dang	0	5	4	\N	5
-6	2019-05-23 09:40:21.422535+00	2019-05-23 09:40:21.422844+00	f	Contact Mac Demarco	2019-05-22 17:00:00+00	2019-05-22 17:00:00+00	Start contacting Mac Demarco	0	5	5	\N	5
-7	2019-05-23 09:40:21.438824+00	2019-05-23 09:40:21.439196+00	f	Contact John Wick	2019-05-22 17:00:00+00	2019-05-22 17:00:00+00	Start contacting John Wick	0	5	6	\N	5
-8	2019-05-24 00:07:12.926863+00	2019-05-24 00:07:12.928622+00	f	Contact Vu Dang	2019-05-23 17:00:00+00	2019-05-23 17:00:00+00	Start contacting Vu Dang	0	5	7	\N	5
-9	2019-05-24 00:07:12.964715+00	2019-05-24 00:07:12.964979+00	f	Contact Mac Demarco	2019-05-23 17:00:00+00	2019-05-23 17:00:00+00	Start contacting Mac Demarco	0	5	8	\N	5
-10	2019-05-24 00:07:12.98921+00	2019-05-24 00:07:12.989596+00	f	Contact John Wick	2019-05-23 17:00:00+00	2019-05-23 17:00:00+00	Start contacting John Wick	0	5	9	\N	5
-11	2019-05-25 00:07:43.750068+00	2019-05-25 00:07:43.750474+00	f	Contact Vu Dang	2019-05-24 17:00:00+00	2019-05-24 17:00:00+00	Start contacting Vu Dang	0	5	10	\N	5
-12	2019-05-25 00:07:43.770291+00	2019-05-25 00:07:43.770593+00	f	Contact Mac Demarco	2019-05-24 17:00:00+00	2019-05-24 17:00:00+00	Start contacting Mac Demarco	0	5	11	\N	5
-13	2019-05-25 00:07:43.789247+00	2019-05-25 00:07:43.789525+00	f	Contact John Wick	2019-05-24 17:00:00+00	2019-05-24 17:00:00+00	Start contacting John Wick	0	5	12	\N	5
-14	2019-05-26 00:20:48.920281+00	2019-05-26 00:20:48.920823+00	f	Contact Vu Dang	2019-05-25 17:00:00+00	2019-05-25 17:00:00+00	Start contacting Vu Dang	0	5	13	\N	5
-15	2019-05-26 00:20:48.943554+00	2019-05-26 00:20:48.943828+00	f	Contact Mac Demarco	2019-05-25 17:00:00+00	2019-05-25 17:00:00+00	Start contacting Mac Demarco	0	5	14	\N	5
-16	2019-05-26 00:20:48.961253+00	2019-05-26 00:20:48.961535+00	f	Contact John Wick	2019-05-25 17:00:00+00	2019-05-25 17:00:00+00	Start contacting John Wick	0	5	15	\N	5
-17	2019-05-27 00:03:38.203923+00	2019-05-27 00:03:38.204319+00	f	Contact Vu Dang	2019-05-26 17:00:00+00	2019-05-26 17:00:00+00	Start contacting Vu Dang	0	5	16	\N	5
-18	2019-05-27 00:03:38.22886+00	2019-05-27 00:03:38.229158+00	f	Contact Mac Demarco	2019-05-26 17:00:00+00	2019-05-26 17:00:00+00	Start contacting Mac Demarco	0	5	17	\N	5
-19	2019-05-27 00:03:38.254033+00	2019-05-27 00:03:38.254576+00	f	Contact John Wick	2019-05-26 17:00:00+00	2019-05-26 17:00:00+00	Start contacting John Wick	0	5	18	\N	5
+1	2019-06-11 10:37:27.232778+00	2019-06-11 10:37:27.23314+00	f	Contact Ariana Gwwww	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Ariana Gwwww	0	2	1	\N	2
+2	2019-06-11 10:37:27.248741+00	2019-06-11 10:37:27.24899+00	f	Contact Tony Stark	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Tony Stark	0	2	2	\N	2
+3	2019-06-11 10:37:27.25989+00	2019-06-11 10:37:27.260189+00	f	Contact Steve Rogers	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Steve Rogers	0	2	3	\N	2
+4	2019-06-11 10:37:27.270451+00	2019-06-11 10:37:27.270671+00	f	Contact Nick Fury	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Nick Fury	0	2	4	\N	2
+5	2019-06-11 10:37:27.281948+00	2019-06-11 10:37:27.282306+00	f	Contact War Machine	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting War Machine	0	2	5	\N	2
+6	2019-06-11 10:37:27.293215+00	2019-06-11 10:37:27.293515+00	f	Contact Scott Lang	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Scott Lang	0	2	6	\N	2
+7	2019-06-11 10:37:27.303941+00	2019-06-11 10:37:27.30415+00	f	Contact Vu Dang Ho	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Vu Dang Ho	0	2	7	\N	2
+8	2019-06-11 10:37:58.596981+00	2019-06-11 10:37:58.598384+00	f	Contact Duc Anh Tran	2019-06-10 17:00:00+00	2019-06-10 17:00:00+00	Start contacting Duc Anh Tran	0	2	8	\N	2
 \.
 
 
@@ -2642,24 +2652,41 @@ COPY public.events_event (id, created, modified, is_removed, content, start_date
 --
 
 COPY public.events_event_contacts (id, event_id, contact_id) FROM stdin;
-1	1	1
-2	2	2
-3	4	1
-4	5	1
-5	6	3
-6	7	2
-7	8	1
-8	9	3
-9	10	2
-10	11	1
-11	12	3
-12	13	2
-13	14	1
-14	15	3
-15	16	2
-16	17	1
-17	18	3
-18	19	2
+1	1	2
+2	2	3
+3	3	4
+4	4	5
+5	5	6
+6	6	7
+7	7	8
+8	8	1
+\.
+
+
+--
+-- Data for Name: inbox_mailbox; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.inbox_mailbox (id, created, modified, is_removed, user_id, message_id, thread_id, email_type) FROM stdin;
+1	2019-06-11 10:39:28.234293+00	2019-06-11 10:39:28.240269+00	f	2	16b461f0bac8561c	16b461f0bac8561c	SENT
+2	2019-06-11 17:47:18.384904+00	2019-06-11 17:47:18.455069+00	f	2	16b47a6bd7063e9a	16b47a6bd7063e9a	SENT
+3	2019-06-11 17:47:20.048492+00	2019-06-11 17:47:20.066616+00	f	2	16b47a6c2449e5a8	16b47a6c2449e5a8	SENT
+4	2019-06-11 17:47:21.09704+00	2019-06-11 17:47:21.097936+00	f	2	16b47a6c7ae35301	16b47a6c7ae35301	SENT
+5	2019-06-11 17:47:22.094142+00	2019-06-11 17:47:22.113113+00	f	2	16b47a6ca092dbc2	16b47a6ca092dbc2	SENT
+6	2019-06-11 17:47:29.620824+00	2019-06-11 17:47:29.649804+00	f	2	16b47a6e8347a85d	16b47a6e8347a85d	SENT
+7	2019-06-11 17:47:30.957695+00	2019-06-11 17:47:30.99013+00	f	2	16b47a6ee4fa4f3e	16b47a6ee4fa4f3e	SENT
+8	2019-06-11 17:47:32.10636+00	2019-06-11 17:47:32.12888+00	f	2	16b47a6f2101b416	16b47a6f2101b416	SENT
+9	2019-06-12 07:11:32.304922+00	2019-06-12 07:11:32.310831+00	f	2	16b4a8709233470b	16b4a8709233470b	SENT
+\.
+
+
+--
+-- Data for Name: inbox_mailhistory; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+COPY public.inbox_mailhistory (id, created, modified, is_removed, history_id) FROM stdin;
+1	2019-06-11 04:49:47.397838+00	2019-06-11 04:49:47.398373+00	f	83757
+2	2019-06-11 04:49:47.399453+00	2019-06-11 04:49:47.400089+00	f	83518
 \.
 
 
@@ -2692,8 +2719,6 @@ COPY public.notifications_notification (id, created, modified, is_removed, conte
 --
 
 COPY public.orders_license (id, created, modified, is_removed, start_date, duration, code, order_id, package_id) FROM stdin;
-1	2019-05-14 06:45:10.098753+00	2019-05-14 06:45:10.099999+00	f	2019-05-14	1	5c05dba1-5351-4384-844d-94553fc01ac8	2	1
-2	2019-05-14 06:45:10.113416+00	2019-05-14 06:45:10.113776+00	f	2019-05-14	6	a9655d0c-49d6-4a89-8b0b-b8fdf8161db7	2	2
 \.
 
 
@@ -2702,8 +2727,6 @@ COPY public.orders_license (id, created, modified, is_removed, start_date, durat
 --
 
 COPY public.orders_lifetimelicense (id, created, modified, is_removed, start_date, code, order_id, package_id) FROM stdin;
-1	2019-05-14 06:45:21.265869+00	2019-05-14 06:45:21.266367+00	f	2019-05-14	79728da8-fce4-4e32-a532-da3f3eb656eb	7	1
-2	2019-05-14 06:45:21.31838+00	2019-05-14 06:45:21.318738+00	f	2019-05-14	fe5a4b13-5efe-48b3-a139-d71bd91c7e60	7	2
 \.
 
 
@@ -2712,14 +2735,7 @@ COPY public.orders_lifetimelicense (id, created, modified, is_removed, start_dat
 --
 
 COPY public.orders_order (id, created, modified, is_removed, name, status, campaign_id, contacts_id, sale_rep_id) FROM stdin;
-1	2019-05-12 19:12:26.592743+00	2019-05-12 19:19:26.697132+00	t		RUNNING	1	2	5
-3	2019-05-14 05:19:24.945476+00	2019-05-14 05:22:20.831769+00	t		RUNNING	1	1	5
-4	2019-05-14 05:22:42.711225+00	2019-05-14 05:24:29.185851+00	t		RUNNING	1	2	5
-5	2019-05-14 05:23:18.608027+00	2019-05-14 05:23:18.608395+00	t		RUNNING	1	2	5
-6	2019-05-14 06:01:34.245196+00	2019-05-14 06:04:03.035842+00	t		RUNNING	1	2	5
-7	2019-05-14 06:04:31.121716+00	2019-05-14 06:45:21.350181+00	f		COMPLETED	1	2	5
-8	2019-05-15 06:59:48.760588+00	2019-05-15 06:59:48.813131+00	t	OO	COMPLETED	1	3	1
-2	2019-05-14 05:18:47.081065+00	2019-05-15 11:52:26.029687+00	f	Woo	COMPLETED	1	1	5
+1	2019-06-11 10:39:27.20264+00	2019-06-11 10:39:27.203009+00	f		RUNNING	2	1	2
 \.
 
 
@@ -2728,11 +2744,6 @@ COPY public.orders_order (id, created, modified, is_removed, name, status, campa
 --
 
 COPY public.orders_order_packages (id, order_id, package_id) FROM stdin;
-1	2	1
-2	2	2
-3	7	1
-4	7	2
-5	8	1
 \.
 
 
@@ -2741,7 +2752,6 @@ COPY public.orders_order_packages (id, order_id, package_id) FROM stdin;
 --
 
 COPY public.orders_orderhistory (id, created, modified, is_removed, date, action, order_id) FROM stdin;
-1	2019-05-12 19:19:26.704456+00	2019-05-12 19:19:26.704861+00	f	2019-05-13	Call Client	1
 \.
 
 
@@ -2750,8 +2760,9 @@ COPY public.orders_orderhistory (id, created, modified, is_removed, date, action
 --
 
 COPY public.packages_feature (id, created, modified, is_removed, name, "desc", price, number, product_id) FROM stdin;
-1	2019-05-12 19:09:42.2498+00	2019-05-12 19:09:42.250114+00	f	Big1		111111111	1	1
-2	2019-05-12 19:09:42.253465+00	2019-05-12 19:09:42.253846+00	f	Big2		11111111	2	1
+2	2019-06-11 09:00:41.84901+00	2019-06-11 09:40:09.155646+00	f	Feature 1		1111122	1	3
+3	2019-06-11 09:59:21.782599+00	2019-06-11 10:18:33.67717+00	f	Feature 2		12333	2	6
+1	2019-06-11 08:32:53.008969+00	2019-06-11 10:18:33.679714+00	f	Feature 1	222	11	1	6
 \.
 
 
@@ -2760,8 +2771,21 @@ COPY public.packages_feature (id, created, modified, is_removed, name, "desc", p
 --
 
 COPY public.packages_package (id, created, modified, is_removed, name, prices, discount) FROM stdin;
-1	2019-05-12 19:09:42.257162+00	2019-05-14 06:48:37.603794+00	f	PackA	{"1": 144, "6": 115656, "12": 22222, "999999": 6666}	0
-2	2019-05-12 19:09:42.614035+00	2019-05-14 06:48:58.029707+00	f	PackB	{"1": 255, "6": 256, "12": 333, "999999": 8888}	0
+2	2019-06-11 09:08:36.197319+00	2019-06-11 09:08:36.197583+00	f	Package 1	{"1": 123244, "6": 1444, "12": 22, "999999": 33}	0
+3	2019-06-11 09:10:04.162456+00	2019-06-11 09:10:04.162753+00	f	Package 1	{"1": 22, "6": 33, "12": 44, "999999": 44}	0
+4	2019-06-11 09:16:16.601311+00	2019-06-11 09:16:16.601531+00	f	ALu	{"1": 222, "6": "", "12": "", "999999": ""}	0
+5	2019-06-11 09:17:08.009179+00	2019-06-11 09:17:08.009979+00	f	222	{"1": 23, "6": "", "12": "", "999999": ""}	0
+6	2019-06-11 09:20:06.999751+00	2019-06-11 09:20:06.999952+00	f	asdasd	{"1": 244, "6": 4444, "12": "", "999999": ""}	0
+7	2019-06-11 09:21:20.885234+00	2019-06-11 09:21:20.885894+00	f	ALLLLPPPP	{"1": 312, "6": 4444, "12": "", "999999": ""}	0
+8	2019-06-11 09:23:32.545124+00	2019-06-11 09:23:32.545449+00	f	Big Package	{"1": 112, "6": 12444, "12": 5125, "999999": 4444}	0
+9	2019-06-11 09:24:56.913112+00	2019-06-11 09:24:56.913701+00	f	BIg Package	{"1": 1123, "6": 4444, "12": 12422, "999999": 124124}	0
+10	2019-06-11 09:28:44.11114+00	2019-06-11 09:28:44.111445+00	f	ALO	{"1": 12, "6": 233, "12": 4444, "999999": 55677}	0
+11	2019-06-11 09:30:11.609973+00	2019-06-11 09:30:11.610485+00	f	LOOO	{"1": 2, "6": 12, "12": 24, "999999": 4444}	0
+12	2019-06-11 09:31:11.323845+00	2019-06-11 09:31:11.324568+00	f	ALO	{"1": 23123, "6": 4444, "12": "", "999999": ""}	0
+13	2019-06-11 09:40:09.16199+00	2019-06-11 09:40:09.162293+00	f	Big Package	{"1": 1112, "6": 3333, "12": "", "999999": ""}	0
+1	2019-06-11 08:32:53.014452+00	2019-06-11 10:15:45.266263+00	f	Package 1	{"1": 123244, "6": "", "12": "", "999999": ""}	0
+14	2019-06-11 10:17:22.735841+00	2019-06-11 10:17:27.882974+00	f	package A	{"1": "", "6": "", "12": "", "999999": ""}	0
+15	2019-06-11 10:18:31.643857+00	2019-06-11 10:18:33.686455+00	f	Package 1	{"1": 22, "6": 222, "12": 333, "999999": 2222}	0
 \.
 
 
@@ -2770,9 +2794,9 @@ COPY public.packages_package (id, created, modified, is_removed, name, prices, d
 --
 
 COPY public.packages_package_features (id, package_id, feature_id) FROM stdin;
-1	1	1
-2	2	1
-3	2	2
+2	13	2
+5	15	1
+6	15	3
 \.
 
 
@@ -2789,7 +2813,12 @@ COPY public.packages_packagehistory (id, created, modified, is_removed, date, ac
 --
 
 COPY public.packages_product (id, created, modified, is_removed, name, "desc", status, start_sale_date, category_id, manager_id, product_type_id) FROM stdin;
-1	2019-05-12 19:09:41.889359+00	2019-05-12 19:09:41.889653+00	f	Product NA		ACTIVE	2019-05-13	1	5	1
+2	2019-06-11 08:05:37.953027+00	2019-06-11 08:05:37.95328+00	f	Product 2	<p>ádsad</p>	ACTIVE	2019-06-11	\N	2	\N
+4	2019-06-11 08:07:59.225053+00	2019-06-11 08:07:59.225369+00	f	Product 4	<p>ádasd</p>	ACTIVE	2019-06-11	\N	2	\N
+5	2019-06-11 08:10:02.627962+00	2019-06-11 08:10:02.628298+00	f	Product 5	<p>ddddd</p>	ACTIVE	2019-06-11	1	2	1
+1	2019-06-11 08:05:05.498116+00	2019-06-11 08:12:34.911851+00	f	Product 1	<p>Product</p>	ACTIVE	2019-06-11	\N	2	\N
+3	2019-06-11 08:07:06.193159+00	2019-06-11 09:40:09.116032+00	f	Product 3	<p>đasad</p>	ACTIVE	2019-06-11	\N	2	\N
+6	2019-06-11 08:32:52.966548+00	2019-06-11 10:18:33.643391+00	f	Product 6	<p>sdd</p>	ACTIVE	2019-06-11	1	2	1
 \.
 
 
@@ -2798,7 +2827,7 @@ COPY public.packages_product (id, created, modified, is_removed, name, "desc", s
 --
 
 COPY public.packages_productcategory (id, created, modified, is_removed, name, description, status) FROM stdin;
-1	2019-05-12 19:08:06.582929+00	2019-05-12 19:08:06.583484+00	f	Game		ACTIVE
+1	2019-06-11 04:49:47.385371+00	2019-06-11 04:49:47.38566+00	f	Category 1	category	ACTIVE
 \.
 
 
@@ -2807,7 +2836,7 @@ COPY public.packages_productcategory (id, created, modified, is_removed, name, d
 --
 
 COPY public.packages_producttype (id, created, modified, is_removed, name, description, status) FROM stdin;
-1	2019-05-12 19:07:51.286051+00	2019-05-12 19:07:51.286661+00	f	Mobile		ACTIVE
+1	2019-06-11 04:49:58.334224+00	2019-06-11 04:49:58.334489+00	f	Product Type 1	productype	ACTIVE
 \.
 
 
@@ -2848,7 +2877,10 @@ COPY public.reports_report_users (id, report_id, user_id) FROM stdin;
 --
 
 COPY public.steps_step (id, created, modified, is_removed, actions, duration, conditions, follow_up_id, mail_template_id) FROM stdin;
-1	2019-05-12 19:06:47.491713+00	2019-05-12 19:06:47.49239+00	f	["Send Email"]	10	[{"name": "Choose Packages", "type": "final"}]	1	1
+1	2019-06-11 10:33:58.841345+00	2019-06-11 10:33:58.841791+00	f	["Send Email"]	20	[]	1	2
+2	2019-06-11 10:33:58.841417+00	2019-06-11 10:33:58.841856+00	f	[]	0	[{"name": "Choose Packages", "type": "final"}]	1	\N
+3	2019-06-11 10:34:42.326802+00	2019-06-11 10:34:42.327263+00	f	["Send Email"]	10	[]	2	1
+4	2019-06-11 10:34:42.326869+00	2019-06-11 10:34:42.327333+00	f	[]	20	[{"name": "Choose Packages", "type": "final"}]	2	1
 \.
 
 
@@ -2856,13 +2888,9 @@ COPY public.steps_step (id, created, modified, is_removed, actions, duration, co
 -- Data for Name: steps_stepdetail; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.steps_stepdetail (id, created, modified, is_removed, information, status, order_id, step_id, thread) FROM stdin;
-1	2019-05-12 19:12:26.602629+00	2019-05-12 19:39:49.834772+00	t	[{"type": "final", "result": {"1": {"type": 6}}}]	COMPLETED	1	1	[]
-3	2019-05-14 05:19:24.954499+00	2019-05-14 05:22:10.373803+00	t	{"1": {"type": "", "price": ""}, "2": {"type": "", "price": ""}}	RUNNING	3	1	[]
-2	2019-05-12 19:44:16.691028+00	2019-05-14 05:56:56.707398+00	f	{"Choose Packages": {"type": "final", "result": {"1": {"type": 1, "price": "144"}, "2": {"type": 6, "price": "256"}}}}	COMPLETED	2	1	[]
-4	2019-05-14 05:23:18.617965+00	2019-05-14 06:00:14.140276+00	t	{"Choose Packages": {"type": "final", "result": {"1": {"type": "", "price": ""}, "2": {"type": "", "price": ""}}}}	RUNNING	5	1	[]
-5	2019-05-14 06:01:34.254+00	2019-05-14 06:04:11.30326+00	t	{"Choose Packages": {"type": "final", "result": {"2": {"type": "", "price": ""}}}}	RUNNING	6	1	[]
-6	2019-05-14 06:04:31.13076+00	2019-05-14 06:45:17.800205+00	f	{"Choose Packages": {"type": "final", "result": {"1": {"type": 999999, "price": "6666"}, "2": {"type": 999999, "price": "8888"}}}}	COMPLETED	7	1	[]
+COPY public.steps_stepdetail (id, created, modified, is_removed, information, status, thread, order_id, step_id) FROM stdin;
+2	2019-06-11 10:39:27.20932+00	2019-06-11 10:39:27.211322+00	f	{"Choose Packages": {"type": "final", "result": {"15": {}}}}	RUNNING	[]	1	4
+1	2019-06-11 10:39:27.209242+00	2019-06-11 10:39:28.345893+00	f	{}	RUNNING	[{"type": "Send Email", "thread_id": "16b461f0bac8561c"}]	1	3
 \.
 
 
@@ -2870,7 +2898,7 @@ COPY public.steps_stepdetail (id, created, modified, is_removed, information, st
 -- Name: account_profile_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.account_profile_id_seq', 5, true);
+SELECT pg_catalog.setval('public.account_profile_id_seq', 11, true);
 
 
 --
@@ -2891,7 +2919,7 @@ SELECT pg_catalog.setval('public.auth_group_permissions_id_seq', 1, false);
 -- Name: auth_permission_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.auth_permission_id_seq', 132, true);
+SELECT pg_catalog.setval('public.auth_permission_id_seq', 140, true);
 
 
 --
@@ -2905,7 +2933,7 @@ SELECT pg_catalog.setval('public.auth_user_groups_id_seq', 1, false);
 -- Name: auth_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.auth_user_id_seq', 5, true);
+SELECT pg_catalog.setval('public.auth_user_id_seq', 11, true);
 
 
 --
@@ -2919,56 +2947,56 @@ SELECT pg_catalog.setval('public.auth_user_user_permissions_id_seq', 1, false);
 -- Name: campaigns_campaign_assigned_to_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_campaign_assigned_to_id_seq', 9, true);
+SELECT pg_catalog.setval('public.campaigns_campaign_assigned_to_id_seq', 2, true);
 
 
 --
 -- Name: campaigns_campaign_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_campaign_id_seq', 9, true);
+SELECT pg_catalog.setval('public.campaigns_campaign_id_seq', 2, true);
 
 
 --
 -- Name: campaigns_campaign_packages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_campaign_packages_id_seq', 10, true);
+SELECT pg_catalog.setval('public.campaigns_campaign_packages_id_seq', 2, true);
 
 
 --
 -- Name: campaigns_contactmarketing_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_contactmarketing_id_seq', 18, true);
+SELECT pg_catalog.setval('public.campaigns_contactmarketing_id_seq', 8, true);
 
 
 --
 -- Name: campaigns_contactmarketinghistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_contactmarketinghistory_id_seq', 1, false);
+SELECT pg_catalog.setval('public.campaigns_contactmarketinghistory_id_seq', 2, true);
 
 
 --
 -- Name: campaigns_followupplan_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_followupplan_id_seq', 1, true);
+SELECT pg_catalog.setval('public.campaigns_followupplan_id_seq', 2, true);
 
 
 --
 -- Name: campaigns_mailtemplate_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_mailtemplate_id_seq', 7, true);
+SELECT pg_catalog.setval('public.campaigns_mailtemplate_id_seq', 3, true);
 
 
 --
 -- Name: campaigns_marketingplan_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.campaigns_marketingplan_id_seq', 5, true);
+SELECT pg_catalog.setval('public.campaigns_marketingplan_id_seq', 3, true);
 
 
 --
@@ -2982,56 +3010,70 @@ SELECT pg_catalog.setval('public.campaigns_note_id_seq', 1, false);
 -- Name: contacts_contact_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.contacts_contact_id_seq', 3, true);
+SELECT pg_catalog.setval('public.contacts_contact_id_seq', 8, true);
 
 
 --
 -- Name: contacts_contactgroup_contacts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.contacts_contactgroup_contacts_id_seq', 6, true);
+SELECT pg_catalog.setval('public.contacts_contactgroup_contacts_id_seq', 8, true);
 
 
 --
 -- Name: contacts_contactgroup_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.contacts_contactgroup_id_seq', 7, true);
+SELECT pg_catalog.setval('public.contacts_contactgroup_id_seq', 11, true);
 
 
 --
 -- Name: django_admin_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_admin_log_id_seq', 48, true);
+SELECT pg_catalog.setval('public.django_admin_log_id_seq', 6, true);
 
 
 --
 -- Name: django_content_type_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_content_type_id_seq', 33, true);
+SELECT pg_catalog.setval('public.django_content_type_id_seq', 35, true);
 
 
 --
 -- Name: django_migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.django_migrations_id_seq', 35, true);
+SELECT pg_catalog.setval('public.django_migrations_id_seq', 36, true);
 
 
 --
 -- Name: events_event_contacts_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.events_event_contacts_id_seq', 18, true);
+SELECT pg_catalog.setval('public.events_event_contacts_id_seq', 8, true);
 
 
 --
 -- Name: events_event_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.events_event_id_seq', 19, true);
+SELECT pg_catalog.setval('public.events_event_id_seq', 8, true);
+
+
+--
+-- Name: inbox_mailbox_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.inbox_mailbox_id_seq', 9, true);
+
+
+--
+-- Name: inbox_mailhistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+--
+
+SELECT pg_catalog.setval('public.inbox_mailhistory_id_seq', 2, true);
 
 
 --
@@ -3059,56 +3101,56 @@ SELECT pg_catalog.setval('public.notifications_notification_id_seq', 1, false);
 -- Name: orders_license_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_license_id_seq', 2, true);
+SELECT pg_catalog.setval('public.orders_license_id_seq', 1, false);
 
 
 --
 -- Name: orders_lifetimelicense_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_lifetimelicense_id_seq', 2, true);
+SELECT pg_catalog.setval('public.orders_lifetimelicense_id_seq', 1, false);
 
 
 --
 -- Name: orders_order_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_order_id_seq', 8, true);
+SELECT pg_catalog.setval('public.orders_order_id_seq', 1, true);
 
 
 --
 -- Name: orders_order_packages_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_order_packages_id_seq', 5, true);
+SELECT pg_catalog.setval('public.orders_order_packages_id_seq', 1, false);
 
 
 --
 -- Name: orders_orderhistory_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.orders_orderhistory_id_seq', 1, true);
+SELECT pg_catalog.setval('public.orders_orderhistory_id_seq', 1, false);
 
 
 --
 -- Name: packages_feature_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.packages_feature_id_seq', 2, true);
+SELECT pg_catalog.setval('public.packages_feature_id_seq', 3, true);
 
 
 --
 -- Name: packages_package_features_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.packages_package_features_id_seq', 3, true);
+SELECT pg_catalog.setval('public.packages_package_features_id_seq', 6, true);
 
 
 --
 -- Name: packages_package_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.packages_package_id_seq', 2, true);
+SELECT pg_catalog.setval('public.packages_package_id_seq', 15, true);
 
 
 --
@@ -3122,7 +3164,7 @@ SELECT pg_catalog.setval('public.packages_packagehistory_id_seq', 1, false);
 -- Name: packages_product_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.packages_product_id_seq', 1, true);
+SELECT pg_catalog.setval('public.packages_product_id_seq', 6, true);
 
 
 --
@@ -3171,14 +3213,14 @@ SELECT pg_catalog.setval('public.reports_report_users_id_seq', 1, false);
 -- Name: steps_step_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.steps_step_id_seq', 1, true);
+SELECT pg_catalog.setval('public.steps_step_id_seq', 4, true);
 
 
 --
 -- Name: steps_stepdetail_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.steps_stepdetail_id_seq', 6, true);
+SELECT pg_catalog.setval('public.steps_stepdetail_id_seq', 2, true);
 
 
 --
@@ -3499,6 +3541,22 @@ ALTER TABLE ONLY public.events_event_contacts
 
 ALTER TABLE ONLY public.events_event
     ADD CONSTRAINT events_event_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: inbox_mailbox inbox_mailbox_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.inbox_mailbox
+    ADD CONSTRAINT inbox_mailbox_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: inbox_mailhistory inbox_mailhistory_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.inbox_mailhistory
+    ADD CONSTRAINT inbox_mailhistory_pkey PRIMARY KEY (id);
 
 
 --
@@ -3919,6 +3977,13 @@ CREATE INDEX campaigns_note_contact_id_1f2accfb ON public.campaigns_note USING b
 --
 
 CREATE INDEX campaigns_note_user_id_0f12e98e ON public.campaigns_note USING btree (user_id);
+
+
+--
+-- Name: contact_unique; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE UNIQUE INDEX contact_unique ON public.contacts_contact USING btree (user_id, first_name, last_name) WHERE (is_removed = false);
 
 
 --

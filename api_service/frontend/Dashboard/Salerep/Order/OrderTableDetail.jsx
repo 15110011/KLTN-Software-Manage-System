@@ -146,7 +146,7 @@ function OrderTableDetail(props) {
                           handleViewDetail(index)
                         }}>
                           <Typography variant="body2" style={{ paddingBottom: '10px' }}>
-                            {order.name}
+                            {`#${order.id}`}
                           </Typography>
                           <Typography variant="body2" style={{ paddingBottom: '10px' }}>
                             {
