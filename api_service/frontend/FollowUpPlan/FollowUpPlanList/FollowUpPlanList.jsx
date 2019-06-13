@@ -112,7 +112,7 @@ function FollowUpPlanList(props) {
             title="Follow Up Plan List"
             actions={[
               {
-                icon: 'done_all',
+                icon: 'delete',
                 tooltip: 'Do',
                 onClick: (event, rows) => {
                   alert('You selected ' + rows.length + ' rows')

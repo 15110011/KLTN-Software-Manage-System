@@ -125,7 +125,7 @@ function ProductList(props) {
             title="Product List"
             actions={[
               {
-                icon: 'done_all',
+                icon: 'delete',
                 tooltip: 'Do',
                 onClick: (event, rows) => {
                   alert('You selected ' + rows.length + ' rows')
@@ -145,7 +145,8 @@ function ProductList(props) {
               search: false,
               selection: true,
               filtering: true,
-              paging: true
+              paging: true,
+              selection: true
             }}
             onRowClick={(e, rowData) => { props.history.push('/products/' + rowData.id) }}
           />
