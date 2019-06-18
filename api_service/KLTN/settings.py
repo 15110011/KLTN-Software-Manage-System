@@ -62,7 +62,8 @@ INSTALLED_APPS = [
     'reports',
     'events',
     'notifications',
-    'reset_migrations'
+    'reset_migrations',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -307,4 +308,8 @@ LOGGING = {
             "level": "DEBUG"
         },
     },
+}
+GRAPH_MODELS = {
+    'all_applications': True,
+    'group_models': True,
 }

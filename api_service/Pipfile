@@ -33,6 +33,10 @@ channels-redis = "*"
 django-reset-migrations = "*"
 pandas = "*"
 xlrd = "*"
+django-extensions = "*"
+pygraphviz = "*"
+pydot = "*"
+pyparsing = {file = "https://pypi.python.org/packages/source/p/pyparsing/pyparsing-1.5.7.tar.gz"}
 
 [dev-packages]
 "autopep8" = "*"
