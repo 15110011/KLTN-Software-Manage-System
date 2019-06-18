@@ -162,8 +162,13 @@ function Report(props) {
               <MaterialTable
                 title="Product"
                 columns={[
-                  { title: '#', field: 'numeral', headerStyle: { zIndex: 0 }, filtering: false, sorting: false },
-                  { title: 'Order', field: 'order', headerStyle: { zIndex: 0 } },
+                  {
+                    title: 'Order', field: 'order', headerStyle: { zIndex: 0 }, render: (row) => {
+                      return (
+                        <>{`#${row.order}`}</>
+                      )
+                    }
+                  },
                   {
                     title: 'Product', field: 'product', headerStyle: { zIndex: 0 },
                     customSort: (a, b) => {
@@ -188,8 +193,7 @@ function Report(props) {
                   filtering: true
                 }}
                 data={dataSearch && dataSearch.map((s, i) => ({
-                  'numeral': i + 1,
-                  'order': s.name ? s.name : '',
+                  'order': s.id ? s.id : '',
                   'product': s.campaign.product != null ? s.campaign.product.name : 'asad',
                   'campaign': s.campaign.name ? s.campaign.name : '',
                   'state': stateHashes[s.contacts.state]
@@ -200,8 +204,13 @@ function Report(props) {
               <MaterialTable
                 title="Sale Rep"
                 columns={[
-                  { title: '#', field: 'numeral', headerStyle: { zIndex: 0 }, filtering: false, sorting: false },
-                  { title: 'Order', field: 'order', headerStyle: { zIndex: 0 } },
+                  {
+                    title: 'Order', field: 'order', headerStyle: { zIndex: 0 }, render: (row) => {
+                      return (
+                        <>{`#${row.order}`}</>
+                      )
+                    }
+                  },
                   {
                     title: 'Sale Rep', field: 'sale', headerStyle: { zIndex: 0 },
                     // customSort: (a, b) => {
@@ -226,8 +235,7 @@ function Report(props) {
                   filtering: true
                 }}
                 data={dataSearch && dataSearch.map((s, i) => ({
-                  'numeral': i + 1,
-                  'order': s.name ? s.name : '',
+                  'order': s.id ? s.id : '',
                   'sale': s.sale_rep.username ? s.sale_rep.username : '',
                   'campaign': s.campaign.name ? s.campaign.name : '',
                   'state': stateHashes[s.contacts.state]

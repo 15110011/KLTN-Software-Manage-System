@@ -168,7 +168,8 @@ const styles = (theme) => ({
     color: '#333333'
   },
   inputCustom: {
-    fontSize: '15px',
+    fontSize: '15px',   
+     color: '#333333'
   },
   actions: {
     display: 'flex',

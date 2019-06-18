@@ -53,7 +53,8 @@ const styles = (theme) => ({
   },
   inputCustom: {
     fontSize: '15px',
-    position: 'relative'
+    position: 'relative',
+    color: '#333333'
   },
   btnGreen: {
     color: '#FFF',

@@ -46,6 +46,7 @@ const styles = (theme) => ({
   },
   inputCustom: {
     fontSize: '15px',
+    color: '#333333'
   },
   btnGreen: {
     color: '#FFF',
