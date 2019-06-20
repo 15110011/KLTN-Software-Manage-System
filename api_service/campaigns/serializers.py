@@ -74,6 +74,7 @@ class NoteSerializer(serializers.ModelSerializer):
 class MarketingPlanSerializer(serializers.ModelSerializer):
     can_remove = serializers.SerializerMethodField()
     mail_template = MailTemplateSerializer()
+    used = serializers.SerializerMethodField()
 
     class Meta:
         model = models.MarketingPlan
@@ -83,6 +84,9 @@ class MarketingPlanSerializer(serializers.ModelSerializer):
         if instance.campaigns.all():
             return False
         return True
+
+    def get_used(self, instance):
+        return len(instance.campaigns.all())
 
     def update(self, instance, validated_data):
         mail_template = validated_data.pop('mail_template', None)
@@ -108,10 +112,14 @@ class CreateMarketingPlanSerializer(serializers.ModelSerializer):
 
 class FollowUpPlanSerializer(serializers.ModelSerializer):
     steps = StepWithOutFollowUpSerializer(many=True)
+    used = serializers.SerializerMethodField()
 
     class Meta:
         model = models.FollowUpPlan
         fields = '__all__'
+
+    def get_used(self, instance):
+        return len(instance.campaigns.all())
 
 
 class CreateFollowUpPlanSerializer(serializers.ModelSerializer):

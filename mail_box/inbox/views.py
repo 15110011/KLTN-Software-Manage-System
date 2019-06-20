@@ -7,6 +7,8 @@ from . import models
 from .gmail_utils import GmailService
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import json
+import requests
 # Create your views here.
 
 
@@ -22,6 +24,7 @@ def send_email(request):
         thread_id=mail['thread_id'],
         email_type='SENT'
     )
+
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)('mailbox', {
         "type": "email.message",

@@ -5,6 +5,8 @@ from google.cloud import pubsub_v1
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 import json
+import requests
+
 
 class InboxConfig(AppConfig):
     name = 'inbox'
@@ -17,8 +19,9 @@ class InboxConfig(AppConfig):
         subscription_path = subscriber.subscription_path(
             'theaqvteam', 'mail-box')
         gmail = GmailService()
-        res =gmail.watch_mail_box()
+        res = gmail.watch_mail_box()
         print(res)
+
         def callback(message):
             history_id = json.loads(str(message.data, 'utf-8'))['historyId']
             gmail = GmailService()
@@ -29,6 +32,7 @@ class InboxConfig(AppConfig):
                 mail.save()
                 return
             history = gmail.get_history(mail[0]['history_id'], 'INBOX')
+
             if len(history['messages']) > 0:
                 channel_layer = get_channel_layer()
                 for email in history['messages']:
@@ -38,6 +42,11 @@ class InboxConfig(AppConfig):
                         "message": new_msg,
                         "thread_id": email['thread_id']
                     })
+
+                    data = json.dumps({"thread_id": email['thread_id']})
+                    request = requests.patch('http://web:8000/api/v1/contact-marketings/update_by_thread',
+                                             data=data, headers={'Content-Type': 'application/json'})
+                    print(request)
                 mail = MailHistory(history_id=history_id)
                 mail.save()
                 message.ack()

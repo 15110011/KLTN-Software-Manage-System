@@ -393,7 +393,13 @@ function FollowUpDetail(props) {
   };
 
   const updateData = newThreadId => {
-    apiPatch(
+    let pr1 = apiPatch(
+      ORDER_URL + "/" + id,
+      { status: moreRow.followup.status },
+      false,
+      true
+    );
+    let pr2 = apiPatch(
       STEP_DETAIL_URL + "/" + stepDetail[activeStep].id,
       {
         ...stepDetail[activeStep],
@@ -408,7 +414,8 @@ function FollowUpDetail(props) {
       },
       false,
       true
-    ).then(res => {
+    );
+    Promise.all([pr1, pr2]).then(res => {
       setSuccessNoti(`Send email successfully`);
       updateTable();
       setTimeout(() => {
@@ -433,6 +440,7 @@ function FollowUpDetail(props) {
           setMailDialog={setMailDialog}
           setSuccessNoti={setSuccessNoti}
           productInfo={{ packages: moreRow.packages }}
+          contact={moreRow.contact}
         />
       )}{" "}
       {laterDialog && (

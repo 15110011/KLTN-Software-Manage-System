@@ -197,7 +197,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = False
+USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
@@ -214,7 +214,8 @@ CORS_ALLOW_CREDENTIALS = True
 ALLOWED_HOSTS = ['*']
 
 CORS_ORIGIN_WHITELIST = [
-    'http://localhost:4444'
+    'http://localhost:4444',
+    'http://localhost:8001'
 ]
 
 CORS_ALLOW_HEADERS = (

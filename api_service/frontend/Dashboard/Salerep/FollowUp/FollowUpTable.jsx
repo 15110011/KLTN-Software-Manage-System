@@ -7,12 +7,12 @@ import {
   IconButton,
   Grid
 } from "@material-ui/core";
-import {Link} from 'react-router-dom'
+import { Link } from "react-router-dom";
 import MaterialTable from "material-table";
 import MTableBody from "material-table/dist/m-table-body";
 import MTableHeader from "material-table/dist/m-table-header";
 import TablePagination from "@material-ui/core/TablePagination";
-import MTableCell from 'material-table/dist/m-table-cell'
+import MTableCell from "material-table/dist/m-table-cell";
 import AddIcon from "@material-ui/icons/Add";
 import Tooltip from "@material-ui/core/Tooltip";
 import Button from "@material-ui/core/Button";
@@ -25,11 +25,10 @@ import {
 } from "@material-ui/core";
 import * as dateFns from "date-fns";
 import Collapse from "@material-ui/core/Collapse";
-import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import * as cn from "classnames";
-import stateHash from '../../../common/StateHash'
+import stateHash from "../../../common/StateHash";
 import {
   EVENTS_URL,
   CONTACT_MARKETING_URL,
@@ -42,9 +41,10 @@ import styles from "../SalerepStyles.js";
 import { EVENTS_URL, GROUP_URL } from "../../../common/urls";
 import Card from "../../../components/Card/Card";
 import CardHeader from "../../../components/Card/CardHeader";
+import CircleIcon from "@material-ui/icons/Brightness1";
 import CreateEventDialog from "../../../Events/CreateEventDialog";
 import CardBody from "../../../components/Card/CardBody";
-// import CustomFItlerRow from '../../../components/CustomFilterRow'
+import CustomFilterRow from "../../../components/CustomFilterRow";
 
 import USERCONTEXT from "../../../components/UserContext";
 import FollowUpDetail from "./FollowUpDetail";
@@ -54,9 +54,10 @@ import FollowUpDetail from "./FollowUpDetail";
 import CustomSnackbar from "../../../components/CustomSnackbar";
 // import TicketDetail from './TicketDetail'
 
-let flSearch = {};
+const flSearch = { status: [] };
 
 let activePage = 0;
+const flOrder = [];
 
 function FollowUpTable(props) {
   const {
@@ -88,7 +89,6 @@ function FollowUpTable(props) {
   // const [timeRanges, setTimeRanges] = React.useState([null, null, null, null, null, { from: null, to: null }])
   //Activity
 
-  const flOrder = [];
   const notification = (m = "Successfully Added") => {
     setSuccessNoti(m);
     setTimeout(() => {
@@ -178,7 +178,7 @@ function FollowUpTable(props) {
       notification("Successfully Created");
       setMoreDialog(false);
       setMoreRow(null);
-      apiGet(ORDER_URL + "/" + res[0].data.id + '/invoice', true);
+      apiGet(ORDER_URL + "/" + res[0].data.id + "/invoice", true);
     });
   };
 
@@ -231,8 +231,8 @@ function FollowUpTable(props) {
                 <h4>Confirm Action</h4>
               </DialogTitle>
               <DialogContent>
-                This will become an order and
-                this action cannot be undone. Are you sure?
+                This will become an order and this action cannot be undone. Are
+                you sure?
               </DialogContent>
               <DialogActions>
                 <Button variant="contained" onClick={() => setMovingRow({})}>
@@ -314,16 +314,22 @@ function FollowUpTable(props) {
                       if (columnId == 1) {
                         flSearch.fname = value;
                       } else if (columnId == 2) {
-                        flSearch.email = value;
+                        flSearch.state = value;
                       } else if (columnId == 3) {
-                        flSearch.phone = value;
-                      } else if (columnId == 4) {
                         flSearch.campaign = value;
-                      } else if (columnId == 5) {
+                      } else if (columnId == 4) {
                         flSearch.noSteps = value;
+                      } else if (columnId == 5) {
+                        flSearch.progress = value;
+                      } else if (columnId == 6) {
+                        flSearch.created = value;
+                      } else if (columnId == 7) {
+                        flSearch.modified = value;
+                      } else if (columnId == 8) {
+                        flSearch.status = value;
                       }
-                      activePage = 0;
                       props.onFilterChanged(columnId, value);
+                      //activePage = 0;
                     }}
                   />
                 ),
@@ -357,14 +363,25 @@ function FollowUpTable(props) {
                     }}
                   />
                 ),
-                Cell: props => {
-                  return (
-                    <MTableCell
-                      {...props}
-                    >
+                Cell: props => (
+                  <>
+                    {props.columnDef.field == "status" && (
+                      <Tooltip
+                        title={`Last contact is ${
+                          props.rowData.status
+                        } days ago`}
+                      >
+                        <MTableCell {...props} />
+                      </Tooltip>
+                    )}
 
-                    </MTableCell>
-                  )
+                    {props.columnDef.field !== "status" && (
+                      <MTableCell {...props} />
+                    )}
+                  </>
+                ),
+                FilterRow: props => {
+                  return <CustomFilterRow {...props} />;
                 }
               }}
               columns={[
@@ -376,10 +393,16 @@ function FollowUpTable(props) {
                   sorting: false
                 },
                 {
-                  title: "Full Name", field: "fname", cellStyle: { width: '20%' },
-                  render: (row) => {
-                    return (<Link to={"/contacts/" + row.contact.id}>{row.fname}</Link>)
-                  },
+                  title: "Full Name",
+                  field: "fname",
+                  cellStyle: { width: "20%" },
+                  render: row => {
+                    return (
+                      <Link to={"/contacts/" + row.contact.id}>
+                        {row.fname}
+                      </Link>
+                    );
+                  }
                 },
                 {
                   title: "State",
@@ -393,7 +416,7 @@ function FollowUpTable(props) {
                   title: "No. Steps",
                   field: "noSteps",
                   type: "numeric",
-                  cellStyle: { width: '10px' }
+                  cellStyle: { width: "10px" }
                 },
                 {
                   title: "Progress",
@@ -418,53 +441,122 @@ function FollowUpTable(props) {
                 {
                   title: "Created",
                   field: "created",
-                  render: (row) => {
-                    return dateFns.format(dateFns.parseISO(row.created), 'HH:mm MM-dd-yyyy')
+                  render: row => {
+                    return dateFns.format(
+                      dateFns.parseISO(row.created),
+                      "MM-dd-yyyy"
+                    );
                   },
-                  cellStyle: { width: '15%' }
+                  type: "date",
+                  cellStyle: { width: "15%" }
+                },
+                {
+                  title: "Last Contact",
+                  field: "modified",
+                  render: row => {
+                    return dateFns.format(
+                      dateFns.parseISO(row.modified),
+                      "HH:mm MM-dd-yyyy"
+                    );
+                  },
+                  type: "date",
+                  cellStyle: { width: "15%" }
+                },
+                {
+                  title: "Contact Frequency",
+                  field: "status",
+                  render: row => {
+                    if (row.status < 5)
+                      return (
+                        <CircleIcon className="text-success" fontSize="small" />
+                      );
+                    else if (row.status >= 5 && row.status <= 15)
+                      return (
+                        <CircleIcon className="text-warning" fontSize="small" />
+                      );
+                    else
+                      return (
+                        <CircleIcon className="text-danger" fontSize="small" />
+                      );
+                  },
+                  lookup: {
+                    long: "Greater than 15 days",
+                    med: "Between 5 and 15 days",
+                    short: "Less than 5 days"
+                  }
                 }
               ]}
               data={query => {
                 return new Promise((resolve, reject) => {
                   let searchString = `${
                     flSearch.fname ? "&contact_name=" + flSearch.fname : ""
-                    }`;
+                  }`;
                   searchString += `${
                     flSearch.email ? "&email=" + flSearch.email : ""
-                    }`;
+                  }`;
                   searchString += `${
                     flSearch.phone ? "&phone=" + flSearch.phone : ""
-                    }`;
+                  }`;
                   searchString += `${
                     flSearch.campaign ? "&campaign=" + flSearch.campaign : ""
-                    }`;
+                  }`;
                   searchString += `${
                     flSearch.noSteps ? "&no_steps=" + flSearch.noSteps : ""
-                    }`;
+                  }`;
+                  searchString += `${
+                    flSearch.created
+                      ? `&created=${dateFns.format(
+                          flSearch.created,
+                          "yyyy-MM-dd"
+                        )}`
+                      : ""
+                  }`;
+                  searchString += `${
+                    flSearch.modified
+                      ? `&modified=${dateFns.format(
+                          flSearch.modified,
+                          "yyyy-MM-dd"
+                        )}`
+                      : ""
+                  }`;
+                  searchString += `${
+                    flSearch.status.length
+                      ? "&status_fl=" + flSearch.status
+                      : ""
+                  }`;
                   searchString += `${
                     flOrder[1] ? "&contact_order=" + flOrder[1] : ""
-                    }`;
+                  }`;
                   searchString += `${
                     flOrder[2] ? "&email_order=" + flOrder[2] : ""
-                    }`;
+                  }`;
                   searchString += `${
-                    flOrder[4] ? "&campaign_order=" + flOrder[4] : ""
-                    }`;
+                    flOrder[3] ? "&campaign_order=" + flOrder[3] : ""
+                  }`;
                   searchString += `${
-                    flOrder[5] ? "&no_steps_order=" + flOrder[5] : ""
-                    }`;
+                    flOrder[4] ? "&no_steps_order=" + flOrder[4] : ""
+                  }`;
                   searchString += `${
-                    flOrder[6] ? "&progress_order=" + flOrder[6] : ""
-                    }`;
+                    flOrder[5] ? "&progress_order=" + flOrder[5] : ""
+                  }`;
+                  searchString += `${
+                    flOrder[6] ? "&created_order=" + flOrder[6] : ""
+                  }`;
+                  searchString += `${
+                    flOrder[7] ? "&modified_order=" + flOrder[7] : ""
+                  }`;
+                  searchString += `${
+                    flOrder[8] ? "&status_order=" + flOrder[8] : ""
+                  }`;
 
                   searchString += `${
                     selectingRegion ? `&selectingState=${selectingRegion}` : ""
-                    }`;
+                  }`;
                   apiGet(
                     ORDER_URL +
-                    `?page=${activePage}&limit=${query.pageSize}` +
-                    searchString +
-                    query.search,
+                      `?page=${activePage}&limit=${query.pageSize}` +
+                      searchString +
+                      query.search,
                     true
                   ).then(res => {
                     const data = res.data.data.map((d, index) => {
@@ -492,14 +584,20 @@ function FollowUpTable(props) {
                         histories: d.history,
                         allHistories: d.all_histories,
                         contact: d.contacts,
-                        created: d.created
+                        created: d.created,
+                        modified: d.modified,
+
+                        status: dateFns.differenceInDays(
+                          new Date(),
+                          dateFns.parseISO(d.modified)
+                        )
                       };
                     });
                     if (moreRow) {
                       setMoreRow(data[moreRow.tableData.id]);
                     }
 
-                    setTableData(data);
+                    //setTableData(data);
                     resolve({
                       data,
                       page: res.data.page,

@@ -107,13 +107,14 @@ function SendMailDialog(props) {
     });
     return htmlText;
   };
-
   const onSendMail = () => {
     const data = {
       ...mail,
       message: draftToRaw(editorState)
     };
-    data.message = data.message.replace("$contact_name$", contact.first_name);
+    if (contact) {
+      data.message = data.message.replace("$contact_name$", contact.first_name);
+    }
 
     data.message = data.message.replace("$packages_info$", packgesToHtml());
     apiPost(SEND_EMAIL, { data }, false, false).then(res => {

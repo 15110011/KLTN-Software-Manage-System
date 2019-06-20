@@ -172,7 +172,7 @@ function MarketingPlanDetail(props) {
   }, [marketingPlanDetail.name]);
 
   return (
-    <div lassName={classes.root}>
+    <div className={classes.root}>
       {completeNotice && <CustomSnackbar isSuccess msg={completeNotice} />}
       <BreadcrumbsItem to={`/marketing-plans/ + ${marketingPlanId}`}>
         {marketingPlanDetail.name}
@@ -286,14 +286,16 @@ function MarketingPlanDetail(props) {
                 <li>
                   <p style={{ fontSize: "16px" }}>
                     {marketingPlanDetail.name}
-                    <IconButton
-                      onClick={() => {
-                        setCloneDetail({ ...marketingPlanDetail });
-                        setTitleStt("EDIT");
-                      }}
-                    >
-                      <EditIcon style={{ fontSize: "18px" }} />
-                    </IconButton>
+                    {marketingPlanDetail.can_remove && (
+                      <IconButton
+                        onClick={() => {
+                          setCloneDetail({ ...marketingPlanDetail });
+                          setTitleStt("EDIT");
+                        }}
+                      >
+                        <EditIcon style={{ fontSize: "18px" }} />
+                      </IconButton>
+                    )}
                   </p>
                 </li>
               )}
@@ -338,6 +340,11 @@ function MarketingPlanDetail(props) {
         <div style={{ textAlign: "left" }}>
           {value === 0 && (
             <TabContainer>
+              {!marketingPlanDetail.can_remove && (
+                <div className="alert alert-danger">
+                  This plan is being used or used
+                </div>
+              )}
               <Grid container spacing={24}>
                 <Grid item xs={12}>
                   <Grid container spacing={24}>
@@ -362,6 +369,7 @@ function MarketingPlanDetail(props) {
                         classes={{
                           underline: classes.cssUnderline
                         }}
+                        disabled={!marketingPlanDetail.can_remove}
                       />
                     </Grid>
                   </Grid>
@@ -402,6 +410,7 @@ function MarketingPlanDetail(props) {
                         }, [])}
                         fullWidth
                         multi
+                        disabled={!marketingPlanDetail.can_remove}
                       />
                     </Grid>
                     <Grid item xs={4}>
@@ -429,6 +438,7 @@ function MarketingPlanDetail(props) {
                           }}
                           fullWidth
                           single
+                          disabled={!marketingPlanDetail.can_remove}
                         />
                       )}
                     </Grid>
@@ -467,6 +477,7 @@ function MarketingPlanDetail(props) {
                                 <FormControl
                                   fullWidth
                                   className={classes.formControl}
+                                  disabled={!marketingPlanDetail.can_remove}
                                 >
                                   <InputLabel htmlFor="age-simple">
                                     Operands
@@ -496,6 +507,7 @@ function MarketingPlanDetail(props) {
                                 <FormControl
                                   fullWidth
                                   className={classes.formControl}
+                                  disabled={!marketingPlanDetail.can_remove}
                                 >
                                   <InputLabel htmlFor="age-simple">
                                     Operators
@@ -529,6 +541,7 @@ function MarketingPlanDetail(props) {
                                   <FormControl
                                     fullWidth
                                     className={classes.formControl}
+                                    disabled={!marketingPlanDetail.can_remove}
                                   >
                                     <TextField
                                       id="standard-name"
@@ -554,6 +567,7 @@ function MarketingPlanDetail(props) {
                                       bottom: "13px"
                                     }}
                                     className={classes.formControl}
+                                    disabled={!marketingPlanDetail.can_remove}
                                   >
                                     <SelectCustom
                                       className={classes.stateCustomInput}
@@ -576,6 +590,7 @@ function MarketingPlanDetail(props) {
                                         label: stateHashes[d],
                                         value: d
                                       }))}
+                                      disabled={!marketingPlanDetail.can_remove}
                                     />
                                   </FormControl>
                                 )}
@@ -584,30 +599,33 @@ function MarketingPlanDetail(props) {
                           );
                         })}
                       </Grid>
-                      <Grid item xs={12}>
-                        <Grid
-                          item
-                          xs={12}
-                          className="d-flex justify-content-center mt-3"
-                        >
-                          <Button
-                            onClick={forceUpdate}
-                            variant="contained"
-                            className={classes.button}
+
+                      {marketingPlanDetail.can_remove && (
+                        <Grid item xs={12}>
+                          <Grid
+                            item
+                            xs={12}
+                            className="d-flex justify-content-center mt-3"
                           >
-                            RESET
-                          </Button>
-                          &nbsp;&nbsp;
-                          <Button
-                            onClick={handleSavePlanDetail}
-                            variant="contained"
-                            color="primary"
-                            className={classes.button}
-                          >
-                            SAVE
-                          </Button>
+                            <Button
+                              onClick={forceUpdate}
+                              variant="contained"
+                              className={classes.button}
+                            >
+                              RESET
+                            </Button>
+                            &nbsp;&nbsp;
+                            <Button
+                              onClick={handleSavePlanDetail}
+                              variant="contained"
+                              color="primary"
+                              className={classes.button}
+                            >
+                              SAVE
+                            </Button>
+                          </Grid>
                         </Grid>
-                      </Grid>
+                      )}
                     </Grid>
                   </Grid>
                 </Grid>

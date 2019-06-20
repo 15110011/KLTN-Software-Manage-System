@@ -20,6 +20,7 @@ from rest_framework.exceptions import MethodNotAllowed
 from .models import MarketingPlan, FollowUpPlan, Campaign, Note, ContactMarketing, ContactMarketingHistory, MailTemplate
 from .serializers import MarketingPlanSerializer, FollowUpPlanSerializer, CampaignSerializer, CreateCampaignSerializer, CreateFollowUpPlanSerializer, CreateMarketingPlanSerializer, NoteSerializer, ContactMarketingSerializer, ContactMarketingHistorySerializer, MailTemplateSerializer, ContactMarketingSerializer2
 import json
+from contacts.state import reverse_state_hashes
 
 
 # Create your views here.
@@ -68,10 +69,9 @@ def ContactMatchConditions(request):
             try:
                 if condition['operator'] == 'Equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).filter(
-                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
-                            total=Count('contacts')).filter(total=condition['data'])
-                    return Response(queryset, status=status.HTTP_200_OK)
+                        packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(total=Count('contacts')).filter(total=condition['data'])
 
+                    return Response(queryset, status=status.HTTP_200_OK)
                 if condition['operator'] == 'Not equal to':
                     queryset = Order.objects.filter(contacts__in=[c['id'] for c in contacts]).exclude(
                         packages__features__product__product_type__name=condition['operand_type']).values('contacts').annotate(
@@ -165,7 +165,7 @@ class MarketingPlanView(ModelViewSet):
                 'term', manager=self.request.user.id)
             marketing_plans = []
             for mp in search.to_queryset():
-                #cur_mail= MailTemplate.objects.get(id=mp.mail_template)
+                # cur_mail= MailTemplate.objects.get(id=mp.mail_template)
                 mp = {
                     **model_to_dict(mp), "mail_template": model_to_dict(mp.mail_template)}
                 marketing_plans.append(mp)
@@ -269,6 +269,13 @@ class FollowUpPlanView(ModelViewSet):
         self.perform_update(serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['DELETE'])
+    def batchdelete(self, request):
+        follow_ups = FollowUpPlan.objects.filter(
+            id__in=request.data['follow_ups']).delete()
+
+        return Response({"msg": 'OK'}, status=status.HTTP_200_OK)
+
 
 class CampaignView(ModelViewSet):
     permission_classes = (IsAuthenticated,)
@@ -357,8 +364,8 @@ class CampaignView(ModelViewSet):
             if selecting_state:
                 filters.add(
                     Q(marketing_plan__condition__must__contains={"operand": '2'}), Q.AND)
-                #filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
-                #filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
+                # filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Equal to') & Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
+                # filters.add(Q(marketing_plan__condition__must__operand='1') & Q(marketing_plan__condition__must__operator='Not equal to') & ~Q(marketing_plan__condition__must__data__any = selecting_state), Q.OR)
 
         if campaign_status:
             statuses = campaign_status.split(',')
@@ -407,8 +414,7 @@ class CampaignView(ModelViewSet):
                 output_field=DjangoModel.IntegerField()
             )).order_by(status_order)
         if limit is not None:
-            queryset = queryset[int(page)*int(limit)
-                                    :int(page)*int(limit)+int(limit)]
+            queryset = queryset[int(page)*int(limit)                                :int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)
         new_serializer = {}
         new_serializer['data'] = serializer.data
@@ -502,7 +508,7 @@ class NoteView(ModelViewSet):
 
 class ContactMarketingView(ModelViewSet):
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     queryset = ContactMarketing.objects.select_related(
         'campaign', 'contact', 'marketing_plan')
     serializer_class = ContactMarketingSerializer
@@ -538,6 +544,10 @@ class ContactMarketingView(ModelViewSet):
         phone = request.query_params.get('phone', None)
         campaign = request.query_params.get('campaign', None)
         selecting_state = request.query_params.get('selectingState', None)
+        state = request.query_params.get('state', None)
+        created = request.query_params.get('created', None)
+        modified = request.query_params.get('modified', None)
+        status_contact = request.query_params.get('status', None)
         if selecting_state:
             filters.add(Q(contact__state=selecting_state), Q.AND)
         if contact_name:
@@ -549,6 +559,29 @@ class ContactMarketingView(ModelViewSet):
             filters.add(Q(contact__phone__icontains=phone), Q.AND)
         if campaign:
             filters.add(Q(campaign__name__icontains=campaign), Q.AND)
+        if state:
+            try:
+                filters.add(
+                    Q(contact__state__icontains=reverse_state_hashes[state]), Q.AND)
+            except:
+                pass
+        if created:
+            filters.add(Q(created__date=created), Q.AND)
+        if modified:
+            filters.add(Q(modified__date=modified), Q.AND)
+        if status_contact:
+            status_contact = status_contact.split(',')
+            status_filters = Q()
+            if 'short' in status_contact:
+                status_filters.add(
+                    Q(modified__range=[now - timedelta(days=4), now]), Q.OR)
+            if 'med' in status_contact:
+                status_filters.add(
+                    Q(modified__range=[now - timedelta(days=15), now - timedelta(days=5)]), Q.OR)
+            if 'long' in status_contact:
+                status_filters.add(
+                    Q(modified__lt=now - timedelta(days=15)), Q.OR)
+            filters.add(status_filters, Q.AND)
         filters.add(Q(status='RUNNING'), Q.AND)
         queryset = queryset.annotate(full_name=Concat('contact__first_name', V(
             ' '), 'contact__last_name', output_field=CharField())).exclude(excludes).filter(filters)
@@ -559,6 +592,12 @@ class ContactMarketingView(ModelViewSet):
             'email_order', None)
         campaign_order = request.query_params.get(
             'campaign_order', None)
+        created_order = request.query_params.get(
+            'created_order', None)
+        modified_order = request.query_params.get(
+            'modified_order', None)
+        status_order = request.query_params.get(
+            'status_order', None)
         if contact_name_order:
             first_name_order = '-contact__first_name' if contact_name_order == 'desc' else 'contact__first_name'
             last_name_order = '-contact__last_name' if contact_name_order == 'desc' else 'contact__last_name'
@@ -567,8 +606,18 @@ class ContactMarketingView(ModelViewSet):
             email_order = '-contact__mail' if email_order == 'desc' else 'contact__mail'
             queryset = queryset.order_by(email_order)
         if campaign_order:
-            campaign_order = '-campaign__name' if email_order == 'desc' else 'campaign__name'
+            campaign_order = '-campaign__name' if campaign_order == 'desc' else 'campaign__name'
             queryset = queryset.order_by(campaign_order)
+        if created_order:
+            created_order = '-created' if created_order == 'desc' else 'created'
+            queryset = queryset.order_by(created_order)
+        if modified_order:
+            modified_order = '-modified' if modified_order == 'desc' else 'modified'
+            queryset = queryset.order_by(modified_order)
+        if status_order:
+            status_order = '-modified' if status_order == 'desc' else 'modified'
+            queryset = queryset.order_by(status_order)
+
         if limit:
             query = queryset[
                 int(page)*int(limit):int(page)*int(limit)+int(limit)]
@@ -593,6 +642,19 @@ class ContactMarketingView(ModelViewSet):
             action=request.data['action'], contact_marketing=instance)
         serializer = ContactMarketingHistorySerializer(history)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['PATCH'], detail=False)
+    def update_by_thread(self, request):
+        thread_id = request.data.get('thread_id', None)
+        now = datetime.now()
+        try:
+            instance = ContactMarketing.objects.get(
+                thread_ids__contains=[{"thread_id": thread_id}])
+        except:
+            return Response({"msg": "OK"}, status=status.HTTP_400_BAD_REQUEST)
+        #instance.modified = now
+        instance.save()
+        return Response({"msg": "OK"}, status=status.HTTP_200_OK)
 
 
 class MailTemplateView(ModelViewSet):

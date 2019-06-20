@@ -124,6 +124,8 @@ class MTableFilterRow extends React.Component {
           value={columnDef.tableData.filterValue || null}
           onChange={onDateInputChange}
           clearable
+
+              format="MM/dd/yyyy"
         />
       );
     }
@@ -135,7 +137,7 @@ class MTableFilterRow extends React.Component {
               value={timeRanges[columnDef.tableData.id].from || null}
               onChange={date => onDateFromInputChange(date)}
               clearable
-              format="dd/MM/yyyy"
+              format="MM/dd/yyyy"
               name='from'
               // label='From'
               placeholder='From'
@@ -147,7 +149,7 @@ class MTableFilterRow extends React.Component {
               onChange={date => onDateToInputChange(date)}
               clearable
               name='to'
-              format="dd/MM/yyyy"
+              format="MM/dd/yyyy"
               // label='To'
               placeholder='To'
             />

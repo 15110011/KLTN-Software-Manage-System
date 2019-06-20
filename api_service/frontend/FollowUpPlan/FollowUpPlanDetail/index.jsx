@@ -284,14 +284,16 @@ function FollowUpPlanDetail(props) {
                     <li>
                       <p style={{ fontSize: "16px" }}>
                         {followUpPlanDetail.name}
-                        <IconButton
-                          onClick={() => {
-                            setCloneDetail({ ...followUpPlanDetail });
-                            setTitleStt("EDIT");
-                          }}
-                        >
-                          <EditIcon style={{ fontSize: "18px" }} />
-                        </IconButton>
+                        {followUpPlanDetail.used == 0 && (
+                          <IconButton
+                            onClick={() => {
+                              setCloneDetail({ ...followUpPlanDetail });
+                              setTitleStt("EDIT");
+                            }}
+                          >
+                            <EditIcon style={{ fontSize: "18px" }} />
+                          </IconButton>
+                        )}
                       </p>
                     </li>
                   )}
@@ -346,6 +348,9 @@ function FollowUpPlanDetail(props) {
             <div style={{ textAlign: "left" }}>
               {value === 0 && (
                 <TabContainer>
+                  <div className="alert alert-danger">
+                    This plan is being used or used
+                  </div>
                   <div className={cn(classes.stepper)}>
                     <Stepper activeStep={activeStep} alternativeLabel>
                       {followUpPlanDetail.steps.map((step, index) => (
@@ -361,14 +366,16 @@ function FollowUpPlanDetail(props) {
                         </Step>
                       ))}
 
-                      <Step
-                        classes={{ root: classes.addStep }}
-                        onClick={addMoreSteps}
-                      >
-                        <StepLabel StepIconProps={{ icon: <AddIcon /> }}>
-                          Add Step
-                        </StepLabel>
-                      </Step>
+                      {followUpPlanDetail.used == 0 && (
+                        <Step
+                          classes={{ root: classes.addStep }}
+                          onClick={addMoreSteps}
+                        >
+                          <StepLabel StepIconProps={{ icon: <AddIcon /> }}>
+                            Add Step
+                          </StepLabel>
+                        </Step>
+                      )}
                     </Stepper>
                   </div>
                   <div className={cn(classes.actionsContainer, "mt-5")}>
@@ -417,27 +424,30 @@ function FollowUpPlanDetail(props) {
                             handleChangeMailTemplate={(value, e) => {
                               handleChangeMailTemplate(value, e, activeStep);
                             }}
+                            isDisabled={followUpPlanDetail.used > 0}
                           />
                         );
                       } else return <></>;
                     })}
                   </div>
 
-                  <div className="d-flex justify-content-center">
-                    <Button
-                      onClick={forceUpdate}
-                      className={classes.backButton}
-                    >
-                      Reset
-                    </Button>
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={handleNext}
-                    >
-                      Save
-                    </Button>
-                  </div>
+                  {followUpPlanDetail.used == 0 && (
+                    <div className="d-flex justify-content-center">
+                      <Button
+                        onClick={forceUpdate}
+                        className={classes.backButton}
+                      >
+                        Reset
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleNext}
+                      >
+                        Save
+                      </Button>
+                    </div>
+                  )}
                 </TabContainer>
               )}
             </div>
