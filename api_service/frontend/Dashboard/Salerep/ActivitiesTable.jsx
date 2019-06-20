@@ -25,7 +25,7 @@ import * as cn from 'classnames'
 import { EVENTS_URL, CONTACT_MARKETING_URL } from '../../common/urls';
 
 import styles from './SalerepStyles.js'
-import { EVENTS_URL, GROUP_URL } from '../../common/urls';
+import { EVENTS_URL, GROUP_URL, ORDER_URL } from '../../common/urls';
 import Card from "../../components/Card/Card";
 import CardHeader from "../../components/Card/CardHeader";
 import CardBody from "../../components/Card/CardBody";
@@ -35,8 +35,10 @@ import CustomFItlerRow from '../../components/CustomFilterRow'
 import USERCONTEXT from '../../components/UserContext'
 import { apiGet, apiPost, apiPatch } from '../../common/Request'
 import useFetchData from '../../CustomHook/useFetchData'
+import FollowUpDetail from './FollowUp/FollowUpDetail'
 import TicketDetail from './TicketDetail'
 import CustomSnackbar from '../../components/CustomSnackbar'
+import stateHash from '../../common/StateHash'
 
 let activitySearch = {
   viewType: 'campaign',
@@ -116,6 +118,37 @@ function ActivitiesTable(props) {
         histories: c.histories,
         marketing: c,
         thread_ids: c.thread_ids
+      })
+    })
+  }
+
+  const getMoreRow2 = id => {
+    apiGet(ORDER_URL + '/' + id, true).then(res => {
+      const d = res.data
+      const noSteps = d.campaign.follow_up_plan.steps.length;
+      const progress =
+        (d.step_details.reduce((acc, s) => {
+          if (s.status == "COMPLETED") acc += 1;
+          return acc;
+        }, 0) /
+          noSteps) *
+        100;
+      setMoreRow({
+        fname:
+          d.contacts.first_name + " " + d.contacts.last_name,
+        phone: d.contacts.phone,
+        mail: d.contacts.mail,
+        state: stateHash[d.contacts.state],
+        campaignName: d.campaign.name,
+        noSteps,
+        progress,
+        id: d.id,
+        packages: d.campaign.packages,
+        followup: d,
+        histories: d.history,
+        allHistories: d.all_histories,
+        contact: d.contacts,
+        created: d.created
       })
     })
   }
@@ -212,6 +245,44 @@ function ActivitiesTable(props) {
               </DialogContent>
             </Dialog>
           }
+          {openDialog == 'followUp' && moreRow && (
+            <Dialog
+              open={true}
+              onClose={() => setOpenDialog(false)}
+              maxWidth="lg"
+              fullWidth
+            >
+              <DialogTitle>
+                <h4>Manage Contact</h4>
+              </DialogTitle>
+              <DialogContent>
+                <FollowUpDetail
+                  histories={moreRow.histories}
+                  allHistories={moreRow.histories}
+                  campaign={moreRow.campaign2}
+                  id={moreRow.id}
+                  contact={moreRow.contact}
+                  updateTable={tableActivtyRef.current.onQueryChange}
+                  updateActivities={forceActivities}
+                  marketing={moreRow.marketing}
+                  getMoreRow={getMoreRow}
+                  // updateTable={tableActivtyRef.current.onQueryChange}
+                  user={user}
+                  setMovingRow={setMovingRow}
+                  setDeletingRow={setDeletingRow}
+                  moreRow={moreRow}
+                  followup={moreRow.followup}
+                  updateTable={() => {
+                    forceFollowUp();
+                    // tableMarketingRef.current.onQueryChange()
+                    // let cloneMoreRow = { ...moreRow }
+                    // cloneMoreRow.histories.unshift(contact)
+                    // setMoreRow(cloneMoreRow)
+                  }}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
           <IconButton
             className={cn(classes.expand, {
               [classes.expandOpen]: viewType == 'campaign' ? expanded['upcoming1'] : expanded['upcoming2'],
@@ -415,14 +486,17 @@ function ActivitiesTable(props) {
                           return {
                             work: d.name,
                             target: c.first_name + ' ' + c.last_name,
-                            campaign: d.marketing ? d.marketing.campaign.name: d.order.campaign.name,
+                            campaign: d.marketing ? d.marketing.campaign.name : d.order.campaign.name,
                             phase,
                             priority: priority[d.priority],
                             remaining: d.remaining + ' day(s)',
                             id: d.id,
                             marketing: d.marketing,
                             start: d.start_date,
-                            phaseId
+                            phaseId,
+                            order: d.order,
+                            campaign2: d.marketing ? d.marketing.campaign : d.order.campaign,
+
                           }
                         }))
                         return acc
@@ -441,8 +515,9 @@ function ActivitiesTable(props) {
                     getMoreRow(rowData.marketing.id)
                     setOpenDialog('marketing')
                   }
-                  else if (rowData.phase == 'Follow-up'){
-                    getMoreRow(rowData.order.id)
+                  else if (rowData.phase == 'Follow-up') {
+                    console.log(rowData)
+                    getMoreRow2(rowData.order.id)
                     setOpenDialog('followUp')
 
                   }
