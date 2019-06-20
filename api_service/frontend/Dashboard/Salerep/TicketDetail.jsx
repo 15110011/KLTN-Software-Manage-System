@@ -192,22 +192,19 @@ function TicketDetail(props) {
   };
 
   const updateData = newThreadId => {
-    apiPatch(
-      CONTACT_MARKETING_URL + "/" + id,
-      {
-        thread_ids: [
-          ...moreRow.thread_ids,
-          {
-            thread_id: newThreadId["thread_id"],
-            type: "Send Email Manually",
-            note: ""
-          }
-        ]
-      },
-      false,
-      true
-    ).then(res => {
+    let data = {
+      thread_ids: [...moreRow.thread_ids]
+    };
+    if (newThreadId) {
+      data.thread_ids.push({
+        thread_id: newThreadId["thread_id"],
+        type: "Send Email Manually",
+        note: ""
+      });
+    }
+    apiPatch(CONTACT_MARKETING_URL + "/" + id, data, false, true).then(res => {
       setSuccessNoti(`Send email successfully`);
+      console.log(res.data);
       updateTable(res.data);
       setTimeout(() => {
         setSuccessNoti(false);
@@ -423,7 +420,8 @@ function TicketDetail(props) {
               thread_ids={moreRow.thread_ids}
               forceUpdateData={forceUpdateData}
               updateNote={updateNote}
-          productInfo={moreRow.campaign.product}
+              productInfo={moreRow.campaign.product}
+              onComplete={updateData}
             />
           </Paper>
         </Grid>

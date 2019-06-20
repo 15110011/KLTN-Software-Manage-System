@@ -48,6 +48,7 @@ function StepPlanDetail(props) {
     isFinalStep,
     mailTemplate,
     handleChangeMailTemplate,
+    isDisabled,
   } = props;
   const [previewTemplate, setPreviewTemplate] = React.useState(null);
   return (
@@ -167,6 +168,7 @@ function StepPlanDetail(props) {
                     multi
                     placeholder=""
                     label=""
+                    disabled={isDisabled}
                   />
                 )}
               </FormControl>
@@ -202,6 +204,7 @@ function StepPlanDetail(props) {
                       }}
                       fullWidth
                       single
+                      disabled={isDisabled}
                     />
                   )}
                 </Grid>
@@ -241,6 +244,7 @@ function StepPlanDetail(props) {
               classes={{
                 underline: classes.cssUnderline,
               }}
+              disabled={isDisabled}
             />
           </Grid>
         </Grid>

@@ -40,7 +40,7 @@ import { ORDER_CHART_URL } from '../../common/urls';
 import stateHashes from '../../common/StateHash';
 
 function SalerepDashboard(props) {
-  const { classes, user } = props;
+  const { classes } = props;
 
   const vectorRef = React.useRef(null);
   const tableMarketingRef = React.useRef(null);
@@ -51,6 +51,7 @@ function SalerepDashboard(props) {
   const tableOrderUpRef = React.useRef(null);
 
   const queryState = props.history.location.search.match('(state=)(.+)\\&*');
+
   const [selectingRegion, setSelectingRegion] = React.useState(
     queryState && queryState.length ? queryState[2] : false,
   );
@@ -94,7 +95,7 @@ function SalerepDashboard(props) {
   };
 
   const [stateData, setStateData, setUrl, forceUpdate] = useFetchData(
-    `${ORDER_CHART_URL}?chart_type=running_campaign&duration=month`,
+    `${ORDER_CHART_URL}?chart_type=state&duration=month`,
     null,
     {
       data: [],
@@ -124,6 +125,7 @@ function SalerepDashboard(props) {
   const forceOrder = () => {
     tableOrderUpRef.current.onQueryChange();
   };
+
   const regionData = stateData.data.reduce((acc, d) => {
     acc[`US-${d.code}`] = d.amount;
     return acc;
@@ -134,15 +136,14 @@ function SalerepDashboard(props) {
     return acc;
   }, 0);
   const handleScroll = () => {
-    if (vectorRef.current) {
-      if (
-        window.pageYOffset
+    if (
+      vectorRef.current
+      && window.pageYOffset
         >= vectorRef.current.refs.map.getBoundingClientRect().bottom
-      ) {
-        setFloatingState(true);
-      } else {
-        setFloatingState(false);
-      }
+    ) {
+      setFloatingState(true);
+    } else {
+      setFloatingState(false);
     }
   };
 
@@ -286,7 +287,7 @@ Expand All
                             regions: [
                               {
                                 values: regionData,
-                                scale: ['#e8f5e9', '#1b5e20'],
+                                scale: ['#01ff5b', '#ff0000'],
                                 normalizeFunction: 'polynomial',
                                 legend: {
                                   // horizontal: true,
@@ -309,17 +310,13 @@ Expand All
                           onRegionClick={(e, code) => {
                             if (code === selectingRegion) {
                               setSelectingRegion(false);
-                              props.history.push({
-                                pathName: './',
-                              });
                             } else {
                               setSelectingRegion(code);
-
-                              props.history.push({
-                                pathName: './',
-                                search: `?state=${code}`,
-                              });
                             }
+                            props.history.push({
+                              pathName: './',
+                              search: `?state=${code}`,
+                            });
                           }}
                         />
                       </div>
@@ -340,19 +337,11 @@ Expand All
               padding: '16px',
               zIndex: '99999',
               backgroundColor: 'white',
-              cursor: 'pointer',
-            }}
-            onClick={() => {
-              window.scrollTo(0, 0);
             }}
           >
-            <p>
-              <strong>Selecting state</strong>
-            </p>
+            <strong>Selecting state</strong>
             {' '}
-            {selectingRegion
-              ? stateHashes[selectingRegion.split('-')[1]]
-              : 'ALL'}
+            {selectingRegion}
           </div>
         )}
         <Grid item xs={12} className="pt-2">
@@ -371,8 +360,6 @@ Expand All
             tableRef={tableCampaignRef}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
-            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
-            user={user}
           />
         </Grid>
         <Grid item xs={12}>
@@ -384,7 +371,6 @@ Expand All
             forceFollowUp={forceFollowUp}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
-            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -396,7 +382,6 @@ Expand All
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
-            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -407,7 +392,6 @@ Expand All
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
-            selectingRegion={selectingRegion && selectingRegion.split('-')[1]}
           />
         </Grid>
       </Grid>

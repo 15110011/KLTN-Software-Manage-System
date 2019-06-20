@@ -45,6 +45,7 @@ import { htmlToState, draftToRaw } from "../../common/Utils";
 let oldMails = { data: [] };
 let ws;
 let dirty = 1;
+let theTrulyThreads = [];
 
 function MailDetail(props) {
   const {
@@ -61,9 +62,7 @@ function MailDetail(props) {
     contactHistories,
     updateNote,
     forceUpdateData,
-    activeStep,
-disabledAddConversation,
-productInfo
+    activeStep
   } = props;
 
   const [expanded, setExpanded] = React.useState(null);
@@ -93,9 +92,10 @@ productInfo
     ws.onmessage = event => {
       let response = JSON.parse(event.data);
       if (response.type == "single") {
-        let findIndex = thread_ids.findIndex(t => {
+        let findIndex = theTrulyThreads.findIndex(t => {
           return t.thread_id && t.thread_id === response.thread_id;
         });
+        console.log(findIndex, theTrulyThreads, response);
         if (findIndex === -1) {
           oldMails = { data: [response.data[0], ...oldMails.data] };
         } else {
@@ -159,17 +159,16 @@ productInfo
     return () => {
       ws.close();
     };
-  }, [activeStep]);
+  }, []);
 
   React.useEffect(() => {
     if (typeof forceUpdateData === "number" && forceUpdateData > 1) {
-      if (ws.readyState == 1) {
-        ws.send(
-          JSON.stringify({
-            threads: thread_ids
-          })
-        );
-      }
+      theTrulyThreads = thread_ids;
+      ws.send(
+        JSON.stringify({
+          threads: thread_ids
+        })
+      );
     }
   }, [forceUpdateData]);
 
@@ -207,6 +206,7 @@ productInfo
       cloneIsReply[i][insideIndex].threadId = thread_ids[i];
       cloneIsReply[i][insideIndex]["In-Reply-To"] =
         replyingEmail["Message-Id"][0];
+      console.log(replyingEmail);
       cloneIsReply[i][insideIndex]["References"] = `${
         replyingEmail["References"].length
           ? replyingEmail["References"][0] + " "
@@ -253,7 +253,6 @@ productInfo
             setMailDialog(!mailDialog);
           }}
           setSuccessNoti={setSuccessNoti}
-          contact={contact}
         />
       )}
       <Grid container spacing={8}>
@@ -324,14 +323,16 @@ productInfo
                             }}
                           >
                             <ListItemText
-                              primary={<strong>The AQV Team</strong>}
+                              primary={"The AQV Team"}
                               secondary={
                                 <React.Fragment>
                                   <Typography
                                     component="span"
                                     className={classes.inline}
                                     color="textPrimary"
-                                  />
+                                  >
+                                    {`to ${contact.mail}`}
+                                  </Typography>
                                   {noExpand[j] && noExpand[j][0] && (
                                     <div
                                       dangerouslySetInnerHTML={{
@@ -390,8 +391,6 @@ productInfo
                                       user={user}
                                       sendTo={sendTo}
                                       data={isReply[j][0]}
-                                      contact={contact}
-                                      productInfo={productInfo}
                                     />
                                   )}
                               </Grid>
@@ -444,15 +443,21 @@ productInfo
                                           }}
                                         >
                                           <ListItemText
-                                            primary={<strong>{name}</strong>}
+                                            primary={name}
                                             secondary={
                                               <React.Fragment>
                                                 <Typography
                                                   component="span"
                                                   className={classes.inline}
                                                   color="textPrimary"
-                                                />
-                                                {noExpand[j][i] && (
+                                                >
+                                                  {e.from &&
+                                                  e.from !=
+                                                    "The AQV Team <theaqvteam@gmail.com>"
+                                                    ? "to me"
+                                                    : mail}
+                                                </Typography>
+                                                {noExpand[j] && noExpand[j][i] && (
                                                   <div
                                                     dangerouslySetInnerHTML={{
                                                       __html: e.message
@@ -513,8 +518,6 @@ productInfo
                                                     user={user}
                                                     sendTo={sendTo}
                                                     data={isReply[j][i]}
-                                                    contact={contact}
-                                      productInfo={productInfo}
                                                   />
                                                 )}
                                             </Grid>
@@ -567,16 +570,16 @@ productInfo
                                           }}
                                         >
                                           <ListItemText
-                                            primary={
-                                              <strong>The AQV Team</strong>
-                                            }
+                                            primary={"The AQV Team"}
                                             secondary={
                                               <React.Fragment>
                                                 <Typography
                                                   component="span"
                                                   className={classes.inline}
                                                   color="textPrimary"
-                                                />
+                                                >
+                                                  {`to ${contact.mail}`}
+                                                </Typography>
                                                 {noExpand[j] && noExpand[j][i] && (
                                                   <div
                                                     dangerouslySetInnerHTML={{
@@ -638,8 +641,6 @@ productInfo
                                                     sendTo={sendTo}
                                                     user={user}
                                                     data={isReply[j][i]}
-                                                    contact={contact}
-                                      productInfo={productInfo}
                                                   />
                                                 )}
                                             </Grid>
@@ -681,9 +682,7 @@ productInfo
                           >
                             <ListItemText
                               primary={
-                                <strong>
-                                  {contact.first_name + " " + contact.last_name}
-                                </strong>
+                                contact.first_name + " " + contact.last_name
                               }
                               secondary={
                                 <React.Fragment>
@@ -871,7 +870,6 @@ productInfo
                   variant="outlined"
                   color="default"
                   className={classes.button}
-                  disabled={disabledAddConversation}
                 >
                   &nbsp; Add conversation
                 </Button>

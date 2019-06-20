@@ -118,7 +118,7 @@ function MarketingPlanList(props) {
             columns={[
               { title: '#', field: 'numeral', type: 'numeric', cellStyle: { width: '50px' }, filtering: false },
               { title: 'Name', field: 'name' },
-              { title: 'Quantity In Used', field: 'used' },
+              { title: 'No. In used', field: 'used' },
               {
                 title: 'Status',
                 field: 'status',

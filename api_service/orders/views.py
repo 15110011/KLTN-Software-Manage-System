@@ -13,9 +13,11 @@ from rest_framework import status
 from .serializers import OrderSerializer, OrderHistorySerializer, CreateOrderSerialzier, LicenseSerializer, LifetimeLicenseSerializer, CreateLicenseSerializer, CreateLifetimeLicenseSerializer, OrderChartSerializer
 from .models import Order, OrderHistory, License, LifetimeLicense
 from steps.models import StepDetail
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from . import chart_handler
-import json, requests
+import json
+import requests
+from contacts.state import reverse_state_hashes
 # Create your views here.
 cur_year = datetime.today().year
 start_date_of_year = date(cur_year, 1, 1)
@@ -161,9 +163,14 @@ class OrderView(ModelViewSet):
         campaign = request.query_params.get('campaign', None)
         no_steps = request.query_params.get('no_steps', None)
         selecting_state = request.query_params.get('selectingState', None)
-
+        created = request.query_params.get('created', None)
+        modified = request.query_params.get('modified', None)
+        status_fl = request.query_params.get('status_fl', None)
+        #status_fl = 'SUPER'
+        state = request.query_params.get('state', None)
         if selecting_state:
-            filters.add(Q(contacts__state=selecting_state), Q.AND)
+            filters.add(
+                Q(contacts__state=reverse_state_hashe[selecting_state]), Q.AND)
         if contact_name:
             filters.add(Q(contacts__first_name__icontains=contact_name) | Q(
                 contacts__last_name__icontains=contact_name) | Q(full_name__icontains=contact_name), Q.AND)
@@ -175,7 +182,29 @@ class OrderView(ModelViewSet):
             filters.add(Q(campaign__name__icontains=campaign), Q.AND)
         if no_steps:
             filters.add(Q(no_steps=int(no_steps)), Q.AND)
-
+        if state:
+            try:
+                filters.add(
+                    Q(contacts__state__icontains=reverse_state_hashes[state]), Q.AND)
+            except:
+                pass
+        if created:
+            filters.add(Q(created__date=created), Q.AND)
+        if modified:
+            filters.add(Q(modified__date=modified), Q.AND)
+        if status_fl:
+            status_fl = status_fl.split(',')
+            status_filters = Q()
+            if 'short' in status_fl:
+                status_filters.add(
+                    Q(modified__range=[now - timedelta(days=4), now]), Q.OR)
+            if 'med' in status_fl:
+                status_filters.add(
+                    Q(modified__range=[now - timedelta(days=15), now - timedelta(days=5)]), Q.OR)
+            if 'long' in status_fl:
+                status_filters.add(
+                    Q(modified__lt=now - timedelta(days=15)), Q.OR)
+            filters.add(status_filters, Q.AND)
         queryset = queryset.annotate(no_steps=Count('campaign__follow_up_plan__steps')).annotate(progress=Count('step_details', filter=Q(step_details__status='COMPLETED'))/Count('campaign__follow_up_plan__steps')).annotate(
             full_name=Concat('contacts__first_name', V(' '), 'contacts__last_name', output_field=CharField())).filter(filters)
         # order
@@ -184,6 +213,9 @@ class OrderView(ModelViewSet):
         campaign_order = request.query_params.get('campaign_order', None)
         no_steps_order = request.query_params.get('no_steps_order', None)
         progress_order = request.query_params.get('progress_order', None)
+        created_order = request.query_params.get('created_order', None)
+        modified_order = request.query_params.get('modified_order', None)
+        status_order = request.query_params.get('status_order', None)
         if contact_order:
 
             first_name_order = Lower('contacts__first_name').desc(
@@ -204,6 +236,15 @@ class OrderView(ModelViewSet):
         elif progress_order:
             progress_order = '-progress' if progress_order == 'desc' else 'progress'
             queryset = queryset.order_by(progress_order)
+        elif created_order:
+            created_order = '-created' if created_order == 'desc' else 'created'
+            queryset = queryset.order_by(created_order)
+        elif modified_order:
+            modified_order = '-modified' if modified_order == 'desc' else 'modified'
+            queryset = queryset.order_by(modified_order)
+        elif status_order:
+            status_order = '-modified' if status_order == 'desc' else 'modified'
+            queryset = queryset.order_by(status_order)
         if limit:
             query = queryset[
                 int(page)*int(limit): int(page)*int(limit)+int(limit)]
@@ -213,6 +254,7 @@ class OrderView(ModelViewSet):
 
             serializer = self.get_serializer(queryset.filter(
                 filters), many=True)
+        print(query.query)
 
         new_data = {
             "data": serializer.data,
@@ -271,12 +313,13 @@ class OrderView(ModelViewSet):
                                   int(l['package']['prices'][str(l['duration'])]), target['licenses'], 0)
         message = render_to_string(
             'invoices/index.html', {'orders': target, 'total': total, 'contact': target['contacts'], 'product': target['packages'][0]['product_']})
-        data = json.dumps({"data": {"user_id": request.user.id, "to": target['contacts']['mail'], "from": 'theaqvteam@gmail.com', "subject": 'Bill', "message": message}})
+        data = json.dumps({"data": {"user_id": request.user.id,
+                                    "to": target['contacts']['mail'], "from": 'theaqvteam@gmail.com', "subject": 'Bill', "message": message}})
         print(message)
         request = requests.post('http://emails:8001/api/v1/send-email',
                                 data=data, headers={'Content-Type': 'application/json'})
         res = request.json()
-        return Response({"SENT": 'OK'},status=status.HTTP_200_OK)
+        return Response({"SENT": 'OK'}, status=status.HTTP_200_OK)
 
 
 class OrderHistoryView(ModelViewSet):

@@ -40,7 +40,16 @@ import { BAD_REQUEST } from "../../common/Code";
 import { htmlToState, draftToRaw } from "../../common/Utils";
 
 function SendMailComponent(props) {
-  const { classes, handleCloseReply, user, data, sendTo, productInfo } = props;
+  const {
+    classes,
+    handleCloseReply,
+    user,
+    data,
+    sendTo,
+    productInfo,
+    contact,
+    onComplete
+  } = props;
   const [sendEmail, setSendEmail] = React.useState({
     user_id: user.id,
     to: sendTo.mail,
@@ -62,7 +71,6 @@ function SendMailComponent(props) {
     setEmailTemplateURL,
     forceUpdateEmailTemplate
   ] = useFetchData(MAIL_TEMPLATES_URL, props.history, { data: [], total: 0 });
-
 
   const packgesToHtml = () => {
     if (!productInfo) {
@@ -88,7 +96,9 @@ function SendMailComponent(props) {
       message: draftToRaw(editorState)
     };
 
-    data.message = data.message.replace("$contact_name$", contact.first_name);
+    if (contact) {
+      data.message = data.message.replace("$contact_name$", contact.first_name);
+    }
     data.message = data.message.replace("$packages_info$", packgesToHtml());
 
     apiPost(SEND_EMAIL, { data }, false, false).then(res => {
@@ -109,6 +119,7 @@ function SendMailComponent(props) {
       } else if (res.data.code == BAD_REQUEST) {
         setError(res.data);
       } else {
+        onComplete();
         // notification()
         // setCreateCampaignDialog(false)
       }
