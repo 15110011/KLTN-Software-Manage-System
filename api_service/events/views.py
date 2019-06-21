@@ -66,7 +66,7 @@ class EventView(ModelViewSet):
         elif view_type == 'personal':
             filters.add(Q(marketing=None), Q.AND)
             filters.add(Q(order=None), Q.AND)
-        # filters.add(Q(end_date__gte=now) & Q(start_date__lte=now), Q.AND)
+        filters.add(Q(end_date__gte=now) & Q(start_date__lte=now), Q.AND)
         #filters.add(Q(end_date__date__gte=now), Q.AND)
         if remaining:
             filters.add(Q(end_date=datetime.timedelta(
