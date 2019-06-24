@@ -16,6 +16,7 @@ from orders.views import OrderHistoryView, OrderView, LicenseView, LifetimeLicen
 from steps.views import StepView, StepDetailView
 from events.views import EventView
 from reports.views import ReportView, Reports
+from contacts.search_contact import SearchContact
 
 router = DefaultRouter(trailing_slash=False)
 # package app
@@ -83,5 +84,6 @@ urlpatterns = [
 
     path('api/v1/campaigns/<int:pk>/note',
          CampaignExtraView.as_view({'get': 'note'})),
-    path('api/v1/uploads', upload_excel_contacts)
+    path('api/v1/uploads', upload_excel_contacts),
+    path('api/v1/search-contacts', SearchContact)
 ]
