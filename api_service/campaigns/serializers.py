@@ -21,6 +21,11 @@ import json
 import logging
 logger = logging.getLogger(__name__)
 
+def check_step_completed(step_detail):
+    if step_detail.status != 'COMPLETED':
+        step_detail.order.status == 'FAILED'
+        step_detail.save()
+
 
 def send_email_api(user, to_address, from_address, subject, message, contact_marketing_id):
     data = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
@@ -340,6 +345,13 @@ class ContactMarketingSerializer(serializers.ModelSerializer):
                               handle_mail_template.manipulate_template(
                                   steps[0].mail_template.template, contact=cur_contact, packages=step_details[0].order.campaign.packages.all()),
                               step_details[0].id)
+
+            for step_detail in step_details:
+                job = django_rq.get_scheduler('default')
+                end_date = step_detail.created + timedelta(days=step_detail.step.duration) 
+                timestamp1 = calendar.timegm((end_date).timetuple())
+                end_date = datetime.utcfromtimestamp(timestamp1)
+                job.enqueue_at(end_date, check_step_completed, step_detail)
 
         return instance
 
