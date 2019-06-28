@@ -23,7 +23,11 @@ def ContactHistory(request, id):
     for contact in contact_marketing:
         campaigns.append(ReportCampaignSerializer(contact.campaign).data)
         for thread_id in contact.thread_ids:
-            conversations.append(cache.get(f'thread_{thread_id}'))
+            if thread_id.get('thread_id', None) is not None:
+                thread = thread_id['thread_id']
+                conversations.append(cache.get(f'thread_{thread}'))
+            else:
+                conversations.append(thread_id)
 
     return Response({"campaigns": campaigns, "order_histories": contact_order, "conversation_histories": conversations})
 
