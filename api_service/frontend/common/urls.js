@@ -61,4 +61,6 @@ export const MAIL_TEMPLATES_URL = `${API_URL}mail-templates`;
 export const WS_NOFICATION_URL = 'ws://localhost:8000/ws/notifications';
 export const WS_MAIL_URL = 'ws://localhost:8001/ws/mail-box';
 
+export const SEARCH_CONTACT = `${API_URL}search-contacts`
+
 export { serverUrl, API_URL };

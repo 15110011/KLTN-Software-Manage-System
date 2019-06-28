@@ -8,6 +8,8 @@ import {
   TableRow,
   TableCell,
 } from '@material-ui/core';
+import { Link } from "react-router-dom";
+
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import * as cn from 'classnames';
@@ -24,7 +26,12 @@ import OrderTable from './Order/OrderTable';
 import FollowUpTable from './FollowUp/FollowUpTable';
 import CampaignsTable from './CampaignsTable';
 import ActivitiesTable from './ActivitiesTable';
+import SearchIcon from '@material-ui/icons/Search';
+import MenuIcon from '@material-ui/icons/Menu';
 import TicketsTable from './TicketsTable';
+import Paper from '@material-ui/core/Paper';
+import InputBase from '@material-ui/core/InputBase';
+import Fab from '@material-ui/core/Fab';
 import styles from './SalerepStyles.js';
 
 import Card from '../../components/Card/Card';
@@ -35,7 +42,7 @@ import useFetchData from '../../CustomHook/useFetchData';
 
 import CustomSnackbar from '../../components/CustomSnackbar';
 import { apiGet, apiPost } from '../../common/Request.js';
-import { ORDER_CHART_URL } from '../../common/urls';
+import { ORDER_CHART_URL, SEARCH_CONTACT } from '../../common/urls';
 
 import stateHashes from '../../common/StateHash';
 
@@ -55,6 +62,9 @@ function SalerepDashboard(props) {
   const [selectingRegion, setSelectingRegion] = React.useState(
     queryState && queryState.length ? queryState[2] : false,
   );
+
+  const [searchContact, setSearchContact] = React.useState('')
+  const [contacts, setContacts] = React.useState([])
 
   const mapChartRef = React.useRef(null);
 
@@ -139,7 +149,7 @@ function SalerepDashboard(props) {
     if (
       vectorRef.current
       && window.pageYOffset
-        >= vectorRef.current.refs.map.getBoundingClientRect().bottom
+      >= vectorRef.current.refs.map.getBoundingClientRect().bottom
     ) {
       setFloatingState(true);
     } else {
@@ -154,10 +164,32 @@ function SalerepDashboard(props) {
     return window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleSearchContact = () => {
+    apiGet(SEARCH_CONTACT + `?q=${searchContact}&start=0&end=10`)
+      .then(res => {
+        setContacts(res.data.contacts)
+        console.log(res.data.contacts)
+      })
+  }
+
   return (
     <div className={classes.root}>
       <Grid container classes={{ container: classes.fixTable }}>
-        <Grid item xs={12} className={cn('text-right pt-4')}>
+        <Grid item xs={6}>
+          <Paper className={classes.root}>
+            <InputBase
+              className={classes.input}
+              placeholder="Search Contacts"
+              // value={searchContact}
+              onChange={e => setSearchContact(e.target.value)}
+              inputProps={{ 'aria-label': 'Search Contact' }}
+            />
+            <IconButton className={classes.iconButton} aria-label="Search" onClick={handleSearchContact}>
+              <SearchIcon />
+            </IconButton>
+          </Paper>
+        </Grid>
+        <Grid item xs={6} className={cn('text-right')}>
           <Button
             style={{ outline: 'none' }}
             variant="outlined"
@@ -167,7 +199,7 @@ function SalerepDashboard(props) {
           >
             <RemoveIcon fontSize="small" />
             {' '}
-Collapse All
+            Collapse All
           </Button>
           {' '}
           <Button
@@ -179,9 +211,26 @@ Collapse All
           >
             <AddIcon fontSize="small" />
             {' '}
-Expand All
+            Expand All
           </Button>
         </Grid>
+        {
+          contacts.length > 0 &&
+          <ul className='p-3'>
+            {
+              contacts.map(data => {
+                return (
+                  <li>You are looking for &nbsp;
+                  <Link to={`/contacts/${data.id}`}>
+                      {data.first_name} {data.last_name} ?
+                  </Link>
+                  </li>
+                )
+              })
+            }
+          </ul>
+        }
+
         <Grid item xs={12}>
           <Paper className={cn({ 'shadow-none': !expanded.map })}>
             <Card className={cn({ 'shadow-none': !expanded.map })}>
@@ -301,7 +350,7 @@ Expand All
                           onRegionTipShow={(e, el, code) => {
                             el.html(
                               `${el.html()}: ${
-                                regionData[code] ? regionData[code] : 0
+                              regionData[code] ? regionData[code] : 0
                               }`,
                             );
                           }}
