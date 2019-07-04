@@ -16,6 +16,10 @@ import DetailIcon from '@material-ui/icons/Assignment'
 import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemAvatar from '@material-ui/core/ListItemAvatar'
+import ListItemText from '@material-ui/core/ListItemText'
 import Select from '@material-ui/core/Select';
 import FormControl from '@material-ui/core/FormControl';
 import { BreadcrumbsItem } from 'react-breadcrumbs-dynamic'
@@ -23,7 +27,10 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import IconButton from '@material-ui/core/IconButton';
 import GroupIcon from '@material-ui/icons/Group'
 import { Divider } from '@material-ui/core';
-
+import PhoneIcon from "@material-ui/icons/Phone";
+import EmailIcon from "@material-ui/icons/Email";
+import Avatar from "@material-ui/core/Avatar";
+import * as dateFns from 'date-fns'
 
 // Hooks
 import useFetchData from '../../CustomHook/useFetchData'
@@ -71,6 +78,10 @@ function ContactDetail(props) {
       country: '',
       groups: []
     })
+  const [history, setHistory] =
+    useFetchData(CONTACT_URL + '/' + contactId + '/histories', props.history, {
+
+    })
   const { classes } = props
 
   const [groups, setGroups, setGroupURL, forceUpdateGroup] = useFetchData(GROUP_URL, props.history, { data: [], total: 0 })
@@ -117,7 +128,7 @@ function ContactDetail(props) {
         }
         else {
           // setContactDetail(res.data)
-          forceUpdate() 
+          forceUpdate()
           setSuccessNoti('Successfully Updated')
           timer.success = setTimeout(() => {
             setSuccessNoti(false)
@@ -200,7 +211,7 @@ function ContactDetail(props) {
               >
 
                 <Tab label={<span><PersonalIcon />&nbsp;Detail</span>} />
-                <Tab label={<span><DetailIcon /> Notes </span>} />
+                <Tab label={<span><DetailIcon /> History </span>} />
               </Tabs>
             </AppBar>
             <USERCONTEXT.Consumer>
@@ -540,8 +551,61 @@ function ContactDetail(props) {
                   }
                   {value === 1 &&
                     <TabContainer>
-                      NOTES
-                  </TabContainer>}
+                      <List>
+                        <h5>
+                          {
+                            history.campaigns[0].name
+                          }
+                        </h5>
+                        <hr />
+                        {
+                          history.conversation_histories.reduce((acc, cur) => {
+
+                            if (cur !== null) {
+                              if (!Array.isArray(cur)) {
+                                acc.push(<><Paper>
+                                  <ListItem alignItems="flex-start">
+                                    <ListItemAvatar>
+                                      <Avatar className={classes.greenAvatar}>
+                                        <PhoneIcon fontSize="small" />
+                                      </Avatar>
+                                    </ListItemAvatar>
+                                    <ListItemText
+                                      style={{ marginTop: '15px' }}
+                                      primary={`Contact at ${dateFns.format(dateFns.parseISO(cur.date_created), 'HH:mm MM/dd/yyyy')}`}
+                                    />
+                                  </ListItem>
+                                </Paper>
+                                  <br /></>
+                                )
+                              }
+                              else {
+                                acc.push(
+                                  cur.map(
+                                    e => (<><Paper>
+                                      <ListItem alignItems="flex-start">
+                                        <ListItemAvatar>
+                                          <Avatar className={classes.pinkAvatar}>
+                                            <EmailIcon fontSize="small" />
+                                          </Avatar>
+                                        </ListItemAvatar>
+                                        <ListItemText
+                                          style={{ marginTop: '15px' }}
+                                          primary={`Contact at ${dateFns.format(new Date(e.date_created[0]), 'HH:mm MM/dd/yyyy')}`}
+                                        />
+                                      </ListItem>
+                                    </Paper><br /></>)
+                                  )
+                                )
+                              }
+                            }
+                            return acc
+                          }, [])
+                        }
+
+
+                      </List>
+                    </TabContainer>}
                 </div>)}
             </USERCONTEXT.Consumer>
           </Paper>

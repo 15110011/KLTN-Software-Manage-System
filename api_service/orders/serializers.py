@@ -8,7 +8,7 @@ from steps.serializers import StepDetailWithoutOrderSerializer
 from steps.models import StepDetail
 from campaigns.serializers import CampaignSerializer
 from . import models
-from KLTN.common import send_email
+from KLTN.common import send_email, send_email_api
 from django.contrib.auth.models import User
 import django_rq
 from datetime import datetime, timedelta, timezone
@@ -41,8 +41,15 @@ class CreateLicenseSerializer(serializers.ModelSerializer):
             timedelta(days=license.duration*30) - timedelta(days=10)
         timestamp1 = calendar.timegm((remind_date).timetuple())
         start_date = datetime.utcfromtimestamp(timestamp1)
+        product = None
+        for f in license.package.features.all():
+            product = model_to_dict(f.product)
+            break
         scheduler.enqueue_at(start_date, send_email, user,
-                             'License Reminder', 'Your license will be expired in 10 days')
+                             f'License Reminder (Order #{license.order.id})', 
+                             f'Product: {product["name"]}\r\nPackage: {license.package.name} ({license.duration} month(s))\r\nYour license will be expired in 10 days'
+                             )
+        
         return license
 
 

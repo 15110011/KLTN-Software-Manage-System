@@ -264,7 +264,7 @@ function SalerepDashboard(props) {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {stateData.data.map((d, index) => (
+                          {stateData.data.reverse().map((d, index) => (
                             <TableRow>
                               <TableCell>{d.code}</TableCell>
                               <TableCell>{stateHashes[d.code]}</TableCell>
@@ -336,7 +336,7 @@ function SalerepDashboard(props) {
                             regions: [
                               {
                                 values: regionData,
-                                scale: ['#01ff5b', '#ff0000'],
+                                scale: ['#e8f5e9', '#1b5e20'],
                                 normalizeFunction: 'polynomial',
                                 legend: {
                                   // horizontal: true,
