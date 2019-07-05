@@ -166,9 +166,12 @@ class MarketingPlanView(ModelViewSet):
             marketing_plans = []
             for mp in search.to_queryset():
                 # cur_mail= MailTemplate.objects.get(id=mp.mail_template)
-                mp = {
-                    **model_to_dict(mp), "mail_template": model_to_dict(mp.mail_template)}
-                marketing_plans.append(mp)
+                if mp.mail_template is not None:
+                    mp = {
+                        **model_to_dict(mp), "mail_template": model_to_dict(mp.mail_template)}
+                    marketing_plans.append(mp)
+                else:
+                    marketing_plans.append(model_to_dict(mp))
             return {"marketing_plans": marketing_plans, "elastic_search": True}
 
         if 'marketing_plan_suggest' in self.request.query_params.keys():

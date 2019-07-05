@@ -60,6 +60,7 @@ class EventView(ModelViewSet):
             start_order = '-start_date' if start_order == 'desc' else 'start_date'
         if view_type == 'campaign':
             # filters.add(Q(marketing__campaign__end_date__gte=now) & Q(marketing__campaign__start_date__lte=now), Q.AND)
+            
             filters.add(Q(marketing__campaign__end_date__gte=now)| Q(order__campaign__end_date__gte=now), Q.AND)
             filters.add(Q(~Q(marketing=None) & Q(marketing__status='RUNNING')) |
                         Q(~Q(order=None) & Q(order__status='RUNNING')), Q.AND)

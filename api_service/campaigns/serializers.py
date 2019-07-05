@@ -270,7 +270,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
                         cur_contact.first_name, cur_contact.last_name),
-                    start_date=campaign.start_date, end_date=campaign.start_date, name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
+                    start_date=campaign.start_date, end_date=campaign.end_date, name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
                 )
                 event.save()
                 event.contacts.set([cur_contact])
