@@ -31,16 +31,18 @@ def check_step_completed(step_detail):
 def send_email_api(user, to_address, from_address, subject, message, contact_marketing_id):
     data = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
                                 "subject": subject, "message": message}})
-    request = requests.post('http://emails:8001/api/v1/send-email',
+    res = requests.post('http://emails:8001/api/v1/send-email',
                             data=data, headers={'Content-Type': 'application/json'})
-    res = request.json()
-    # try:
-    contact_marketing = models.ContactMarketing.objects.get(
-        id=contact_marketing_id)
-    contact_marketing.thread_ids.append(
-        {'thread_id': res['thread_id'], 'type': 'Send Email'})
-    contact_marketing.save()
-    # except:
+    print(res)
+    if res.status_code == 200:
+        res = res.json()
+        # try:
+        contact_marketing = models.ContactMarketing.objects.get(
+            id=contact_marketing_id)
+        contact_marketing.thread_ids.append(
+            {'thread_id': res['thread_id'], 'type': 'Send Email'})
+        contact_marketing.save()
+        # except:
     #    pass
 
 
@@ -236,10 +238,10 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
         campaign.packages.set(packages)
         scheduler = django_rq.get_scheduler('default')
         timestamp1 = calendar.timegm(
-            (campaign.start_date + timedelta(days=1)).timetuple())
+            (campaign.start_date).timetuple())
         start_date = datetime.utcfromtimestamp(timestamp1)
         now = datetime.now()
-
+        print()
         if contacts is not None:
             for index, contact in enumerate(contacts):
                 cur_contact = Contact.objects.get(id=contact)
@@ -251,7 +253,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                     )
                     contact_marketing.save()
                     job = scheduler.schedule(
-                        scheduled_time=now,
+                        scheduled_time=start_date,
                         func=send_email_api,
                         args=[self.context.get(
                             'request').user, cur_contact.mail, "theaqvteam@gmail.com", campaign.marketing_plan.mail_template.subject, handle_mail_template.manipulate_template(campaign.marketing_plan.mail_template.template, contact=cur_contact, packages=campaign.packages.all()), contact_marketing.id],
@@ -270,7 +272,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
                         cur_contact.first_name, cur_contact.last_name),
-                    start_date=campaign.start_date, end_date=campaign.end_date, name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
+                    start_date=campaign.start_date, end_date=campaign.start_date+ timedelta(days=1), name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
                 )
                 event.save()
                 event.contacts.set([cur_contact])

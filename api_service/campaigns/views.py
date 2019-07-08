@@ -521,7 +521,7 @@ class ContactMarketingView(ModelViewSet):
             data=request.data, context={"request": request})
         serializer.is_valid()
         created = self.perform_create(serializer)
-        return Response(created)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request, *args, **kwargs):
         filters = Q()

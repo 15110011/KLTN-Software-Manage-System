@@ -39,13 +39,14 @@ import CardHeader from '../../components/Card/CardHeader';
 import CardBody from '../../components/Card/CardBody';
 import CardIcon from '../../components/Card/CardIcon';
 import useFetchData from '../../CustomHook/useFetchData';
+import SearchContact from './SearchContact'
 
 import CustomSnackbar from '../../components/CustomSnackbar';
 import { apiGet, apiPost } from '../../common/Request.js';
 import { ORDER_CHART_URL, SEARCH_CONTACT } from '../../common/urls';
 
 import stateHashes from '../../common/StateHash';
-
+let dirty = false
 function SalerepDashboard(props) {
   const { classes } = props;
 
@@ -63,7 +64,24 @@ function SalerepDashboard(props) {
     queryState && queryState.length ? queryState[2] : false,
   );
 
-  const [searchContact, setSearchContact] = React.useState('')
+  React.useEffect(
+    () => {
+      if (selectingRegion && dirty) {
+        props.history.push({
+          pathName: './',
+          search: `?state=${selectingRegion}`,
+        });
+        dirty=false
+      }
+      else if(!selectingRegion && dirty){
+        props.history.push({
+          pathName: '/dashboard',
+        });
+        dirty=false
+      }
+    }
+    , [selectingRegion])
+
   const [contacts, setContacts] = React.useState([])
 
   const mapChartRef = React.useRef(null);
@@ -164,18 +182,18 @@ function SalerepDashboard(props) {
     return window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleSearchContact = () => {
+  const handleSearchContact = (searchContact) => {
     apiGet(SEARCH_CONTACT + `?q=${searchContact}&start=0&end=10`)
       .then(res => {
         setContacts(res.data.contacts)
-        console.log(res.data.contacts)
       })
   }
 
   return (
     <div className={classes.root}>
       <Grid container classes={{ container: classes.fixTable }}>
-        <Grid item xs={6}>
+        <SearchContact handleSearchContact={handleSearchContact} />
+        {/* <Grid item xs={6}>
           <Paper className={classes.root}>
             <InputBase
               className={classes.input}
@@ -188,7 +206,7 @@ function SalerepDashboard(props) {
               <SearchIcon />
             </IconButton>
           </Paper>
-        </Grid>
+        </Grid> */}
         <Grid item xs={6} className={cn('text-right')}>
           <Button
             style={{ outline: 'none' }}
@@ -222,7 +240,7 @@ function SalerepDashboard(props) {
                 return (
                   <li>You are looking for &nbsp;
                   <Link to={`/contacts/${data.id}`}>
-                      {data.first_name} {data.last_name} ?
+                      {data.first_name} {data.last_name}?
                   </Link>
                   </li>
                 )
@@ -357,16 +375,14 @@ function SalerepDashboard(props) {
                           regionsSelectable
                           regionsSelectableOne
                           onRegionClick={(e, code) => {
+                            dirty=true
                             if (code === selectingRegion) {
                               setSelectingRegion(false);
                             } else {
                               setSelectingRegion(code);
                             }
-                            props.history.push({
-                              pathName: './',
-                              search: `?state=${code}`,
-                            });
                           }}
+
                         />
                       </div>
                     </Grid>
@@ -390,7 +406,7 @@ function SalerepDashboard(props) {
           >
             <strong>Selecting state</strong>
             {' '}
-            {selectingRegion}
+            {selectingRegion ? stateHashes[selectingRegion.split('-')[1]] : 'All'}
           </div>
         )}
         <Grid item xs={12} className="pt-2">
@@ -407,6 +423,7 @@ function SalerepDashboard(props) {
             forceActivities={forceActivities}
             history={props.history}
             tableRef={tableCampaignRef}
+            tableFollowUpRef={tableFollowUpRef}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
           />
@@ -420,6 +437,7 @@ function SalerepDashboard(props) {
             forceFollowUp={forceFollowUp}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && stateHashes[selectingRegion.split('-')[1]]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -431,6 +449,7 @@ function SalerepDashboard(props) {
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && stateHashes[selectingRegion.split('-')[1]]}
           />
         </Grid>
         <Grid item xs={12}>
@@ -441,6 +460,8 @@ function SalerepDashboard(props) {
             forceOrder={forceOrder}
             expanded={expanded}
             handleExpandClick={handleExpandClick}
+            selectingRegion={selectingRegion && stateHashes[selectingRegion.split('-')[1]]}
+
           />
         </Grid>
       </Grid>

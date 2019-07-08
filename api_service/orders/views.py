@@ -170,7 +170,7 @@ class OrderView(ModelViewSet):
         state = request.query_params.get('state', None)
         if selecting_state:
             filters.add(
-                Q(contacts__state=reverse_state_hashe[selecting_state]), Q.AND)
+                Q(contacts__state=reverse_state_hashes[selecting_state]), Q.AND)
         if contact_name:
             filters.add(Q(contacts__first_name__icontains=contact_name) | Q(
                 contacts__last_name__icontains=contact_name) | Q(full_name__icontains=contact_name), Q.AND)

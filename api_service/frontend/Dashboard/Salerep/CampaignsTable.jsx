@@ -31,6 +31,7 @@ import USERCONTEXT from '../../components/UserContext'
 
 const search = { timeRanges: [null, null, null, { from: null, to: null }, { from: null, to: null }] }
 let activePageCampaign = 0
+let addContactType = 'Idle'
 
 function CampaignTable(props) {
 
@@ -43,6 +44,7 @@ function CampaignTable(props) {
     handleExpandClick,
     selectingRegion,
     user,
+    tableFollowUpRef
   } = props
 
 
@@ -91,17 +93,40 @@ function CampaignTable(props) {
       })
   }
 
-  const handleAddContact = (rows) => {
-    rows.forEach(d => {
-      let data = {
-        marketing_plan: addContactDialog.marketing_plan.id,
-        contact: d.contact.id,
-        campaign: addContactDialog.id
-      }
-      apiPost(CONTACT_MARKETING_URL, data, false, true).then(res => {
 
+  const handleAddContact = (rows) => {
+    if (addContactType == 'Idle') {
+      rows.forEach(d => {
+        let data = {
+          marketing_plan: addContactDialog.marketing_plan.id,
+          contact: d.contact.id,
+          campaign: addContactDialog.id
+        }
+        apiPost(CONTACT_MARKETING_URL, data, false, true).then(res => {
+          setAddContactDialog(false)
+        })
       })
-    })
+    }
+    else if (addContactType == 'Active') {
+      rows.forEach(d => {
+        let data = {
+          marketing_plan: addContactDialog.marketing_plan.id,
+          contact: d.contact.id,
+          campaign: addContactDialog.id
+        }
+        apiPost(CONTACT_MARKETING_URL, data, false, true).then(res => {
+          apiPatch(
+            `${CONTACT_MARKETING_URL}/${res.data.id}`,
+            { status: "COMPLETED" },
+            false,
+            true
+          ).then(()=>{
+            tableFollowUpRef.current.onQueryChange()
+            setAddContactDialog(false)
+          })
+        })
+      })
+    }
   }
 
   // const getMoreRow = id => {
@@ -326,11 +351,21 @@ function CampaignTable(props) {
                           </IconButton>
                         </Tooltip>)
                     }
-                    if (props.action.icon == 'add' && props.data.status == 'Idle' && props.data.manager == user.id) {
+                    if (props.action.icon == 'add' && (props.data.status == 'Idle') && props.data.manager == user.id) {
                       return (
                         <Tooltip title={props.action.tooltip}>
                           <IconButton
-                            onClick={(event) => props.action.onClick(event, props.data)}
+                            onClick={(event) => props.action.onClick(event, props.data, 'Idle')}
+                          >
+                            <AddIcon />
+                          </IconButton>
+                        </Tooltip>)
+                    }
+                    if (props.action.icon == 'add' && (props.data.status == 'Active') && props.data.manager == user.id) {
+                      return (
+                        <Tooltip title={props.action.tooltip}>
+                          <IconButton
+                            onClick={(event) => props.action.onClick(event, props.data, 'Active')}
                           >
                             <AddIcon />
                           </IconButton>
@@ -494,7 +529,8 @@ function CampaignTable(props) {
                 {
                   icon: 'add',
                   tooltip: 'Add contact to campaign',
-                  onClick: (event, row) => {
+                  onClick: (event, row, a) => {
+                    addContactType = a
                     setAddContactDialog(row)
                   },
                 },

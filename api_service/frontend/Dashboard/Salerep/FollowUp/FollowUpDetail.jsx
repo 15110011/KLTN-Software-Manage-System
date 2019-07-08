@@ -1067,7 +1067,7 @@ function FollowUpDetail(props) {
                 xs={12}
                 style={{ margin: "20px 0", textAlign: "right" }}
               >
-                <Button
+                {/* <Button
                   variant="contained"
                   onClick={() => setUpdate(update + 1)}
                   disabled={
@@ -1080,7 +1080,7 @@ function FollowUpDetail(props) {
                   }
                 >
                   Reset
-                </Button>{" "}
+                </Button>{" "} */}
                 {/* <Button
                   type="button"
                   variant='contained'

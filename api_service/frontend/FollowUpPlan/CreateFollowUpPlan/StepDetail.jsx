@@ -60,116 +60,116 @@ function StepDetail(props) {
 
     <Grid container spacing={24}>
       {
-        isFinalStep &&
-        <Grid item xs={12}>
-          <Typography classes={{ root: classes.activitytTgline }} component='span' style={{ fontStyle: 'italic' }}>
-            You have to choose packages which customer want to buy in this step
+        isFinalStep ?
+          <Grid item xs={12}>
+            <Typography classes={{ root: classes.activitytTgline }} component='span' style={{ fontStyle: 'italic' }}>
+              You have to choose packages which customer want to buy in this step
           </Typography>
-        </Grid>
-      }
-      <Grid className={classes.inputCustom} item xs={2}>
-        <InputLabel
-          required
-          htmlFor="custom-css-standard-input"
-          classes={{
-            root: classes.cssLabel,
-            focused: classes.cssFocused,
-          }}
+          </Grid>
+          :
+          <>
+            <Grid className={classes.inputCustom} item xs={2}>
+              <InputLabel
+                required
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
 
-          className={error.steps ? classes.danger : null}
-          style={{ top: '33px' }}
-        >
-          Auto
+                className={error.steps ? classes.danger : null}
+                style={{ top: '33px' }}
+              >
+                Auto
         </InputLabel>
-      </Grid>
-      <Grid item xs={8}>
-        <FormControl component="fieldset" className={classes.formControl} >
-          <FormGroup>
-            {
-              actions.actions &&
-              actions.actions
-                .reduce((acc, g) => {
-                  acc.push(
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={createStep.actions.find(a => a == g)}
-                          onChange={(value, status) => {
-                            handleChangeAutoActions(g, status)
-                          }}
-                        />
-                      }
-                      value={g}
-                      label={g}
-                    />
-                  )
-                  return acc
-                }, [])
+            </Grid>
+            <Grid item xs={8}>
+              <FormControl component="fieldset" className={classes.formControl} >
+                <FormGroup>
+                  {
+                    actions.actions &&
+                    actions.actions
+                      .reduce((acc, g) => {
+                        acc.push(
+                          <FormControlLabel
+                            control={
+                              <Checkbox
+                                checked={createStep.actions.find(a => a == g)}
+                                onChange={(value, status) => {
+                                  handleChangeAutoActions(g, status)
+                                }}
+                              />
+                            }
+                            value={g}
+                            label={g}
+                          />
+                        )
+                        return acc
+                      }, [])
+                  }
+                </FormGroup>
+              </FormControl>
+            </Grid>
+            <Grid item xs={2}></Grid>
+            {createStep.actions.find(a => a == 'Send Email') &&
+              <>
+                <Grid item xs={2} style={{ position: 'relative' }}>
+                  <InputLabel
+                    htmlFor="custom-css-standard-input"
+                    classes={{
+                      root: classes.cssLabel,
+                      focused: classes.cssFocused,
+                    }}
+                  >
+                    Mail template
+            </InputLabel>
+                </Grid>
+                <Grid item xs={8}>
+                  <AsyncSelect
+                    handleChange={(values, element) => handleChangeMailTemplate(values, element)}
+                    onChangeSelect={(values, element) => handleChangeMailTemplate(values, element)}
+                    data={
+                      { label: createStep.mail_template && createStep.mail_template.name, value: createStep.mail_template && createStep.mail_template.id }
+                    }
+                    // multi
+                    single
+                    placeholder=""
+                    label=""
+                    loadOptions={fetchEmailSuggestion}
+                  />
+                </Grid>
+                <Grid item xs={2}></Grid>
+              </>
             }
-          </FormGroup>
-        </FormControl>
-      </Grid>
-      <Grid item xs={2}></Grid>
-      {createStep.actions.find(a => a == 'Send Email') &&
-        <>
-          <Grid item xs={2} style={{position:'relative'}}>
-            <InputLabel
-              htmlFor="custom-css-standard-input"
-              classes={{
-                root: classes.cssLabel,
-                focused: classes.cssFocused,
-              }}
-            >
-              Mail template
+            <Grid className={classes.inputCustom} item xs={2}>
+              <InputLabel
+                htmlFor="custom-css-standard-input"
+                classes={{
+                  root: classes.cssLabel,
+                  focused: classes.cssFocused,
+                }}
+              >
+                Duration (days)
             </InputLabel>
-          </Grid>
-          <Grid item xs={8}>
-            <AsyncSelect
-              handleChange={(values, element) => handleChangeMailTemplate(values, element)}
-              onChangeSelect={(values, element) => handleChangeMailTemplate(values, element)}
-              data={
-                { label: createStep.mail_template && createStep.mail_template.name, value: createStep.mail_template && createStep.mail_template.id }
-              }
-              // multi
-              single
-              placeholder=""
-              label=""
-              loadOptions={fetchEmailSuggestion}
-              disabled={}
-            />
-          </Grid>
-          <Grid item xs={2}></Grid>
-        </>
-      }
-      <Grid className={classes.inputCustom} item xs={2}>
-        <InputLabel
-          htmlFor="custom-css-standard-input"
-          classes={{
-            root: classes.cssLabel,
-            focused: classes.cssFocused,
-          }}
-        >
-          Duration (days)
-            </InputLabel>
-      </Grid>
-      <Grid item xs={8}>
-        <Input
-          fullWidth
-          required
-          onChange={onChangeCreateSteps}
-          value={createStep.duration}
-          type="number"
-          name="duration"
-          classes={{
-            underline: classes.cssUnderline,
-          }}
-          inputProps={{
-            min: 1
-          }}
-        />
-      </Grid>
-      <Grid item xs={2}></Grid>
-      {/* <Grid className={classes.inputCustom} item xs={2}>
+            </Grid>
+            <Grid item xs={8}>
+              <Input
+                fullWidth
+                required
+                onChange={onChangeCreateSteps}
+                value={createStep.duration}
+                type="number"
+                name="duration"
+                classes={{
+                  underline: classes.cssUnderline,
+                }}
+                inputProps={{
+                  min: 1
+                }}
+              />
+            </Grid>
+            <Grid item xs={2}></Grid>
+            {/* <Grid className={classes.inputCustom} item xs={2}>
         <InputLabel
           required
           htmlFor="custom-css-standard-input"
@@ -192,10 +192,10 @@ function StepDetail(props) {
           </Button>
 
       </Grid> */}
-      <Grid item xs={2}></Grid>
-      <Grid item xs={2}></Grid>
-      <Grid item xs={8}>
-        {/* {createStep.conditions.map((c, index) => {
+            <Grid item xs={2}></Grid>
+            <Grid item xs={2}></Grid>
+            <Grid item xs={8}>
+              {/* {createStep.conditions.map((c, index) => {
           return (
             <Grid container spacing={40}>
               <Grid item xs={5}>
@@ -337,8 +337,8 @@ function StepDetail(props) {
 
         } */}
 
-      </Grid>
-
+            </Grid>
+          </>}
     </Grid>
 
   )
