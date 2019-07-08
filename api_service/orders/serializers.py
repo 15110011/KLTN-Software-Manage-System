@@ -46,10 +46,10 @@ class CreateLicenseSerializer(serializers.ModelSerializer):
             product = model_to_dict(f.product)
             break
         scheduler.enqueue_at(start_date, send_email, user,
-                             f'License Reminder (Order #{license.order.id})', 
+                             f'License Reminder (Order #{license.order.id})',
                              f'Product: {product["name"]}\r\nPackage: {license.package.name} ({license.duration} month(s))\r\nYour license will be expired in 10 days'
                              )
-        
+
         return license
 
 
@@ -121,10 +121,14 @@ class ReportOrderSerializer(serializers.ModelSerializer):
     packages = PackageSerializer(many=True)
     campaign = CampaignSerializer()
     contacts = ContactSerializer()
+    income = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Order
         fields = '__all__'
+
+    def get_income(self, instance):
+        return 1
 
 
 class OrderSerializer(serializers.ModelSerializer):

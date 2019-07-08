@@ -384,13 +384,13 @@ class CampaignView(ModelViewSet):
 
             filters.add(status_filters, Q.AND)
 
+        queryset = Campaign.objects.filter(filters)
         # order
         name_order = request.query_params.get('name_order', None)
         product_order = request.query_params.get('product_order', None)
         start_order = request.query_params.get('start_order', None)
         end_order = request.query_params.get('end_order', None)
         status_order = request.query_params.get('status_order', None)
-        queryset = Campaign.objects.filter(filters)
         if name_order:
             name_order = Lower('name').desc(
             ) if name_order == 'desc' else Lower('name').asc()
@@ -416,6 +416,9 @@ class CampaignView(ModelViewSet):
                     end_date__lt=now, then=DjangoModel.Value(2)),
                 output_field=DjangoModel.IntegerField()
             )).order_by(status_order)
+        if not (name_order or product_order or start_order or end_order or status_order):
+            queryset = queryset.order_by('-start_date')
+
         if limit is not None:
             queryset = queryset[int(page)*int(limit)                                :int(page)*int(limit)+int(limit)]
         serializer = self.get_serializer(queryset, many=True)

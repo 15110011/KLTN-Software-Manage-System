@@ -32,7 +32,7 @@ def send_email_api(user, to_address, from_address, subject, message, contact_mar
     data = json.dumps({"data": {"user_id": user.id, "to": to_address, "from": from_address,
                                 "subject": subject, "message": message}})
     res = requests.post('http://emails:8001/api/v1/send-email',
-                            data=data, headers={'Content-Type': 'application/json'})
+                        data=data, headers={'Content-Type': 'application/json'})
     print(res)
     if res.status_code == 200:
         res = res.json()
@@ -190,6 +190,8 @@ class CampaignSerializer(serializers.ModelSerializer):
     notes = NoteSerializer(many=True)
     product = serializers.SerializerMethodField()
     contacts = serializers.SerializerMethodField()
+    no_waiting = serializers.SerializerMethodField()
+    no_order = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Campaign
@@ -210,6 +212,12 @@ class CampaignSerializer(serializers.ModelSerializer):
         contacts += [model_to_dict(m.contact) for m in marketings.all()
                      if not m.contact.id in contact_distinct]
         return contacts
+
+    def get_no_waiting(self, instance):
+        return len(instance.contact_marketing_plan.all())
+
+    def get_no_order(self, instance):
+        return len(instance.orders.all())
 
 
 class CreateContactMarketingSerializer(serializers.ModelSerializer):
@@ -272,7 +280,7 @@ class CreateCampaignSerializer(serializers.ModelSerializer):
                 event = Event(
                     user=self.context.get('request').user, assigned_to=sale_reps[index % len(sale_reps)], content='Contact {} {}'.format(
                         cur_contact.first_name, cur_contact.last_name),
-                    start_date=campaign.start_date, end_date=campaign.start_date+ timedelta(days=1), name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
+                    start_date=campaign.start_date, end_date=campaign.start_date + timedelta(days=1), name=f'Start contacting ' + f'{cur_contact.first_name} {cur_contact.last_name}', marketing=contact_marketing
                 )
                 event.save()
                 event.contacts.set([cur_contact])
