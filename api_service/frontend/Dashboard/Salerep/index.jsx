@@ -254,7 +254,7 @@ function SalerepDashboard(props) {
             <Card className={cn({ 'shadow-none': !expanded.map })}>
               <CardHeader color="info">
                 <h4 className={classes.cardChartTitle}>
-                  Top 6 states with hightest amount of running campaign
+                  Top 6 states with highest amount of orders
                 </h4>
                 <IconButton
                   className={cn(classes.expand_map, {
