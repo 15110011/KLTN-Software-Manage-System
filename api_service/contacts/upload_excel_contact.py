@@ -45,6 +45,7 @@ def upload_excel_contacts(request):
                 else:
                     return Response({"validation_erros": serializer.errors, "first_name": d[0], "last_name": d[1]}, status=status.HTTP_400_BAD_REQUEST)
             except: 
+                print(d)
                 duplicated = models.Contact.objects.get(
                         first_name=d[0], last_name=d[1], user=request.user)
                 cur_contact['groups'] = duplicated.groups.all()
