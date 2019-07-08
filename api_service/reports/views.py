@@ -26,7 +26,7 @@ class ReportView(ModelViewSet):
 # @permission_classes((IsAuthenticated, ))
 def Reports(request):
     data = request.data.get('data', None)
-    states = data.get('states', None)
+    states = data.get('state', None)
     from_date = data.get('from', None)
     to_date = data.get('to', None)
     user = request.user
@@ -38,7 +38,54 @@ def Reports(request):
     if states and from_date and to_date:
         result = filter_state_datetime(states, from_date, to_date)
 
+    result = {
+        "list": result,
+        **calc_datetime(states, from_date, to_date)
+    }
+
     return Response({"data": result})
+
+
+def calc_datetime(states, from_date, to_date):
+    filters = Q()
+    filters.add(Q(created__gte=from_date) & Q(created__lte=to_date), Q.AND)
+    filters.add(Q(status='RUNNING') | Q(status='COMPLETED'), Q.AND)
+    orders = Order.objects.filter(filters)
+    campaigns = {}
+    for order in orders:
+        conditions = order.campaign.marketing_plan.condition['must']
+        is_all = True
+        if states:
+            for condition in conditions:
+                if condition['operand'] == '1':
+                    if condition['operator'] == 'Equal to':
+                        if set(condition['data']).intersection(set(states)):
+                            result = ReportOrderSerializer(order).data
+                            # data.append(result)
+                            if result['campaign']['name'] not in campaigns:
+                                campaigns[result['campaign']['name']] = result['campaign']['no_order'] / \
+                                    result['campaign']['no_waiting']
+                    elif condition['operator'] == 'Not equal to':
+                        if not set(condition['data']).intersection(set(states)):
+                            result = ReportOrderSerializer(order).data
+                            # data.append(result)
+                            if result['campaign']['name'] not in campaigns:
+                                campaigns[result['campaign']['name']] = result['campaign']['no_order'] / \
+                                    result['campaign']['no_waiting']
+                    is_all = False
+        if is_all:
+            result = ReportOrderSerializer(order).data
+            # data.append(result)
+            if result['campaign']['name'] not in campaigns:
+                campaigns[result['campaign']['name']] = result['campaign']['no_order'] / \
+                    result['campaign']['no_waiting']
+    if len(campaigns) == 0:
+        return {"no_campaign": 0, "success_rate": 0}
+    import functools
+    final_rate = functools.reduce(
+        lambda acc, cur: acc+cur, campaigns.values(), 0)
+    return {"no_campaign": len(campaigns.items()), "success_rate": final_rate/len(campaigns)}
+
 
 def filter_state_datetime(states, from_date, to_date):
     filters = Q()
@@ -50,6 +97,8 @@ def filter_state_datetime(states, from_date, to_date):
         conditions = order.campaign.marketing_plan.condition['must']
         is_all = True
         for condition in conditions:
+            print(condition, states, set(
+                condition['data']).intersection(set(states)))
             if condition['operand'] == '1':
                 if condition['operator'] == 'Equal to':
                     if set(condition['data']).intersection(set(states)):
@@ -64,6 +113,7 @@ def filter_state_datetime(states, from_date, to_date):
             result = ReportOrderSerializer(order).data
             data.append(result)
     return data
+
 
 def filter_state(states):
     orders = Order.objects.filter(Q(status='RUNNING') | Q(status='COMPLETED'))
