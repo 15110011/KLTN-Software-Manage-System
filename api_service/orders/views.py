@@ -254,7 +254,6 @@ class OrderView(ModelViewSet):
 
             serializer = self.get_serializer(queryset.filter(
                 filters), many=True)
-        print(query.query)
 
         new_data = {
             "data": serializer.data,

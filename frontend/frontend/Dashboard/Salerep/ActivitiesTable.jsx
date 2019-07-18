@@ -407,7 +407,7 @@ function ActivitiesTable(props) {
                   {
                     title: 'Phase', field: 'phase',
                     lookup: {
-                      'Ticket': 'Ticket',
+                      'Ticket': 'Waiting',
                       'Follow-up': 'Follow-up',
                     }
                   },

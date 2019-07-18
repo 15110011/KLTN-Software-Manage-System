@@ -317,11 +317,15 @@ class CampaignView(ModelViewSet):
         now = datetime.now()
 
         filters = Q()
-        filters.add(Q(manager=request.user), Q.AND)
+        type_ = request.query_params.get('type', 'manager')
+
+        if type_ == 'both':
+            filters.add(Q(assigned_to=request.user) | Q(manager=request.user), Q.AND)
+        else:
+            filters.add(Q(manager=request.user), Q.AND)
         limit = self.request.query_params.get('limit', None)
         page = self.request.query_params.get('page') if int(
             self.request.query_params.get('page', 0)) > 0 else 0
-        type_ = request.query_params.get('type', 'manager')
         selecting_state = request.query_params.get('selectingState', None)
         # Filter
         campaign_name = request.query_params.get('campaign_name', None)
@@ -340,7 +344,6 @@ class CampaignView(ModelViewSet):
                 marketing_plan__condition__must__data__any=selecting_state), Q.OR)
         if campaign_name:
             filters.add(Q(name__icontains=campaign_name), Q.AND)
-
         if product_name:
             filters.add(
                 Q(packages__features__product__name__icontains=product_name), Q.AND)
@@ -363,7 +366,7 @@ class CampaignView(ModelViewSet):
             filters.add(
                 Q(end_date__lte=end_to), Q.AND)
         if type_ == 'both':
-            filters.add(Q(assigned_to=request.user), Q.OR)
+            # filters.add(Q(assigned_to=request.user), Q.OR)
             if selecting_state:
                 filters.add(
                     Q(marketing_plan__condition__must__contains={"operand": '2'}), Q.AND)
@@ -385,6 +388,7 @@ class CampaignView(ModelViewSet):
             filters.add(status_filters, Q.AND)
 
         queryset = Campaign.objects.filter(filters)
+        print(filters)
         # order
         name_order = request.query_params.get('name_order', None)
         product_order = request.query_params.get('product_order', None)
