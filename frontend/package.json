@@ -37,7 +37,7 @@
     "react-custom-scrollbars": "^4.2.1",
     "react-dates": "^20.2.0",
     "react-dom": "^16.8.5",
-    "react-draft-wysiwyg": "^1.13.2",
+    "react-draft-wysiwyg": "^1.14.6",
     "react-js-pagination": "^3.0.2",
     "react-jvectormap": "0.0.10",
     "react-number-format": "^4.0.7",
